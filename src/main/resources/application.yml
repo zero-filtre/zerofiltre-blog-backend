@@ -1,0 +1,20 @@
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+server:
+  port: 3534
+
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    password: password
+    url: jdbc:h2:mem:testdb
+    username: sa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+springdoc:
+  packagesToScan: tech.zerofiltre.blog
+  pathsToMatch: /**
