@@ -91,7 +91,7 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public Article articleById(@PathParam("id") long articleId) {
+    public Article articleById(@PathVariable("id") long articleId) {
         //return articleProvider.articleOfId(articleId).orElse(new Article());
         return mockArticle;
     }
