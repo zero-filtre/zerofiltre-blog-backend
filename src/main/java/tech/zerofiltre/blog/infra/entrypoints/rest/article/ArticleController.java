@@ -100,7 +100,12 @@ public class ArticleController {
     }
 
     @PostMapping
-    public Article publishArticle(@RequestBody Article article) {
+    public Article createArticle(@RequestBody Article article) {
+        return mockArticle;
+    }
+
+    @PatchMapping
+    public Article updateArticle(@RequestBody Article article) {
         return mockArticle;
     }
 }
