@@ -10,8 +10,6 @@ import java.time.*;
 import java.util.*;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @EqualsAndHashCode(callSuper = true)
 public class ArticleJPA extends BaseEntity {

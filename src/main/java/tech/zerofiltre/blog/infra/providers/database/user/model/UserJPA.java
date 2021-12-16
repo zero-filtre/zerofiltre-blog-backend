@@ -8,8 +8,6 @@ import java.time.*;
 
 @Data
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class UserJPA extends BaseEntity {
 

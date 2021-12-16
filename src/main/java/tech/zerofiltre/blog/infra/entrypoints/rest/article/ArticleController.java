@@ -6,7 +6,6 @@ import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import javax.annotation.*;
-import javax.websocket.server.*;
 import java.time.*;
 import java.util.*;
 
@@ -15,10 +14,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ArticleController {
 
-    private Article mockArticle = new Article();
-    private List<Article> mockArticles = new ArrayList<>();
-    private User user = new User();
-    private String content = "<div class=\"our-service__box\">\n" +
+    private final Article mockArticle = new Article();
+    private final List<Article> mockArticles = new ArrayList<>();
+    private final User user = new User();
+    private final String content = "<div class=\"our-service__box\">\n" +
             "          <div class=\"our-service__text\">\n" +
             "            <h1 class=\"our-service__title\">Des applications très évolutives alignées aux derniers standards.</h1>\n" +
             "            <div class=\"text-box wrap-text\">\n" +
@@ -91,20 +90,22 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public Article articleById(@PathParam("id") long articleId) {
-        //return articleProvider.articleOfId(articleId).orElse(new Article());
+    public Article articleById(@PathVariable("id") long articleId) {
         return mockArticle;
     }
 
     @GetMapping("/list")
     public List<Article> articleCards() {
-        //return articleProvider.articles();
         return mockArticles;
     }
 
     @PostMapping
-    public Article publishArticle(@RequestBody Article article) {
-        // return articleProvider.create(article);
+    public Article createArticle(@RequestBody Article article) {
+        return mockArticle;
+    }
+
+    @PatchMapping
+    public Article updateArticle(@RequestBody Article article) {
         return mockArticle;
     }
 }

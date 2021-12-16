@@ -6,9 +6,9 @@ import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
 
 @Mapper(uses = {TagJPAMapper.class, UserJPAMapper.class})
-public abstract class ArticleJPAMapper {
+public interface ArticleJPAMapper {
 
-    public abstract Article fromJPA(ArticleJPA articleJPA);
+    Article fromJPA(ArticleJPA articleJPA);
 
-    public abstract ArticleJPA toJPA(Article article);
+    ArticleJPA toJPA(Article article);
 }

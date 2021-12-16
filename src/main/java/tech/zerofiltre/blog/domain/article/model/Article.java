@@ -16,20 +16,6 @@ public class Article {
     private Status status;
     private List<Tag> tags;
 
-    public Article() {
-    }
-
-    public Article(long id, String title, String thumbnail, String content, User author, LocalDateTime publishedAt, List<Reaction> reactions, Status status, List<Tag> tags) {
-        this.id = id;
-        this.title = title;
-        this.thumbnail = thumbnail;
-        this.content = content;
-        this.author = author;
-        this.publishedAt = publishedAt;
-        this.reactions = reactions;
-        this.status = status;
-        this.tags = tags;
-    }
 
     public long getId() {
         return id;
