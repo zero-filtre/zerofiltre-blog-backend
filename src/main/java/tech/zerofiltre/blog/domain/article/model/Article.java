@@ -11,10 +11,12 @@ public class Article {
     private String thumbnail;
     private String content;
     private User author;
+    private final LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime publishedAt;
-    private List<Reaction> reactions;
+    private LocalDateTime lastPublishedAt;
+    private List<Reaction> reactions = new ArrayList<>();
     private Status status;
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
 
     public long getId() {
@@ -87,5 +89,17 @@ public class Article {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public LocalDateTime getLastPublishedAt() {
+        return lastPublishedAt;
+    }
+
+    public void setLastPublishedAt(LocalDateTime lastPublishedAt) {
+        this.lastPublishedAt = lastPublishedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

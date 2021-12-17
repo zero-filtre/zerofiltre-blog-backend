@@ -2,44 +2,109 @@ package tech.zerofiltre.blog.domain.article.useCases;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
+import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
 import java.util.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @ExtendWith(SpringExtension.class)
 class PublishArticleTest {
 
     private PublishArticle publishArticle;
 
+    @MockBean
     private ArticleProvider articleProvider;
-    private UserProvider userProvider;
-    private TagProvider tagProvider;
-
 
     @BeforeEach
     void init() {
-        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider);
+        publishArticle = new PublishArticle(articleProvider);
     }
 
     @Test
-    @DisplayName("Must produce a proper published article")
+    @DisplayName("Must set the status to published then save the article")
     void mustSetStatusToPublished() {
         //ARRANGE
-        Article mockArticle = createMockArticle();
+        LocalDateTime beforePublication = LocalDateTime.now();
+        Article mockArticle = createMockArticle(true);
+        mockArticle.setId(45);
+        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
-        publishArticle.execute(mockArticle);
+        Article publishedArticle = publishArticle.execute(mockArticle);
 
         //ASSERT
-        Assertions
+        verify(articleProvider, times(1)).save(mockArticle);
+        assertThat(publishedArticle).isNotNull();
+        assertThat(publishedArticle.getId()).isNotNull();
+
+        assertThat(publishedArticle.getCreatedAt()).isNotNull();
+        assertThat(publishedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);
+        assertThat(publishedArticle.getPublishedAt()).isNotNull();
+        assertThat(publishedArticle.getLastPublishedAt()).isNotNull();
+        assertThat(publishedArticle.getPublishedAt()).isBeforeOrEqualTo(publishedArticle.getLastPublishedAt());
+        assertThat(publishedArticle.getLastPublishedAt()).isAfterOrEqualTo(beforePublication);
+
+        assertThat(publishedArticle.getAuthor()).isEqualTo(mockArticle.getAuthor());
+        assertThat(publishedArticle.getContent()).isEqualTo(mockArticle.getContent());
+        assertThat(publishedArticle.getThumbnail()).isEqualTo(mockArticle.getThumbnail());
+        assertThat(publishedArticle.getTitle()).isEqualTo(mockArticle.getTitle());
+        assertThat(publishedArticle.getTags()).hasSameElementsAs(mockArticle.getTags());
+        assertThat(publishedArticle.getReactions()).hasSameElementsAs(mockArticle.getReactions());
+        assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
     }
 
-    private Article createMockArticle() {
+    @Test
+    @DisplayName("Must register article if it is not yet register")
+    void mustRegisterWhenPublishing() {
+        //ARRANGE
+        Article mockArticle = createMockArticle(true);
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> {
+            Article result = invocationOnMock.getArgument(0);
+            result.setId(45);
+            return result;
+        });
+
+        //ACT
+        Article publishedArticle = publishArticle.execute(mockArticle);
+
+        //ASSERT
+        verify(articleProvider, times(1)).save(mockArticle);
+        assertThat(publishedArticle).isNotNull();
+        assertThat(publishedArticle.getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Must save tags")
+    void mustSaveTags() {
+        //ARRANGE
+        Article mockArticle = createMockArticle(false);
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> {
+            Article article = invocationOnMock.getArgument(0);
+            article.getTags().forEach(tag -> tag.setId(4));
+            return article;
+        });
+
+        //ACT
+        Article publishedArticle = publishArticle.execute(mockArticle);
+
+        //ASSERT
+        verify(articleProvider, times(1)).save(mockArticle);
+        assertThat(publishedArticle).isNotNull();
+        assertThat(publishedArticle.getTags().size()).isEqualTo(3);
+        publishedArticle.getTags().forEach(tag -> assertThat(tag.getId()).isNotNull());
+    }
+
+    private Article createMockArticle(boolean withTagIds) {
         Article mockArticle = new Article();
         User user = new User();
         String content = "<div class=\"our-service__box\">\n" +
@@ -84,9 +149,18 @@ class PublishArticleTest {
                 "          </div>\n" +
                 "        </div>";
         List<Reaction> reactions = Arrays.asList(Reaction.CLAP, Reaction.CLAP, Reaction.FIRE, Reaction.FIRE, Reaction.LOVE);
-        Tag java = new Tag(12, "java");
-        Tag angular = new Tag(13, "angular");
-        Tag springBoot = new Tag(14, "spring-boot");
+        Tag java = new Tag();
+        java.setName("java");
+        Tag angular = new Tag();
+        angular.setName("angular");
+        Tag springBoot = new Tag();
+        springBoot.setName("java");
+        if (withTagIds) {
+            java.setId(12);
+            angular.setId(13);
+            springBoot.setId(14);
+        }
+
         List<Tag> tags = Arrays.asList(java, angular, springBoot);
         mockArticle.setThumbnail("https://i.ibb.co/TbFN2zC/landing-illustration.png");
         mockArticle.setAuthor(user);

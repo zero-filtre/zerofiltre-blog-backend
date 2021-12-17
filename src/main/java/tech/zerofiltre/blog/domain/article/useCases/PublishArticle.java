@@ -2,22 +2,23 @@ package tech.zerofiltre.blog.domain.article.useCases;
 
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.user.*;
+
+import java.time.*;
 
 public class PublishArticle {
 
     private final ArticleProvider articleProvider;
-    private final UserProvider userProvider;
-    private final TagProvider tagProvider;
 
-    public PublishArticle(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider) {
+    public PublishArticle(ArticleProvider articleProvider) {
         this.articleProvider = articleProvider;
-        this.userProvider = userProvider;
-        this.tagProvider = tagProvider;
     }
 
-    public Article execute(Article article){
-
-        return article;
+    public Article execute(Article article) {
+        LocalDateTime now = LocalDateTime.now();
+        article.setStatus(Status.PUBLISHED);
+        if (article.getPublishedAt() == null)
+            article.setPublishedAt(now);
+        article.setLastPublishedAt(now);
+        return articleProvider.save(article);
     }
 }

@@ -2,7 +2,9 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import lombok.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.article.useCases.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import javax.annotation.*;
@@ -13,6 +15,14 @@ import java.util.*;
 @RequestMapping("/article")
 @RequiredArgsConstructor
 public class ArticleController {
+
+    private final PublishArticle publishArticle;
+    private final ArticleProvider articleProvider;
+
+    public ArticleController(ArticleProvider articleProvider) {
+        this.articleProvider = articleProvider;
+        publishArticle = new PublishArticle(articleProvider);
+    }
 
     private final Article mockArticle = new Article();
     private final List<Article> mockArticles = new ArrayList<>();
@@ -100,12 +110,17 @@ public class ArticleController {
     }
 
     @PostMapping
-    public Article createArticle(@RequestBody Article article) {
-        return mockArticle;
+    public Article save(@RequestBody Article article) {
+        return articleProvider.save(article);
+    }
+
+    @PostMapping("/publish")
+    public Article publish(@RequestBody Article article) {
+        return publishArticle.execute(article);
     }
 
     @PatchMapping
-    public Article updateArticle(@RequestBody Article article) {
+    public Article update(@RequestBody Article article) {
         return mockArticle;
     }
 }

@@ -32,7 +32,7 @@ public class ArticleDatabaseProvider implements ArticleProvider {
     }
 
     @Override
-    public Article create(Article article) {
+    public Article save(Article article) {
         return mapper.fromJPA(repository.save(mapper.toJPA(article)));
     }
 

@@ -32,7 +32,7 @@ public class TagDatabaseProvider implements TagProvider {
     }
 
     @Override
-    public Tag create(Tag tag) {
+    public Tag save(Tag tag) {
         return mapper.fromJPA(repository.save(mapper.toJPA(tag)));
     }
 }
