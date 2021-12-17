@@ -49,7 +49,7 @@ podTemplate(label: label, containers: [
                 }
             }
         }finally{
-            deleteDir()
+            //send email
         }
 
     }
