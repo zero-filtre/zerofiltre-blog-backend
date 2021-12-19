@@ -3,9 +3,17 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
+    tech:
+      zerofiltre: DEBUG
 server:
   port: 80
 
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
+
+zerofiltre:
+  infra:
+    entrypoints:
+      rest:
+        allowed-origins-pattern: "blog-uat.zerofiltre.tech"
