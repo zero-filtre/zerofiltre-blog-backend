@@ -9,3 +9,9 @@ server:
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
+
+zerofiltre:
+  infra:
+    entrypoints:
+      rest:
+        allowed-origins-pattern: "blog.zerofiltre.tech"
