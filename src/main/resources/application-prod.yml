@@ -3,6 +3,8 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
+    tech:
+      zerofiltre: INFO
 server:
   port: 80
 
