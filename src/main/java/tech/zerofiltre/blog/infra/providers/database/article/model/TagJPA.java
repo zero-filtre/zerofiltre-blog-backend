@@ -9,6 +9,7 @@ import java.util.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@Table(name = "tag")
 public class TagJPA extends BaseEntity {
 
     @ManyToMany(

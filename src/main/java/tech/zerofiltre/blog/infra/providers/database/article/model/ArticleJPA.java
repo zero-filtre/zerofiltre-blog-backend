@@ -11,6 +11,7 @@ import java.util.*;
 
 @Data
 @Entity
+@Table(name = "article")
 @EqualsAndHashCode(callSuper = true)
 public class ArticleJPA extends BaseEntity {
 
@@ -26,9 +27,9 @@ public class ArticleJPA extends BaseEntity {
     private LocalDateTime lastPublishedAt;
     private LocalDateTime lastSavedAt;
 
-    @ElementCollection
-    @CollectionTable(name = "reactions", joinColumns = @JoinColumn(name = "article_id"))
-    private List<Reaction> reactions;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Column(name = "reactions",nullable = false)
+    private Set<Reaction> reactions;
 
     private Status status;
 
@@ -38,5 +39,5 @@ public class ArticleJPA extends BaseEntity {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<TagJPA> tags;
+    private Set<TagJPA> tags;
 }
