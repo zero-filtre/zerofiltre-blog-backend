@@ -11,9 +11,10 @@ public class Article {
     private String thumbnail;
     private String content;
     private User author;
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
     private LocalDateTime publishedAt;
     private LocalDateTime lastPublishedAt;
+    private LocalDateTime lastSavedAt;
     private List<Reaction> reactions = new ArrayList<>();
     private Status status;
     private List<Tag> tags = new ArrayList<>();
@@ -101,5 +102,17 @@ public class Article {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getLastSavedAt() {
+        return lastSavedAt;
+    }
+
+    public void setLastSavedAt(LocalDateTime lastSavedAt) {
+        this.lastSavedAt = lastSavedAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

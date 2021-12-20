@@ -15,4 +15,6 @@ public class TagJPA extends BaseEntity {
             fetch = FetchType.LAZY,
             mappedBy = "tags")
     private List<ArticleJPA> articles;
+
+    private String name;
 }

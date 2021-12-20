@@ -10,16 +10,13 @@ public class ZerofiltreUtils {
 
 
     public static Article createMockArticle(boolean withTagIds) {
+        User user = createMockUser();
+        List<Tag> tags = createMockTags(withTagIds);
+        return createMockArticle(user, tags);
+    }
+
+    public static Article createMockArticle(User user, List<Tag> tags) {
         Article mockArticle = new Article();
-        User user = new User();
-        user.setId(5);
-        user.setFirstName("Philippe");
-        user.setLastName("GUEMKAM SIMO");
-        user.setPseudoName("imphilippesimo");
-        user.setRegisteredOn(LocalDateTime.now().minusDays(50));
-        user.setProfilePicture("https://i.ibb.co/QKX6gyr/profile-pic.jpg");
-
-
         String content = "<div class=\"our-service__box\">\n" +
                 "          <div class=\"our-service__text\">\n" +
                 "            <h1 class=\"our-service__title\">Des applications très évolutives alignées aux derniers standards.</h1>\n" +
@@ -62,6 +59,30 @@ public class ZerofiltreUtils {
                 "          </div>\n" +
                 "        </div>";
         List<Reaction> reactions = Arrays.asList(Reaction.CLAP, Reaction.CLAP, Reaction.FIRE, Reaction.FIRE, Reaction.LOVE);
+
+        mockArticle.setThumbnail("https://i.ibb.co/TbFN2zC/landing-illustration.png");
+        mockArticle.setAuthor(user);
+        mockArticle.setContent(content);
+        mockArticle.setReactions(reactions);
+        mockArticle.setStatus(Status.DRAFT);
+        mockArticle.setTitle("Des applications très évolutives alignées aux derniers standards.");
+
+        mockArticle.setTags(tags);
+        return mockArticle;
+    }
+
+    public static User createMockUser() {
+        User user = new User();
+        user.setId(5);
+        user.setFirstName("Philippe");
+        user.setLastName("GUEMKAM SIMO");
+        user.setPseudoName("imphilippesimo");
+        user.setRegisteredOn(LocalDateTime.now().minusDays(50));
+        user.setProfilePicture("https://i.ibb.co/QKX6gyr/profile-pic.jpg");
+        return user;
+    }
+
+    public static List<Tag> createMockTags(boolean withTagIds) {
         Tag java = new Tag();
         java.setName("java");
         Tag angular = new Tag();
@@ -74,14 +95,6 @@ public class ZerofiltreUtils {
             springBoot.setId(14);
         }
 
-        List<Tag> tags = Arrays.asList(java, angular, springBoot);
-        mockArticle.setThumbnail("https://i.ibb.co/TbFN2zC/landing-illustration.png");
-        mockArticle.setAuthor(user);
-        mockArticle.setContent(content);
-        mockArticle.setReactions(reactions);
-        mockArticle.setStatus(Status.DRAFT);
-        mockArticle.setTitle("Des applications très évolutives alignées aux derniers standards.");
-        mockArticle.setTags(tags);
-        return mockArticle;
+        return Arrays.asList(java, angular, springBoot);
     }
 }

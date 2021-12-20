@@ -10,5 +10,5 @@ public interface TagProvider {
 
     List<Tag> tags();
 
-    Tag save(Tag tag);
+    Tag create(Tag tag);
 }

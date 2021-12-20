@@ -21,7 +21,10 @@ public class ArticleJPA extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private UserJPA author;
+    private LocalDateTime createdAt;
     private LocalDateTime publishedAt;
+    private LocalDateTime lastPublishedAt;
+    private LocalDateTime lastSavedAt;
 
     @ElementCollection
     @CollectionTable(name = "reactions", joinColumns = @JoinColumn(name = "article_id"))

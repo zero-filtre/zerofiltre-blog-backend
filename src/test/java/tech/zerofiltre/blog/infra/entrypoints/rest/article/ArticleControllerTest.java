@@ -12,7 +12,10 @@ import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.util.*;
+
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -25,6 +28,13 @@ class ArticleControllerTest {
     @MockBean
     ArticleProvider articleProvider;
 
+    @MockBean
+    UserProvider userProvider;
+
+    @MockBean
+    TagProvider tagProvider;
+
+
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);
 
     @Autowired
@@ -33,12 +43,18 @@ class ArticleControllerTest {
     @Autowired
     private Jackson2ObjectMapperBuilder objectMapperBuilder;
 
+    @BeforeEach
+    void init() {
+        //ARRANGE
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
+        when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
+        when(articleProvider.save(any())).thenReturn(mockArticle);
+    }
+
 
     @Test
     void onArticleSave_whenValidInput_thenReturn200() throws Exception {
 
-        //ARRANGE
-        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/article")
@@ -56,8 +72,6 @@ class ArticleControllerTest {
     @Test
     void onArticlePublish_whenValidInput_thenReturn200() throws Exception {
 
-        //ARRANGE
-        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/article/publish")
@@ -75,8 +89,6 @@ class ArticleControllerTest {
     @Test
     void onArticleUpdate_whenValidInput_thenReturn200() throws Exception {
 
-        //ARRANGE
-        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.patch("/article")
@@ -94,8 +106,6 @@ class ArticleControllerTest {
     @Test
     void onArticleById_whenValidInput_thenReturn200() throws Exception {
 
-        //ARRANGE
-        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/article/12");
@@ -112,8 +122,6 @@ class ArticleControllerTest {
     @Test
     void onArticleCards_whenValidInput_thenReturn200() throws Exception {
 
-        //ARRANGE
-        when(articleProvider.save(any())).thenReturn(mockArticle);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/article/list");

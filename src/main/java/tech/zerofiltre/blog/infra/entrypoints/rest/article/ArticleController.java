@@ -3,7 +3,8 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.useCases.*;
+import tech.zerofiltre.blog.domain.article.use_cases.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.util.*;
 
 import javax.annotation.*;
@@ -16,11 +17,13 @@ public class ArticleController {
 
     private final ArticleProvider articleProvider;
     private final PublishArticle publishArticle;
+    private final SaveArticle saveArticle;
 
 
-    public ArticleController(ArticleProvider articleProvider) {
+    public ArticleController(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider) {
         this.articleProvider = articleProvider;
-        publishArticle = new PublishArticle(articleProvider);
+        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider);
+        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider);
     }
 
     private final Article mockArticle = ZerofiltreUtils.createMockArticle(true);
@@ -48,12 +51,12 @@ public class ArticleController {
     }
 
     @PostMapping
-    public Article save(@RequestBody Article article) {
-        return articleProvider.save(article);
+    public Article save(@RequestBody Article article) throws SaveArticleException {
+        return saveArticle.execute(article);
     }
 
     @PostMapping("/publish")
-    public Article publish(@RequestBody Article article) {
+    public Article publish(@RequestBody Article article) throws PublishArticleException {
         return publishArticle.execute(article);
     }
 
