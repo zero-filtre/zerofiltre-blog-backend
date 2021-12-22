@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class})
+@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class, ReactionDatabaseProvider.class})
 class SaveArticleIT {
 
     private SaveArticle saveArticle;
@@ -35,9 +35,12 @@ class SaveArticleIT {
     @Autowired
     private UserProvider userProvider;
 
+    @Autowired
+    private ReactionProvider reactionProvider;
+
     @BeforeEach
     void init() {
-        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider);
+        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider, reactionProvider);
     }
 
     @Test
@@ -51,7 +54,8 @@ class SaveArticleIT {
                 .map(tag -> tagProvider.create(tag))
                 .collect(Collectors.toList());
 
-        Article mockArticle = ZerofiltreUtils.createMockArticle(mockUser, tags);
+
+        Article mockArticle = ZerofiltreUtils.createMockArticle(mockUser, tags, new ArrayList<>());
 
 
         //ACT
@@ -85,12 +89,14 @@ class SaveArticleIT {
         List<Tag> articleTags = mockArticle.getTags();
 
         assertThat(publishedArticleTags.size()).isEqualTo(articleTags.size());
-        for (int i = 0; i < publishedArticleTags.size(); i++) {
-            assertThat(publishedArticleTags.get(i).getId()).isEqualTo(articleTags.get(i).getId());
-            assertThat(publishedArticleTags.get(i).getName()).isEqualTo(articleTags.get(i).getName());
-        }
 
-        assertThat(publishedArticle.getReactions()).hasSameElementsAs(mockArticle.getReactions());
+        assertThat(publishedArticleTags.stream().anyMatch(tag ->
+                articleTags.stream().anyMatch(tag1 ->
+                        tag.getId() == tag1.getId() &&
+                                tag.getName().equals(tag1.getName())
+                )
+        )).isTrue();
+
         assertThat(publishedArticle.getStatus()).isEqualTo(DRAFT);
 
     }

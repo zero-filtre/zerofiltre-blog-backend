@@ -28,10 +28,12 @@ class SaveArticleTest {
     private TagProvider tagProvider;
     @MockBean
     private UserProvider userProvider;
+    @MockBean
+    private ReactionProvider reactionProvider;
 
     @BeforeEach
     void init() {
-        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider);
+        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider, reactionProvider);
     }
 
     @Test
@@ -44,6 +46,8 @@ class SaveArticleTest {
         when(articleProvider.save(any())).thenReturn(mockArticle);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
+
 
         //ACT
         Article publishedArticle = saveArticle.execute(mockArticle);
@@ -80,6 +84,8 @@ class SaveArticleTest {
         });
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
+
 
         //ACT
         Article publishedArticle = saveArticle.execute(mockArticle);
@@ -102,6 +108,8 @@ class SaveArticleTest {
         });
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.empty());
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
+
 
         //ACT & ASSERT
         assertThatExceptionOfType(SaveArticleException.class).isThrownBy(() -> saveArticle.execute(mockArticle));
@@ -119,6 +127,28 @@ class SaveArticleTest {
         });
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.empty());
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
+
+
+        //ACT & ASSERT
+        assertThatExceptionOfType(SaveArticleException.class).isThrownBy(() -> saveArticle.execute(mockArticle));
+
+    }
+
+    @Test
+    @DisplayName("Must throw SaveArticleException if the article has unsaved reactions")
+    void mustThrowExceptionOnUnknownReactions() {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> {
+            Article result = invocationOnMock.getArgument(0);
+            result.setId(45);
+            return result;
+        });
+
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
+        when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.empty());
 
         //ACT & ASSERT
         assertThatExceptionOfType(SaveArticleException.class).isThrownBy(() -> saveArticle.execute(mockArticle));

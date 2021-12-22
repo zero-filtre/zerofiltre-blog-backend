@@ -20,10 +20,10 @@ public class ArticleController {
     private final SaveArticle saveArticle;
 
 
-    public ArticleController(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider) {
+    public ArticleController(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider, ReactionProvider reactionProvider) {
         this.articleProvider = articleProvider;
-        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider);
-        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider);
+        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider, reactionProvider);
+        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider, reactionProvider);
     }
 
     private final Article mockArticle = ZerofiltreUtils.createMockArticle(true);

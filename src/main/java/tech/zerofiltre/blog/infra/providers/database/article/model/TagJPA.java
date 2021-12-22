@@ -10,7 +10,7 @@ import java.util.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tag")
-public class TagJPA extends BaseEntity {
+public class TagJPA extends BaseEntityJPA {
 
     @ManyToMany(
             fetch = FetchType.LAZY,

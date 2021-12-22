@@ -12,11 +12,13 @@ public class PublishArticle {
     private final ArticleProvider articleProvider;
     private final UserProvider userProvider;
     private final TagProvider tagProvider;
+    private final ReactionProvider reactionProvider;
 
-    public PublishArticle(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider) {
+    public PublishArticle(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider, ReactionProvider reactionProvider) {
         this.articleProvider = articleProvider;
         this.userProvider = userProvider;
         this.tagProvider = tagProvider;
+        this.reactionProvider = reactionProvider;
     }
 
 
@@ -24,6 +26,7 @@ public class PublishArticle {
         LocalDateTime now = LocalDateTime.now();
         checkTags(article);
         checkAuthor(article);
+        checkReactions(article);
         article.setStatus(Status.PUBLISHED);
 
         if (article.getCreatedAt() == null)
@@ -36,6 +39,8 @@ public class PublishArticle {
 
         return articleProvider.save(article);
     }
+
+
 
     private void checkAuthor(Article article) throws PublishArticleException {
 
@@ -52,6 +57,13 @@ public class PublishArticle {
         for (Tag tag : article.getTags()) {
             if (tagProvider.tagOfId(tag.getId()).isEmpty())
                 throw new PublishArticleException("Can not find a tag with id " + tag.getId());
+        }
+    }
+
+    private void checkReactions(Article article) throws PublishArticleException {
+        for (Reaction reaction : article.getReactions()) {
+            if (reactionProvider.reactionOfId(reaction.getId()).isEmpty())
+                throw new PublishArticleException("An article can not be published with unknown reactions. Can not find a reaction with id: " + reaction.getId());
         }
     }
 }

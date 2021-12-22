@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class})
+@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class, ReactionDatabaseProvider.class})
 class PublishArticleIT {
 
     private PublishArticle publishArticle;
@@ -35,9 +35,12 @@ class PublishArticleIT {
     @Autowired
     private UserProvider userProvider;
 
+    @Autowired
+    private ReactionProvider reactionProvider;
+
     @BeforeEach
     void init() {
-        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider);
+        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider, reactionProvider);
     }
 
     @Test
@@ -51,7 +54,7 @@ class PublishArticleIT {
                 .map(tag -> tagProvider.create(tag))
                 .collect(Collectors.toList());
 
-        Article mockArticle = ZerofiltreUtils.createMockArticle(mockUser, tags);
+        Article mockArticle = ZerofiltreUtils.createMockArticle(mockUser, tags, new ArrayList<>());
 
 
         //ACT
@@ -85,17 +88,21 @@ class PublishArticleIT {
         assertThat(publishedArticle.getTitle()).isEqualTo(mockArticle.getTitle());
 
         List<Tag> publishedArticleTags = publishedArticle.getTags();
+        List<Reaction> publishedArticleReactions = publishedArticle.getReactions();
         List<Tag> articleTags = mockArticle.getTags();
+        List<Reaction> articleReactions = mockArticle.getReactions();
 
         assertThat(publishedArticleTags.size()).isEqualTo(articleTags.size());
-        for (int i = 0; i < publishedArticleTags.size(); i++) {
-            assertThat(publishedArticleTags.get(i).getId()).isEqualTo(articleTags.get(i).getId());
-            assertThat(publishedArticleTags.get(i).getName()).isEqualTo(articleTags.get(i).getName());
-        }
 
-        assertThat(publishedArticle.getReactions()).hasSameElementsAs(mockArticle.getReactions());
+        assertThat(publishedArticleTags.stream().anyMatch(tag ->
+                articleTags.stream().anyMatch(tag1 ->
+                        tag.getId() == tag1.getId() &&
+                                tag.getName().equals(tag1.getName())
+                )
+        )).isTrue();
 
         assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
     }
+
 
 }

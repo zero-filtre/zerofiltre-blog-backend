@@ -34,6 +34,9 @@ class ArticleControllerTest {
     @MockBean
     TagProvider tagProvider;
 
+    @MockBean
+    ReactionProvider reactionProvider;
+
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);
 
@@ -49,6 +52,8 @@ class ArticleControllerTest {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
+        when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
+
     }
 
 

@@ -13,10 +13,11 @@ import java.util.*;
 @Entity
 @Table(name = "article")
 @EqualsAndHashCode(callSuper = true)
-public class ArticleJPA extends BaseEntity {
+public class ArticleJPA extends BaseEntityJPA {
 
     private String title;
     private String thumbnail;
+    @Lob
     private String content;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -27,9 +28,9 @@ public class ArticleJPA extends BaseEntity {
     private LocalDateTime lastPublishedAt;
     private LocalDateTime lastSavedAt;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Column(name = "reactions",nullable = false)
-    private Set<Reaction> reactions;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "article")
+    private Set<ReactionJPA> reactions;
 
     private Status status;
 

@@ -8,14 +8,17 @@ import java.util.*;
 
 public class ZerofiltreUtils {
 
+    private ZerofiltreUtils() {
+    }
 
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser();
+        List<Reaction> reactions = createMockReactions(true);
         List<Tag> tags = createMockTags(withTagIds);
-        return createMockArticle(user, tags);
+        return createMockArticle(user, tags, reactions);
     }
 
-    public static Article createMockArticle(User user, List<Tag> tags) {
+    public static Article createMockArticle(User user, List<Tag> tags, List<Reaction> reactions) {
         Article mockArticle = new Article();
         String content = "<div class=\"our-service__box\">\n" +
                 "          <div class=\"our-service__text\">\n" +
@@ -58,7 +61,7 @@ public class ZerofiltreUtils {
                 "            <img src=\"https://i.ibb.co/TbFN2zC/landing-illustration.png\" alt=\"our-service\" class=\"img-fluid\">\n" +
                 "          </div>\n" +
                 "        </div>";
-        List<Reaction> reactions = Arrays.asList(Reaction.CLAP, Reaction.CLAP, Reaction.FIRE, Reaction.FIRE, Reaction.LOVE);
+
 
         mockArticle.setThumbnail("https://i.ibb.co/TbFN2zC/landing-illustration.png");
         mockArticle.setAuthor(user);
@@ -88,7 +91,7 @@ public class ZerofiltreUtils {
         Tag angular = new Tag();
         angular.setName("angular");
         Tag springBoot = new Tag();
-        springBoot.setName("java");
+        springBoot.setName("spring-boot");
         if (withTagIds) {
             java.setId(12);
             angular.setId(13);
@@ -96,5 +99,25 @@ public class ZerofiltreUtils {
         }
 
         return Arrays.asList(java, angular, springBoot);
+    }
+
+    public static List<Reaction> createMockReactions(boolean withReactionIds) {
+        Reaction clap = new Reaction();
+        clap.setAction(Reaction.Action.CLAP);
+        Reaction like = new Reaction();
+        like.setAction(Reaction.Action.LIKE);
+        Reaction love = new Reaction();
+        love.setAction(Reaction.Action.LOVE);
+        Reaction fire = new Reaction();
+        fire.setAction(Reaction.Action.FIRE);
+        Reaction fire2 = new Reaction();
+        fire2.setAction(Reaction.Action.FIRE);
+        if (withReactionIds) {
+            clap.setId(11);
+            like.setId(25);
+            fire.setId(35);
+            fire2.setId(47);
+        }
+        return Arrays.asList(clap, like, love, fire, fire2);
     }
 }

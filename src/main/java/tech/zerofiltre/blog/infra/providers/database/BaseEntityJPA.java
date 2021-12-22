@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Data
 @MappedSuperclass
-public class BaseEntity {
+public class BaseEntityJPA {
 
     @Id
     @GeneratedValue(
