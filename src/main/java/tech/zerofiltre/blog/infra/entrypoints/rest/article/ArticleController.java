@@ -8,8 +8,6 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 import tech.zerofiltre.blog.util.*;
 
-import javax.annotation.*;
-import java.time.*;
 import java.util.*;
 
 @RestController
@@ -18,35 +16,24 @@ public class ArticleController {
 
     private final PublishOrSaveArticle publishOrSaveArticle;
     private final InitArticle initArticle;
+    private final FindArticle findArticle;
 
 
     public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider) {
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
         initArticle = new InitArticle(articleProvider);
+        findArticle = new FindArticle(articleProvider);
     }
 
-    private final Article mockArticle = ZerofiltreUtils.createMockArticle(true);
-    private final List<Article> mockArticles = new ArrayList<>();
-
-
-    @PostConstruct
-    void setup() {
-        for (long i = 0; i < 20; i++) {
-            mockArticle.setId(i + 1);
-            mockArticle.setPublishedAt(LocalDateTime.now().minusDays(i));
-            mockArticles.add(mockArticle);
-        }
-
-    }
 
     @GetMapping("/{id}")
-    public Article articleById(@PathVariable("id") long articleId) {
-        return mockArticle;
+    public Article articleById(@PathVariable("id") long articleId) throws FindArticleException {
+        return findArticle.byId(articleId);
     }
 
     @GetMapping("/list")
-    public List<Article> articleCards() {
-        return mockArticles;
+    public List<Article> articleCards(@RequestParam int pageNumber, @RequestParam int pageSize) {
+        return findArticle.of(pageNumber, pageSize);
     }
 
     @PatchMapping
