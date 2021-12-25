@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
 import java.util.*;
 import java.util.stream.*;
@@ -15,30 +14,28 @@ import java.util.stream.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ArticleDatabaseProvider implements ArticleProvider {
+public class ReactionDatabaseProvider implements ReactionProvider {
 
-    private final ArticleJPARepository repository;
-    private final ArticleJPAMapper mapper = Mappers.getMapper(ArticleJPAMapper.class);
+    private final ReactionJPARepository repository;
+    private final ReactionJPAMapper mapper = Mappers.getMapper(ReactionJPAMapper.class);
 
 
     @Override
-    public Optional<Article> articleOfId(long articleId) {
-        return repository.findById(articleId)
+    public Optional<Reaction> reactionOfId(long reactionId) {
+        return repository.findById(reactionId)
                 .map(mapper::fromJPA);
     }
 
     @Override
-    public List<Article> articles() {
+    public List<Reaction> reactions() {
         return repository.findAll()
                 .stream().map(mapper::fromJPA)
                 .collect(Collectors.toList());
     }
 
+
     @Override
-    public Article save(Article article) {
-        ArticleJPA save = repository.save(mapper.toJPA(article));
-        return mapper.fromJPA(save);
+    public Reaction create(Reaction reaction) {
+        return mapper.fromJPA(repository.save(mapper.toJPA(reaction)));
     }
-
-
 }

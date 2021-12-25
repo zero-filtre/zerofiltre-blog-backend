@@ -10,7 +10,7 @@ public interface ArticleProvider {
 
     List<Article> articles();
 
-    Article create(Article article);
+    Article save(Article article);
 
 
 }

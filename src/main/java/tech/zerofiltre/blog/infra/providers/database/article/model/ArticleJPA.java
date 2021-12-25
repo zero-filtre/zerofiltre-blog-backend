@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.database.article.model;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.*;
@@ -11,29 +12,35 @@ import java.util.*;
 
 @Data
 @Entity
+@Table(name = "article")
 @EqualsAndHashCode(callSuper = true)
-public class ArticleJPA extends BaseEntity {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ArticleJPA extends BaseEntityJPA {
 
     private String title;
     private String thumbnail;
+    @Lob
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "author_id")
     private UserJPA author;
+    private LocalDateTime createdAt;
     private LocalDateTime publishedAt;
+    private LocalDateTime lastPublishedAt;
+    private LocalDateTime lastSavedAt;
 
-    @ElementCollection
-    @CollectionTable(name = "reactions", joinColumns = @JoinColumn(name = "article_id"))
-    private List<Reaction> reactions;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Set<ReactionJPA> reactions;
 
     private Status status;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "article_tag",
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<TagJPA> tags;
+    private Set<TagJPA> tags;
 }

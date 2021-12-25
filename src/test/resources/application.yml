@@ -10,13 +10,12 @@ server:
 
 spring:
   datasource:
-    username: blog-api-uat
-    password: h4rC5bepK7WvgrLE
-    url: jdbc:mysql://mysql-df836d42-o3bc71320.database.cloud.ovh.net:20184/blogapidb_dev
+    driverClassName: org.h2.Driver
+    password: password
+    url: jdbc:h2:mem:testdb
+    username: sa
   jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
 
 springdoc:
   packagesToScan: tech.zerofiltre.blog

@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.infra.providers.database.user;
 import lombok.*;
 import org.mapstruct.factory.*;
 import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
@@ -11,6 +12,7 @@ import java.util.*;
 import java.util.stream.*;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class UserDatabaseProvider implements UserProvider {
     private final UserJPARepository repository;

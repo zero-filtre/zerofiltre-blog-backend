@@ -9,7 +9,8 @@ import java.time.*;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-public class UserJPA extends BaseEntity {
+@Table(name = "user")
+public class UserJPA extends BaseEntityJPA {
 
     private String pseudoName;
     private String firstName;

@@ -22,7 +22,7 @@ podTemplate(label: label, containers: [
             stage('Sonarqube Analysis') {
                 withSonarQubeEnv('SonarQubeServer') {
                     container('maven') {
-                        sh " mvn sonar:sonar -Dintegration-tests.skip=true -Dmaven.test.failure.ignore=true"
+                        sh " mvn sonar:sonar -s .m2/settings.xml -Dintegration-tests.skip=true -Dmaven.test.failure.ignore=true"
                     }
                 }
                 timeout(time: 1, unit: 'MINUTES') {

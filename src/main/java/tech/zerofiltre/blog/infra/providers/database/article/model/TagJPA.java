@@ -9,10 +9,13 @@ import java.util.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-public class TagJPA extends BaseEntity {
+@Table(name = "tag")
+public class TagJPA extends BaseEntityJPA {
 
     @ManyToMany(
             fetch = FetchType.LAZY,
             mappedBy = "tags")
     private List<ArticleJPA> articles;
+
+    private String name;
 }
