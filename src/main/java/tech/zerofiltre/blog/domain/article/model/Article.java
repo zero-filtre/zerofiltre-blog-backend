@@ -115,4 +115,17 @@ public class Article {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Article)) return false;
+        Article article = (Article) o;
+        return getId() == article.getId() && Objects.equals(getTitle(), article.getTitle()) && Objects.equals(getThumbnail(), article.getThumbnail()) && Objects.equals(getContent(), article.getContent()) && Objects.equals(getAuthor(), article.getAuthor()) && Objects.equals(getCreatedAt(), article.getCreatedAt()) && Objects.equals(getPublishedAt(), article.getPublishedAt()) && Objects.equals(getLastPublishedAt(), article.getLastPublishedAt()) && Objects.equals(getLastSavedAt(), article.getLastSavedAt()) && Objects.equals(getReactions(), article.getReactions()) && getStatus() == article.getStatus() && Objects.equals(getTags(), article.getTags());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle(), getThumbnail(), getContent(), getAuthor(), getCreatedAt(), getPublishedAt(), getLastPublishedAt(), getLastSavedAt(), getReactions(), getStatus(), getTags());
+    }
 }
