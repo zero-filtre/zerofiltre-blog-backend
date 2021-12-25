@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Article {
     private long id;
-    private String title;
+    private String title = "Donnez-moi un titre!";
     private String thumbnail;
     private String content;
     private User author;

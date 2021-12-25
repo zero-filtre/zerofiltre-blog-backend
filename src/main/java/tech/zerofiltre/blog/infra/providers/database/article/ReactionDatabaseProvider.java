@@ -35,7 +35,7 @@ public class ReactionDatabaseProvider implements ReactionProvider {
 
 
     @Override
-    public Reaction save(Reaction reaction) {
+    public Reaction create(Reaction reaction) {
         return mapper.fromJPA(repository.save(mapper.toJPA(reaction)));
     }
 }

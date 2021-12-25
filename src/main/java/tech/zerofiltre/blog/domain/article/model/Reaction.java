@@ -7,8 +7,8 @@ public class Reaction {
 
     private long id;
     private Action action;
-    private Article article;
     private User author;
+    private long articleId;
 
     public long getId() {
         return id;
@@ -26,20 +26,20 @@ public class Reaction {
         this.action = action;
     }
 
-    public Article getArticle() {
-        return article;
-    }
-
-    public void setArticle(Article article) {
-        this.article = article;
-    }
-
     public User getAuthor() {
         return author;
     }
 
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(long articleId) {
+        this.articleId = articleId;
     }
 
 

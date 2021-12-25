@@ -13,13 +13,15 @@ public class ZerofiltreUtils {
 
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser();
-        List<Reaction> reactions = createMockReactions(true);
+        List<Reaction> reactions = createMockReactions(true, 1, user);
         List<Tag> tags = createMockTags(withTagIds);
         return createMockArticle(user, tags, reactions);
     }
 
     public static Article createMockArticle(User user, List<Tag> tags, List<Reaction> reactions) {
         Article mockArticle = new Article();
+        mockArticle.setId(1);
+        mockArticle.setCreatedAt(LocalDateTime.now());
         String content = "<div class=\"our-service__box\">\n" +
                 "          <div class=\"our-service__text\">\n" +
                 "            <h1 class=\"our-service__title\">Des applications très évolutives alignées aux derniers standards.</h1>\n" +
@@ -76,7 +78,7 @@ public class ZerofiltreUtils {
 
     public static User createMockUser() {
         User user = new User();
-        user.setId(5);
+        user.setId(1);
         user.setFirstName("Philippe");
         user.setLastName("GUEMKAM SIMO");
         user.setPseudoName("imphilippesimo");
@@ -101,7 +103,7 @@ public class ZerofiltreUtils {
         return Arrays.asList(java, angular, springBoot);
     }
 
-    public static List<Reaction> createMockReactions(boolean withReactionIds) {
+    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, User author) {
         Reaction clap = new Reaction();
         clap.setAction(Reaction.Action.CLAP);
         Reaction like = new Reaction();
@@ -118,6 +120,12 @@ public class ZerofiltreUtils {
             fire.setId(35);
             fire2.setId(47);
         }
-        return Arrays.asList(clap, like, love, fire, fire2);
+        List<Reaction> result = Arrays.asList(clap, like, love, fire, fire2);
+        result.forEach(reaction -> {
+            reaction.setArticleId(articleId);
+            reaction.setAuthor(author);
+        });
+        return result;
+
     }
 }

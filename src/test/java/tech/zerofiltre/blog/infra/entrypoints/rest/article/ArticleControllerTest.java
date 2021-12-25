@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -39,6 +40,13 @@ class ArticleControllerTest {
 
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+    PublishOrSaveArticleVM publishOrSaveArticleVM = new PublishOrSaveArticleVM(
+            mockArticle.getId(),
+            mockArticle.getTitle(),
+            mockArticle.getThumbnail(),
+            mockArticle.getContent(),
+            mockArticle.getTags()
+    );
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,19 +60,19 @@ class ArticleControllerTest {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle));
         when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
 
     }
 
 
     @Test
-    void onArticleSave_whenValidInput_thenReturn200() throws Exception {
+    void onArticleInit_whenValidInput_thenReturn200() throws Exception {
 
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/article")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(mockArticle));
+                .param("title",TITLE);
 
         //ASSERT
         mockMvc.perform(request)
@@ -79,9 +87,9 @@ class ArticleControllerTest {
 
 
         //ACT
-        RequestBuilder request = MockMvcRequestBuilders.post("/article/publish")
+        RequestBuilder request = MockMvcRequestBuilders.patch("/article/publish")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(mockArticle));
+                .content(asJsonString(publishOrSaveArticleVM));
 
         //ASSERT
         mockMvc.perform(request)
@@ -92,13 +100,13 @@ class ArticleControllerTest {
     }
 
     @Test
-    void onArticleUpdate_whenValidInput_thenReturn200() throws Exception {
+    void onArticleSave_whenValidInput_thenReturn200() throws Exception {
 
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.patch("/article")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(mockArticle));
+                .content(asJsonString(publishOrSaveArticleVM));
 
         //ASSERT
         mockMvc.perform(request)
@@ -107,6 +115,7 @@ class ArticleControllerTest {
                 .andExpect(jsonPath("$.title").value(TITLE));
 
     }
+
 
     @Test
     void onArticleById_whenValidInput_thenReturn200() throws Exception {

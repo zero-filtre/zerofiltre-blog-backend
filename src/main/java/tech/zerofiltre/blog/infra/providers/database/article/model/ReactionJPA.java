@@ -15,9 +15,7 @@ public class ReactionJPA extends BaseEntityJPA {
 
     private Reaction.Action action;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id")
-    private ArticleJPA article;
+    private long articleId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")

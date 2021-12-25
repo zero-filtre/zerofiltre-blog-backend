@@ -4,7 +4,8 @@ import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 import tech.zerofiltre.blog.util.*;
 
 import javax.annotation.*;
@@ -15,15 +16,13 @@ import java.util.*;
 @RequestMapping("/article")
 public class ArticleController {
 
-    private final ArticleProvider articleProvider;
-    private final PublishArticle publishArticle;
-    private final SaveArticle saveArticle;
+    private final PublishOrSaveArticle publishOrSaveArticle;
+    private final InitArticle initArticle;
 
 
-    public ArticleController(ArticleProvider articleProvider, UserProvider userProvider, TagProvider tagProvider, ReactionProvider reactionProvider) {
-        this.articleProvider = articleProvider;
-        publishArticle = new PublishArticle(articleProvider, userProvider, tagProvider, reactionProvider);
-        saveArticle = new SaveArticle(articleProvider, userProvider, tagProvider, reactionProvider);
+    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider) {
+        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
+        initArticle = new InitArticle(articleProvider);
     }
 
     private final Article mockArticle = ZerofiltreUtils.createMockArticle(true);
@@ -32,7 +31,7 @@ public class ArticleController {
 
     @PostConstruct
     void setup() {
-        for (int i = 0; i < 20; i++) {
+        for (long i = 0; i < 20; i++) {
             mockArticle.setId(i + 1);
             mockArticle.setPublishedAt(LocalDateTime.now().minusDays(i));
             mockArticles.add(mockArticle);
@@ -50,18 +49,39 @@ public class ArticleController {
         return mockArticles;
     }
 
-    @PostMapping
-    public Article save(@RequestBody Article article) throws SaveArticleException {
-        return saveArticle.execute(article);
-    }
-
-    @PostMapping("/publish")
-    public Article publish(@RequestBody Article article) throws PublishArticleException {
-        return publishArticle.execute(article);
-    }
-
     @PatchMapping
-    public Article update(@RequestBody Article article) {
-        return articleProvider.save(article);
+    public Article save(@RequestBody PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
+        return publishOrSaveArticle.execute(
+                publishOrSaveArticleVM.getId(),
+                publishOrSaveArticleVM.getTitle(),
+                publishOrSaveArticleVM.getThumbnail(),
+                publishOrSaveArticleVM.getContent(),
+                publishOrSaveArticleVM.getTags(),
+                Status.DRAFT
+        );
     }
+
+    @PatchMapping("/publish")
+    public Article publish(@RequestBody PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
+        return publishOrSaveArticle.execute(
+                publishOrSaveArticleVM.getId(),
+                publishOrSaveArticleVM.getTitle(),
+                publishOrSaveArticleVM.getThumbnail(),
+                publishOrSaveArticleVM.getContent(),
+                publishOrSaveArticleVM.getTags(),
+                Status.PUBLISHED
+        );
+    }
+
+    @PostMapping
+    public Article init(@RequestParam String title) {
+        User user = getAuthenticatedUser();
+        return initArticle.execute(title, user);
+    }
+
+    private User getAuthenticatedUser() {
+        //TODO get Authenticated user via Spring security APIs
+        return ZerofiltreUtils.createMockUser();
+    }
+
 }

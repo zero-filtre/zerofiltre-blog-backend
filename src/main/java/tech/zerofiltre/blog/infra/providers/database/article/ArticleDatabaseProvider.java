@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
+import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
 import java.util.*;
 import java.util.stream.*;
@@ -35,7 +36,8 @@ public class ArticleDatabaseProvider implements ArticleProvider {
 
     @Override
     public Article save(Article article) {
-        return mapper.fromJPA(repository.save(mapper.toJPA(article)));
+        ArticleJPA save = repository.save(mapper.toJPA(article));
+        return mapper.fromJPA(save);
     }
 
 
