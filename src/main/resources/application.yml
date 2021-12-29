@@ -14,9 +14,9 @@ spring:
     password: h4rC5bepK7WvgrLE
     url: jdbc:mysql://mysql-df836d42-o3bc71320.database.cloud.ovh.net:20184/blogapidb_dev
   jpa:
-    generate-ddl: false
-#    hibernate:
-#      ddl-auto: create-drop
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
 
 springdoc:
   packagesToScan: tech.zerofiltre.blog

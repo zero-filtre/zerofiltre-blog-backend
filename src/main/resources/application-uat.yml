@@ -16,7 +16,7 @@ spring:
   jpa:
     generate-ddl: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**

@@ -18,4 +18,7 @@ public class TagJPA extends BaseEntityJPA {
     private List<ArticleJPA> articles;
 
     private String name;
+
+    private String colorCode;
+
 }
