@@ -25,4 +25,4 @@ zerofiltre:
   infra:
     entrypoints:
       rest:
-        allowed-origins-pattern: "blog-uat.zerofiltre.tech"
+        allowed-origins-pattern: "https://blog-uat.zerofiltre.tech"
