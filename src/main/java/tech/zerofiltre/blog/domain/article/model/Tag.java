@@ -4,6 +4,7 @@ public class Tag {
 
     private long id;
     private String name;
+    private String colorCode="#4AC3CD";
 
     public Tag() {
     }
@@ -31,4 +32,11 @@ public class Tag {
     }
 
 
+    public String getColorCode() {
+        return colorCode;
+    }
+
+    public void setColorCode(String colorCode) {
+        this.colorCode = colorCode;
+    }
 }
