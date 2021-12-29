@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
 import org.springframework.boot.test.mock.mockito.*;
+import org.springframework.context.annotation.*;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.*;
 import org.springframework.test.web.servlet.*;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ArticleController.class)
+@Import(Jackson2ObjectMapperBuilder.class)
 class ArticleControllerTest {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";
@@ -38,6 +40,9 @@ class ArticleControllerTest {
     @MockBean
     ReactionProvider reactionProvider;
 
+    @Autowired
+    Jackson2ObjectMapperBuilder objectMapperBuilder;
+
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);
     PublishOrSaveArticleVM publishOrSaveArticleVM = new PublishOrSaveArticleVM(
@@ -51,8 +56,6 @@ class ArticleControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private Jackson2ObjectMapperBuilder objectMapperBuilder;
 
     @BeforeEach
     void init() {
@@ -153,8 +156,7 @@ class ArticleControllerTest {
     }
 
     public String asJsonString(final Object obj) throws JsonProcessingException {
-        ObjectMapper objectMapper = objectMapperBuilder.build();
-        return objectMapper.writeValueAsString(obj);
+        return objectMapperBuilder.build().writeValueAsString(obj);
     }
 
 
