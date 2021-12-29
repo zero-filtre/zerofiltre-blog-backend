@@ -17,7 +17,6 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
-
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
