@@ -182,6 +182,16 @@ class PublishOrInitArticleTest {
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
 
+        Set<SocialLink> publishedSocialLinks = publisher.getSocialLinks();
+        Set<SocialLink> userSocialLinks = mockUser.getSocialLinks();
+        assertThat(publishedSocialLinks).hasSameSizeAs(userSocialLinks);
+        assertThat(publishedSocialLinks.stream().anyMatch(socialLink ->
+                userSocialLinks.stream().anyMatch(userSocialLink ->
+                        socialLink.getLink().equals(userSocialLink.getLink()) &&
+                                socialLink.getPlatform().equals(userSocialLink.getPlatform())
+                )
+        )).isTrue();
+
 
         assertThat(publishedArticle.getContent()).isEqualTo(NEW_CONTENT);
         assertThat(publishedArticle.getThumbnail()).isEqualTo(NEW_THUMBNAIL);
@@ -192,7 +202,6 @@ class PublishOrInitArticleTest {
         List<Reaction> publishedArticleReactions = publishedArticle.getReactions();
         List<Reaction> articleReactions = mockArticle.getReactions();
 
-        assertThat(publishedArticleTags.size()).isEqualTo(newTags.size());
         assertThat(publishedArticleTags.size()).isEqualTo(newTags.size());
 
         assertThat(publishedArticleTags.stream().anyMatch(tag ->
