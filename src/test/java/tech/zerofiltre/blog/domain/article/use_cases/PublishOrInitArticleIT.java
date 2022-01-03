@@ -92,7 +92,7 @@ class PublishOrInitArticleIT {
         assertThat(publisher.getProfilePicture()).isEqualTo(user.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(user.getPseudoName());
         assertThat(publisher.getBio()).isEqualTo(user.getBio());
-        assertThat(publisher.getFunction()).isEqualTo(user.getFunction());
+        assertThat(publisher.getProfession()).isEqualTo(user.getProfession());
         assertThat(publisher.getWebsite()).isEqualTo(user.getWebsite());
 
         Set<SocialLink> publishedSocialLinks = publisher.getSocialLinks();

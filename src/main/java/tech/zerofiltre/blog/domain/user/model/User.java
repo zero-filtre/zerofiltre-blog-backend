@@ -10,7 +10,7 @@ public class User {
     private String lastName;
     private LocalDateTime registeredOn;
     private String profilePicture;
-    private String function;
+    private String profession;
     private String bio;
     private Set<SocialLink> socialLinks;
     private String website;
@@ -64,12 +64,12 @@ public class User {
         this.profilePicture = profilePicture;
     }
 
-    public String getFunction() {
-        return function;
+    public String getProfession() {
+        return profession;
     }
 
-    public void setFunction(String function) {
-        this.function = function;
+    public void setProfession(String profession) {
+        this.profession = profession;
     }
 
     public String getBio() {

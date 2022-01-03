@@ -94,7 +94,7 @@ public class ZerofiltreUtils {
                 "\n" +
                 "Ma dévise: L'amélioration continue. \n" +
                 "Une application sert le business et pas le contraire. ");
-        user.setFunction("Senior Java Developer");
+        user.setProfession("Senior Java Developer");
         user.setSocialLinks(socialLinks);
         user.setWebsite("https://zerofiltre.tech");
         return user;

@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.database.user.model;
 
 import lombok.*;
-import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.*;
 
 import javax.persistence.*;
@@ -19,13 +18,12 @@ public class UserJPA extends BaseEntityJPA {
     private String lastName;
     private LocalDateTime registeredOn;
     private String profilePicture;
-    private String function;
+    private String profession;
     private String bio;
-    //TODO make it embedable or use SocailLinkJPA entity
-    @ElementCollection
-    @Column(name="social_links", nullable=false)
-    @CollectionTable(name="user_social_links", joinColumns= {@JoinColumn(name="user_id")})
-    private Set<SocialLink> socialLinks;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<SocialLinkJPA> socialLinks;
+
     private String website;
 
 }
