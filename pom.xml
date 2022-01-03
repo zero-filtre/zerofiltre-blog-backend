@@ -131,7 +131,9 @@
                 <configuration>
                     <excludes>
                         <exclude>/tech/zerofiltre/**/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/mapper/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/*JPA.*</exclude>
+                        <exclude>/tech/zerofiltre/**/ZerofiltreBlogApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/util/*</exclude>
                     </excludes>

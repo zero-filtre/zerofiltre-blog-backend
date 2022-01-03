@@ -84,6 +84,19 @@ public class ZerofiltreUtils {
         user.setPseudoName("imphilippesimo");
         user.setRegisteredOn(LocalDateTime.now().minusDays(50));
         user.setProfilePicture("https://i.ibb.co/QKX6gyr/profile-pic.jpg");
+        Set<SocialLink> socialLinks = new HashSet<>(Arrays.asList(
+                new SocialLink(SocialLink.Platform.GITHUB, "https://github.com/imphilippesimo"),
+                new SocialLink(SocialLink.Platform.STACKOVERFLOW, "https://stackoverflow.com/users/5615357/philippe-simo"),
+                new SocialLink(SocialLink.Platform.TWITTER, "https://twitter.com/imphilippesimo"),
+                new SocialLink(SocialLink.Platform.LINKEDIN, "https://www.linkedin.com/in/philippesimo/")
+        ));
+        user.setBio("Je développe des Applications qui boostent votre business. Suivez-moi \uD83D\uDCA1\n" +
+                "\n" +
+                "Ma dévise: L'amélioration continue. \n" +
+                "Une application sert le business et pas le contraire. ");
+        user.setProfession("Senior Java Developer");
+        user.setSocialLinks(socialLinks);
+        user.setWebsite("https://zerofiltre.tech");
         return user;
     }
 

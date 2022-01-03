@@ -91,6 +91,19 @@ class PublishOrInitArticleIT {
         assertThat(publisher.getLastName()).isEqualTo(user.getLastName());
         assertThat(publisher.getProfilePicture()).isEqualTo(user.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(user.getPseudoName());
+        assertThat(publisher.getBio()).isEqualTo(user.getBio());
+        assertThat(publisher.getProfession()).isEqualTo(user.getProfession());
+        assertThat(publisher.getWebsite()).isEqualTo(user.getWebsite());
+
+        Set<SocialLink> publishedSocialLinks = publisher.getSocialLinks();
+        Set<SocialLink> userSocialLinks = user.getSocialLinks();
+        assertThat(publishedSocialLinks).hasSameSizeAs(userSocialLinks);
+        assertThat(publishedSocialLinks.stream().anyMatch(socialLink ->
+                userSocialLinks.stream().anyMatch(userSocialLink ->
+                        socialLink.getLink().equals(userSocialLink.getLink()) &&
+                                socialLink.getPlatform().equals(userSocialLink.getPlatform())
+                )
+        )).isTrue();
 
         assertThat(publishedArticle.getContent()).isEqualTo(NEW_CONTENT);
         assertThat(publishedArticle.getThumbnail()).isEqualTo(NEW_THUMBNAIL);

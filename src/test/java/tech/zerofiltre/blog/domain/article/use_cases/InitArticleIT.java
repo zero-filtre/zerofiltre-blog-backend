@@ -13,6 +13,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.time.*;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
@@ -70,6 +71,16 @@ class InitArticleIT {
         assertThat(publisher.getLastName()).isEqualTo(mockUser.getLastName());
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
+
+        Set<SocialLink> publishedSocialLinks = publisher.getSocialLinks();
+        Set<SocialLink> userSocialLinks = mockUser.getSocialLinks();
+        assertThat(publishedSocialLinks).hasSameSizeAs(userSocialLinks);
+        assertThat(publishedSocialLinks.stream().anyMatch(socialLink ->
+                userSocialLinks.stream().anyMatch(userSocialLink ->
+                        socialLink.getLink().equals(userSocialLink.getLink()) &&
+                                socialLink.getPlatform().equals(userSocialLink.getPlatform())
+                )
+        )).isTrue();
 
         assertThat(initializedArticle.getTitle()).isEqualTo(TITLE);
 

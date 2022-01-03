@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.user.model;
 
 import java.time.*;
+import java.util.*;
 
 public class User {
     private long id;
@@ -9,19 +10,11 @@ public class User {
     private String lastName;
     private LocalDateTime registeredOn;
     private String profilePicture;
+    private String profession;
+    private String bio;
+    private Set<SocialLink> socialLinks;
+    private String website;
 
-
-    public User() {
-    }
-
-    public User(long id, String pseudoName, String firstName, String lastName, LocalDateTime registeredOn, String profilePicture) {
-        this.id = id;
-        this.pseudoName = pseudoName;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.registeredOn = registeredOn;
-        this.profilePicture = profilePicture;
-    }
 
     public long getId() {
         return id;
@@ -69,5 +62,37 @@ public class User {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public Set<SocialLink> getSocialLinks() {
+        return socialLinks;
+    }
+
+    public void setSocialLinks(Set<SocialLink> socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 }

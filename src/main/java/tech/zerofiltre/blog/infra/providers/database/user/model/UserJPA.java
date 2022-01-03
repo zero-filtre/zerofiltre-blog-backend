@@ -5,6 +5,7 @@ import tech.zerofiltre.blog.infra.providers.database.*;
 
 import javax.persistence.*;
 import java.time.*;
+import java.util.*;
 
 @Data
 @Entity
@@ -17,5 +18,12 @@ public class UserJPA extends BaseEntityJPA {
     private String lastName;
     private LocalDateTime registeredOn;
     private String profilePicture;
+    private String profession;
+    private String bio;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<SocialLinkJPA> socialLinks;
+
+    private String website;
 
 }
