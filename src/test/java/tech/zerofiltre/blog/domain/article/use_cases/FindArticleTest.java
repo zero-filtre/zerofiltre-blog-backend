@@ -28,7 +28,7 @@ class FindArticleTest {
 
     @Test
     @DisplayName("Must return the article corresponding ot the id")
-    void mustReturnAnArticle() throws FindArticleException {
+    void mustReturnAnArticle() throws ArticleNotFoundException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
@@ -48,7 +48,7 @@ class FindArticleTest {
         when(articleProvider.articleOfId(anyLong())).thenReturn(java.util.Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(FindArticleException.class).isThrownBy(() -> findArticle.byId(12));
+        assertThatExceptionOfType(ArticleNotFoundException.class).isThrownBy(() -> findArticle.byId(12));
 
 
     }

@@ -33,7 +33,7 @@ public class ZerofiltreBlogApplication {
         articleProvider = applicationContext.getBean(ArticleProvider.class);
 
 
-        initDB();
+        //initDB();
     }
 
     private static void initDB() {

@@ -13,9 +13,9 @@ public class FindArticle {
         this.articleProvider = articleProvider;
     }
 
-    public Article byId(long id) throws FindArticleException {
+    public Article byId(long id) throws ArticleNotFoundException {
         return articleProvider.articleOfId(id)
-                .orElseThrow(() -> new FindArticleException("We could not find an article with id: " + id));
+                .orElseThrow(() -> new ArticleNotFoundException("Article non trouvé", id));
     }
 
     public List<Article> of(int pageNumber, int pageSize) {
