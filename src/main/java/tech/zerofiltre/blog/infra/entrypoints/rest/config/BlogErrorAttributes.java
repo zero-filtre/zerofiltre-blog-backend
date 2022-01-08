@@ -9,18 +9,16 @@ import java.util.*;
 
 class BlogErrorAttributes extends DefaultErrorAttributes {
     private final String currentApiVersion;
-    private final String sendReportUri;
 
-    public BlogErrorAttributes(final String currentApiVersion, final String sendReportUri) {
+    public BlogErrorAttributes(final String currentApiVersion) {
         this.currentApiVersion = currentApiVersion;
-        this.sendReportUri = sendReportUri;
     }
 
     @Override
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
         final Map<String, Object> defaultErrorAttributes = super.getErrorAttributes(webRequest, options);
         final BlogError blogError = BlogError.fromDefaultAttributeMap(
-                currentApiVersion, defaultErrorAttributes, sendReportUri
+                currentApiVersion, defaultErrorAttributes
         );
         return blogError.toAttributeMap();
     }

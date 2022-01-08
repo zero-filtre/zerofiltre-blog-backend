@@ -20,10 +20,21 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
                 exception.getMessage(),
                 "Article",
-                "Aucun article correspondant à l'id fourni: " + exception.getArticleId(),
-                null,
-                null
+                "Aucun article correspondant à l'id fourni: " + exception.getArticleId()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PublishOrSaveArticleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<BlogError> handlePublishOrSaveException(PublishOrSaveArticleException exception) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                exception.getMessage(),
+                "Article",
+                exception.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

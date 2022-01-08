@@ -18,7 +18,7 @@ public class WebErrorConfiguration {
      */
     @Bean
     public ErrorAttributes errorAttributes() {
-        return new BlogErrorAttributes(currentApiVersion, null);
+        return new BlogErrorAttributes(currentApiVersion);
     }
 
 }
