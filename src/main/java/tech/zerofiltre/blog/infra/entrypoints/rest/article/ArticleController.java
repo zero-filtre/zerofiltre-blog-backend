@@ -27,7 +27,7 @@ public class ArticleController {
 
 
     @GetMapping("/{id}")
-    public Article articleById(@PathVariable("id") long articleId) throws FindArticleException {
+    public Article articleById(@PathVariable("id") long articleId) throws ArticleNotFoundException {
         return findArticle.byId(articleId);
     }
 

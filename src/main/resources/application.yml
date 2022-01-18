@@ -25,4 +25,5 @@ zerofiltre:
   infra:
     entrypoints:
       rest:
+        api-version: 1.0
         allowed-origins-pattern: "*"
