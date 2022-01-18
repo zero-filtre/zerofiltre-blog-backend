@@ -16,6 +16,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         log.debug("Registering this allowed origins pattern: {}", allowedOriginsPattern);
         registry.addMapping("/**")
+                .allowedMethods("*")
                 .allowedOriginPatterns(allowedOriginsPattern);
     }
 }
