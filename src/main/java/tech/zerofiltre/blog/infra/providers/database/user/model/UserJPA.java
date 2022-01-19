@@ -14,6 +14,7 @@ import java.util.*;
 public class UserJPA extends BaseEntityJPA {
 
     private String pseudoName;
+    private String email;
     private String firstName;
     private String lastName;
     private LocalDateTime registeredOn;

@@ -6,6 +6,7 @@ import java.util.*;
 public class User {
     private long id;
     private String pseudoName;
+    private String email;
     private String firstName;
     private String lastName;
     private LocalDateTime registeredOn;
@@ -94,5 +95,13 @@ public class User {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
