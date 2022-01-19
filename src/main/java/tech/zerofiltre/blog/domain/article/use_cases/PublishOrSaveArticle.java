@@ -18,10 +18,11 @@ public class PublishOrSaveArticle {
 
 
     public Article execute(long id, String title, String thumbnail, String content, List<Tag> tags, Status status) throws PublishOrSaveArticleException {
+
         LocalDateTime now = LocalDateTime.now();
 
         Article existingArticle = articleProvider.articleOfId(id)
-                .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish an unknown article. Could not find an article with id: " + id));
+                .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish an unknown article. Could not find an article with id: " + id, id));
 
         checkTags(tags);
         existingArticle.setTags(tags);
@@ -38,12 +39,13 @@ public class PublishOrSaveArticle {
         }
 
         return articleProvider.save(existingArticle);
+
     }
 
     private void checkTags(List<Tag> tags) throws PublishOrSaveArticleException {
         for (Tag tag : tags) {
             if (tagProvider.tagOfId(tag.getId()).isEmpty())
-                throw new PublishOrSaveArticleException("Could not find a tag with id " + tag.getId());
+                throw new PublishOrSaveArticleException("We can not publish the article. Could not find the related tag with id: " + tag.getId(), tag.getId());
         }
     }
 }

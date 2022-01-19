@@ -6,7 +6,6 @@ public class ArticleNotFoundException extends BlogException {
 
     private final long articleId;
 
-
     public ArticleNotFoundException(String message, long articleId) {
         super(message);
         this.articleId = articleId;

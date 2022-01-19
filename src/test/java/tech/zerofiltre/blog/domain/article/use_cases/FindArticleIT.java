@@ -73,17 +73,17 @@ class FindArticleIT {
 
         //ASSERT
         assertThat(firstPageWithTwoElements).hasSize(2);
-        assertThat(firstPageWithTwoElements.get(0).getTitle()).isEqualTo(DDD);
-        assertThat(firstPageWithTwoElements.get(1).getTitle()).isEqualTo(TDD);
+        assertThat(firstPageWithTwoElements.get(0).getTitle()).isEqualTo(UX_DESIGN);
+        assertThat(firstPageWithTwoElements.get(1).getTitle()).isEqualTo(UI_DESIGN);
 
         assertThat(secondPageWithThreeElements).hasSize(3);
-        assertThat(secondPageWithThreeElements.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
-        assertThat(secondPageWithThreeElements.get(1).getTitle()).isEqualTo(UI_DESIGN);
-        assertThat(secondPageWithThreeElements.get(2).getTitle()).isEqualTo(UX_DESIGN);
+        assertThat(secondPageWithThreeElements.get(0).getTitle()).isEqualTo(CLEAN_CODE);
+        assertThat(secondPageWithThreeElements.get(1).getTitle()).isEqualTo(TDD);
+        assertThat(secondPageWithThreeElements.get(2).getTitle()).isEqualTo(DDD);
 
         assertThat(thirdPageWithTwoElements).hasSize(2);
-        assertThat(thirdPageWithTwoElements.get(0).getTitle()).isEqualTo(UI_DESIGN);
-        assertThat(thirdPageWithTwoElements.get(1).getTitle()).isEqualTo(UX_DESIGN);
+        assertThat(thirdPageWithTwoElements.get(0).getTitle()).isEqualTo(TDD);
+        assertThat(thirdPageWithTwoElements.get(1).getTitle()).isEqualTo(DDD);
 
         assertThat(thirdPageWithThreeElement).isEmpty();
 
