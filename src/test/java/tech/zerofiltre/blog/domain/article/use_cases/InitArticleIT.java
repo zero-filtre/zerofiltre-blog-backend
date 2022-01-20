@@ -43,11 +43,11 @@ class InitArticleIT {
     }
 
     @Test
-    @DisplayName("Must create article with all data")
+    @DisplayName("Must save article with all data")
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeCreation = LocalDateTime.now();
-        User mockUser = userProvider.create(ZerofiltreUtils.createMockUser());
+        User mockUser = userProvider.save(ZerofiltreUtils.createMockUser());
 
         //ACT
         Article initializedArticle = initArticle.execute(TITLE, mockUser);

@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.user.model;
 
+import java.io.*;
 import java.time.*;
 import java.util.*;
 
@@ -9,12 +10,18 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
+    private String password;
     private LocalDateTime registeredOn;
     private String profilePicture;
     private String profession;
     private String bio;
     private Set<SocialLink> socialLinks;
     private String website;
+    private Set<String> roles = new HashSet<>(Collections.singletonList("ROLE_USER"));
+    private boolean isActive = false;
+    private boolean isLocked = false;
+    private boolean isExpired = false;
+
 
 
     public long getId() {
@@ -103,5 +110,45 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
+    }
+
+    public boolean isExpired() {
+        return isExpired;
+    }
+
+    public void setExpired(boolean expired) {
+        isExpired = expired;
     }
 }

@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.util;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import javax.servlet.http.*;
 import java.time.*;
 import java.util.*;
 
@@ -141,4 +142,9 @@ public class ZerofiltreUtils {
         return result;
 
     }
+
+    public static String getAppURL(HttpServletRequest request) {
+        return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    }
+
 }
