@@ -134,6 +134,33 @@ class PublishOrInitArticleTest {
     }
 
     @Test
+    @DisplayName("Must not draft an already published article")
+    void save_MustNotDraft_AnAlreadyPublishArticle() throws PublishOrSaveArticleException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        mockArticle.setId(45);
+        mockArticle.setStatus(PUBLISHED);
+        when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
+
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(tagProvider.tagOfId(12)).thenReturn(Optional.of(newTag));
+
+        //ACT
+        List<Tag> newTags = Collections.singletonList(newTag);
+        Article publishedArticle = publishOrSaveArticle.execute(
+                45,
+                NEW_TITLE,
+                NEW_THUMBNAIL,
+                NEW_CONTENT,
+                newTags,
+                DRAFT
+        );
+
+        assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
+
+    }
+
+    @Test
     @DisplayName("Must properly partially update the data on save")
     void mustSaveProperly() throws PublishOrSaveArticleException {
         //ARRANGE

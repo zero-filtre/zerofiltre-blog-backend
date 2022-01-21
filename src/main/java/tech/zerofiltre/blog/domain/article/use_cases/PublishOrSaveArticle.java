@@ -29,7 +29,8 @@ public class PublishOrSaveArticle {
         existingArticle.setTitle(title);
         existingArticle.setThumbnail(thumbnail);
         existingArticle.setContent(content);
-        existingArticle.setStatus(status);
+        if (existingArticle.getStatus().equals(Status.DRAFT))
+            existingArticle.setStatus(status);
         existingArticle.setLastSavedAt(now);
 
         if (status.equals(Status.PUBLISHED)) {
@@ -37,6 +38,7 @@ public class PublishOrSaveArticle {
                 existingArticle.setPublishedAt(now);
             existingArticle.setLastPublishedAt(now);
         }
+
 
         return articleProvider.save(existingArticle);
 
