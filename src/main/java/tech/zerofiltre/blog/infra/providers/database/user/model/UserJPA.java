@@ -14,14 +14,23 @@ import java.util.*;
 public class UserJPA extends BaseEntityJPA {
 
     private String pseudoName;
+    private String email;
     private String firstName;
     private String lastName;
+    private String password;
     private LocalDateTime registeredOn;
     private String profilePicture;
     private String profession;
     private String bio;
+    private boolean isActive = false;
+    private boolean isLocked = false;
+    private boolean isExpired = false;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ElementCollection
+    @Column(nullable = false)
+    private Set<String> roles;
+
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<SocialLinkJPA> socialLinks;
 
     private String website;

@@ -38,7 +38,7 @@ public class ZerofiltreBlogApplication {
 
     private static void initDB() {
         if (!environment.acceptsProfiles(Profiles.of("prod", "uat", "dev"))) {
-            User mockUser = userProvider.create(ZerofiltreUtils.createMockUser());
+            User mockUser = userProvider.save(ZerofiltreUtils.createMockUser());
 
             List<Tag> mockTags = ZerofiltreUtils.createMockTags(false).stream()
                     .map(tagProvider::create)

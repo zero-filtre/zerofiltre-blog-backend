@@ -1,6 +1,8 @@
 package tech.zerofiltre.blog.domain.user.model;
 
-public class SocialLink {
+import java.io.*;
+
+public class SocialLink implements Serializable {
 
     private Platform platform;
     private String link;

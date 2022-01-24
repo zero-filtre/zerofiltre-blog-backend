@@ -9,6 +9,17 @@ server:
   port: 80
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: philippesimo@zerofiltre.tech
+    password: upoafthyaafaadzr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     driverClassName: org.h2.Driver
     password: password

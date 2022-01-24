@@ -50,7 +50,7 @@ class PublishOrInitArticleIT {
     @DisplayName("Must properly partially update the data on publish")
     void mustPublishProperly() throws PublishOrSaveArticleException {
         //ARRANGE
-        User user = userProvider.create(ZerofiltreUtils.createMockUser());
+        User user = userProvider.save(ZerofiltreUtils.createMockUser());
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
                 .map(tagProvider::create)
@@ -141,7 +141,7 @@ class PublishOrInitArticleIT {
     @DisplayName("Must properly partially update the data on save")
     void mustSaveProperly() throws PublishOrSaveArticleException {
         //ARRANGE
-        User user = userProvider.create(ZerofiltreUtils.createMockUser());
+        User user = userProvider.save(ZerofiltreUtils.createMockUser());
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
                 .map(tagProvider::create)

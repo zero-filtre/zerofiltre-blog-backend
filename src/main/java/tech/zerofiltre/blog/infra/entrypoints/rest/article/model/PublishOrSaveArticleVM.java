@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article.model;
 import lombok.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 
+import javax.validation.constraints.*;
 import java.util.*;
 
 @Data
@@ -10,8 +11,15 @@ import java.util.*;
 @NoArgsConstructor
 public class PublishOrSaveArticleVM {
     private long id;
+
+    @NotNull(message = "The title must not be null")
+    @NotEmpty(message = "The title must not be empty")
     private String title;
+
     private String thumbnail;
+
+    @NotNull(message = "The content must not be null")
+    @NotEmpty(message = "The content must not be empty")
     private String content;
     private List<Tag> tags = new ArrayList<>();
 }

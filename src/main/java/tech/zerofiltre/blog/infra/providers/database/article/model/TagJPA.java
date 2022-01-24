@@ -12,9 +12,7 @@ import java.util.*;
 @Table(name = "tag")
 public class TagJPA extends BaseEntityJPA {
 
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags")
     private List<ArticleJPA> articles;
 
     private String name;

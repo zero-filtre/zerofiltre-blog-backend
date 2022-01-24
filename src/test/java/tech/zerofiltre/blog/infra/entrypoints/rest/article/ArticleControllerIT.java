@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
@@ -9,12 +8,14 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.annotation.*;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.*;
+import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
+import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -24,8 +25,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ArticleController.class)
-@Import(Jackson2ObjectMapperBuilder.class)
-class ArticleControllerTest {
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
+        LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class})
+@WithMockUser
+class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";
     @MockBean

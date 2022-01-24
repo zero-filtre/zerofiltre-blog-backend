@@ -8,6 +8,8 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 import tech.zerofiltre.blog.util.*;
 
+import javax.validation.*;
+import javax.validation.constraints.*;
 import java.util.*;
 
 @RestController
@@ -37,7 +39,7 @@ public class ArticleController {
     }
 
     @PatchMapping
-    public Article save(@RequestBody PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
+    public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
         return publishOrSaveArticle.execute(
                 publishOrSaveArticleVM.getId(),
                 publishOrSaveArticleVM.getTitle(),
@@ -49,7 +51,7 @@ public class ArticleController {
     }
 
     @PatchMapping("/publish")
-    public Article publish(@RequestBody PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
+    public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
         return publishOrSaveArticle.execute(
                 publishOrSaveArticleVM.getId(),
                 publishOrSaveArticleVM.getTitle(),
@@ -61,7 +63,7 @@ public class ArticleController {
     }
 
     @PostMapping
-    public Article init(@RequestParam String title) {
+    public Article init(@RequestParam @NotNull @NotEmpty String title) {
         User user = getAuthenticatedUser();
         return initArticle.execute(title, user);
     }

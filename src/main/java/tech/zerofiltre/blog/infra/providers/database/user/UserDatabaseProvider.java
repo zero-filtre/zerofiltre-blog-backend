@@ -31,8 +31,15 @@ public class UserDatabaseProvider implements UserProvider {
                 .collect(Collectors.toList());
     }
 
+
     @Override
-    public User create(User user) {
+    public User save(User user) {
         return mapper.fromJPA(repository.save(mapper.toJPA(user)));
+    }
+
+    @Override
+    public Optional<User> userOfEmail(String email) {
+        return repository.findByEmail(email)
+                .map(mapper::fromJPA);
     }
 }

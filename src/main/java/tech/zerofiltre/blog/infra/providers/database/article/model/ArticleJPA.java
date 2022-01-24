@@ -31,12 +31,12 @@ public class ArticleJPA extends BaseEntityJPA {
     private LocalDateTime lastSavedAt;
 
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE)
     private Set<ReactionJPA> reactions;
 
     private Status status;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "article_tag",
             joinColumns = @JoinColumn(name = "article_id"),
