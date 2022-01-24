@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.config.http.*;
 import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
@@ -22,17 +21,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtConfiguration jwtConfiguration;
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
+    private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfiguration(DBUserDetailsService userDetailsService, JwtConfiguration jwtConfiguration, LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint, RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler) {
+    public SecurityConfiguration(UserDetailsService userDetailsService, JwtConfiguration jwtConfiguration, LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint, RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.jwtConfiguration = jwtConfiguration;
         this.loginFirstAuthenticationEntryPoint = loginFirstAuthenticationEntryPoint;
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
 
@@ -61,6 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // allow all who are accessing "auth" service or trying to register an account
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .antMatchers("/article/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/user/registrationConfirm", "/user/resendRegistrationConfirm").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
@@ -69,10 +71,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .anyRequest().authenticated();
 
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

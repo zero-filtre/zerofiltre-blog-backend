@@ -45,7 +45,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                     creds.getUsername(), creds.getPassword(), Collections.emptyList());
 
             // 3. Authentication manager authenticate the user, and use DBUserDetailsService::loadUserByUsername() method to load the user.
-            return authManager.authenticate(authToken);
+                return authManager.authenticate(authToken);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -56,7 +56,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     // The 'auth' passed to successfulAuthentication() is the current authenticated user.
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication auth) {
 
         long now = System.currentTimeMillis();
         String token = Jwts.builder()

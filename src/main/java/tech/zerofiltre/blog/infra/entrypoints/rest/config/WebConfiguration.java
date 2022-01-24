@@ -3,6 +3,8 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.config;
 import lombok.extern.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
 import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
@@ -18,5 +20,10 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedMethods("*")
                 .allowedOriginPatterns(allowedOriginsPattern);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

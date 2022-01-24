@@ -23,7 +23,7 @@ public class DBUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("No user found with username: " + email));
         boolean credentialsNonExpired = true;
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword().toLowerCase(), user.isActive(), !user.isExpired(),
+                user.getEmail(), user.getPassword(), user.isActive(), !user.isExpired(),
                 credentialsNonExpired, !user.isLocked(), getAuthorities(user.getRoles()));
     }
 
