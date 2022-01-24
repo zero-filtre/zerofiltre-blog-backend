@@ -22,9 +22,4 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .allowedOriginPatterns(allowedOriginsPattern);
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 }

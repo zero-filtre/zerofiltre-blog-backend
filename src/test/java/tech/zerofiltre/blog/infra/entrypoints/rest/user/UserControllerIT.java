@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
-        LoginFirstAuthenticationEntryPoint.class,RoleRequiredAccessDeniedHandler.class})
+        LoginFirstAuthenticationEntryPoint.class,RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class})
 class UserControllerIT {
 
     @Autowired

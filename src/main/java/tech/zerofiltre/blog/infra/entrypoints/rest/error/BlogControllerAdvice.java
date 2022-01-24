@@ -59,7 +59,7 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_004",
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
-                "No domain available",
+                NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

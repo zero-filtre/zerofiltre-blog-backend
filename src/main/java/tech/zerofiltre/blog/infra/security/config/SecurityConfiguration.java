@@ -22,7 +22,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtConfiguration jwtConfiguration;
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
-    private final BadCredentialsAuthenticationEntryPoint badCredentialsAuthenticationEntryPoint;
     private final PasswordEncoder passwordEncoder;
 
     public SecurityConfiguration(
@@ -30,14 +29,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             JwtConfiguration jwtConfiguration,
             LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint,
             RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
-            PasswordEncoder passwordEncoder,
-            BadCredentialsAuthenticationEntryPoint badCredentialsAuthenticationEntryPoint) {
+            PasswordEncoder passwordEncoder) {
 
         this.userDetailsService = userDetailsService;
         this.jwtConfiguration = jwtConfiguration;
         this.loginFirstAuthenticationEntryPoint = loginFirstAuthenticationEntryPoint;
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
-        this.badCredentialsAuthenticationEntryPoint = badCredentialsAuthenticationEntryPoint;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -58,9 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // handle an unauthenticated attempt
                 .exceptionHandling().defaultAuthenticationEntryPointFor(loginFirstAuthenticationEntryPoint, (new AntPathRequestMatcher("/**")))
                 .and()
-                //TODO CUSTOMIZE BAD CREDENTIALS MESSAGES
-                .exceptionHandling().defaultAuthenticationEntryPointFor(badCredentialsAuthenticationEntryPoint, new AntPathRequestMatcher("/auth"))
-                .and()
+                //TODO CUSTOMIZE BAD CREDENTIALS MESSAGES using badCredentialsAuthenticationEntryPoint
                 // handle an authorized attempt
                 .exceptionHandling().accessDeniedHandler(roleRequiredAccessDeniedHandler)
                 .and()
