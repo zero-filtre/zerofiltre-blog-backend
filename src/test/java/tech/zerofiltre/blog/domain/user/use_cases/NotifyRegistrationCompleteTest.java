@@ -32,7 +32,7 @@ class NotifyRegistrationCompleteTest {
     @Test
     void mustBuildTheNotificationEvent_ThenNotify() {
         //ARRANGE
-        doNothing().when(userNotificationProvider).notifyRegistrationComplete(any());
+        doNothing().when(userNotificationProvider).notify(any());
 
         //ACT
         notifyRegistrationComplete.execute(new User(), APP_URL, Locale.FRANCE);
@@ -40,7 +40,7 @@ class NotifyRegistrationCompleteTest {
         //ASSERT
         ArgumentCaptor<RegistrationCompleteEvent> captor = ArgumentCaptor.forClass(RegistrationCompleteEvent.class);
 
-        verify(userNotificationProvider, times(1)).notifyRegistrationComplete(captor.capture());
+        verify(userNotificationProvider, times(1)).notify(captor.capture());
         RegistrationCompleteEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);

@@ -18,7 +18,7 @@ public class NotifyRegistrationComplete {
                 locale,
                 user,
                 false);
-        userNotificationProvider.notifyRegistrationComplete(registrationCompleteEvent);
+        userNotificationProvider.notify(registrationCompleteEvent);
 
     }
 }

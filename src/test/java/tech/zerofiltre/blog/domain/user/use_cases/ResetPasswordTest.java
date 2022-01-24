@@ -9,13 +9,13 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class ResendRegistrationConfirmationTest {
-
+class ResetPasswordTest {
 
     @MockBean
     UserNotificationProvider userNotificationProvider;
@@ -23,11 +23,11 @@ class ResendRegistrationConfirmationTest {
     @MockBean
     UserProvider userProvider;
 
-    ResendRegistrationConfirmation resendRegistrationConfirmation;
+    ResetPassword resetPassword;
 
     @BeforeEach
     void setUp() {
-        resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
+        resetPassword = new ResetPassword(userProvider, userNotificationProvider);
     }
 
     @Test
@@ -37,7 +37,7 @@ class ResendRegistrationConfirmationTest {
         doNothing().when(userNotificationProvider).notify(any());
 
         //ACT
-        resendRegistrationConfirmation.execute("email", "appUrl", Locale.FRANCE);
+        resetPassword.execute("email", "appUrl", Locale.FRANCE);
 
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
@@ -51,7 +51,7 @@ class ResendRegistrationConfirmationTest {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> resendRegistrationConfirmation.execute("email", "appUrl", Locale.FRANCE));
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> resetPassword.execute("email", "appUrl", Locale.FRANCE));
 
     }
 }

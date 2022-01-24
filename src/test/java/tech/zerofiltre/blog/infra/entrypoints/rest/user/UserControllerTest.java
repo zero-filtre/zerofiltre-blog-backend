@@ -65,11 +65,12 @@ class UserControllerTest {
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
         verify(userProvider, times(1)).save(any());
-        verify(userNotificationProvider, times(1)).notifyRegistrationComplete(any());
+        verify(userNotificationProvider, times(1)).notify(any());
     }
 
     @Test
     void resendRegistrationConfirm_mustNotify() {
+        //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
 
         //ACT
@@ -77,12 +78,12 @@ class UserControllerTest {
 
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
-        verify(userNotificationProvider, times(1)).notifyRegistrationComplete(any());
+        verify(userNotificationProvider, times(1)).notify(any());
 
     }
 
     @Test
-    void confirmRegistration() throws InvalidTokenException {
+    void confirmRegistration_mustCheckToken_ThenSaveUser() throws InvalidTokenException {
         //ARRANGE
         when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "")));
 
@@ -92,6 +93,20 @@ class UserControllerTest {
         //ASSERT
         verify(verificationTokenProvider, times(1)).ofToken(any());
         verify(userProvider, times(1)).save(any());
+
+    }
+
+    @Test
+    void resetPassword_mustCheckUser_ThenNotify() {
+        //ARRANGE
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
+
+        //ACT
+        userController.resetPassword("email", request);
+
+        //ASSERT
+        verify(userProvider, times(1)).userOfEmail("email");
+        verify(userNotificationProvider, times(1)).notify(any());
 
     }
 }

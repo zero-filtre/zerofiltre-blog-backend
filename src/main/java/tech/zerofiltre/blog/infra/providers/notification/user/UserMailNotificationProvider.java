@@ -14,14 +14,24 @@ public class UserMailNotificationProvider implements UserNotificationProvider {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void notifyRegistrationComplete(RegistrationCompleteEvent registrationCompleteEvent) {
-        OnRegistrationCompleteEvent onRegistrationCompleteEvent = new OnRegistrationCompleteEvent(
-                registrationCompleteEvent.getUser(),
-                registrationCompleteEvent.getLocale(),
-                registrationCompleteEvent.getAppUrl(),
-                registrationCompleteEvent.isRepeated()
-        );
-        eventPublisher.publishEvent(onRegistrationCompleteEvent);
+    public void notify(UserActionEvent userActionEvent) {
+        ApplicationEvent event;
+        if (userActionEvent instanceof RegistrationCompleteEvent) {
+            event = new OnRegistrationCompleteEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl(),
+                    ((RegistrationCompleteEvent) userActionEvent).isRepeated()
+            );
+        } else {
+            event = new OnResetPasswordEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl()
+            );
+        }
+
+        eventPublisher.publishEvent(event);
 
     }
 }

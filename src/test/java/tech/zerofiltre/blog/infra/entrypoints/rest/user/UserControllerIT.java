@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         LoginFirstAuthenticationEntryPoint.class,RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class})
 class UserControllerIT {
 
+    public static final String EMAIL = "email@toto.fr";
     @Autowired
     MockMvc mockMvc;
 
@@ -119,7 +120,7 @@ class UserControllerIT {
     void onResendRegistrationConfirm_onValidInput_thenReturn200() throws Exception {
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/user/resendRegistrationConfirm")
-                .param("email", "email@toto.fr");
+                .param("email", EMAIL);
 
         //ASSERT
         mockMvc.perform(request)
@@ -132,6 +133,19 @@ class UserControllerIT {
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/user/registrationConfirm")
                 .param("token", "token");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+
+    }
+
+    @Test
+    @WithMockUser
+    void onResetPassword_onValidInput_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/resetPassword")
+                .param("email", EMAIL);
 
         //ASSERT
         mockMvc.perform(request)

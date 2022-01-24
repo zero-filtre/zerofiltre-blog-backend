@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -25,6 +24,7 @@ public class UserController {
     private final MessageSource sources;
     private final PasswordEncoder passwordEncoder;
     private final ResendRegistrationConfirmation resendRegistrationConfirmation;
+    private final ResetPassword resetPassword;
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder) {
         this.registerUser = new RegisterUser(userProvider);
@@ -33,6 +33,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
+        this.resetPassword = new ResetPassword(userProvider, userNotificationProvider);
     }
 
     @PostMapping
@@ -62,7 +63,18 @@ public class UserController {
         } catch (UserNotFoundException e) {
             log.error("We were unable to re-send the registration confirmation email", e);
         }
-        return sources.getMessage("message.registration.resend", null, request.getLocale());
+        return sources.getMessage("message.registration.resent", null, request.getLocale());
+    }
+
+    @GetMapping("/resetPassword")
+    public String resetPassword(@RequestParam String email, HttpServletRequest request) {
+        String appUrl = ZerofiltreUtils.getAppURL(request);
+        try {
+            resetPassword.execute(email, appUrl, request.getLocale());
+        } catch (UserNotFoundException e) {
+            log.error("We were unable to initiate password reset", e);
+        }
+        return sources.getMessage("message.reset.password.sent", null, request.getLocale());
     }
 
     @GetMapping("/registrationConfirm")
