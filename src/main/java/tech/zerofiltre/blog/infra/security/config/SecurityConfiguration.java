@@ -10,6 +10,7 @@ import org.springframework.security.config.http.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
+import org.springframework.security.web.util.matcher.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
 
 @Slf4j
@@ -21,13 +22,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtConfiguration jwtConfiguration;
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
+    private final BadCredentialsAuthenticationEntryPoint badCredentialsAuthenticationEntryPoint;
     private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfiguration(UserDetailsService userDetailsService, JwtConfiguration jwtConfiguration, LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint, RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler, PasswordEncoder passwordEncoder) {
+    public SecurityConfiguration(
+            UserDetailsService userDetailsService,
+            JwtConfiguration jwtConfiguration,
+            LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint,
+            RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
+            PasswordEncoder passwordEncoder,
+            BadCredentialsAuthenticationEntryPoint badCredentialsAuthenticationEntryPoint) {
+
         this.userDetailsService = userDetailsService;
         this.jwtConfiguration = jwtConfiguration;
         this.loginFirstAuthenticationEntryPoint = loginFirstAuthenticationEntryPoint;
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
+        this.badCredentialsAuthenticationEntryPoint = badCredentialsAuthenticationEntryPoint;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,9 +53,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // make sure we use stateless session; session won't be used to store user's state.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 .and()
                 // handle an unauthenticated attempt
-                .exceptionHandling().authenticationEntryPoint(loginFirstAuthenticationEntryPoint)
+                .exceptionHandling().defaultAuthenticationEntryPointFor(loginFirstAuthenticationEntryPoint, (new AntPathRequestMatcher("/**")))
+                .and()
+                //TODO CUSTOMIZE BAD CREDENTIALS MESSAGES
+                .exceptionHandling().defaultAuthenticationEntryPointFor(badCredentialsAuthenticationEntryPoint, new AntPathRequestMatcher("/auth"))
                 .and()
                 // handle an authorized attempt
                 .exceptionHandling().accessDeniedHandler(roleRequiredAccessDeniedHandler)
@@ -63,7 +77,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
-                .antMatchers("/article/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/article/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/user/registrationConfirm", "/user/resendRegistrationConfirm").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
                 .antMatchers("/admin/**").hasRole("ADMIN")
