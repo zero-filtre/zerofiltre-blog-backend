@@ -71,12 +71,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/savePasswordReset").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .antMatchers(HttpMethod.GET, "/article/**").permitAll()
                 .antMatchers(HttpMethod.GET,
                         "/user/registrationConfirm",
                         "/user/resendRegistrationConfirm",
-                        "/user/resetPassword",
+                        "/user/initPasswordReset",
                         "/user/verifyTokenForPasswordReset"
                 ).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()

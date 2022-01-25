@@ -59,7 +59,7 @@ class VerificationTokenManagerTest {
         LocalDateTime previousExpiryDate = verificationToken.getExpiryDate();
 
         //ACT
-        verificationTokenManager.updateToken(user);
+        verificationTokenManager.generateToken(user);
 
         //ASSERT
         verify(verificationTokenProvider, times(1)).ofUser(user);
@@ -85,7 +85,7 @@ class VerificationTokenManagerTest {
 
 
         //ACT
-        verificationTokenManager.updateToken(user);
+        verificationTokenManager.generateToken(user);
 
         //ASSERT
         verify(verificationTokenProvider, times(1)).ofUser(user);

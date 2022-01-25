@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class RegistrationCompleteListenerTest {
+class UserActionEventListenerTest {
 
     @MockBean
     VerificationTokenManager tokenManager;
@@ -24,11 +24,11 @@ class RegistrationCompleteListenerTest {
     @MockBean
     BlogEmailSender mailSender;
 
-    RegistrationCompleteListener registrationCompleteListener;
+    UserActionEventListener userActionEventListener;
 
     @BeforeEach
     void setUp() {
-        registrationCompleteListener = new RegistrationCompleteListener(messageSource, mailSender, tokenManager);
+        userActionEventListener = new UserActionEventListener(messageSource, mailSender, tokenManager);
     }
 
     @Test
@@ -37,24 +37,23 @@ class RegistrationCompleteListenerTest {
         User user = new User();
         user.setLastName("tester");
         user.setFirstName("tester");
-        OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(
+        UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
                 "appUrl",
-                false
-        );
+                Action.REGISTRATION_COMPLETE);
         when(tokenManager.generateToken(any())).thenReturn("token");
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), any(), any());
 
         //ACT
-        registrationCompleteListener.onApplicationEvent(event);
+        userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
         verify(tokenManager, times(1)).generateToken(any());
         String firstName = StringUtils.capitalize(user.getFirstName());
         String lastName = user.getLastName().toUpperCase();
-        verify(messageSource, times(1)).getMessage("message.registration.success", new Object[]{firstName, lastName}, Locale.FRANCE);
+        verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName, lastName}, Locale.FRANCE);
         verify(mailSender, times(1)).send(any(), any(), any());
     }
 
@@ -64,24 +63,50 @@ class RegistrationCompleteListenerTest {
         User user = new User();
         user.setLastName("tester");
         user.setFirstName("tester");
-        OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(
+        UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
                 "appUrl",
-                true
-        );
-        when(tokenManager.updateToken(any())).thenReturn("token");
+                Action.REGISTRATION_COMPLETE);
+        when(tokenManager.generateToken(any())).thenReturn("token");
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), any(), any());
 
         //ACT
-        registrationCompleteListener.onApplicationEvent(event);
+        userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(tokenManager, times(1)).updateToken(user);
+        verify(tokenManager, times(1)).generateToken(user);
         String firstName = StringUtils.capitalize(user.getFirstName());
         String lastName = user.getLastName().toUpperCase();
-        verify(messageSource, times(1)).getMessage("message.registration.success", new Object[]{firstName, lastName}, Locale.FRANCE);
+        verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName, lastName}, Locale.FRANCE);
+        verify(mailSender, times(1)).send(any(), any(), any());
+    }
+
+    @Test
+    void onResetPassword_CreateToken_ThenNotify() {
+        //ARRANGE
+        User user = new User();
+        user.setLastName("tester");
+        user.setFirstName("tester");
+        UserActionApplicationEvent event = new UserActionApplicationEvent(
+                user,
+                Locale.FRANCE,
+                "appUrl",
+                Action.PASSWORD_RESET
+        );
+        when(tokenManager.generateToken(any())).thenReturn("token");
+        when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
+        doNothing().when(mailSender).send(any(), any(), any());
+
+        //ACT
+        userActionEventListener.onApplicationEvent(event);
+
+        //ASSERT
+        verify(tokenManager, times(1)).generateToken(any());
+        String firstName = StringUtils.capitalize(user.getFirstName());
+        String lastName = user.getLastName().toUpperCase();
+        verify(messageSource, times(1)).getMessage("message.reset.content", new Object[]{firstName, lastName}, Locale.FRANCE);
         verify(mailSender, times(1)).send(any(), any(), any());
     }
 }

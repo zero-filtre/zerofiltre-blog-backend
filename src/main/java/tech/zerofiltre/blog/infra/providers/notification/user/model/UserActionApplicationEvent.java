@@ -5,17 +5,19 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-public class OnResetPasswordEvent extends ApplicationEvent {
+public class UserActionApplicationEvent extends ApplicationEvent {
     private String appUrl;
     private Locale locale;
     private User user;
+    private Action action;
 
-    public OnResetPasswordEvent(User user, Locale locale, String appUrl) {
+    public UserActionApplicationEvent(User user, Locale locale, String appUrl, Action action) {
         super(user);
         this.user = user;
         this.locale = locale;
         this.appUrl = appUrl;
 
+        this.action = action;
     }
 
     public String getAppUrl() {
@@ -40,6 +42,14 @@ public class OnResetPasswordEvent extends ApplicationEvent {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
     }
 
 }

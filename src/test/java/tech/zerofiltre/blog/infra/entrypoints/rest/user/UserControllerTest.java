@@ -44,6 +44,7 @@ class UserControllerTest {
 
     RegisterUserVM userVM = new RegisterUserVM();
 
+
     @BeforeEach
     void setUp() {
         userController = new UserController(
@@ -96,7 +97,7 @@ class UserControllerTest {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
 
         //ACT
-        userController.resetPassword("email", request);
+        userController.initPasswordReset("email", request);
 
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(EMAIL);

@@ -19,7 +19,7 @@ public class ResendRegistrationConfirmation {
         User user = userProvider.userOfEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email));
 
-        userNotificationProvider.notify(new RegistrationCompleteEvent(appUrl, locale, user, true));
+        userNotificationProvider.notify(new UserActionEvent(appUrl, locale, user, Action.REGISTRATION_COMPLETE));
 
     }
 

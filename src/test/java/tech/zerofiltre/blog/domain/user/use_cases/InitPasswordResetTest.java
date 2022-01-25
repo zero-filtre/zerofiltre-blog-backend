@@ -10,12 +10,11 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class ResetPasswordTest {
+class InitPasswordResetTest {
 
     @MockBean
     UserNotificationProvider userNotificationProvider;
@@ -23,11 +22,11 @@ class ResetPasswordTest {
     @MockBean
     UserProvider userProvider;
 
-    ResetPassword resetPassword;
+    InitPasswordReset initPasswordReset;
 
     @BeforeEach
     void setUp() {
-        resetPassword = new ResetPassword(userProvider, userNotificationProvider);
+        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
     }
 
     @Test
@@ -37,7 +36,7 @@ class ResetPasswordTest {
         doNothing().when(userNotificationProvider).notify(any());
 
         //ACT
-        resetPassword.execute("email", "appUrl", Locale.FRANCE);
+        initPasswordReset.execute("email", "appUrl", Locale.FRANCE);
 
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
@@ -51,7 +50,7 @@ class ResetPasswordTest {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> resetPassword.execute("email", "appUrl", Locale.FRANCE));
+        assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> initPasswordReset.execute("email", "appUrl", Locale.FRANCE));
 
     }
 }

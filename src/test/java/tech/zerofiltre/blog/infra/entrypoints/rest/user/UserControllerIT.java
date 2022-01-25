@@ -26,11 +26,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
-        LoginFirstAuthenticationEntryPoint.class,RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class})
+        LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
     private static final String TOKEN = "token";
+    private static final String PASSWORD = "password";
     @Autowired
     MockMvc mockMvc;
 
@@ -45,9 +46,6 @@ class UserControllerIT {
 
     @MockBean
     UserNotificationProvider userNotificationProvider;
-
-    @MockBean
-    VerifyToken verifyToken;
 
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
@@ -69,7 +67,7 @@ class UserControllerIT {
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
-        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(),"token")));
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), TOKEN)));
     }
 
 
@@ -137,19 +135,6 @@ class UserControllerIT {
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/user/registrationConfirm")
                 .param("token", "token");
-
-        //ASSERT
-        mockMvc.perform(request)
-                .andExpect(status().is2xxSuccessful());
-
-    }
-
-    @Test
-    @WithMockUser
-    void onResetPassword_onValidInput_thenReturn200() throws Exception {
-        //ACT
-        RequestBuilder request = MockMvcRequestBuilders.get("/user/resetPassword")
-                .param("email", EMAIL);
 
         //ASSERT
         mockMvc.perform(request)
@@ -227,6 +212,19 @@ class UserControllerIT {
     }
 
     @Test
+    @WithMockUser
+    void onInitPasswordReset_onValidInput_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/initPasswordReset")
+                .param("email", EMAIL);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+
+    }
+
+    @Test
     void onVerifyTokenForPasswordReset_onValidData_thenReturn200_withToken() throws Exception {
         //ARRANGE
 
@@ -239,6 +237,22 @@ class UserControllerIT {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.token").value(TOKEN));
+
+    }
+
+    @Test
+    void onSavePasswordReset_onValidInput_thenReturn200() throws Exception {
+        //ARRANGE
+        ResetPasswordVM resetPasswordVM = new ResetPasswordVM(TOKEN, PASSWORD, PASSWORD);
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.post("/user/savePasswordReset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(resetPasswordVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
 
     }
 

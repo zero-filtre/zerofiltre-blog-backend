@@ -14,20 +14,14 @@ public class VerificationTokenManager {
 
     private final VerificationTokenProvider verificationTokenProvider;
 
-
     public String generateToken(User user) {
         String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken(user, token);
-        verificationTokenProvider.save(verificationToken);
-        return token;
-    }
-
-    public String updateToken(User user) {
         VerificationToken verificationToken = verificationTokenProvider.ofUser(user)
                 .map(vToken -> {
+                    vToken.setToken(token);
                     vToken.setExpiryDate(LocalDateTime.now().plusDays(1));
                     return vToken;
-                }).orElse(new VerificationToken(user, UUID.randomUUID().toString()));
+                }).orElse(new VerificationToken(user, token));
         return verificationTokenProvider.save(verificationToken).getToken();
     }
 }

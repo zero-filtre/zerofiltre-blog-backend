@@ -15,23 +15,13 @@ public class UserMailNotificationProvider implements UserNotificationProvider {
 
     @Override
     public void notify(UserActionEvent userActionEvent) {
-        ApplicationEvent event;
-        if (userActionEvent instanceof RegistrationCompleteEvent) {
-            event = new OnRegistrationCompleteEvent(
-                    userActionEvent.getUser(),
-                    userActionEvent.getLocale(),
-                    userActionEvent.getAppUrl(),
-                    ((RegistrationCompleteEvent) userActionEvent).isRepeated()
-            );
-        } else {
-            event = new OnResetPasswordEvent(
-                    userActionEvent.getUser(),
-                    userActionEvent.getLocale(),
-                    userActionEvent.getAppUrl()
-            );
-        }
-
+        ApplicationEvent event = new UserActionApplicationEvent(
+                userActionEvent.getUser(),
+                userActionEvent.getLocale(),
+                userActionEvent.getAppUrl(),
+                userActionEvent.getAction());
         eventPublisher.publishEvent(event);
 
     }
 }
+

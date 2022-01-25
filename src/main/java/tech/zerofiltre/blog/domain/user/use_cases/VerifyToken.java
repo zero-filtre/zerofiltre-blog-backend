@@ -15,12 +15,13 @@ public class VerifyToken {
         this.verificationTokenProvider = verificationTokenProvider;
     }
 
-    public void execute(String token) throws InvalidTokenException {
+    public VerificationToken execute(String token) throws InvalidTokenException {
         VerificationToken verificationToken = verificationTokenProvider.ofToken(token)
                 .orElseThrow(() -> new InvalidTokenException(INVALID_TOKEN));
 
         if (Duration.between(LocalDateTime.now(), verificationToken.getExpiryDate()).isNegative()) {
             throw new InvalidTokenException(TOKEN_EXPIRED);
         }
+        return verificationToken;
     }
 }

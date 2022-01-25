@@ -13,11 +13,11 @@ public class NotifyRegistrationComplete {
     }
 
     public void execute(User user, String applicationURL, Locale locale) {
-        RegistrationCompleteEvent registrationCompleteEvent = new RegistrationCompleteEvent(
+        UserActionEvent registrationCompleteEvent = new UserActionEvent(
                 applicationURL,
                 locale,
                 user,
-                false);
+                Action.REGISTRATION_COMPLETE);
         userNotificationProvider.notify(registrationCompleteEvent);
 
     }

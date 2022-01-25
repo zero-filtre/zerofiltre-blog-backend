@@ -5,11 +5,11 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-public class ResetPassword {
+public class InitPasswordReset {
     private final UserProvider userProvider;
     private final UserNotificationProvider userNotificationProvider;
 
-    public ResetPassword(UserProvider userProvider, UserNotificationProvider userNotificationProvider) {
+    public InitPasswordReset(UserProvider userProvider, UserNotificationProvider userNotificationProvider) {
         this.userProvider = userProvider;
         this.userNotificationProvider = userNotificationProvider;
     }
@@ -18,7 +18,7 @@ public class ResetPassword {
         User user = userProvider.userOfEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email));
 
-        userNotificationProvider.notify(new ResetPasswordEvent(appUrl, locale, user));
+        userNotificationProvider.notify(new UserActionEvent(appUrl, locale, user, Action.PASSWORD_RESET));
 
     }
 }

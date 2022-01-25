@@ -25,17 +25,19 @@ public class UserController {
     private final MessageSource sources;
     private final PasswordEncoder passwordEncoder;
     private final ResendRegistrationConfirmation resendRegistrationConfirmation;
-    private final ResetPassword resetPassword;
+    private final InitPasswordReset initPasswordReset;
     private final VerifyToken verifyToken;
+    private final SavePasswordReset savePasswordReset;
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
+        this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
-        this.resetPassword = new ResetPassword(userProvider, userNotificationProvider);
+        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
     }
 
@@ -69,11 +71,19 @@ public class UserController {
         return sources.getMessage("message.registration.resent", null, request.getLocale());
     }
 
-    @GetMapping("/resetPassword")
-    public String resetPassword(@RequestParam String email, HttpServletRequest request) {
+
+    @GetMapping("/registrationConfirm")
+    public String registrationConfirm(@RequestParam String token, HttpServletRequest request) throws InvalidTokenException {
+        confirmUserRegistration.execute(token);
+        return sources.getMessage("message.account.validated", null, request.getLocale());
+
+    }
+
+    @GetMapping("/initPasswordReset")
+    public String initPasswordReset(@RequestParam String email, HttpServletRequest request) {
         String appUrl = ZerofiltreUtils.getAppURL(request);
         try {
-            resetPassword.execute(email, appUrl, request.getLocale());
+            initPasswordReset.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
             log.error("We were unable to initiate password reset", e);
         }
@@ -86,10 +96,9 @@ public class UserController {
         return Collections.singletonMap("token", token);
     }
 
-    @GetMapping("/registrationConfirm")
-    public String registrationConfirm(@RequestParam String token, HttpServletRequest request) throws InvalidTokenException {
-        confirmUserRegistration.execute(token);
-        return sources.getMessage("message.account.validated", null, request.getLocale());
-
+    @PostMapping("/savePasswordReset")
+    public String savePasswordReset(@RequestBody @Valid ResetPasswordVM passwordVM, HttpServletRequest request) throws InvalidTokenException {
+        savePasswordReset.execute(passwordEncoder.encode(passwordVM.getPassword()), passwordVM.getToken());
+        return sources.getMessage("message.reset.password.success", null, request.getLocale());
     }
 }
