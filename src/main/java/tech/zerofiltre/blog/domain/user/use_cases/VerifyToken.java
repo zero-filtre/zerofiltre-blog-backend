@@ -5,29 +5,22 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.time.*;
 
-public class ConfirmUserRegistration {
+public class VerifyToken {
     public static final String TOKEN_EXPIRED = "The token you've provided is expired";
     public static final String INVALID_TOKEN = "We couldn't find a token corresponding to the one you've provided";
     private final VerificationTokenProvider verificationTokenProvider;
-    private final UserProvider userProvider;
 
 
-    public ConfirmUserRegistration(VerificationTokenProvider verificationTokenProvider, UserProvider userProvider) {
+    public VerifyToken(VerificationTokenProvider verificationTokenProvider) {
         this.verificationTokenProvider = verificationTokenProvider;
-        this.userProvider = userProvider;
     }
 
-    public User execute(String token) throws InvalidTokenException {
+    public void execute(String token) throws InvalidTokenException {
         VerificationToken verificationToken = verificationTokenProvider.ofToken(token)
                 .orElseThrow(() -> new InvalidTokenException(INVALID_TOKEN));
 
         if (Duration.between(LocalDateTime.now(), verificationToken.getExpiryDate()).isNegative()) {
             throw new InvalidTokenException(TOKEN_EXPIRED);
         }
-
-        User user = verificationToken.getUser();
-        user.setActive(true);
-        return userProvider.save(user);
-
     }
 }

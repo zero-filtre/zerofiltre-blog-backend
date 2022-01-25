@@ -20,18 +20,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 class UserControllerTest {
 
+    public static final String TOKEN = "token";
+    public static final String EMAIL = "email";
     @MockBean
-    private RegisterUser registerUser;
+    MessageSource sources;
     @MockBean
-    private NotifyRegistrationComplete notifyRegistrationComplete;
-    @MockBean
-    private ConfirmUserRegistration confirmUserRegistration;
-    @MockBean
-    private MessageSource sources;
-    @MockBean
-    private PasswordEncoder passwordEncoder;
-    @MockBean
-    private ResendRegistrationConfirmation resendRegistrationConfirmation;
+    PasswordEncoder passwordEncoder;
 
     @MockBean
     UserProvider userProvider;
@@ -88,7 +82,7 @@ class UserControllerTest {
         when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "")));
 
         //ACT
-        userController.confirmRegistration("token", request);
+        userController.registrationConfirm("token", request);
 
         //ASSERT
         verify(verificationTokenProvider, times(1)).ofToken(any());
@@ -105,8 +99,22 @@ class UserControllerTest {
         userController.resetPassword("email", request);
 
         //ASSERT
-        verify(userProvider, times(1)).userOfEmail("email");
+        verify(userProvider, times(1)).userOfEmail(EMAIL);
         verify(userNotificationProvider, times(1)).notify(any());
+
+    }
+
+    @Test
+    void verifyToken_mustCheckToken() throws InvalidTokenException {
+        //ARRANGE
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "")));
+
+
+        //ACT
+        userController.verifyTokenForPasswordReset(TOKEN);
+
+        //ASSERT
+        verify(verificationTokenProvider, times(1)).ofToken(any());
 
     }
 }

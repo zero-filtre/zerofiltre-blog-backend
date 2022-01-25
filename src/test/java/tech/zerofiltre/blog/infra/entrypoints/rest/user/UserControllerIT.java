@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
+    private static final String TOKEN = "token";
     @Autowired
     MockMvc mockMvc;
 
@@ -44,6 +45,9 @@ class UserControllerIT {
 
     @MockBean
     UserNotificationProvider userNotificationProvider;
+
+    @MockBean
+    VerifyToken verifyToken;
 
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
@@ -219,6 +223,22 @@ class UserControllerIT {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
+
+    }
+
+    @Test
+    void onVerifyTokenForPasswordReset_onValidData_thenReturn200_withToken() throws Exception {
+        //ARRANGE
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/verifyTokenForPasswordReset")
+                .param("token", TOKEN);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.token").value(TOKEN));
 
     }
 

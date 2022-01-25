@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.util.*;
 
 import javax.servlet.http.*;
 import javax.validation.*;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -25,6 +26,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final ResendRegistrationConfirmation resendRegistrationConfirmation;
     private final ResetPassword resetPassword;
+    private final VerifyToken verifyToken;
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder) {
         this.registerUser = new RegisterUser(userProvider);
@@ -34,6 +36,7 @@ public class UserController {
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
         this.resetPassword = new ResetPassword(userProvider, userNotificationProvider);
+        this.verifyToken = new VerifyToken(verificationTokenProvider);
     }
 
     @PostMapping
@@ -77,8 +80,14 @@ public class UserController {
         return sources.getMessage("message.reset.password.sent", null, request.getLocale());
     }
 
+    @GetMapping("/verifyTokenForPasswordReset")
+    public Map<String, String> verifyTokenForPasswordReset(@RequestParam String token) throws InvalidTokenException {
+        verifyToken.execute(token);
+        return Collections.singletonMap("token", token);
+    }
+
     @GetMapping("/registrationConfirm")
-    public String confirmRegistration(@RequestParam String token, HttpServletRequest request) throws InvalidTokenException {
+    public String registrationConfirm(@RequestParam String token, HttpServletRequest request) throws InvalidTokenException {
         confirmUserRegistration.execute(token);
         return sources.getMessage("message.account.validated", null, request.getLocale());
 

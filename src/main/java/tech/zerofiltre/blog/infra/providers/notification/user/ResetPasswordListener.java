@@ -28,7 +28,7 @@ public class ResetPasswordListener implements ApplicationListener<OnResetPasswor
         String recipientAddress = user.getEmail();
         String subject = messages.getMessage("message.reset.subject", null, event.getLocale());
         String resetUrl
-                = event.getAppUrl() + "/user/changePassword?token=" + token;
+                = event.getAppUrl() + "/user/verifyTokenForPasswordReset?token=" + token;
         String firstName = StringUtils.capitalize(user.getFirstName());
         String lastName = user.getLastName().toUpperCase();
         String message = messages.getMessage("message.reset.content", new Object[]{firstName, lastName}, event.getLocale());

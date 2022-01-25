@@ -73,7 +73,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .antMatchers(HttpMethod.GET, "/article/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/user/registrationConfirm", "/user/resendRegistrationConfirm").permitAll()
+                .antMatchers(HttpMethod.GET,
+                        "/user/registrationConfirm",
+                        "/user/resendRegistrationConfirm",
+                        "/user/resetPassword",
+                        "/user/verifyTokenForPasswordReset"
+                ).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
