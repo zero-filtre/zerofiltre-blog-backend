@@ -4,9 +4,11 @@ import lombok.extern.slf4j.*;
 import org.springframework.context.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -28,12 +30,16 @@ public class UserController {
     private final InitPasswordReset initPasswordReset;
     private final VerifyToken verifyToken;
     private final SavePasswordReset savePasswordReset;
+    private final UpdatePassword updatePassword;
+    private final SecurityContextManager securityContextManager;
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
+        this.updatePassword = new UpdatePassword(userProvider,passwordVerifierProvider);
+        this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
@@ -100,5 +106,15 @@ public class UserController {
     public String savePasswordReset(@RequestBody @Valid ResetPasswordVM passwordVM, HttpServletRequest request) throws InvalidTokenException {
         savePasswordReset.execute(passwordEncoder.encode(passwordVM.getPassword()), passwordVM.getToken());
         return sources.getMessage("message.reset.password.success", null, request.getLocale());
+    }
+
+    @PostMapping("/updatePassword")
+    public String updatePassword(@RequestBody @Valid UpdatePasswordVM passwordVM, HttpServletRequest request) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        String oldEncodedPassword = passwordEncoder.encode(passwordVM.getOldPassword());
+        String newEncodedPassword = passwordEncoder.encode(passwordVM.getPassword());
+        updatePassword.execute(user.getEmail(), oldEncodedPassword, newEncodedPassword);
+        return sources.getMessage("message.reset.password.success", null, request.getLocale());
+
     }
 }

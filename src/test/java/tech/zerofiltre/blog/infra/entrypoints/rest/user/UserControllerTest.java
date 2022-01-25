@@ -6,9 +6,11 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 
 import javax.servlet.http.*;
@@ -24,6 +26,7 @@ class UserControllerTest {
     public static final String EMAIL = "email";
     @MockBean
     MessageSource sources;
+
     @MockBean
     PasswordEncoder passwordEncoder;
 
@@ -39,16 +42,25 @@ class UserControllerTest {
     @MockBean
     HttpServletRequest request;
 
-
     UserController userController;
 
     RegisterUserVM userVM = new RegisterUserVM();
+    UpdatePasswordVM updatePasswordVM = new UpdatePasswordVM();
+
+    @MockBean
+    private UpdatePassword updatePassword;
+
+    @MockBean
+    private SecurityContextManager securityContextManager;
+
+    @MockBean
+    private PasswordVerifierProvider passwordVerifierProvider;
 
 
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder);
+                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider);
     }
 
     @Test
@@ -116,6 +128,20 @@ class UserControllerTest {
 
         //ASSERT
         verify(verificationTokenProvider, times(1)).ofToken(any());
+
+    }
+
+    @Test
+    void updatePassword_mustCheckUserAndPassword_thenSave() throws BlogException {
+        //ARRANGE
+
+        //ACT
+        userController.updatePassword(updatePasswordVM, request);
+
+        //ASSERT
+        verify(userProvider, times(1)).userOfEmail(any());
+        verify(passwordVerifierProvider, times(1)).isValid(any(), any());
+        verify(userProvider, times(1)).save(any());
 
     }
 }
