@@ -31,7 +31,7 @@ class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
     private static final String TOKEN = "token";
-    private static final String PASSWORD = "password";
+    private static final String PASSWORD = "COmplic$t6d";
     @Autowired
     MockMvc mockMvc;
 
@@ -76,8 +76,8 @@ class UserControllerIT {
         registerUserVM = new RegisterUserVM(
                 "firstName",
                 "lastName",
-                "password",
-                "password",
+                PASSWORD,
+                PASSWORD,
                 "hola@zerofiltre.fr"
         );
 

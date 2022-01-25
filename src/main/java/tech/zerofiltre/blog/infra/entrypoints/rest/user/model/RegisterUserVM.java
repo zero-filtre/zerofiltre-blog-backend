@@ -26,9 +26,7 @@ public class RegisterUserVM extends PasswordHolder {
     public RegisterUserVM(
             String firstName,
             String lastName,
-            @NotNull(message = "The password must not be null")
-            @NotEmpty(message = "The password must not be empty")
-                    String password,
+            String password,
             String matchingPassword,
             String email) {
         super(password, matchingPassword);

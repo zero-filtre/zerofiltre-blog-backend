@@ -15,12 +15,7 @@ public class ResetPasswordVM extends PasswordHolder {
     @NotEmpty(message = "The token must not be empty")
     private String token;
 
-    public ResetPasswordVM(
-            String token,
-            @NotNull(message = "The password must not be null")
-            @NotEmpty(message = "The password must not be empty")
-                    String password,
-            String matchingPassword) {
+    public ResetPasswordVM(String token, String password, String matchingPassword) {
         super(password, matchingPassword);
         this.token = token;
     }
