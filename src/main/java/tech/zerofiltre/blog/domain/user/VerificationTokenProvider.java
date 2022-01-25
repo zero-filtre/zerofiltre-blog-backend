@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.user;
 
 import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import java.util.*;
 

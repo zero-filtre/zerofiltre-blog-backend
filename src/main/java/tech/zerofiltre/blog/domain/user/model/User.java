@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.user.model;
 
-import java.io.*;
 import java.time.*;
 import java.util.*;
 
@@ -21,7 +20,6 @@ public class User {
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;
-
 
 
     public long getId() {

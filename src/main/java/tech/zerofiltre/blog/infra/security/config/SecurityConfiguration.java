@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // handle an unauthenticated attempt
                 .exceptionHandling().defaultAuthenticationEntryPointFor(loginFirstAuthenticationEntryPoint, (new AntPathRequestMatcher("/**")))
                 .and()
-                //TODO CUSTOMIZE BAD CREDENTIALS MESSAGES using badCredentialsAuthenticationEntryPoint
+                //TODO CUSTOMIZE BAD CREDENTIALS MESSAGES using badCredentialsAuthenticationEntryPoint or Create and ErrorHandlerController to handle /error
                 // handle an authorized attempt
                 .exceptionHandling().accessDeniedHandler(roleRequiredAccessDeniedHandler)
                 .and()
@@ -68,16 +68,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Add a filter to validate the tokens with every request
                 .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfiguration), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                // allow all who are accessing "auth" service or trying to register an account
+                // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .antMatchers(HttpMethod.GET, "/article/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/user/registrationConfirm", "/user/resendRegistrationConfirm").permitAll()
-                // must be an admin if trying to access admin area (authentication is also required here)
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                // must be an admin if trying to access admin area (authentication is also required here)
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
     }
