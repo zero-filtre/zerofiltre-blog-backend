@@ -13,11 +13,11 @@ public class UpdatePassword {
         this.passwordVerifierProvider = passwordVerifierProvider;
     }
 
-    public void execute(String email, String oldEncodedPassword, String newEncodedPassword) throws UserNotFoundException, InvalidPasswordException {
+    public void execute(String email, String oldPassword, String newEncodedPassword) throws UserNotFoundException, InvalidPasswordException {
         User userFromEmail = userProvider.userOfEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a connected user"));
 
-        if (!passwordVerifierProvider.isValid(userFromEmail, oldEncodedPassword)) {
+        if (!passwordVerifierProvider.isValid(userFromEmail, oldPassword)) {
             throw new InvalidPasswordException("The password provided does not match the current user");
         }
         userFromEmail.setPassword(newEncodedPassword);

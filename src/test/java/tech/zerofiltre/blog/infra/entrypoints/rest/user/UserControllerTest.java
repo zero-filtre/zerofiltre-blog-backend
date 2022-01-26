@@ -34,6 +34,9 @@ class UserControllerTest {
     UserProvider userProvider;
 
     @MockBean
+    PasswordVerifierProvider passwordVerifierProvider;
+
+    @MockBean
     UserNotificationProvider userNotificationProvider;
 
     @MockBean
@@ -47,14 +50,9 @@ class UserControllerTest {
     RegisterUserVM userVM = new RegisterUserVM();
     UpdatePasswordVM updatePasswordVM = new UpdatePasswordVM();
 
-    @MockBean
-    private UpdatePassword updatePassword;
 
     @MockBean
     private SecurityContextManager securityContextManager;
-
-    @MockBean
-    private PasswordVerifierProvider passwordVerifierProvider;
 
 
     @BeforeEach
@@ -134,13 +132,19 @@ class UserControllerTest {
     @Test
     void updatePassword_mustCheckUserAndPassword_thenSave() throws BlogException {
         //ARRANGE
+        User user = new User();
+        user.setEmail(EMAIL);
+        when(securityContextManager.getAuthenticatedUser()).thenReturn(user);
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
+        when(passwordVerifierProvider.isValid(any(), any())).thenReturn(true);
+        when(userProvider.save(any())).thenReturn(user);
 
         //ACT
         userController.updatePassword(updatePasswordVM, request);
 
         //ASSERT
-        verify(userProvider, times(1)).userOfEmail(any());
-        verify(passwordVerifierProvider, times(1)).isValid(any(), any());
+        verify(userProvider, times(1)).userOfEmail(EMAIL);
+        verify(passwordVerifierProvider, times(1)).isValid(user, updatePasswordVM.getOldPassword());
         verify(userProvider, times(1)).save(any());
 
     }

@@ -9,20 +9,20 @@ import tech.zerofiltre.blog.infra.*;
 @Slf4j
 public class WebConfiguration implements WebMvcConfigurer {
 
-    private final BlogConfiguration blogConfiguration;
+    private final BlogProperties blogProperties;
 
-    public WebConfiguration(BlogConfiguration blogConfiguration) {
-        this.blogConfiguration = blogConfiguration;
+    public WebConfiguration(BlogProperties blogProperties) {
+        this.blogProperties = blogProperties;
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.debug("Registering this allowed origins pattern: {}", blogConfiguration.getCurrentApiVersion());
+        log.debug("Registering this allowed origins pattern: {}", blogProperties.getCurrentApiVersion());
         registry.addMapping("/**")
                 .allowCredentials(true)
                 .allowedMethods("*")
                 .exposedHeaders("*")
-                .allowedOriginPatterns(blogConfiguration.getCurrentApiVersion());
+                .allowedOriginPatterns(blogProperties.getCurrentApiVersion());
     }
 
 }

@@ -13,8 +13,8 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
     }
 
     @Override
-    public boolean isValid(String email, ConstraintValidatorContext context) {
-        return (validatePassword(email));
+    public boolean isValid(String password, ConstraintValidatorContext context) {
+        return (validatePassword(password));
     }
 
     private boolean validatePassword(String password) {

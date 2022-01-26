@@ -8,6 +8,7 @@ import javax.validation.constraints.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@PasswordMatches
 public class PasswordHolder {
 
     @NotNull(message = "The password must not be null")

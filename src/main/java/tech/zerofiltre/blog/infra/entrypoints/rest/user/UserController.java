@@ -111,9 +111,8 @@ public class UserController {
     @PostMapping("/updatePassword")
     public String updatePassword(@RequestBody @Valid UpdatePasswordVM passwordVM, HttpServletRequest request) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
-        String oldEncodedPassword = passwordEncoder.encode(passwordVM.getOldPassword());
         String newEncodedPassword = passwordEncoder.encode(passwordVM.getPassword());
-        updatePassword.execute(user.getEmail(), oldEncodedPassword, newEncodedPassword);
+        updatePassword.execute(user.getEmail(), passwordVM.getOldPassword(), newEncodedPassword);
         return sources.getMessage("message.reset.password.success", null, request.getLocale());
 
     }

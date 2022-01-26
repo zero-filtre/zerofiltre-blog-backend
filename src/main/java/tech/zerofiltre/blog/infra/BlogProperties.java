@@ -6,7 +6,7 @@ import org.springframework.stereotype.*;
 
 @Data
 @Component
-public class BlogConfiguration {
+public class BlogProperties {
 
     @Value("${zerofiltre.infra.entrypoints.rest.allowed-origins-pattern}")
     private String allowedOriginsPattern;

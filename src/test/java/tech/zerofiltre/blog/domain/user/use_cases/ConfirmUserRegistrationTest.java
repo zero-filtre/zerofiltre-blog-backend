@@ -54,7 +54,7 @@ class ConfirmUserRegistrationTest {
     @Test
     void onTokenExpired_ThrowInvalidTokenException_withProperMessage() {
         //ARRANGE
-        verificationToken.setExpiryDate(LocalDateTime.now());
+        verificationToken.setExpiryDate(LocalDateTime.now().minusHours(1));
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.ofNullable(verificationToken));
 
         //ACT & ASSERT
