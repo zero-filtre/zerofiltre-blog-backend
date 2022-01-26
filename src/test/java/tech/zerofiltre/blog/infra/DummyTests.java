@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @ExtendWith(SpringExtension.class)
-@Import({WebConfiguration.class,PasswordEncoderConfiguration.class})
+@Import({WebConfiguration.class,PasswordEncoderConfiguration.class,BlogConfiguration.class})
 class DummyTests {
 
     @Autowired
