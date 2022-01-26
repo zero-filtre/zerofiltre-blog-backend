@@ -47,6 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
+                //consider cors configurations
+                .cors()
+                .and()
                 .csrf().disable()
                 // make sure we use stateless session; session won't be used to store user's state.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -80,7 +83,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/initPasswordReset",
                         "/user/verifyTokenForPasswordReset"
                 ).permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
