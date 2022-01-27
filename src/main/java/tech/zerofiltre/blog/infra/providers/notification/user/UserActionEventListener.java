@@ -30,7 +30,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
                 "message.reset.subject" : "message.registration.subject";
 
         String pageUri = isPasswordResetAction ?
-                "/user/verifyTokenForPasswordReset?token=" : "/user/registrationConfirm?token=";
+                "/passwordReset?token=" : "/accountConfirmation?token=";
 
         String messageCode = isPasswordResetAction ?
                 "message.reset.content" : "message.registration.success.content";
