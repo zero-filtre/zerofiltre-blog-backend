@@ -4,6 +4,7 @@ import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.context.*;
 import org.springframework.core.env.*;
+import org.springframework.scheduling.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -14,6 +15,7 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.*;
 
+@EnableScheduling
 @SpringBootApplication
 public class ZerofiltreBlogApplication {
     static ConfigurableApplicationContext applicationContext;

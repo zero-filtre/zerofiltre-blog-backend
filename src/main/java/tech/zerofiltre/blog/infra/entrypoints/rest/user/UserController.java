@@ -38,7 +38,7 @@ public class UserController {
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
-        this.updatePassword = new UpdatePassword(userProvider,passwordVerifierProvider);
+        this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
@@ -48,12 +48,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User registerUserAccount(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws UserAlreadyExistException {
+    public User registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws UserAlreadyExistException {
         User user = new User();
         user.setFirstName(registerUserVM.getFirstName());
         user.setLastName(registerUserVM.getLastName());
         user.setEmail(registerUserVM.getEmail());
         user.setPassword(passwordEncoder.encode(registerUserVM.getPassword()));
+        user.setLanguage(request.getLocale().getLanguage());
         user = registerUser.execute(user);
 
         String appUrl = ZerofiltreUtils.getAppURL(request);

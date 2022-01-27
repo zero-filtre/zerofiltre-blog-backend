@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
+import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
 import org.springframework.security.crypto.password.*;
@@ -14,8 +15,10 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 
 import javax.servlet.http.*;
+import java.time.*;
 import java.util.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -24,6 +27,8 @@ class UserControllerTest {
 
     public static final String TOKEN = "token";
     public static final String EMAIL = "email";
+    public static final String LAST_NAME = "lastName";
+    public static final String FIRST_NAME = "firstName";
     @MockBean
     MessageSource sources;
 
@@ -62,14 +67,26 @@ class UserControllerTest {
     }
 
     @Test
-    void registerUserAccount_MustRegisterUser_ThenNotifyRegistrationComplete() throws UserAlreadyExistException {
+    void registerUser_MustRegisterUser_ThenNotifyRegistrationComplete() throws UserAlreadyExistException {
+        //ARRANGE
+        userVM.setEmail(EMAIL);
+        userVM.setFirstName(FIRST_NAME);
+        userVM.setLastName(LAST_NAME);
+        when(request.getLocale()).thenReturn(Locale.FRANCE);
 
         //ACT
-        userController.registerUserAccount(userVM, request);
+        userController.registerUser(userVM, request);
 
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
-        verify(userProvider, times(1)).save(any());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+
+        verify(userProvider, times(1)).save(captor.capture());
+        User user = captor.getValue();
+        assertThat(user.getEmail()).isEqualTo(EMAIL);
+        assertThat(user.getFirstName()).isEqualTo(FIRST_NAME);
+        assertThat(user.getLastName()).isEqualTo(LAST_NAME);
+        assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         verify(userNotificationProvider, times(1)).notify(any());
     }
 

@@ -42,4 +42,12 @@ public class UserDatabaseProvider implements UserProvider {
         return repository.findByEmail(email)
                 .map(mapper::fromJPA);
     }
+
+    @Override
+    public List<User> nonActiveUsers() {
+        return repository.findByIsActiveIsFalse()
+                .stream().map(mapper::fromJPA)
+                .collect(Collectors.toList());
+
+    }
 }

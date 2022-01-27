@@ -7,6 +7,8 @@ import org.springframework.util.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
+import java.util.*;
+
 @Component
 @RequiredArgsConstructor
 public class UserActionEventListener implements ApplicationListener<UserActionApplicationEvent> {

@@ -13,4 +13,6 @@ public interface UserProvider {
     User save(User user);
 
     Optional<User> userOfEmail(String email);
+
+    List<User> nonActiveUsers();
 }

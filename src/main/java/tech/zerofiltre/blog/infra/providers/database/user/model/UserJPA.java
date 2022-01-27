@@ -22,6 +22,7 @@ public class UserJPA extends BaseEntityJPA {
     private String profilePicture;
     private String profession;
     private String bio;
+    private String language;
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;

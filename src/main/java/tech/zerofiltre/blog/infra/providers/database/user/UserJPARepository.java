@@ -7,4 +7,6 @@ import java.util.*;
 
 public interface UserJPARepository extends JpaRepository<UserJPA, Long> {
     Optional<UserJPA> findByEmail(String email);
+
+    List<UserJPA> findByIsActiveIsFalse();
 }
