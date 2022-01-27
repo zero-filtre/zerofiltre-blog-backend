@@ -38,3 +38,5 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
+    rate: 100
+    initial-delay: 0

@@ -55,7 +55,6 @@ class ConfirmRegistrationReminderTest {
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForUAT() {
-        //ARRANGE
         testRemindConfirmRegistration("uat", "https://blog-uat.zerofiltre.tech");
 
     }

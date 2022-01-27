@@ -41,4 +41,7 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
+    rate: 864000000 #10 days
+    initial-delay: 0
+
 

@@ -20,35 +20,38 @@ public class ConfirmRegistrationReminder {
     private final VerificationTokenManager tokenManager;
     private final Environment environment;
 
-    @Scheduled(cron = "0 0 8 1/10 * *")//At 08:00 every 10 days
+    @Scheduled(fixedRateString = "${zerofiltre.infra.rate}",initialDelayString = "${zerofiltre.infra.initial-delay}")
     public void remindConfirmRegistration() {
 
         userProvider.nonActiveUsers()
                 .forEach(user -> {
+                    if (user.getEmail() != null) {
 
-                    Locale locale = new Locale(user.getLanguage());
+                        String language = user.getLanguage() != null ? user.getLanguage() : Locale.FRANCE.getLanguage();
+                        Locale locale = new Locale(language);
 
-                    String subject = messages.getMessage("message.registration.subject.remind", null, locale);
+                        String subject = messages.getMessage("message.registration.subject.remind", null, locale);
 
-                    String token = tokenManager.generateToken(user);
+                        String token = tokenManager.generateToken(user);
 
-                    String firstName = StringUtils.capitalize(user.getFirstName());
-                    String lastName = user.getLastName().toUpperCase();
+                        String firstName = StringUtils.capitalize(user.getFirstName());
+                        String lastName = user.getLastName().toUpperCase();
 
-                    String message = messages.getMessage(
-                            "message.registration.success.remind.content",
-                            new Object[]{firstName, lastName},
-                            locale
-                    );
+                        String message = messages.getMessage(
+                                "message.registration.success.remind.content",
+                                new Object[]{firstName, lastName},
+                                locale
+                        );
 
-                    String pageUri = "/accountConfirmation?token=";
+                        String pageUri = "/accountConfirmation?token=";
 
-                    String greetings = messages.getMessage("message.greetings", null, locale);
+                        String greetings = messages.getMessage("message.greetings", null, locale);
 
-                    String url = getAppUrl() + pageUri + token;
+                        String url = getAppUrl() + pageUri + token;
 
-                    String emailContent = message + "\r\n" + url + "\r\n" + greetings;
-                    emailSender.send(user.getEmail(), subject, emailContent);
+                        String emailContent = message + "\r\n" + url + "\r\n" + greetings;
+                        emailSender.send(user.getEmail(), subject, emailContent);
+                    }
                 });
 
     }
