@@ -17,12 +17,12 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.debug("Registering this allowed origins pattern: {}", blogProperties.getCurrentApiVersion());
+        log.debug("Registering this allowed origins pattern: {}", blogProperties.getAllowedOriginsPattern());
         registry.addMapping("/**")
                 .allowCredentials(true)
                 .allowedMethods("*")
                 .exposedHeaders("*")
-                .allowedOriginPatterns(blogProperties.getCurrentApiVersion());
+                .allowedOriginPatterns(blogProperties.getAllowedOriginsPattern());
     }
 
 }
