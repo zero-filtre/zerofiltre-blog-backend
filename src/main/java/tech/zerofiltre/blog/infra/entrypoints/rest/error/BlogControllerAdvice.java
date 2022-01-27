@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.*;
 import org.springframework.context.support.*;
 import org.springframework.http.*;
+import org.springframework.web.*;
 import org.springframework.web.bind.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
@@ -14,6 +15,7 @@ import java.util.*;
 @RestControllerAdvice
 public class BlogControllerAdvice {
 
+    public static final String NO_DOMAIN_AVAILABLE = "No domain available";
     @Value("${zerofiltre.infra.entrypoints.rest.api-version}")
     private String currentApiVersion;
 
@@ -57,7 +59,7 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_004",
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
-                "No domain available",
+                NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -89,6 +91,19 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<BlogError> handleException(HttpRequestMethodNotSupportedException exception, Locale locale) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                "ZBLOG_000",
+                messageSource.getMessage("ZBLOG_000", null, locale),
+                NO_DOMAIN_AVAILABLE,
+                exception.getLocalizedMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
         final BlogError error = new BlogError(
@@ -96,7 +111,7 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 "ZBLOG_000",
                 messageSource.getMessage("ZBLOG_000", new Object[]{}, locale),
-                "No domain available",
+                NO_DOMAIN_AVAILABLE,
                 throwable.getLocalizedMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,12 +1,13 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
-import tech.zerofiltre.blog.util.*;
 
 import javax.validation.*;
 import javax.validation.constraints.*;
@@ -19,9 +20,10 @@ public class ArticleController {
     private final PublishOrSaveArticle publishOrSaveArticle;
     private final InitArticle initArticle;
     private final FindArticle findArticle;
+    private final SecurityContextManager securityContextManager;
 
-
-    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider) {
+    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider, SecurityContextManager securityContextManager) {
+        this.securityContextManager = securityContextManager;
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
         initArticle = new InitArticle(articleProvider);
         findArticle = new FindArticle(articleProvider);
@@ -40,37 +42,19 @@ public class ArticleController {
 
     @PatchMapping
     public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(
-                publishOrSaveArticleVM.getId(),
-                publishOrSaveArticleVM.getTitle(),
-                publishOrSaveArticleVM.getThumbnail(),
-                publishOrSaveArticleVM.getContent(),
-                publishOrSaveArticleVM.getTags(),
-                Status.DRAFT
-        );
+        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
     }
 
     @PatchMapping("/publish")
     public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(
-                publishOrSaveArticleVM.getId(),
-                publishOrSaveArticleVM.getTitle(),
-                publishOrSaveArticleVM.getThumbnail(),
-                publishOrSaveArticleVM.getContent(),
-                publishOrSaveArticleVM.getTags(),
-                Status.PUBLISHED
-        );
+        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
     }
 
     @PostMapping
-    public Article init(@RequestParam @NotNull @NotEmpty String title) {
-        User user = getAuthenticatedUser();
+    public Article init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
         return initArticle.execute(title, user);
     }
 
-    private User getAuthenticatedUser() {
-        //TODO get Authenticated user via Spring security APIs
-        return ZerofiltreUtils.createMockUser();
-    }
 
 }

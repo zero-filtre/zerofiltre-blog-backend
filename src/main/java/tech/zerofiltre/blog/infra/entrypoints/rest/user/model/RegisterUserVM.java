@@ -7,9 +7,9 @@ import javax.validation.constraints.*;
 
 @Data
 @PasswordMatches
-@AllArgsConstructor
 @NoArgsConstructor
-public class RegisterUserVM {
+@EqualsAndHashCode(callSuper = true)
+public class RegisterUserVM extends PasswordHolder {
     @NotNull(message = "The firstName must not be null")
     @NotEmpty(message = "The firstName must not be empty")
     private String firstName;
@@ -18,14 +18,20 @@ public class RegisterUserVM {
     @NotEmpty(message = "The lastName must not be empty")
     private String lastName;
 
-    @NotNull(message = "The password must not be null")
-    @NotEmpty(message = "The password must not be empty")
-    private String password;
-    private String matchingPassword;
-
     @NotNull(message = "The email must not be null")
     @NotEmpty(message = "The email must not be empty")
     @ValidEmail
     private String email;
 
+    public RegisterUserVM(
+            String firstName,
+            String lastName,
+            String password,
+            String matchingPassword,
+            String email) {
+        super(password, matchingPassword);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
 }

@@ -14,17 +14,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class ConfirmUserRegistrationTest {
-
+class VerifyTokenTest {
 
     public static final String TOKEN = "token";
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
 
-    @MockBean
-    UserProvider userProvider;
 
-    ConfirmUserRegistration confirmUserRegistration;
+    VerifyToken verifyToken;
 
     User user = new User();
     VerificationToken verificationToken = new VerificationToken(user, TOKEN);
@@ -32,22 +29,19 @@ class ConfirmUserRegistrationTest {
 
     @BeforeEach
     void setUp() {
-        confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
+        verifyToken = new VerifyToken(verificationTokenProvider);
     }
 
     @Test
     void onValidToken_setUserActive_thenSave() throws InvalidTokenException {
         //ARRANGE
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.ofNullable(verificationToken));
-        when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        assertThat(user.isActive()).isFalse();
 
         //ACT
-        user = confirmUserRegistration.execute(TOKEN);
+        verifyToken.execute(TOKEN);
 
         //ASSERT
-        assertThat(user.isActive()).isTrue();
-        verify(userProvider, times(1)).save(any());
+        verify(verificationTokenProvider, times(1)).ofToken(TOKEN);
 
     }
 
@@ -58,7 +52,7 @@ class ConfirmUserRegistrationTest {
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.ofNullable(verificationToken));
 
         //ACT & ASSERT
-        assertThatExceptionOfType(InvalidTokenException.class).isThrownBy(() -> confirmUserRegistration.execute(TOKEN))
+        assertThatExceptionOfType(InvalidTokenException.class).isThrownBy(() -> verifyToken.execute(TOKEN))
                 .withMessage(ConfirmUserRegistration.TOKEN_EXPIRED);
 
     }
@@ -69,7 +63,7 @@ class ConfirmUserRegistrationTest {
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(InvalidTokenException.class).isThrownBy(() -> confirmUserRegistration.execute(TOKEN))
+        assertThatExceptionOfType(InvalidTokenException.class).isThrownBy(() -> verifyToken.execute(TOKEN))
                 .withMessage(ConfirmUserRegistration.INVALID_TOKEN);
 
     }

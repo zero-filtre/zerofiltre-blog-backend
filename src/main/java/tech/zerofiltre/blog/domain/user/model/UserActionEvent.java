@@ -2,17 +2,17 @@ package tech.zerofiltre.blog.domain.user.model;
 
 import java.util.*;
 
-public class RegistrationCompleteEvent {
+public class UserActionEvent {
     private String appUrl;
     private Locale locale;
     private User user;
-    private boolean repeated;
+    private Action action;
 
-    public RegistrationCompleteEvent(String appUrl, Locale locale, User user, boolean repeated) {
+    public UserActionEvent(String appUrl, Locale locale, User user, Action action) {
         this.appUrl = appUrl;
         this.locale = locale;
         this.user = user;
-        this.repeated = repeated;
+        this.action = action;
     }
 
     public String getAppUrl() {
@@ -39,11 +39,11 @@ public class RegistrationCompleteEvent {
         this.user = user;
     }
 
-    public boolean isRepeated() {
-        return repeated;
+    public Action getAction() {
+        return action;
     }
 
-    public void setRepeated(boolean repeated) {
-        this.repeated = repeated;
+    public void setAction(Action action) {
+        this.action = action;
     }
 }

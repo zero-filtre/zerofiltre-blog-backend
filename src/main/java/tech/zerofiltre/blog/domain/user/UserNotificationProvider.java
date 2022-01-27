@@ -4,5 +4,5 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 public interface UserNotificationProvider {
 
-    void notifyRegistrationComplete(RegistrationCompleteEvent registrationCompleteEvent);
+    void notify(UserActionEvent userActionEvent);
 }

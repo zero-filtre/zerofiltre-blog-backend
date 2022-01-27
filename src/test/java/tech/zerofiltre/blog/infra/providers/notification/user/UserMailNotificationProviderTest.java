@@ -25,31 +25,55 @@ class UserMailNotificationProviderTest {
     @MockBean
     ApplicationEventPublisher eventPublisher;
 
+    User user;
+
+
     @BeforeEach
     void setUp() {
+        user = new User();
         userMailNotificationProvider = new UserMailNotificationProvider(eventPublisher);
     }
 
     @Test
-    void notifyRegistrationComplete_mustConstructEvent_ThenPublish() {
+    void notifyRegistrationComplete_mustConstructEvent_ThenPublish_withProperAction() {
         //ARRANGE
         doNothing().when(eventPublisher).publishEvent(any());
 
         //ACT
-        User user = new User();
         user.setLastName(LAST_NAME);
-        userMailNotificationProvider.notifyRegistrationComplete(new RegistrationCompleteEvent(
-                APP_URL, Locale.FRANCE, user, true));
+        userMailNotificationProvider.notify(new UserActionEvent(
+                APP_URL, Locale.FRANCE, user, Action.REGISTRATION_COMPLETE));
 
         //ASSERT
-        ArgumentCaptor<OnRegistrationCompleteEvent> captor = ArgumentCaptor.forClass(OnRegistrationCompleteEvent.class);
+        ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);
         verify(eventPublisher, times(1)).publishEvent(captor.capture());
-        OnRegistrationCompleteEvent event = captor.getValue();
+        UserActionApplicationEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
+        assertThat(event.getAction()).isEqualTo(Action.REGISTRATION_COMPLETE);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
         assertThat(event.getUser().getLastName()).isEqualTo(LAST_NAME);
-        assertThat(event.isRepeated()).isTrue();
+    }
+
+    @Test
+    void notifyResetPassword_mustConstructEvent_ThenPublish_withProperAction() {
+        //ARRANGE
+        doNothing().when(eventPublisher).publishEvent(any());
+
+        //ACT
+        user.setLastName(LAST_NAME);
+        userMailNotificationProvider.notify(new UserActionEvent(
+                APP_URL, Locale.FRANCE, user, Action.PASSWORD_RESET));
+
+        //ASSERT
+        ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);
+        verify(eventPublisher, times(1)).publishEvent(captor.capture());
+        UserActionApplicationEvent event = captor.getValue();
+
+        assertThat(event.getAppUrl()).isEqualTo(APP_URL);
+        assertThat(event.getAction()).isEqualTo(Action.PASSWORD_RESET);
+        assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
+        assertThat(event.getUser().getLastName()).isEqualTo(LAST_NAME);
 
     }
 }

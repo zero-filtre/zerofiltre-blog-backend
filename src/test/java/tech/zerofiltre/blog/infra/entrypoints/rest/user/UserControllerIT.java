@@ -14,7 +14,11 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
+import tech.zerofiltre.blog.infra.providers.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
 import java.util.*;
@@ -25,14 +29,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
-        LoginFirstAuthenticationEntryPoint.class,RoleRequiredAccessDeniedHandler.class})
+        LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
+        BlogProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class})
 class UserControllerIT {
 
+    public static final String EMAIL = "email@toto.fr";
+    private static final String TOKEN = "token";
+    private static final String PASSWORD = "COmplic$t6d";
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
     UserProvider userProvider;
+
 
     @MockBean
     NotifyRegistrationComplete notifyRegistrationComplete;
@@ -63,7 +72,7 @@ class UserControllerIT {
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
-        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(),"token")));
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), TOKEN)));
     }
 
 
@@ -72,8 +81,8 @@ class UserControllerIT {
         registerUserVM = new RegisterUserVM(
                 "firstName",
                 "lastName",
-                "password",
-                "password",
+                PASSWORD,
+                PASSWORD,
                 "hola@zerofiltre.fr"
         );
 
@@ -118,7 +127,7 @@ class UserControllerIT {
     void onResendRegistrationConfirm_onValidInput_thenReturn200() throws Exception {
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/user/resendRegistrationConfirm")
-                .param("email", "email@toto.fr");
+                .param("email", EMAIL);
 
         //ASSERT
         mockMvc.perform(request)
@@ -204,6 +213,51 @@ class UserControllerIT {
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
+
+    }
+
+    @Test
+    @WithMockUser
+    void onInitPasswordReset_onValidInput_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/initPasswordReset")
+                .param("email", EMAIL);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+
+    }
+
+    @Test
+    void onVerifyTokenForPasswordReset_onValidData_thenReturn200_withToken() throws Exception {
+        //ARRANGE
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/verifyTokenForPasswordReset")
+                .param("token", TOKEN);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.token").value(TOKEN));
+
+    }
+
+    @Test
+    void onSavePasswordReset_onValidInput_thenReturn200() throws Exception {
+        //ARRANGE
+        ResetPasswordVM resetPasswordVM = new ResetPasswordVM(TOKEN, PASSWORD, PASSWORD);
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.post("/user/savePasswordReset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(resetPasswordVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
 
     }
 

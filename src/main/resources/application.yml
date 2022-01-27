@@ -3,6 +3,7 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
+      springframework: DEBUG
     tech:
       zerofiltre: DEBUG
 server:
@@ -40,3 +41,4 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
+

@@ -32,18 +32,19 @@ class NotifyRegistrationCompleteTest {
     @Test
     void mustBuildTheNotificationEvent_ThenNotify() {
         //ARRANGE
-        doNothing().when(userNotificationProvider).notifyRegistrationComplete(any());
+        doNothing().when(userNotificationProvider).notify(any());
 
         //ACT
         notifyRegistrationComplete.execute(new User(), APP_URL, Locale.FRANCE);
 
         //ASSERT
-        ArgumentCaptor<RegistrationCompleteEvent> captor = ArgumentCaptor.forClass(RegistrationCompleteEvent.class);
+        ArgumentCaptor<UserActionEvent> captor = ArgumentCaptor.forClass(UserActionEvent.class);
 
-        verify(userNotificationProvider, times(1)).notifyRegistrationComplete(captor.capture());
-        RegistrationCompleteEvent event = captor.getValue();
+        verify(userNotificationProvider, times(1)).notify(captor.capture());
+        UserActionEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
+        assertThat(event.getAction()).isEqualTo(Action.REGISTRATION_COMPLETE);
     }
 }

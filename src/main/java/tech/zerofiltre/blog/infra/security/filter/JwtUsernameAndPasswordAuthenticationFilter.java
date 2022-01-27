@@ -32,13 +32,14 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 
         try {
-
             // 1. Get credentials from request
-            UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
+            UserCredentials creds = null;
+
+            creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
+
 
             // 2. Create auth object (contains credentials) which will be used by auth manager
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -46,23 +47,25 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 
             // 3. Authentication manager authenticate the user, and use DBUserDetailsService::loadUserByUsername() method to load the user.
             return authManager.authenticate(authToken);
-
         } catch (IOException e) {
+            logger.error("An error occurred during authentication request reading", e);
             throw new RuntimeException(e);
         }
+
+
     }
 
     // Upon successful authentication, generate a token.
     // The 'auth' passed to successfulAuthentication() is the current authenticated user.
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
+                                            Authentication authenticatedUser) {
 
         long now = System.currentTimeMillis();
         String token = Jwts.builder()
-                .setSubject(auth.getName())
+                .setSubject(authenticatedUser.getName())
                 // Convert to list of strings.
-                .claim("authorities", auth.getAuthorities().stream()
+                .claim("authorities", authenticatedUser.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + jwtConfiguration.getExpiration() * 1000L))  // in milliseconds

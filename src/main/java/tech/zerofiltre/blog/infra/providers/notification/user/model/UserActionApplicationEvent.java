@@ -5,19 +5,19 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-public class OnRegistrationCompleteEvent extends ApplicationEvent {
+public class UserActionApplicationEvent extends ApplicationEvent {
     private String appUrl;
     private Locale locale;
     private User user;
-    private boolean repeated;
+    private Action action;
 
-    public OnRegistrationCompleteEvent(User user, Locale locale, String appUrl,boolean repeated) {
+    public UserActionApplicationEvent(User user, Locale locale, String appUrl, Action action) {
         super(user);
         this.user = user;
         this.locale = locale;
         this.appUrl = appUrl;
-        this.repeated = repeated;
 
+        this.action = action;
     }
 
     public String getAppUrl() {
@@ -44,11 +44,12 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
         this.user = user;
     }
 
-    public boolean isRepeated() {
-        return repeated;
+    public Action getAction() {
+        return action;
     }
 
-    public void setRepeated(boolean repeated) {
-        this.repeated = repeated;
+    public void setAction(Action action) {
+        this.action = action;
     }
+
 }
