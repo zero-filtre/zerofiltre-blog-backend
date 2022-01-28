@@ -14,6 +14,7 @@ public class User {
     private String profilePicture;
     private String profession;
     private String bio;
+    private String language;
     private Set<SocialLink> socialLinks;
     private String website;
     private Set<String> roles = new HashSet<>(Collections.singletonList("ROLE_USER"));
@@ -148,5 +149,13 @@ public class User {
 
     public void setExpired(boolean expired) {
         isExpired = expired;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

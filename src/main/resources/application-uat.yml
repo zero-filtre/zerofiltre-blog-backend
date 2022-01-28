@@ -28,3 +28,5 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "https://blog-uat.zerofiltre.tech"
+    rate: 864000000 #10 days
+    initial-delay: 864000000 #10 days
