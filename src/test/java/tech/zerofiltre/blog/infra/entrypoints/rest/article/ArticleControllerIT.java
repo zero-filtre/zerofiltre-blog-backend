@@ -18,6 +18,8 @@ import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
+import tech.zerofiltre.blog.infra.providers.api.config.*;
+import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -30,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ArticleController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        BlogProperties.class, SecurityContextManager.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowTokenConfiguration.class, RestApiStackOverflowProvider.class,
+        APIClientConfiguration.class})
 class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";

@@ -10,17 +10,18 @@ public class User {
     private String firstName;
     private String lastName;
     private String password;
-    private LocalDateTime registeredOn;
+    private LocalDateTime registeredOn = LocalDateTime.now();
     private String profilePicture;
     private String profession;
     private String bio;
-    private String language;
+    private String language = Locale.FRANCE.getLanguage();
     private Set<SocialLink> socialLinks;
     private String website;
     private Set<String> roles = new HashSet<>(Collections.singletonList("ROLE_USER"));
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;
+    private SocialLink.Platform loginFrom;
 
 
     public long getId() {
@@ -157,5 +158,13 @@ public class User {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public SocialLink.Platform getLoginFrom() {
+        return loginFrom;
+    }
+
+    public void setLoginFrom(SocialLink.Platform loginFrom) {
+        this.loginFrom = loginFrom;
     }
 }

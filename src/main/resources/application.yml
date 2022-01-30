@@ -12,6 +12,13 @@ server:
 
 
 spring:
+  mvc:
+    log-request-details: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
   mail:
     host: smtp.gmail.com
     port: 587
@@ -31,17 +38,23 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
+
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
 
 zerofiltre:
   infra:
+    api:
+      stackoverflow:
+        version: 2.3
+        root-url: https://api.stackexchange.com/
+        key: ZAeo5W0MnZPxiEBgb99MvA((
     entrypoints:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
     rate: 864000000 #10 days
-    initial-delay: 0
+    initial-delay: 864000000 #10 days
 
 
