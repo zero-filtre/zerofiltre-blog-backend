@@ -13,6 +13,7 @@ import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 
 import java.net.*;
+import java.nio.charset.*;
 import java.time.*;
 import java.util.*;
 
@@ -22,14 +23,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @JsonTest //I don't know why @RunWith(SpringExtension.class) is not working
 @Import({InfraProperties.class, APIClientConfiguration.class})
-class RestApiStackOverflowProviderTest {
+class StackOverflowLoginProviderTest {
 
     private static final String TOKEN = "token";
 
     private final String checkTokenUri = "https://api.stackexchange.com/2.3/access-tokens/token?key=ZAeo5W0MnZPxiEBgb99MvA((";
     private final String getUserInfoURI = "https://api.stackexchange.com/2.3/me?access_token=token&filter=default&site=stackoverflow&sort=reputation&key=ZAeo5W0MnZPxiEBgb99MvA((&order=desc";
 
-    private StackOverflowProvider restApiStackOverflowProvider;
+    private SocialLoginProvider stackOverflowProvider;
 
     private MockRestServiceServer mockServer;
 
@@ -44,7 +45,7 @@ class RestApiStackOverflowProviderTest {
     @BeforeEach
     void setUp() {
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        restApiStackOverflowProvider = new RestApiStackOverflowProvider(restTemplate, infraProperties);
+        stackOverflowProvider = new StackOverflowLoginProvider(restTemplate, infraProperties);
     }
 
     @Test
@@ -131,7 +132,7 @@ class RestApiStackOverflowProviderTest {
 
         //ACT
         sendMockRequest(checkTokenUri, "", HttpStatus.BAD_REQUEST);
-        boolean isValid = restApiStackOverflowProvider.isValid(TOKEN);
+        boolean isValid = stackOverflowProvider.isValid(TOKEN);
 
         //ASSERT
         assertThat(isValid).isFalse();
@@ -143,7 +144,7 @@ class RestApiStackOverflowProviderTest {
 
         //ACT
         sendMockRequest(getUserInfoURI, "", HttpStatus.BAD_REQUEST);
-        Optional<User> userOptional = restApiStackOverflowProvider.userOfToken(TOKEN);
+        Optional<User> userOptional = stackOverflowProvider.userOfToken(TOKEN);
 
         //ASSERT
         assertThat(userOptional).isEmpty();
@@ -190,7 +191,7 @@ class RestApiStackOverflowProviderTest {
 
         //ACT
         sendMockRequest(getUserInfoURI, getUserInfoResponse, HttpStatus.OK);
-        Optional<User> userOptional = restApiStackOverflowProvider.userOfToken(TOKEN);
+        Optional<User> userOptional = stackOverflowProvider.userOfToken(TOKEN);
 
         //ASSERT
         assertThat(userOptional).isNotEmpty();
@@ -213,7 +214,7 @@ class RestApiStackOverflowProviderTest {
     private boolean checkIfValid(String uri) throws URISyntaxException {
         sendMockRequest(uri, tokenResponse, HttpStatus.OK);
         //ACT
-        return restApiStackOverflowProvider.isValid(TOKEN);
+        return stackOverflowProvider.isValid(TOKEN);
     }
 
     private void sendMockRequest(String uri, String response, HttpStatus status) throws URISyntaxException {

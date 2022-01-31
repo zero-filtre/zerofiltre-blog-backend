@@ -22,4 +22,13 @@ public class InfraProperties {
 
     @Value("${zerofiltre.infra.api.stackoverflow.key}")
     private String stackOverflowAPIKey;
+
+    @Value("${zerofiltre.infra.api.github.root-url}")
+    private String githubAPIRootURL;
+
+    @Value("${zerofiltre.infra.api.github.client-id}")
+    private String githubAPIClientId;
+
+    @Value("${zerofiltre.infra.api.github.client-secret}")
+    private String githubAPIClientSecret;
 }

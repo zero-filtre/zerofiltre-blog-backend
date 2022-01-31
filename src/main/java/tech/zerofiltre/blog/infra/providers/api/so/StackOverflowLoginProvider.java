@@ -16,7 +16,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class RestApiStackOverflowProvider implements StackOverflowProvider {
+public class StackOverflowLoginProvider implements SocialLoginProvider {
 
     public static final String SITE = "stackoverflow";
     public static final String THE_TOKEN_IS_NO_MORE_VALID_DUE_TO = "The token is no more valid due to {} ";
@@ -25,7 +25,7 @@ public class RestApiStackOverflowProvider implements StackOverflowProvider {
     private final String apiUrl;
 
 
-    public RestApiStackOverflowProvider(RestTemplate restTemplate, InfraProperties infraProperties) {
+    public StackOverflowLoginProvider(RestTemplate restTemplate, InfraProperties infraProperties) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         apiUrl = infraProperties.getStackOverflowAPIRootURL() + infraProperties.getStackOverflowAPIVersion();
