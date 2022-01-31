@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
 
 @Slf4j
@@ -23,19 +24,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
     private final PasswordEncoder passwordEncoder;
+    private final StackOverflowTokenConfiguration stackOverflowTokenConfiguration;
+    private final StackOverflowProvider stackOverflowProvider;
+    private final UserProvider userProvider;
 
     public SecurityConfiguration(
             UserDetailsService userDetailsService,
             JwtConfiguration jwtConfiguration,
             LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint,
             RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            StackOverflowTokenConfiguration stackOverflowTokenConfiguration,
+            StackOverflowProvider stackOverflowProvider,
+            UserProvider userProvider) {
 
         this.userDetailsService = userDetailsService;
         this.jwtConfiguration = jwtConfiguration;
         this.loginFirstAuthenticationEntryPoint = loginFirstAuthenticationEntryPoint;
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
         this.passwordEncoder = passwordEncoder;
+        this.stackOverflowTokenConfiguration = stackOverflowTokenConfiguration;
+        this.stackOverflowProvider = stackOverflowProvider;
+        this.userProvider = userProvider;
     }
 
     @Override
@@ -70,6 +80,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfiguration))
                 // Add a filter to validate the tokens with every request
                 .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfiguration), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new StackOverflowAuthenticationFilter(stackOverflowTokenConfiguration,stackOverflowProvider,userProvider), JwtTokenAuthenticationFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()

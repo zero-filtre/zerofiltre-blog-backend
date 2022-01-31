@@ -16,7 +16,6 @@ public class RegisterUser {
         if (userProvider.userOfEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("There is an existing account with that email address: " + user.getEmail(), user.getEmail());
         }
-        user.setRegisteredOn(LocalDateTime.now());
         return userProvider.save(user);
     }
 }

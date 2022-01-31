@@ -22,8 +22,9 @@ class RegisterUserTest {
     @MockBean
     UserProvider userProvider;
 
-
+    LocalDateTime beforeRegistration = LocalDateTime.now();
     User toRegister = new User();
+
 
     @BeforeEach
     void init() {
@@ -40,7 +41,6 @@ class RegisterUserTest {
     @DisplayName("Must register the user properly")
     void mustSaveProperly() throws UserAlreadyExistException {
         //ARRANGE
-        LocalDateTime beforeRegistration = LocalDateTime.now();
         when(userProvider.userOfEmail("email")).thenReturn(Optional.empty());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> {
             User result = invocationOnMock.getArgument(0);

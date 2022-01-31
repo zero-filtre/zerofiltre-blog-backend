@@ -19,6 +19,9 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.*;
+import tech.zerofiltre.blog.infra.providers.api.config.*;
+import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
 import java.util.*;
@@ -30,7 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        BlogProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class})
+        InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowTokenConfiguration.class,
+        RestApiStackOverflowProvider.class, UserMailNotificationProvider.class, APIClientConfiguration.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -48,9 +52,6 @@ class UserControllerIT {
 
     @MockBean
     ResendRegistrationConfirmation resendRegistrationConfirmation;
-
-    @MockBean
-    UserNotificationProvider userNotificationProvider;
 
     @MockBean
     VerificationTokenProvider verificationTokenProvider;

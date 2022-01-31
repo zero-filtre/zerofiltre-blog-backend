@@ -1,14 +1,13 @@
 package tech.zerofiltre.blog.infra.security.config;
 
 import lombok.*;
-import org.springframework.security.core.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
 
-import java.util.*;
+import java.util.stream.*;
 
 @Service
 @Transactional
@@ -24,15 +23,8 @@ public class DBUserDetailsService implements UserDetailsService {
         boolean credentialsNonExpired = true;
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(), true, !user.isExpired(),
-                credentialsNonExpired, !user.isLocked(), getAuthorities(user.getRoles()));
-    }
-
-    private static List<GrantedAuthority> getAuthorities(Set<String> roles) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
-        return authorities;
+                credentialsNonExpired, !user.isLocked(),
+                user.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
     }
 
 }

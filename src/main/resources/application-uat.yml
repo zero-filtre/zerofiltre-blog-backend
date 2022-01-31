@@ -24,6 +24,11 @@ springdoc:
 
 zerofiltre:
   infra:
+    api:
+      stackoverflow:
+        version: 2.3
+        root-url: https://api.stackexchange.com/
+        key: ZAeo5W0MnZPxiEBgb99MvA((
     entrypoints:
       rest:
         api-version: 1.0
