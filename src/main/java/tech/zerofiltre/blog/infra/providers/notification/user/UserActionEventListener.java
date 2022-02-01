@@ -7,8 +7,6 @@ import org.springframework.util.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
-import java.util.*;
-
 @Component
 @RequiredArgsConstructor
 public class UserActionEventListener implements ApplicationListener<UserActionApplicationEvent> {
@@ -20,10 +18,10 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
 
     @Override
     public void onApplicationEvent(UserActionApplicationEvent event) {
-        this.confirmRegistration(event);
+        this.handleEvent(event);
     }
 
-    private void confirmRegistration(UserActionApplicationEvent event) {
+    private void handleEvent(UserActionApplicationEvent event) {
         User user = event.getUser();
         String token = tokenManager.generateToken(user);
 
@@ -32,7 +30,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
                 "message.reset.subject" : "message.registration.subject";
 
         String pageUri = isPasswordResetAction ?
-                "/passwordReset?token=" : "/accountConfirmation?token=";
+                "/user/passwordReset?token=" : "/user/accountConfirmation?token=";
 
         String messageCode = isPasswordResetAction ?
                 "message.reset.content" : "message.registration.success.content";

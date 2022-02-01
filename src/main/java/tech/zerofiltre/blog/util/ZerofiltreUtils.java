@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.util;
 
+import org.springframework.core.env.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -145,6 +146,19 @@ public class ZerofiltreUtils {
 
     public static String getAppURL(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    }
+
+    public static String getOriginUrl(Environment environment) {
+        String[] profiles = environment.getActiveProfiles();
+        if (profiles.length != 0) {
+
+            if (profiles[0].equals("prod"))
+                return "https://blog.zerofiltre.tech";
+
+            if (!(profiles[0].isEmpty() || profiles[0].isBlank()))
+                return "https://blog-" + profiles[0] + ".zerofiltre.tech";
+        }
+        return "https://blog-dev.zerofiltre.tech";
     }
 
 }

@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
 import lombok.extern.slf4j.*;
 import org.springframework.context.*;
+import org.springframework.core.env.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
@@ -35,13 +36,15 @@ public class UserController {
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
     private final JwtConfiguration jwtConfiguration;
+    private final Environment environment;
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration, Environment environment) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfiguration = jwtConfiguration;
+        this.environment = environment;
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -63,7 +66,7 @@ public class UserController {
         user = registerUser.execute(user);
 
 
-        String appUrl = ZerofiltreUtils.getAppURL(request);
+        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
         try {
             notifyRegistrationComplete.execute(user, appUrl, request.getLocale());
         } catch (RuntimeException e) {
@@ -81,7 +84,7 @@ public class UserController {
 
     @GetMapping("/resendRegistrationConfirm")
     public String resendRegistrationConfirm(@RequestParam String email, HttpServletRequest request) {
-        String appUrl = ZerofiltreUtils.getAppURL(request);
+        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
         try {
             resendRegistrationConfirmation.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
@@ -100,7 +103,7 @@ public class UserController {
 
     @GetMapping("/initPasswordReset")
     public String initPasswordReset(@RequestParam String email, HttpServletRequest request) {
-        String appUrl = ZerofiltreUtils.getAppURL(request);
+        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
         try {
             initPasswordReset.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {

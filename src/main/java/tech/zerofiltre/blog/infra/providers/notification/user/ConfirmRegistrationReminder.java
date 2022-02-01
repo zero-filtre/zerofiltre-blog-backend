@@ -10,6 +10,8 @@ import tech.zerofiltre.blog.domain.user.*;
 
 import java.util.*;
 
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
+
 @Component
 @RequiredArgsConstructor
 public class ConfirmRegistrationReminder {
@@ -43,29 +45,16 @@ public class ConfirmRegistrationReminder {
                                 locale
                         );
 
-                        String pageUri = "/accountConfirmation?token=";
+                        String pageUri = "/user/accountConfirmation?token=";
 
                         String greetings = messages.getMessage("message.greetings", null, locale);
 
-                        String url = getAppUrl() + pageUri + token;
+                        String url = getOriginUrl(environment) + pageUri + token;
 
                         String emailContent = message + "\r\n" + url + "\r\n" + greetings;
                         emailSender.send(user.getEmail(), subject, emailContent);
                     }
                 });
 
-    }
-
-    private String getAppUrl() {
-        String[] profiles = environment.getActiveProfiles();
-        if (profiles.length != 0) {
-
-            if (profiles[0].equals("prod"))
-                return "https://blog.zerofiltre.tech";
-
-            if (!(profiles[0].isEmpty() || profiles[0].isBlank()))
-                return "https://blog-" + profiles[0] + ".zerofiltre.tech";
-        }
-        return "https://blog-dev.zerofiltre.tech";
     }
 }

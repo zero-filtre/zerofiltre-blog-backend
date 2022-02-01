@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
+import org.springframework.context.annotation.*;
+import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.*;
@@ -51,6 +53,9 @@ class UserControllerTest {
     VerificationTokenProvider verificationTokenProvider;
 
     @MockBean
+    Environment environment;
+
+    @MockBean
     HttpServletRequest request;
     @MockBean
     HttpServletResponse response;
@@ -68,7 +73,8 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwtConfiguration);
+                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwtConfiguration, environment);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
     }
 
     @Test
