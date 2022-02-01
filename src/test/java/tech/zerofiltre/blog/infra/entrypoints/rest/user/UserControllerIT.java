@@ -98,6 +98,7 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(header().exists("Authorization"))
                 .andExpect(jsonPath("$.firstName").value("firstName"));
 
 

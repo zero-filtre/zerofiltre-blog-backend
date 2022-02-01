@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
 import lombok.extern.slf4j.*;
 import org.springframework.context.*;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
@@ -10,6 +11,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
+import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
 
 import javax.servlet.http.*;
@@ -32,12 +34,14 @@ public class UserController {
     private final SavePasswordReset savePasswordReset;
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
+    private final JwtConfiguration jwtConfiguration;
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
+        this.jwtConfiguration = jwtConfiguration;
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -48,7 +52,8 @@ public class UserController {
     }
 
     @PostMapping
-    public User registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws UserAlreadyExistException {
+    //TODO Refactor this to delegate the orchestration to the application layer
+    public ResponseEntity<User> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws UserAlreadyExistException {
         User user = new User();
         user.setFirstName(registerUserVM.getFirstName());
         user.setLastName(registerUserVM.getLastName());
@@ -57,14 +62,21 @@ public class UserController {
         user.setLanguage(request.getLocale().getLanguage());
         user = registerUser.execute(user);
 
-        String appUrl = ZerofiltreUtils.getAppURL(request);
 
+        String appUrl = ZerofiltreUtils.getAppURL(request);
         try {
             notifyRegistrationComplete.execute(user, appUrl, request.getLocale());
         } catch (RuntimeException e) {
             log.error("We were unable to send the registration confirmation email", e);
         }
-        return user;
+
+        //add toke to header
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(
+                jwtConfiguration.getHeader(),
+                jwtConfiguration.getPrefix() + jwtConfiguration.buildToken(user.getEmail(), user.getRoles())
+        );
+        return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
     }
 
     @GetMapping("/resendRegistrationConfirm")
