@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.infra.providers.api.github.*;
+import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
 
 @Slf4j
@@ -25,7 +27,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
     private final PasswordEncoder passwordEncoder;
     private final StackOverflowTokenConfiguration stackOverflowTokenConfiguration;
-    private final StackOverflowProvider stackOverflowProvider;
+    private final GithubTokenConfiguration githubTokenConfiguration;
+    private final StackOverflowLoginProvider stackOverflowLoginProvider;
+    private final GithubLoginProvider githubLoginProvider;
     private final UserProvider userProvider;
 
     public SecurityConfiguration(
@@ -35,8 +39,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
             PasswordEncoder passwordEncoder,
             StackOverflowTokenConfiguration stackOverflowTokenConfiguration,
-            StackOverflowProvider stackOverflowProvider,
-            UserProvider userProvider) {
+            GithubTokenConfiguration githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
+            GithubLoginProvider githubLoginProvider, UserProvider userProvider) {
 
         this.userDetailsService = userDetailsService;
         this.jwtConfiguration = jwtConfiguration;
@@ -44,7 +48,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
         this.passwordEncoder = passwordEncoder;
         this.stackOverflowTokenConfiguration = stackOverflowTokenConfiguration;
-        this.stackOverflowProvider = stackOverflowProvider;
+        this.githubTokenConfiguration = githubTokenConfiguration;
+        this.stackOverflowLoginProvider = stackOverflowLoginProvider;
+        this.githubLoginProvider = githubLoginProvider;
         this.userProvider = userProvider;
     }
 
@@ -80,12 +86,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfiguration))
                 // Add a filter to validate the tokens with every request
                 .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfiguration), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new StackOverflowAuthenticationFilter(stackOverflowTokenConfiguration,stackOverflowProvider,userProvider), JwtTokenAuthenticationFilter.class)
+                .addFilterAfter(new StackOverflowAuthenticationFilter(stackOverflowTokenConfiguration, stackOverflowLoginProvider, userProvider), JwtTokenAuthenticationFilter.class)
+                .addFilterAfter(new GithubAuthenticationFilter(githubTokenConfiguration, githubLoginProvider, userProvider), StackOverflowAuthenticationFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers(HttpMethod.POST, "/user/savePasswordReset").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/initPasswordReset").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .antMatchers(HttpMethod.GET, "/article/**").permitAll()
                 .antMatchers(HttpMethod.GET,

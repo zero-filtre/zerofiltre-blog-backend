@@ -13,12 +13,12 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
+import tech.zerofiltre.blog.infra.security.config.*;
 
 import javax.servlet.http.*;
-import java.time.*;
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -39,6 +39,9 @@ class UserControllerTest {
     UserProvider userProvider;
 
     @MockBean
+    JwtConfiguration jwtConfiguration;
+
+    @MockBean
     PasswordVerifierProvider passwordVerifierProvider;
 
     @MockBean
@@ -49,6 +52,8 @@ class UserControllerTest {
 
     @MockBean
     HttpServletRequest request;
+    @MockBean
+    HttpServletResponse response;
 
     UserController userController;
 
@@ -63,7 +68,7 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider);
+                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwtConfiguration);
     }
 
     @Test
@@ -73,6 +78,10 @@ class UserControllerTest {
         userVM.setFirstName(FIRST_NAME);
         userVM.setLastName(LAST_NAME);
         when(request.getLocale()).thenReturn(Locale.FRANCE);
+        when(jwtConfiguration.buildToken(any(),any())).thenReturn(TOKEN);
+        when(jwtConfiguration.getHeader()).thenReturn("Authorization");
+        when(jwtConfiguration.getPrefix()).thenReturn("Bearer");
+        when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //ACT
         userController.registerUser(userVM, request);
@@ -88,6 +97,7 @@ class UserControllerTest {
         assertThat(user.getLastName()).isEqualTo(LAST_NAME);
         assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         verify(userNotificationProvider, times(1)).notify(any());
+        verify(jwtConfiguration,times(1)).buildToken(EMAIL,Collections.singleton("ROLE_USER"));
     }
 
     @Test

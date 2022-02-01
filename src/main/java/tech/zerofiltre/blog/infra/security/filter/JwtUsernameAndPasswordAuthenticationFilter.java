@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.infra.security.filter;
 
 import com.fasterxml.jackson.databind.*;
-import io.jsonwebtoken.*;
 import lombok.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
@@ -61,20 +60,14 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authenticatedUser) {
 
-        long now = System.currentTimeMillis();
-        String token = Jwts.builder()
-                .setSubject(authenticatedUser.getName())
-                // Convert to list of strings.
-                .claim("authorities", authenticatedUser.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + jwtConfiguration.getExpiration() * 1000L))  // in milliseconds
-                .signWith(SignatureAlgorithm.HS512, jwtConfiguration.getSecret().getBytes())
-                .compact();
-
+        String token = jwtConfiguration.buildToken(
+                authenticatedUser.getName(),
+                authenticatedUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet())
+        );
         // Add token to header
         response.addHeader(jwtConfiguration.getHeader(), jwtConfiguration.getPrefix() + token);
     }
+
 
     // A class just to represent the user credentials
     @Data

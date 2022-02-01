@@ -4,7 +4,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-public interface StackOverflowProvider {
+public interface SocialLoginProvider {
     boolean isValid(String token);
 
     Optional<User> userOfToken(String token);

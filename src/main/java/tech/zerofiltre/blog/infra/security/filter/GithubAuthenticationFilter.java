@@ -5,7 +5,7 @@ import org.springframework.security.core.authority.*;
 import org.springframework.security.core.context.*;
 import org.springframework.web.filter.*;
 import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
 import javax.servlet.*;
@@ -13,27 +13,26 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.stream.*;
 
-public class StackOverflowAuthenticationFilter extends OncePerRequestFilter {
+public class GithubAuthenticationFilter extends OncePerRequestFilter {
 
-    private final StackOverflowTokenConfiguration stackOverflowTokenConfiguration;
-    private final StackOverflowLoginProvider socialLoginProvider;
+    private final GithubTokenConfiguration githubTokenConfiguration;
+    private final GithubLoginProvider socialLoginProvider;
     private final UserProvider userProvider;
 
-    public StackOverflowAuthenticationFilter(StackOverflowTokenConfiguration stackOverflowTokenConfiguration, StackOverflowLoginProvider socialLoginProvider, UserProvider userProvider) {
-        this.stackOverflowTokenConfiguration = stackOverflowTokenConfiguration;
+    public GithubAuthenticationFilter(GithubTokenConfiguration githubTokenConfiguration, GithubLoginProvider socialLoginProvider, UserProvider userProvider) {
+        this.githubTokenConfiguration = githubTokenConfiguration;
         this.socialLoginProvider = socialLoginProvider;
         this.userProvider = userProvider;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
         // 1. get the authentication header. Tokens are supposed to be passed in the authentication header
-        String header = request.getHeader(stackOverflowTokenConfiguration.getHeader());
+        String header = request.getHeader(githubTokenConfiguration.getHeader());
 
         // 2. validate the header and check the prefix
-        if (header == null || !header.startsWith(stackOverflowTokenConfiguration.getPrefix())) {
+        if (header == null || !header.startsWith(githubTokenConfiguration.getPrefix())) {
             chain.doFilter(request, response);        // If not valid, go to the next filter.
             return;
         }
@@ -45,7 +44,7 @@ public class StackOverflowAuthenticationFilter extends OncePerRequestFilter {
         // And If user tried to access without access token, then he won't be authenticated and an exception will be thrown.
 
         // 3. Get the token
-        String token = header.replace(stackOverflowTokenConfiguration.getPrefix(), "");
+        String token = header.replace(githubTokenConfiguration.getPrefix(), "");
 
         try {    // exceptions might be thrown in validating the token: if for example the token is expired
 

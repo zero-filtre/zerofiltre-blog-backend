@@ -35,6 +35,10 @@ springdoc:
 zerofiltre:
   infra:
     api:
+      github:
+        root-url: https://api.github.com/
+        client-id: 9b6bffa9841d19dfd8aa
+        client-secret: 1e70ed907875eb633f6232235e4c4037888d0adb
       stackoverflow:
         version: 2.3
         root-url: https://api.stackexchange.com/
