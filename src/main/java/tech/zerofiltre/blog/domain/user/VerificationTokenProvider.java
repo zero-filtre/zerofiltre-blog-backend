@@ -11,4 +11,6 @@ public interface VerificationTokenProvider {
     Optional<VerificationToken> ofUser(User user);
 
     VerificationToken save(VerificationToken verificationToken);
+
+    void delete(VerificationToken token);
 }

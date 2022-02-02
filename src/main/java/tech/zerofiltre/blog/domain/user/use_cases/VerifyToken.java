@@ -24,4 +24,8 @@ public class VerifyToken {
         }
         return verificationToken;
     }
+
+    public void invalidate(VerificationToken verificationToken) {
+        verificationTokenProvider.delete(verificationToken);
+    }
 }

@@ -36,7 +36,7 @@ class ConfirmUserRegistrationTest {
     }
 
     @Test
-    void onValidToken_setUserActive_thenSave() throws InvalidTokenException {
+    void onValidToken_setUserActive_thenSaveAndDeleteToken() throws InvalidTokenException {
         //ARRANGE
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.ofNullable(verificationToken));
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -48,6 +48,7 @@ class ConfirmUserRegistrationTest {
         //ASSERT
         assertThat(user.isActive()).isTrue();
         verify(userProvider, times(1)).save(any());
+        verify(verificationTokenProvider, times(1)).delete(any());
 
     }
 

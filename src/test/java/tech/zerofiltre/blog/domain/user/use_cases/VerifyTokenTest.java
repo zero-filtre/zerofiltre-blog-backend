@@ -67,4 +67,15 @@ class VerifyTokenTest {
                 .withMessage(ConfirmUserRegistration.INVALID_TOKEN);
 
     }
+
+    @Test
+    void invalidate_token_deletesIt() {
+
+        //ACT
+        verifyToken.invalidate(verificationToken);
+
+        //ASSERT
+        verify(verificationTokenProvider, times(1)).delete(verificationToken);
+
+    }
 }
