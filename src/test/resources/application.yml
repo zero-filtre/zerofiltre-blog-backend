@@ -9,6 +9,8 @@ server:
   port: 80
 
 spring:
+  liquibase:
+    enabled: false
   mail:
     host: smtp.gmail.com
     port: 587

@@ -1,3 +1,0 @@
-databaseChangeLog:
-  - includeAll:
-      path: src/main/resources/liquibase/db/changelog/changes/dev

@@ -12,6 +12,9 @@ springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
 
+spring:
+  liquibase:
+    change-log: classpath:/liquibase/db/changelog/db.changelog-prod.yaml
 zerofiltre:
   infra:
     api:

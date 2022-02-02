@@ -182,7 +182,8 @@
                     <propertyFile>src/main/resources/liquibase/liquibase.properties</propertyFile>
                     <outputChangeLogFile>src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yml
                     </outputChangeLogFile>
-                    <changeLogFile>src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yml
+                    <changeLogFile>
+                        src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yml
                     </changeLogFile>
                     <diffChangeLogFile>
                         src/main/resources/liquibase/db/changelog/changes/${activeProfile}/${timestamp}_changelog.yaml

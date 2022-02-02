@@ -18,6 +18,7 @@ public class Article {
     private List<Reaction> reactions = new ArrayList<>();
     private Status status;
     private List<Tag> tags = new ArrayList<>();
+    private String summary;
 
 
     public long getId() {
@@ -127,5 +128,13 @@ public class Article {
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getTitle(), getThumbnail(), getContent(), getAuthor(), getCreatedAt(), getPublishedAt(), getLastPublishedAt(), getLastSavedAt(), getReactions(), getStatus(), getTags());
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 }

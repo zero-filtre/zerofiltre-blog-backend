@@ -12,6 +12,8 @@ server:
 
 
 spring:
+  liquibase:
+    change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml
   mvc:
     log-request-details: true
   mail:

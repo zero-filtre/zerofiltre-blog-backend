@@ -43,4 +43,5 @@ public class ArticleJPA extends BaseEntityJPA {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<TagJPA> tags;
+    private String summary;
 }
