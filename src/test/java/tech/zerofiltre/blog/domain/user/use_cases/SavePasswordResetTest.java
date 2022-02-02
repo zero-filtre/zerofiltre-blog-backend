@@ -9,8 +9,7 @@ import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -28,7 +27,7 @@ class SavePasswordResetTest {
 
     @BeforeEach
     void setUp() {
-        savePasswordReset = new SavePasswordReset(verificationTokenProvider,userProvider);
+        savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
     }
 
     @Test
@@ -44,11 +43,12 @@ class SavePasswordResetTest {
         savePasswordReset.execute(passwordEncoder.encode(PASSWORD), TOKEN);
 
         //ASSERT
-        verify(verificationTokenProvider,times(1)).ofToken(TOKEN);
+        verify(verificationTokenProvider, times(1)).ofToken(TOKEN);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-        verify(userProvider,times(1)).save(captor.capture());
+        verify(userProvider, times(1)).save(captor.capture());
         User updatedUser = captor.getValue();
-        assertThat(passwordEncoder.matches(PASSWORD,updatedUser.getPassword())).isTrue();
+        assertThat(passwordEncoder.matches(PASSWORD, updatedUser.getPassword())).isTrue();
+        verify(verificationTokenProvider, times(1)).delete(any());
     }
 }

@@ -35,4 +35,9 @@ public class VerificationTokenDatabaseProvider implements VerificationTokenProvi
     public VerificationToken save(VerificationToken verificationToken) {
         return mapper.fromJPA(repository.save(mapper.toJPA(verificationToken)));
     }
+
+    @Override
+    public void delete(VerificationToken token) {
+        repository.delete(mapper.toJPA(token));
+    }
 }

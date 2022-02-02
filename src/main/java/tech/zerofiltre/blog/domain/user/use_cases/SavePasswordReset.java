@@ -19,6 +19,8 @@ public class SavePasswordReset {
         User user = verificationToken.getUser();
         user.setPassword(encodedPassword);
         userProvider.save(user);
+        verifyToken.invalidate(verificationToken);
+
     }
 
 
