@@ -12,13 +12,10 @@ server:
 
 
 spring:
+  liquibase:
+    change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml
   mvc:
     log-request-details: true
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:9000/oauth2/jwks
   mail:
     host: smtp.gmail.com
     port: 587

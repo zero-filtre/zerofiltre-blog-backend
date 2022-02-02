@@ -10,6 +10,21 @@ server:
   port: 80
 
 spring:
+  liquibase:
+    change-log: classpath:/liquibase/db/changelog/db.changelog-uat.yaml
+  mvc:
+    log-request-details: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: philippesimo@zerofiltre.tech
+    password: upoafthyaafaadzr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     username: blog-api-uat
     password: h4rC5bepK7WvgrLE
