@@ -42,6 +42,13 @@ springdoc:
 
 zerofiltre:
   infra:
+    security:
+      jwt:
+        expiration: 1440 #minutes
+        secret: JwtSecretKey
+        prefix: Bearer
+        header: Authorization
+        uri: /auth/**
     api:
       github:
         root-url: https://api.github.com/

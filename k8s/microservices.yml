@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: zerofiltretech-${env_name}
+  name: zerofiltretech-blog-${env_name}
+spec:
+  minReadySeconds: 30
+  progressDeadlineSeconds: 120
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zerofiltretech-blog-${env_name}
+  template:
+    metadata:
+      labels:
+        app: zerofiltretech-blog-${env_name}
+    spec:
+      containers:
+        - name: zerofiltretech-blog-${env_name}
+          image: imzerofiltre/zerofiltretech-blog:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_mail_password
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_password
+            - name: SECURITY_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zerofiltre-blog-api
+                  key: security_jwt_secret
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: zerofiltre-blog-api
+                  key: github_client_secret
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: logging_level_org_springframework
+            - name: LOGGING_LEVEL_ORG_HIBERNATE_SQL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: logging_level_org_hibernate_sql
+            - name: LOGGING_LEVEL_TECH_ZEROFILTRE
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: logging_level_tech_zerofiltre
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: server_port
+            - name: SPRING_LIQUIBASE_CHANGELOG
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_liquibase_changelog
+            - name: SPRING_MAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_mail_host
+            - name: SPRING_MAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_mail_port
+            - name: SPRING_MAIL_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_mail_username
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_username
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_url
+            - name: HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: hibernate_ddl_auto
+            - name: SECURITY_JWT_EXPIRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: security_jwt_expiration
+            - name: SECURITY_JWT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: security_jwt_uri
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: github_client_id
+            - name: STACKOVERFLOW_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: stackoverflow_key
+            - name: ALLOWED_ORIGINS_PATTERN
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: allowed_origins_pattern
+            - name: REMINDER_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: reminder_rate
+            - name: REMINDER_INITIAL_DELAY
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: reminder_initial_delay
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: zerofiltretech-${env_name}
+  name: zerofiltretech-blog-${env_name}
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: zerofiltretech-blog-${env_name}
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  namespace: zerofiltretech-${env_name}
+  name: zerofiltretech-blog-${env_name}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # add an annotation indicating the issuer to use.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+    - host: ${api_host}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: zerofiltretech-blog-${env_name}
+              servicePort: 80
+  tls: # < placing a host in the TLS config will indicate a certificate should be created
+    - hosts:
+        - ${api_host}
+      secretName: blog-api-zerofiltre-ingress-cert # < cert-manager will store the created certificate in this secret.

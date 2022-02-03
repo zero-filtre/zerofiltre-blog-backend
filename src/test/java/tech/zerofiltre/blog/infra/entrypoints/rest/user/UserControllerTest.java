@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
-import org.springframework.context.annotation.*;
 import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
@@ -86,7 +85,7 @@ class UserControllerTest {
         when(request.getLocale()).thenReturn(Locale.FRANCE);
         when(jwtConfiguration.buildToken(any(),any())).thenReturn(TOKEN);
         when(jwtConfiguration.getHeader()).thenReturn("Authorization");
-        when(jwtConfiguration.getPrefix()).thenReturn("Bearer");
+        when(jwtConfiguration.getPrefix()).thenReturn("Bearer" + " ");
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //ACT

@@ -35,7 +35,8 @@ podTemplate(label: label, containers: [
 
 
             withEnv(["api_image_tag=${getTag(env.BUILD_NUMBER, env.BRANCH_NAME)}",
-                     "env_name=${getEnvName(env.BRANCH_NAME)}"
+                     "env_name=${getEnvName(env.BRANCH_NAME)}",
+                     "api_host=${getApiHost(env.BRANCH_NAME)}"
 
             ]) {
                 stage('Build and push API to docker registry') {
@@ -48,7 +49,7 @@ podTemplate(label: label, containers: [
                     runApp()
                 }
             }
-        }finally{
+        } finally {
             //send email
         }
 
@@ -80,7 +81,7 @@ def runApp() {
             sh """
                   echo "Branch:" ${env.BRANCH_NAME}
                   echo "env:" ${env_name}
-                  kubectl apply -f microservice-${env_name}.yaml
+                  envsubst < microservices.yml | kubectl apply -f -
                """
         }
         sh """
@@ -102,8 +103,17 @@ String getEnvName(String branchName) {
     return (branchName == 'ready') ? 'uat' : 'dev'
 }
 
+String getApiHost(String branchName) {
+    String prefix = "blog-api"
+    String suffix = ".zerofiltre.tech"
+    if (branchName == 'main') {
+        return prefix + suffix
+    }
+    return (branchName == 'ready') ? prefix + "-uat" + suffix : prefix + "-dev" + suffix
+}
+
 String getTag(String buildNumber, String branchName) {
-    String tag = "imzerofiltre/zerofiltretech-blog:" + buildNumber;
+    String tag = "imzerofiltre/zerofiltretech-blog:" + buildNumber
     if (branchName == 'main') {
         return tag + '-stable'
     }

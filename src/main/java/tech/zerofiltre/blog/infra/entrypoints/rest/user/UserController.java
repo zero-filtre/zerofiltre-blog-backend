@@ -77,7 +77,7 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(
                 jwtConfiguration.getHeader(),
-                jwtConfiguration.getPrefix() + jwtConfiguration.buildToken(user.getEmail(), user.getRoles())
+                jwtConfiguration.getPrefix() + " " + jwtConfiguration.buildToken(user.getEmail(), user.getRoles())
         );
         return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
     }

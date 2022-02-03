@@ -11,19 +11,19 @@ import java.util.*;
 @Data
 @Component
 public class JwtConfiguration {
-    @Value("${security.jwt.uri:/auth/**}")
+    @Value("${zerofiltre.infra.security.jwt.uri}")
     private String uri;
 
-    @Value("${security.jwt.header:Authorization}")
+    @Value("${zerofiltre.infra.security.jwt.header}")
     private String header;
 
-    @Value("${security.jwt.prefix:Bearer }")
+    @Value("${zerofiltre.infra.security.jwt.prefix}")
     private String prefix;
 
-    @Value("${security.jwt.expiration:#{15*60}}")
+    @Value("${zerofiltre.infra.security.jwt.expiration}")
     private int expiration;
 
-    @Value("${security.jwt.secret:JwtSecretKey}")
+    @Value("${zerofiltre.infra.security.jwt.secret}")
     private String secret;
 
     public String buildToken(String email, Set<String> roles) {
