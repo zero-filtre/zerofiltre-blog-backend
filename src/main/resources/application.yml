@@ -41,6 +41,7 @@ springdoc:
   pathsToMatch: /**
 
 zerofiltre:
+  env: dev
   infra:
     security:
       jwt:
@@ -62,7 +63,7 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
-    rate: 864000000 #10 days
-    initial-delay: 864000000 #10 days
+    reminder-rate: 864000000 #10 days
+    reminder-initial-delay: 864000000 #10 days
 
 

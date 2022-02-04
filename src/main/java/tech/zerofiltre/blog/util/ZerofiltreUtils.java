@@ -148,17 +148,8 @@ public class ZerofiltreUtils {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 
-    public static String getOriginUrl(Environment environment) {
-        String[] profiles = environment.getActiveProfiles();
-        if (profiles.length != 0) {
-
-            if (profiles[0].equals("prod"))
-                return "https://blog.zerofiltre.tech";
-
-            if (!(profiles[0].isEmpty() || profiles[0].isBlank()))
-                return "https://blog-" + profiles[0] + ".zerofiltre.tech";
-        }
-        return "https://blog-dev.zerofiltre.tech";
+    public static String getOriginUrl(String env) {
+        return env.equals("prod")?"https://blog.zerofiltre.tech":"https://blog-" + env + ".zerofiltre.tech";
     }
 
 }

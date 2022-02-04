@@ -97,6 +97,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: hibernate_ddl_auto
+            - name: ZEROFILTRE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: zerofiltre_env
             - name: SECURITY_JWT_EXPIRATION
               valueFrom:
                 configMapKeyRef:

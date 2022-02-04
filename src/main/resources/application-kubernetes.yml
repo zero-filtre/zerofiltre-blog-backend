@@ -38,6 +38,7 @@ springdoc:
   pathsToMatch: /**
 
 zerofiltre:
+  env: ${ZEROFILTRE_ENV}
   infra:
     security:
       jwt:
@@ -59,5 +60,5 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: ${ALLOWED_ORIGINS_PATTERN}
-    rate: ${REMINDER_RATE}
-    initial-delay: ${REMINDER_INITIAL_DELAY}
+    reminder-rate: ${REMINDER_RATE}
+    reminder-initial-delay: ${REMINDER_INITIAL_DELAY}

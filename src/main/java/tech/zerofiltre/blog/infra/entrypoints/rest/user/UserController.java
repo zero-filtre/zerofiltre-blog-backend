@@ -2,7 +2,6 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
 import lombok.extern.slf4j.*;
 import org.springframework.context.*;
-import org.springframework.core.env.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +9,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -36,15 +36,16 @@ public class UserController {
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
     private final JwtConfiguration jwtConfiguration;
-    private final Environment environment;
+    private final InfraProperties infraProperties;
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration, Environment environment) {
+
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration, InfraProperties infraProperties) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfiguration = jwtConfiguration;
-        this.environment = environment;
+        this.infraProperties = infraProperties;
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -66,7 +67,7 @@ public class UserController {
         user = registerUser.execute(user);
 
 
-        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
+        String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
             notifyRegistrationComplete.execute(user, appUrl, request.getLocale());
         } catch (RuntimeException e) {
@@ -84,7 +85,7 @@ public class UserController {
 
     @GetMapping("/resendRegistrationConfirm")
     public String resendRegistrationConfirm(@RequestParam String email, HttpServletRequest request) {
-        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
+        String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
             resendRegistrationConfirmation.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
@@ -103,7 +104,7 @@ public class UserController {
 
     @GetMapping("/initPasswordReset")
     public String initPasswordReset(@RequestParam String email, HttpServletRequest request) {
-        String appUrl = ZerofiltreUtils.getOriginUrl(environment);
+        String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
             initPasswordReset.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
