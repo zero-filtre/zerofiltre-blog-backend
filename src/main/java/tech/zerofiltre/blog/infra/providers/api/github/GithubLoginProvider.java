@@ -75,6 +75,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
         }
         user.setSocialLinks(socialLinks);
         user.setLoginFrom(SocialLink.Platform.GITHUB);
+        user.setActive(true);
         return user;
     }
 }

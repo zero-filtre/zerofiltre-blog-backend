@@ -31,4 +31,7 @@ public class InfraProperties {
 
     @Value("${zerofiltre.infra.api.github.client-secret}")
     private String githubAPIClientSecret;
+
+    @Value("${zerofiltre.env:dev}")
+    private String env;
 }

@@ -1,0 +1,64 @@
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL}
+      springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK}
+    tech:
+      zerofiltre: ${LOGGING_LEVEL_TECH_ZEROFILTRE}
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  liquibase:
+    change-log: ${SPRING_LIQUIBASE_CHANGELOG}
+  mvc:
+    log-request-details: true
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  datasource:
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO}
+springdoc:
+  packagesToScan: tech.zerofiltre.blog
+  pathsToMatch: /**
+
+zerofiltre:
+  env: ${ZEROFILTRE_ENV}
+  infra:
+    security:
+      jwt:
+        expiration: ${SECURITY_JWT_EXPIRATION}
+        secret: ${SECURITY_JWT_SECRET}
+        prefix: Bearer
+        header: Authorization
+        uri: ${SECURITY_JWT_URI}
+    api:
+      github:
+        root-url: https://api.github.com/
+        client-id: ${GITHUB_CLIENT_ID}
+        client-secret: ${GITHUB_CLIENT_SECRET}
+      stackoverflow:
+        version: 2.3
+        root-url: https://api.stackexchange.com/
+        key: ${STACKOVERFLOW_KEY}
+    entrypoints:
+      rest:
+        api-version: 1.0
+        allowed-origins-pattern: ${ALLOWED_ORIGINS_PATTERN}
+    reminder-rate: ${REMINDER_RATE}
+    reminder-initial-delay: ${REMINDER_INITIAL_DELAY}

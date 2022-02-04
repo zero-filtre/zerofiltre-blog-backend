@@ -5,10 +5,11 @@ import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
-import org.springframework.core.env.*;
+import org.springframework.test.context.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.*;
 
 import java.util.*;
 
@@ -17,11 +18,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
+@TestPropertySource(properties = "zerofiltre.key=dev")
 class ConfirmRegistrationReminderTest {
 
-    public static final String EMAIL_1 = "email1";
-    public static final String EMAIL_2 = "email2";
-    public static final String EMAIL_3 = "email3";
+    public static final String EMAIL_1 = "email1@gmail.com";
+    public static final String EMAIL_2 = "email2@gmail.com";
+    public static final String EMAIL_3 = "email3@gmail.com";
+    public static final String INVALID_EMAIL = "email4";
     public static final String SUBJECT = "subject";
     public static final String CONTENT = "content";
     private ConfirmRegistrationReminder confirmRegistrationReminder;
@@ -30,13 +33,13 @@ class ConfirmRegistrationReminderTest {
     UserProvider userProvider;
 
     @MockBean
-    Environment environment;
-
-    @MockBean
     BlogEmailSender blogEmailSender;
 
     @MockBean
     MessageSource messageSource;
+
+    @MockBean
+    InfraProperties infraProperties;
 
     @MockBean
     VerificationTokenManager verificationTokenManager;
@@ -49,35 +52,39 @@ class ConfirmRegistrationReminderTest {
                 blogEmailSender,
                 messageSource,
                 verificationTokenManager,
-                environment
+                infraProperties
         );
+        when(infraProperties.getEnv()).thenReturn("dev");
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForUAT() {
-        testRemindConfirmRegistration("uat", "https://blog-uat.zerofiltre.tech");
+        when(infraProperties.getEnv()).thenReturn("uat");
+        testRemindConfirmRegistration("https://blog-uat.zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForProd() {
-        testRemindConfirmRegistration("prod", "https://blog.zerofiltre.tech");
+        when(infraProperties.getEnv()).thenReturn("prod");
+        testRemindConfirmRegistration("https://blog.zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForDev() {
-        testRemindConfirmRegistration("dev", "https://blog-dev.zerofiltre.tech");
+        testRemindConfirmRegistration("https://blog-dev.zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData() {
-        testRemindConfirmRegistration("", "https://blog-dev.zerofiltre.tech");
+        testRemindConfirmRegistration("https://blog-dev.zerofiltre.tech");
 
     }
 
-    private void testRemindConfirmRegistration(String profile, String frontAppURL) {
+
+    private void testRemindConfirmRegistration(String frontAppURL) {
         //ARRANGE
         User user = new User();
         user.setEmail(EMAIL_1);
@@ -99,7 +106,6 @@ class ConfirmRegistrationReminderTest {
 
         List<User> users = Arrays.asList(user, user1, user2);
 
-        when(environment.getActiveProfiles()).thenReturn(new String[]{profile});
         when(userProvider.nonActiveUsers()).thenReturn(users);
         when(messageSource.getMessage(eq("message.registration.subject.remind"), any(), any())).thenReturn(SUBJECT);
         when(messageSource.getMessage(eq("message.registration.success.remind.content"), any(), any())).thenReturn(CONTENT);
@@ -133,6 +139,41 @@ class ConfirmRegistrationReminderTest {
                         s.contains("/accountConfirmation?token=") &&
                         s.contains(frontAppURL)
         )).isTrue();
+    }
+
+    @Test
+    void remindConfirmRegistration_mustNotSendEmails_onInvalidEmails() {
+        //ARRANGE
+        User user = new User();
+        user.setEmail(EMAIL_1);
+
+
+        User user1 = new User();
+        user1.setEmail(EMAIL_2);
+
+
+        User user2 = new User();
+        user2.setEmail(INVALID_EMAIL);
+
+        List<User> users = Arrays.asList(user, user1, user2);
+
+        when(userProvider.nonActiveUsers()).thenReturn(users);
+        when(messageSource.getMessage(eq("message.registration.subject.remind"), any(), any())).thenReturn(SUBJECT);
+        when(messageSource.getMessage(eq("message.registration.success.remind.content"), any(), any())).thenReturn(CONTENT);
+        when(messageSource.getMessage(eq("message.greetings"), any(), any())).thenReturn("greetings");
+
+
+        //ACT
+        confirmRegistrationReminder.remindConfirmRegistration();
+
+
+        //ASSERT
+        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(blogEmailSender, times(2)).send(emailCaptor.capture(), any(), any());
+        List<String> capturedEmailList = emailCaptor.getAllValues();
+        assertThat(capturedEmailList.stream().noneMatch(s -> s.equals(INVALID_EMAIL))).isTrue();
+
     }
 
 

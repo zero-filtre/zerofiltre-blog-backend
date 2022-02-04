@@ -108,6 +108,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
         );
         user.setSocialLinks(socialLinks);
         user.setLoginFrom(SocialLink.Platform.STACKOVERFLOW);
+        user.setActive(true);
         return user;
     }
 

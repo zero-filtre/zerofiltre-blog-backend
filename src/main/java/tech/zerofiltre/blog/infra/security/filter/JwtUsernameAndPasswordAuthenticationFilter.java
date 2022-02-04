@@ -65,7 +65,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                 authenticatedUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet())
         );
         // Add token to header
-        response.addHeader(jwtConfiguration.getHeader(), jwtConfiguration.getPrefix() + token);
+        response.addHeader(jwtConfiguration.getHeader(), jwtConfiguration.getPrefix() + " " + token);
     }
 
 

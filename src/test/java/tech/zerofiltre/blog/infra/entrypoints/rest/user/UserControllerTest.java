@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
-import org.springframework.context.annotation.*;
 import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
@@ -13,6 +12,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -57,8 +57,9 @@ class UserControllerTest {
 
     @MockBean
     HttpServletRequest request;
+
     @MockBean
-    HttpServletResponse response;
+    InfraProperties infraProperties;
 
     UserController userController;
 
@@ -73,8 +74,8 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwtConfiguration, environment);
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"dev"});
+                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwtConfiguration, infraProperties);
+        when(infraProperties.getEnv()).thenReturn("dev");
     }
 
     @Test
@@ -84,9 +85,9 @@ class UserControllerTest {
         userVM.setFirstName(FIRST_NAME);
         userVM.setLastName(LAST_NAME);
         when(request.getLocale()).thenReturn(Locale.FRANCE);
-        when(jwtConfiguration.buildToken(any(),any())).thenReturn(TOKEN);
+        when(jwtConfiguration.buildToken(any(), any())).thenReturn(TOKEN);
         when(jwtConfiguration.getHeader()).thenReturn("Authorization");
-        when(jwtConfiguration.getPrefix()).thenReturn("Bearer");
+        when(jwtConfiguration.getPrefix()).thenReturn("Bearer" + " ");
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //ACT
@@ -103,7 +104,7 @@ class UserControllerTest {
         assertThat(user.getLastName()).isEqualTo(LAST_NAME);
         assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         verify(userNotificationProvider, times(1)).notify(any());
-        verify(jwtConfiguration,times(1)).buildToken(EMAIL,Collections.singleton("ROLE_USER"));
+        verify(jwtConfiguration, times(1)).buildToken(EMAIL, Collections.singleton("ROLE_USER"));
     }
 
     @Test

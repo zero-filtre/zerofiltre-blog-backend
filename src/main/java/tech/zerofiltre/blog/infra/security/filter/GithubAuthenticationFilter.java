@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.infra.security.filter;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.context.*;
+import org.springframework.transaction.annotation.*;
 import org.springframework.web.filter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;

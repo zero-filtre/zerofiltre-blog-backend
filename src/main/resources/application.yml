@@ -41,7 +41,15 @@ springdoc:
   pathsToMatch: /**
 
 zerofiltre:
+  env: dev
   infra:
+    security:
+      jwt:
+        expiration: 1440 #minutes
+        secret: JwtSecretKey
+        prefix: Bearer
+        header: Authorization
+        uri: /auth/**
     api:
       github:
         root-url: https://api.github.com/
@@ -55,7 +63,7 @@ zerofiltre:
       rest:
         api-version: 1.0
         allowed-origins-pattern: "*"
-    rate: 864000000 #10 days
-    initial-delay: 864000000 #10 days
+    reminder-rate: 864000000 #10 days
+    reminder-initial-delay: 864000000 #10 days
 
 
