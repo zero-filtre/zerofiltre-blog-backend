@@ -120,6 +120,87 @@ class ArticleControllerIT {
 
     @Test
     @WithMockUser
+    void onArticlePublish_whenInValidInput_thenReturn400() throws Exception {
+        //ARRANGE
+        publishOrSaveArticleVM.setSummary("");
+
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.patch("/article/publish")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(publishOrSaveArticleVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    @WithMockUser
+    void onArticlePublish_whenLessThan20Chars_thenReturn400() throws Exception {
+        //ARRANGE
+        publishOrSaveArticleVM.setSummary("less than 20 chars");
+
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.patch("/article/publish")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(publishOrSaveArticleVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    @WithMockUser
+    void onArticlePublish_whenMoreThan20Chars_thenReturn400() throws Exception {
+        //ARRANGE
+        publishOrSaveArticleVM.setSummary(
+                "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+                        "less than 20 chars" +
+
+                        "");
+
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.patch("/article/publish")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(publishOrSaveArticleVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    @WithMockUser
     void onArticleSave_whenValidInput_thenReturn200() throws Exception {
 
 

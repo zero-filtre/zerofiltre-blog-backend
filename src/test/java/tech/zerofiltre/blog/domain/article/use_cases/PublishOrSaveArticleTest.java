@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @ExtendWith(SpringExtension.class)
-class PublishOrInitArticleTest {
+class PublishOrSaveArticleTest {
 
     public static final String NEW_CONTENT = "New content";
     public static final String NEW_THUMBNAIL = "New thumbnail";

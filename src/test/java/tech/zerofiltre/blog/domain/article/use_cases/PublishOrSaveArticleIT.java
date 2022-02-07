@@ -22,7 +22,7 @@ import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
 @Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class, ReactionDatabaseProvider.class})
-class PublishOrInitArticleIT {
+class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";
     public static final String NEW_THUMBNAIL = "New thumbnail";
