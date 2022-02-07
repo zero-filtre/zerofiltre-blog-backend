@@ -22,6 +22,7 @@ import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.config.*;
+import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -31,10 +32,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ArticleController.class)
-@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, StackOverflowTokenConfiguration.class, StackOverflowLoginProvider.class,
-        APIClientConfiguration.class, GithubLoginProvider.class, GithubTokenConfiguration.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class, StackOverflowLoginProvider.class,
+        APIClientConfiguration.class, GithubLoginProvider.class, GithubAuthenticationToken.class})
 class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";

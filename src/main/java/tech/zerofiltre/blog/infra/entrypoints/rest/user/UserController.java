@@ -12,7 +12,7 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
-import tech.zerofiltre.blog.infra.security.config.*;
+import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
 
 import javax.servlet.http.*;
@@ -35,16 +35,16 @@ public class UserController {
     private final SavePasswordReset savePasswordReset;
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
-    private final JwtConfiguration jwtConfiguration;
+    private final JwtAuthenticationToken jwTokenConfiguration;
     private final InfraProperties infraProperties;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtConfiguration jwtConfiguration, InfraProperties infraProperties) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
-        this.jwtConfiguration = jwtConfiguration;
+        this.jwTokenConfiguration = jwTokenConfiguration;
         this.infraProperties = infraProperties;
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
@@ -77,8 +77,8 @@ public class UserController {
         //add toke to header
         HttpHeaders headers = new HttpHeaders();
         headers.add(
-                jwtConfiguration.getHeader(),
-                jwtConfiguration.getPrefix() + " " + jwtConfiguration.buildToken(user.getEmail(), user.getRoles())
+                jwTokenConfiguration.getHeader(),
+                jwTokenConfiguration.getPrefix() + " " + jwTokenConfiguration.buildToken(user.getEmail(), user.getRoles())
         );
         return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
     }

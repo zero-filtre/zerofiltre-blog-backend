@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.util;
 
-import org.springframework.core.env.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -150,7 +149,7 @@ public class ZerofiltreUtils {
     }
 
     public static String getOriginUrl(String env) {
-        return env.equals("prod")?"https://blog.zerofiltre.tech":"https://blog-" + env + ".zerofiltre.tech";
+        return env.equals("prod") ? "https://blog.zerofiltre.tech" : "https://blog-" + env + ".zerofiltre.tech";
     }
 
 }

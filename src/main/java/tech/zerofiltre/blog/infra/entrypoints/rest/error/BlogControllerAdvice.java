@@ -16,6 +16,7 @@ import java.util.*;
 public class BlogControllerAdvice {
 
     public static final String NO_DOMAIN_AVAILABLE = "No domain available";
+    public static final String ZBLOG_000 = "ZBLOG_000";
     @Value("${zerofiltre.infra.entrypoints.rest.api-version}")
     private String currentApiVersion;
 
@@ -96,8 +97,8 @@ public class BlogControllerAdvice {
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                "ZBLOG_000",
-                messageSource.getMessage("ZBLOG_000", null, locale),
+                ZBLOG_000,
+                messageSource.getMessage(ZBLOG_000, null, locale),
                 NO_DOMAIN_AVAILABLE,
                 exception.getLocalizedMessage()
         );
@@ -109,8 +110,8 @@ public class BlogControllerAdvice {
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                "ZBLOG_000",
-                messageSource.getMessage("ZBLOG_000", new Object[]{}, locale),
+                ZBLOG_000,
+                messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
                 NO_DOMAIN_AVAILABLE,
                 throwable.getLocalizedMessage()
         );

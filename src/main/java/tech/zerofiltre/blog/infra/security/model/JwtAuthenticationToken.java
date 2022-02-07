@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.infra.security.config;
+package tech.zerofiltre.blog.infra.security.model;
 
 import io.jsonwebtoken.*;
 import lombok.*;
@@ -10,7 +10,8 @@ import java.util.*;
 
 @Data
 @Component
-public class JwtConfiguration {
+@EqualsAndHashCode(callSuper = true)
+public class JwtAuthenticationToken extends AuthenticationToken {
     @Value("${zerofiltre.infra.security.jwt.uri}")
     private String uri;
 
