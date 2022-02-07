@@ -17,7 +17,7 @@ public class PublishOrSaveArticle {
     }
 
 
-    public Article execute(long id, String title, String thumbnail, String content, List<Tag> tags, Status status) throws PublishOrSaveArticleException {
+    public Article execute(long id, String title, String thumbnail,String summary, String content, List<Tag> tags, Status status) throws PublishOrSaveArticleException {
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -29,6 +29,7 @@ public class PublishOrSaveArticle {
         existingArticle.setTitle(title);
         existingArticle.setThumbnail(thumbnail);
         existingArticle.setContent(content);
+        existingArticle.setSummary(summary);
         if (existingArticle.getStatus().equals(Status.DRAFT))
             existingArticle.setStatus(status);
         existingArticle.setLastSavedAt(now);

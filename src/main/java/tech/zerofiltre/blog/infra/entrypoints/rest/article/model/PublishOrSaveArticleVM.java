@@ -16,6 +16,8 @@ public class PublishOrSaveArticleVM {
     @NotEmpty(message = "The title must not be empty")
     private String title;
 
+    private String summary;
+
     private String thumbnail;
 
     @NotNull(message = "The content must not be null")

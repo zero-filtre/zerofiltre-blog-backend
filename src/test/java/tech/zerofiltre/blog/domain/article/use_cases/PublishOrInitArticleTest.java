@@ -25,6 +25,7 @@ class PublishOrInitArticleTest {
     public static final String NEW_CONTENT = "New content";
     public static final String NEW_THUMBNAIL = "New thumbnail";
     public static final String NEW_TITLE = "New title";
+    public static final String NEW_SUMMARY = "New summary";
     Tag newTag = new Tag(12, "c++");
 
 
@@ -66,6 +67,7 @@ class PublishOrInitArticleTest {
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
+                NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
                 PUBLISHED
@@ -151,6 +153,7 @@ class PublishOrInitArticleTest {
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
+                NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
                 DRAFT
@@ -181,6 +184,7 @@ class PublishOrInitArticleTest {
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
+                NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
                 DRAFT
@@ -262,7 +266,7 @@ class PublishOrInitArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "", new ArrayList<>(), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "","", new ArrayList<>(), PUBLISHED));
 
     }
 
@@ -276,7 +280,7 @@ class PublishOrInitArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "", Collections.singletonList(newTag), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "","", Collections.singletonList(newTag), PUBLISHED));
     }
 
 }

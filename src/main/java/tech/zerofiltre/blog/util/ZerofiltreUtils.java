@@ -75,6 +75,7 @@ public class ZerofiltreUtils {
         mockArticle.setTitle("Des applications très évolutives alignées aux derniers standards.");
 
         mockArticle.setTags(tags);
+        mockArticle.setSummary("Appuyez-vous sur la puissance d'un langage utilisé par de nombreuses entreprises opérant dans des secteurs tels: la banque et l’assurance. Mature de plus de 25 ans, sa robustesse n'est plus à prouver.");
         return mockArticle;
     }
 

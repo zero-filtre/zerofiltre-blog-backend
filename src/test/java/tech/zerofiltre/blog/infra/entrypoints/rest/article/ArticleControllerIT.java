@@ -59,6 +59,7 @@ class ArticleControllerIT {
             mockArticle.getId(),
             mockArticle.getTitle(),
             mockArticle.getThumbnail(),
+            mockArticle.getSummary(),
             mockArticle.getContent(),
             mockArticle.getTags()
     );
