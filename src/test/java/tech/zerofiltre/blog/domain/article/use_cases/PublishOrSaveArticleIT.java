@@ -22,11 +22,12 @@ import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
 @Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class, ReactionDatabaseProvider.class})
-class PublishOrInitArticleIT {
+class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";
     public static final String NEW_THUMBNAIL = "New thumbnail";
     public static final String NEW_TITLE = "New title";
+    public static final String NEW_SUMMARY = "New summary";
     private PublishOrSaveArticle publishOrSaveArticle;
 
     @Autowired
@@ -67,11 +68,14 @@ class PublishOrInitArticleIT {
 
 
         //ACT
-        Article publishedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_CONTENT, newTags, PUBLISHED);
+        Article publishedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY,NEW_CONTENT, newTags, PUBLISHED);
 
         //ASSERT
         assertThat(publishedArticle).isNotNull();
         assertThat(publishedArticle.getId()).isNotZero();
+
+        assertThat(publishedArticle.getSummary()).isNotNull();
+        assertThat(publishedArticle.getSummary()).isEqualTo(NEW_SUMMARY);
 
         assertThat(publishedArticle.getCreatedAt()).isNotNull();
         assertThat(publishedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);
@@ -158,11 +162,14 @@ class PublishOrInitArticleIT {
 
 
         //ACT
-        Article savedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_CONTENT, newTags, DRAFT);
+        Article savedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY,NEW_CONTENT, newTags, DRAFT);
 
         //ASSERT
         assertThat(savedArticle).isNotNull();
         assertThat(savedArticle.getId()).isNotZero();
+
+        assertThat(savedArticle.getSummary()).isEqualTo(NEW_SUMMARY);
+
 
         assertThat(savedArticle.getCreatedAt()).isNotNull();
         assertThat(savedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);

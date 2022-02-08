@@ -24,6 +24,7 @@ import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
+import tech.zerofiltre.blog.infra.security.model.*;
 
 import java.util.*;
 
@@ -32,11 +33,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = UserController.class)
-@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtConfiguration.class,
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowTokenConfiguration.class,
+        InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationToken.class,
         StackOverflowLoginProvider.class, UserMailNotificationProvider.class, APIClientConfiguration.class, GithubLoginProvider.class,
-        GithubTokenConfiguration.class})
+        GithubAuthenticationToken.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";

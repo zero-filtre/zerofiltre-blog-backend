@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
+import tech.zerofiltre.blog.infra.security.model.*;
 
 @Slf4j
 @Configuration
@@ -22,28 +23,28 @@ import tech.zerofiltre.blog.infra.security.filter.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-    private final JwtConfiguration jwtConfiguration;
+    private final JwtAuthenticationToken jwTokenConfiguration;
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
     private final PasswordEncoder passwordEncoder;
-    private final StackOverflowTokenConfiguration stackOverflowTokenConfiguration;
-    private final GithubTokenConfiguration githubTokenConfiguration;
+    private final StackOverflowAuthenticationToken stackOverflowTokenConfiguration;
+    private final GithubAuthenticationToken githubTokenConfiguration;
     private final StackOverflowLoginProvider stackOverflowLoginProvider;
     private final GithubLoginProvider githubLoginProvider;
     private final UserProvider userProvider;
 
     public SecurityConfiguration(
             UserDetailsService userDetailsService,
-            JwtConfiguration jwtConfiguration,
+            JwtAuthenticationToken jwTokenConfiguration,
             LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint,
             RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
             PasswordEncoder passwordEncoder,
-            StackOverflowTokenConfiguration stackOverflowTokenConfiguration,
-            GithubTokenConfiguration githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
+            StackOverflowAuthenticationToken stackOverflowTokenConfiguration,
+            GithubAuthenticationToken githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
             GithubLoginProvider githubLoginProvider, UserProvider userProvider) {
 
         this.userDetailsService = userDetailsService;
-        this.jwtConfiguration = jwtConfiguration;
+        this.jwTokenConfiguration = jwTokenConfiguration;
         this.loginFirstAuthenticationEntryPoint = loginFirstAuthenticationEntryPoint;
         this.roleRequiredAccessDeniedHandler = roleRequiredAccessDeniedHandler;
         this.passwordEncoder = passwordEncoder;
@@ -83,14 +84,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // What's the authenticationManager()?
                 // An object provided by WebSecurityConfigurerAdapter, used to authenticate the user passing user's credentials
                 // The filter needs this auth manager to authenticate the user.
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfiguration))
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwTokenConfiguration))
                 // Add a filter to validate the tokens with every request
-                .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfiguration), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtTokenAuthenticationFilter(jwTokenConfiguration), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new StackOverflowAuthenticationFilter(stackOverflowTokenConfiguration, stackOverflowLoginProvider, userProvider), JwtTokenAuthenticationFilter.class)
                 .addFilterAfter(new GithubAuthenticationFilter(githubTokenConfiguration, githubLoginProvider, userProvider), StackOverflowAuthenticationFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
-                .antMatchers(HttpMethod.POST, jwtConfiguration.getUri()).permitAll()
+                .antMatchers(HttpMethod.POST, jwTokenConfiguration.getUri()).permitAll()
                 .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers(HttpMethod.POST, "/user/savePasswordReset").permitAll()
                 .antMatchers(HttpMethod.POST, "/user/initPasswordReset").permitAll()

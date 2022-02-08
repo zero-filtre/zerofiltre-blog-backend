@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.infra.security.config;
+package tech.zerofiltre.blog.infra.security.model;
 
 import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,11 +6,12 @@ import org.springframework.stereotype.*;
 
 @Data
 @Component
-public class GithubTokenConfiguration {
+@EqualsAndHashCode(callSuper = true)
+public class StackOverflowAuthenticationToken extends AuthenticationToken {
 
     @Value("${security.jwt.header:Authorization}")
     private String header;
 
-    @Value("${security.jwt.prefix:token }")
+    @Value("${security.jwt.prefix:stack }")
     private String prefix;
 }

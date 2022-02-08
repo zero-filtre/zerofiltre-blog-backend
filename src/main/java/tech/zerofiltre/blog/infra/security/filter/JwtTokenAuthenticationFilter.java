@@ -4,8 +4,8 @@ import io.jsonwebtoken.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.authority.*;
 import org.springframework.security.core.context.*;
-import org.springframework.web.filter.*;
-import tech.zerofiltre.blog.infra.security.config.*;
+import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.infra.security.model.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -13,23 +13,23 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
+public class JwtTokenAuthenticationFilter extends AuthenticationFilter<JwtAuthenticationToken, SocialLoginProvider> {
 
-    private final JwtConfiguration jwtConfiguration;
 
-    public JwtTokenAuthenticationFilter(JwtConfiguration jwtConfiguration) {
-        this.jwtConfiguration = jwtConfiguration;
+    public JwtTokenAuthenticationFilter(JwtAuthenticationToken tokenConfiguration) {
+        super(tokenConfiguration, null, null);
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
         // 1. get the authentication header. Tokens are supposed to be passed in the authentication header
-        String header = request.getHeader(jwtConfiguration.getHeader());
+        String header = request.getHeader(tokenConfiguration.getHeader());
 
         // 2. validate the header and check the prefix
-        if (header == null || !header.startsWith(jwtConfiguration.getPrefix())) {
+        if (header == null || !header.startsWith(tokenConfiguration.getPrefix())) {
             chain.doFilter(request, response);        // If not valid, go to the next filter.
             return;
         }
@@ -41,13 +41,13 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         // And If user tried to access without access token, then he won't be authenticated and an exception will be thrown.
 
         // 3. Get the token
-        String token = header.replace(jwtConfiguration.getPrefix(), "");
+        String token = header.replace(tokenConfiguration.getPrefix(), "");
 
         try {    // exceptions might be thrown in creating the claims if for example the token is expired
 
             // 4. Validate the token
             Claims claims = Jwts.parser()
-                    .setSigningKey(jwtConfiguration.getSecret().getBytes())
+                    .setSigningKey(tokenConfiguration.getSecret().getBytes())
                     .parseClaimsJws(token)
                     .getBody();
 

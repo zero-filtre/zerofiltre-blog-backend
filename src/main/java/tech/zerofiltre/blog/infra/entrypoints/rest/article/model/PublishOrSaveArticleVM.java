@@ -18,6 +18,11 @@ public class PublishOrSaveArticleVM {
 
     private String thumbnail;
 
+    @NotNull(message = "The summary must not be null")
+    @NotEmpty(message = "The summary must not be empty")
+    @Size(min = 20, max = 255, message = "The summary length should be between 50 and 255")
+    private String summary;
+
     @NotNull(message = "The content must not be null")
     @NotEmpty(message = "The content must not be empty")
     private String content;

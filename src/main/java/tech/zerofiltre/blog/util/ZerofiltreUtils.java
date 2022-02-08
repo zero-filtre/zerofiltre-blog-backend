@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.util;
 
-import org.springframework.core.env.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -75,6 +74,7 @@ public class ZerofiltreUtils {
         mockArticle.setTitle("Des applications très évolutives alignées aux derniers standards.");
 
         mockArticle.setTags(tags);
+        mockArticle.setSummary("Appuyez-vous sur la puissance d'un langage utilisé par de nombreuses entreprises opérant dans des secteurs tels: la banque et l’assurance. Mature de plus de 25 ans, sa robustesse n'est plus à prouver.");
         return mockArticle;
     }
 
@@ -149,7 +149,7 @@ public class ZerofiltreUtils {
     }
 
     public static String getOriginUrl(String env) {
-        return env.equals("prod")?"https://blog.zerofiltre.tech":"https://blog-" + env + ".zerofiltre.tech";
+        return env.equals("prod") ? "https://blog.zerofiltre.tech" : "https://blog-" + env + ".zerofiltre.tech";
     }
 
 }

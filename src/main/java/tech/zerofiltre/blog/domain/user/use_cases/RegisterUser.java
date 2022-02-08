@@ -3,8 +3,6 @@ package tech.zerofiltre.blog.domain.user.use_cases;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-import java.time.*;
-
 public class RegisterUser {
     private final UserProvider userProvider;
 

@@ -42,12 +42,12 @@ public class ArticleController {
 
     @PatchMapping
     public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
+        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
     }
 
     @PatchMapping("/publish")
     public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
+        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
     }
 
     @PostMapping
