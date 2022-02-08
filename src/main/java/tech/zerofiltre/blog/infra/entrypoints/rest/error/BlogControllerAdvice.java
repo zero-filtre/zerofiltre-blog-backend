@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.error;
 
+import lombok.extern.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.*;
 import org.springframework.context.support.*;
@@ -7,11 +8,13 @@ import org.springframework.http.*;
 import org.springframework.web.*;
 import org.springframework.web.bind.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import java.util.*;
 
+@Slf4j
 @RestControllerAdvice
 public class BlogControllerAdvice {
 
@@ -33,6 +36,7 @@ public class BlogControllerAdvice {
                 "Article",
                 exception.getLocalizedMessage()
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -46,6 +50,7 @@ public class BlogControllerAdvice {
                 "Article",
                 exception.getLocalizedMessage()
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -63,6 +68,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -76,6 +82,7 @@ public class BlogControllerAdvice {
                 "User",
                 exception.getLocalizedMessage()
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -89,7 +96,22 @@ public class BlogControllerAdvice {
                 "User",
                 exception.getLocalizedMessage()
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<BlogError> handleException(ForbiddenActionException exception, Locale locale) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.FORBIDDEN.value()),
+                "ZBLOG_010",
+                messageSource.getMessage("ZBLOG_010", null, locale),
+                NO_DOMAIN_AVAILABLE,
+                exception.getLocalizedMessage()
+        );
+        log.debug("Full exception", exception);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -102,6 +124,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 exception.getLocalizedMessage()
         );
+        log.debug("Full exception", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -115,6 +138,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 throwable.getLocalizedMessage()
         );
+        log.debug("Full exception", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

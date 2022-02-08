@@ -47,7 +47,7 @@ class InitArticleIT {
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeCreation = LocalDateTime.now();
-        User mockUser = userProvider.save(ZerofiltreUtils.createMockUser());
+        User mockUser = userProvider.save(ZerofiltreUtils.createMockUser(false));
 
         //ACT
         Article initializedArticle = initArticle.execute(TITLE, mockUser);

@@ -41,13 +41,15 @@ public class ArticleController {
     }
 
     @PatchMapping
-    public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
+    public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
     }
 
     @PatchMapping("/publish")
-    public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws PublishOrSaveArticleException {
-        return publishOrSaveArticle.execute(publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
+    public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
     }
 
     @PostMapping

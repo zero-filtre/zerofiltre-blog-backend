@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
@@ -48,10 +49,11 @@ class PublishOrSaveArticleTest {
 
     @Test
     @DisplayName("Must properly partially update the data on publish")
-    void mustPublishProperly() throws PublishOrSaveArticleException {
+    void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
 
@@ -64,6 +66,7 @@ class PublishOrSaveArticleTest {
         //ACT
         List<Tag> newTags = Collections.singletonList(newTag);
         Article publishedArticle = publishOrSaveArticle.execute(
+                mockArticle.getAuthor(),
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
@@ -137,9 +140,10 @@ class PublishOrSaveArticleTest {
 
     @Test
     @DisplayName("Must not draft an already published article")
-    void save_MustNotDraft_AnAlreadyPublishArticle() throws PublishOrSaveArticleException {
+    void save_MustNotDraft_AnAlreadyPublishArticle() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
         mockArticle.setId(45);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
@@ -150,6 +154,7 @@ class PublishOrSaveArticleTest {
         //ACT
         List<Tag> newTags = Collections.singletonList(newTag);
         Article publishedArticle = publishOrSaveArticle.execute(
+                mockArticle.getAuthor(),
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
@@ -165,10 +170,11 @@ class PublishOrSaveArticleTest {
 
     @Test
     @DisplayName("Must properly partially update the data on save")
-    void mustSaveProperly() throws PublishOrSaveArticleException {
+    void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
 
@@ -181,6 +187,7 @@ class PublishOrSaveArticleTest {
         //ACT
         List<Tag> newTags = Collections.singletonList(newTag);
         Article publishedArticle = publishOrSaveArticle.execute(
+                mockArticle.getAuthor(),
                 45,
                 NEW_TITLE,
                 NEW_THUMBNAIL,
@@ -266,7 +273,24 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "","", new ArrayList<>(), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(new User(), 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+
+    }
+
+    @Test
+    @DisplayName("Must throw ForbiddenActionException if editor is neither the author nor an admin ")
+    void mustThrowForbiddenActionExceptionOnNotAuthor() {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
+        User editor = new User();
+        editor.setEmail("email");
+        editor.setRoles(Collections.singleton("ROLE_USER"));
+
+
+        //ACT & ASSERT
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
 
     }
 
@@ -277,10 +301,13 @@ class PublishOrSaveArticleTest {
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.empty());
+        User editor = new User();
+        editor.setEmail(mockArticle.getAuthor().getEmail());
+        editor.setRoles(Collections.singleton("ROLE_USER"));
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(1, "", "", "","", Collections.singletonList(newTag), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), PUBLISHED));
     }
 
 }

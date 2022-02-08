@@ -13,7 +13,7 @@ public class ZerofiltreUtils {
     }
 
     public static Article createMockArticle(boolean withTagIds) {
-        User user = createMockUser();
+        User user = createMockUser(false);
         List<Reaction> reactions = createMockReactions(true, 1, user);
         List<Tag> tags = createMockTags(withTagIds);
         return createMockArticle(user, tags, reactions);
@@ -78,9 +78,10 @@ public class ZerofiltreUtils {
         return mockArticle;
     }
 
-    public static User createMockUser() {
+    public static User createMockUser(boolean isAdmin) {
         User user = new User();
         user.setId(1);
+        user.setEmail("ola.eloundou@zerofiltre.tech");
         user.setFirstName("Philippe");
         user.setLastName("GUEMKAM SIMO");
         user.setPseudoName("imphilippesimo");
@@ -99,6 +100,8 @@ public class ZerofiltreUtils {
         user.setProfession("Senior Java Developer");
         user.setSocialLinks(socialLinks);
         user.setWebsite("https://zerofiltre.tech");
+        if (isAdmin)
+            user.getRoles().add("ROLE_ADMIN");
         return user;
     }
 
