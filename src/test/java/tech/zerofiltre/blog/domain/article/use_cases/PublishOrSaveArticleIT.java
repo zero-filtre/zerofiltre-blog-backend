@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
@@ -49,9 +50,9 @@ class PublishOrSaveArticleIT {
 
     @Test
     @DisplayName("Must properly partially update the data on publish")
-    void mustPublishProperly() throws PublishOrSaveArticleException {
+    void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        User user = userProvider.save(ZerofiltreUtils.createMockUser());
+        User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
                 .map(tagProvider::create)
@@ -68,7 +69,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article publishedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY,NEW_CONTENT, newTags, PUBLISHED);
+        Article publishedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, PUBLISHED);
 
         //ASSERT
         assertThat(publishedArticle).isNotNull();
@@ -143,9 +144,9 @@ class PublishOrSaveArticleIT {
 
     @Test
     @DisplayName("Must properly partially update the data on save")
-    void mustSaveProperly() throws PublishOrSaveArticleException {
+    void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        User user = userProvider.save(ZerofiltreUtils.createMockUser());
+        User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
                 .map(tagProvider::create)
@@ -162,7 +163,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article savedArticle = publishOrSaveArticle.execute(article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY,NEW_CONTENT, newTags, DRAFT);
+        Article savedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, DRAFT);
 
         //ASSERT
         assertThat(savedArticle).isNotNull();

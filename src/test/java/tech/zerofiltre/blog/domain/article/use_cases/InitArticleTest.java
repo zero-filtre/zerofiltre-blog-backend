@@ -43,7 +43,7 @@ class InitArticleTest {
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeInit = LocalDateTime.now();
-        User mockUser = ZerofiltreUtils.createMockUser();
+        User mockUser = ZerofiltreUtils.createMockUser(false);
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> {
             Article article = invocationOnMock.getArgument(0);
             article.setId(45);
