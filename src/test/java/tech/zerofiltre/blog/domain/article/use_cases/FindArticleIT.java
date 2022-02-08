@@ -4,8 +4,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 
@@ -35,27 +37,37 @@ class FindArticleIT {
 
     @Test
     @DisplayName("Must properly return articles from the requested page")
-    void mustReturnArticlesFromTheRequestedPage() {
+    void mustReturnArticlesFromTheRequestedPage() throws ForbiddenActionException {
 
 
         //ARRANGE
+        User user = new User();
+        user.setRoles(Collections.singleton("ROLE_ADMIN"));
+
         Article ddd = new Article();
         ddd.setTitle(DDD);
+        ddd.setStatus(Status.PUBLISHED);
 
         Article tdd = new Article();
         tdd.setTitle(TDD);
+        tdd.setStatus(Status.PUBLISHED);
+
 
         Article cleanCode = new Article();
         cleanCode.setTitle(CLEAN_CODE);
+        cleanCode.setStatus(Status.DRAFT);
 
         Article hexagonalArchitecture = new Article();
         hexagonalArchitecture.setTitle(HEXAGONAL_ARCHITECTURE);
+        hexagonalArchitecture.setStatus(Status.DRAFT);
 
         Article uiDesign = new Article();
         uiDesign.setTitle(UI_DESIGN);
+        uiDesign.setStatus(Status.IN_REVIEW);
 
         Article uxDesign = new Article();
         uxDesign.setTitle(UX_DESIGN);
+        uxDesign.setStatus(Status.IN_REVIEW);
 
         articleProvider.save(ddd);
         articleProvider.save(tdd);
@@ -66,26 +78,25 @@ class FindArticleIT {
 
 
         //ACT
-        List<Article> firstPageWithTwoElements = findArticle.of(0, 2);
-        List<Article> secondPageWithThreeElements = findArticle.of(1, 3);
-        List<Article> thirdPageWithTwoElements = findArticle.of(2, 2);
-        List<Article> thirdPageWithThreeElement = findArticle.of(2, 3);
+        List<Article> firstPageWithTwoInReview = findArticle.of(new FindArticleRequest(0, 2, Status.IN_REVIEW, user));
+        List<Article> firstPageWith2Published = findArticle.of(new FindArticleRequest(0, 2, Status.PUBLISHED, user));
+        List<Article> firstPageWith2Drafts = findArticle.of(new FindArticleRequest(0, 2, Status.DRAFT, user));
+        List<Article> thirdPageWithThreePublished = findArticle.of(new FindArticleRequest(2, 3, Status.PUBLISHED, user));
 
         //ASSERT
-        assertThat(firstPageWithTwoElements).hasSize(2);
-        assertThat(firstPageWithTwoElements.get(0).getTitle()).isEqualTo(UX_DESIGN);
-        assertThat(firstPageWithTwoElements.get(1).getTitle()).isEqualTo(UI_DESIGN);
+        assertThat(firstPageWithTwoInReview).hasSize(2);
+        assertThat(firstPageWithTwoInReview.get(0).getTitle()).isEqualTo(UX_DESIGN);
+        assertThat(firstPageWithTwoInReview.get(1).getTitle()).isEqualTo(UI_DESIGN);
 
-        assertThat(secondPageWithThreeElements).hasSize(3);
-        assertThat(secondPageWithThreeElements.get(0).getTitle()).isEqualTo(CLEAN_CODE);
-        assertThat(secondPageWithThreeElements.get(1).getTitle()).isEqualTo(TDD);
-        assertThat(secondPageWithThreeElements.get(2).getTitle()).isEqualTo(DDD);
+        assertThat(firstPageWith2Published).hasSize(2);
+        assertThat(firstPageWith2Published.get(0).getTitle()).isEqualTo(TDD);
+        assertThat(firstPageWith2Published.get(1).getTitle()).isEqualTo(DDD);
 
-        assertThat(thirdPageWithTwoElements).hasSize(2);
-        assertThat(thirdPageWithTwoElements.get(0).getTitle()).isEqualTo(TDD);
-        assertThat(thirdPageWithTwoElements.get(1).getTitle()).isEqualTo(DDD);
+        assertThat(firstPageWith2Drafts).hasSize(2);
+        assertThat(firstPageWith2Drafts.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
+        assertThat(firstPageWith2Drafts.get(1).getTitle()).isEqualTo(CLEAN_CODE);
 
-        assertThat(thirdPageWithThreeElement).isEmpty();
+        assertThat(thirdPageWithThreePublished).isEmpty();
 
 
     }

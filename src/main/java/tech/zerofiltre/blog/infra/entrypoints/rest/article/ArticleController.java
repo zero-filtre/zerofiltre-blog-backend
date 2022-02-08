@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
+import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
@@ -13,6 +14,7 @@ import javax.validation.*;
 import javax.validation.constraints.*;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/article")
 public class ArticleController {
@@ -36,8 +38,21 @@ public class ArticleController {
     }
 
     @GetMapping("/list")
-    public List<Article> articleCards(@RequestParam int pageNumber, @RequestParam int pageSize) {
-        return findArticle.of(pageNumber, pageSize);
+    public List<Article> articleCards(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
+        User user = null;
+        try {
+            user = securityContextManager.getAuthenticatedUser();
+        } catch (BlogException e) {
+            log.info("We did not find a connected user but we can still return published articles", e);
+        }
+
+        status = status.toUpperCase();
+        FindArticleRequest request = new FindArticleRequest();
+        request.setPageNumber(pageNumber);
+        request.setPageSize(pageSize);
+        request.setStatus(Status.valueOf(status));
+        request.setUser(user);
+        return findArticle.of(request);
     }
 
     @PatchMapping

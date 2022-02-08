@@ -35,8 +35,9 @@ public class ArticleDatabaseProvider implements ArticleProvider {
     }
 
     @Override
-    public List<Article> articlesOf(int pageNumber, int pageSize) {
-        return repository.findAll(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC,"id"))
+    public List<Article> articlesOf(int pageNumber, int pageSize, Status status) {
+        //return repository.findAll(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC,"id"))
+        return repository.findByStatus(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id"), status)
                 .map(mapper::fromJPA)
                 .getContent();
     }
