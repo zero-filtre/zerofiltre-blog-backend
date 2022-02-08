@@ -14,7 +14,10 @@ import java.util.*;
 @Table(name = "user")
 public class UserJPA extends BaseEntityJPA {
 
+
+    @Column(unique = true)
     private String pseudoName;
+    @Column(unique = true)
     private String email;
     private String firstName;
     private String lastName;
