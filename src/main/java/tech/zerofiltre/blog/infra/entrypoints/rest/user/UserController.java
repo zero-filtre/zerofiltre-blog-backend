@@ -5,7 +5,7 @@ import org.springframework.context.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -57,7 +57,7 @@ public class UserController {
 
     @PostMapping
     //TODO Refactor this to delegate the orchestration to the application layer
-    public ResponseEntity<User> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws UserAlreadyExistException {
+    public ResponseEntity<User> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws ResourceAlreadyExistException {
         User user = new User();
         user.setFirstName(registerUserVM.getFirstName());
         user.setLastName(registerUserVM.getLastName());

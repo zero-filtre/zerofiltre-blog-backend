@@ -5,6 +5,7 @@ import org.springframework.security.core.*;
 import org.springframework.security.core.context.*;
 import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -24,7 +25,7 @@ public class SecurityContextManager {
             userEmail = authentication.getName();
         }
         return userProvider.userOfEmail(userEmail)
-                .orElseThrow(() -> new BlogException("No authenticated user found"));
+                .orElseThrow(() -> new BlogException("No authenticated user found", Domains.NONE.name()));
 
     }
 }

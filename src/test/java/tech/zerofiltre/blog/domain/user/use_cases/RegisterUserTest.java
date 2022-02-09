@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -39,7 +40,7 @@ class RegisterUserTest {
 
     @Test
     @DisplayName("Must register the user properly")
-    void mustSaveProperly() throws UserAlreadyExistException {
+    void mustSaveProperly() throws ResourceAlreadyExistException {
         //ARRANGE
         when(userProvider.userOfEmail("email")).thenReturn(Optional.empty());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> {
@@ -71,7 +72,7 @@ class RegisterUserTest {
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //ACT && ASSERT
-        assertThatExceptionOfType(UserAlreadyExistException.class).isThrownBy(() -> registerUser.execute(toRegister));
+        assertThatExceptionOfType(ResourceAlreadyExistException.class).isThrownBy(() -> registerUser.execute(toRegister));
 
 
     }

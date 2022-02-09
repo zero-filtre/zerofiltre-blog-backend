@@ -21,8 +21,14 @@ public class TagDatabaseProvider implements TagProvider {
 
 
     @Override
-    public Optional<Tag> tagOfId(long tagId) {
-        return repository.findById(tagId)
+    public Optional<Tag> tagOfId(long id) {
+        return repository.findById(id)
+                .map(mapper::fromJPA);
+    }
+
+    @Override
+    public Optional<Tag> tagOfName(String name) {
+        return repository.findByName(name)
                 .map(mapper::fromJPA);
     }
 
@@ -34,7 +40,7 @@ public class TagDatabaseProvider implements TagProvider {
     }
 
     @Override
-    public Tag create(Tag tag) {
+    public Tag save(Tag tag) {
         return mapper.fromJPA(repository.save(mapper.toJPA(tag)));
     }
 }

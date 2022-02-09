@@ -8,7 +8,7 @@ import org.springframework.context.*;
 import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -79,7 +79,7 @@ class UserControllerTest {
     }
 
     @Test
-    void registerUser_MustRegisterUser_ThenNotifyRegistrationComplete() throws UserAlreadyExistException {
+    void registerUser_MustRegisterUser_ThenNotifyRegistrationComplete() throws ResourceAlreadyExistException {
         //ARRANGE
         userVM.setEmail(EMAIL);
         userVM.setFirstName(FIRST_NAME);

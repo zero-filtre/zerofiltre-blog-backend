@@ -2,10 +2,10 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
@@ -33,12 +33,12 @@ public class ArticleController {
 
 
     @GetMapping("/{id}")
-    public Article articleById(@PathVariable("id") long articleId) throws ArticleNotFoundException {
+    public Article articleById(@PathVariable("id") long articleId) throws ResourceNotFoundException {
         return findArticle.byId(articleId);
     }
 
     @GetMapping("/list")
-    public List<Article> articleCards(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
+    public List<Article> articles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
