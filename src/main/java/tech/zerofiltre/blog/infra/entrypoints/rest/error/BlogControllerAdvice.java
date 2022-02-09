@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 
+import javax.servlet.*;
 import java.util.*;
 
 @Slf4j
@@ -114,8 +115,8 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<BlogError> handleException(HttpRequestMethodNotSupportedException exception, Locale locale) {
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<BlogError> handleException(ServletException exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
