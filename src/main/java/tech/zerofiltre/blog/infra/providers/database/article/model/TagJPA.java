@@ -15,6 +15,7 @@ public class TagJPA extends BaseEntityJPA {
     @ManyToMany(mappedBy = "tags")
     private List<ArticleJPA> articles;
 
+    @Column(unique = true)
     private String name;
 
     private String colorCode;

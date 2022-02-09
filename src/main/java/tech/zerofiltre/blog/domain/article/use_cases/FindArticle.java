@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.article.use_cases;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
@@ -15,16 +16,16 @@ public class FindArticle {
         this.articleProvider = articleProvider;
     }
 
-    public Article byId(long id) throws ArticleNotFoundException {
+    public Article byId(long id) throws ResourceNotFoundException {
         return articleProvider.articleOfId(id)
-                .orElseThrow(() -> new ArticleNotFoundException("The article with id: " + id + " does not exist", id));
+                .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", id, Domains.ARTICLE.name()));
     }
 
     public List<Article> of(FindArticleRequest request) throws ForbiddenActionException {
         User user = request.getUser();
         if (!Status.PUBLISHED.equals(request.getStatus()) && (user == null || !user.getRoles().contains("ROLE_ADMIN"))) {
             throw new ForbiddenActionException("You are not authorize to request articles other than the published ones with this API. " +
-                    "Please request with status=published or try /user/* API resources");
+                    "Please request with status=published or try /user/* API resources", Domains.ARTICLE.name());
         }
         return articleProvider.articlesOf(request.getPageNumber(), request.getPageSize(), request.getStatus());
 

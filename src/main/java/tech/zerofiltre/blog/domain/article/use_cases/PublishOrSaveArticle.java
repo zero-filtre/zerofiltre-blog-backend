@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.article.use_cases;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.time.*;
@@ -28,7 +29,7 @@ public class PublishOrSaveArticle {
 
         User author = existingArticle.getAuthor();
         if (!currentEditor.getEmail().equals(author.getEmail()) && !author.getRoles().contains("ROLE_ADMIN"))
-            throw new ForbiddenActionException("You are not allowed to edit this article");
+            throw new ForbiddenActionException("You are not allowed to edit this article", Domains.ARTICLE.name());
 
         checkTags(tags);
         existingArticle.setTags(tags);

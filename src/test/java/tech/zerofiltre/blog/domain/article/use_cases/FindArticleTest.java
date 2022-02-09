@@ -4,9 +4,9 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -31,7 +31,7 @@ class FindArticleTest {
 
     @Test
     @DisplayName("Must return the article corresponding ot the id")
-    void mustReturnAnArticle() throws ArticleNotFoundException {
+    void mustReturnAnArticle() throws ResourceNotFoundException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
@@ -51,7 +51,7 @@ class FindArticleTest {
         when(articleProvider.articleOfId(anyLong())).thenReturn(java.util.Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(ArticleNotFoundException.class).isThrownBy(() -> findArticle.byId(12));
+        assertThatExceptionOfType(ResourceNotFoundException.class).isThrownBy(() -> findArticle.byId(12));
 
 
     }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
@@ -35,7 +36,7 @@ class RegisterUserIT {
 
     @Test
     @DisplayName("Must register the user properly")
-    void mustSaveProperly() throws UserAlreadyExistException {
+    void mustSaveProperly() throws ResourceAlreadyExistException {
         //ARRANGE
         toRegister.setEmail("email");
 
@@ -60,7 +61,7 @@ class RegisterUserIT {
         userProvider.save(toRegister);
 
         //ACT && ASSERT
-        assertThatExceptionOfType(UserAlreadyExistException.class).isThrownBy(() -> registerUser.execute(toRegister));
+        assertThatExceptionOfType(ResourceAlreadyExistException.class).isThrownBy(() -> registerUser.execute(toRegister));
 
 
     }

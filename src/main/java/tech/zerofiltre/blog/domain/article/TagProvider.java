@@ -6,9 +6,11 @@ import java.util.*;
 
 public interface TagProvider {
 
-    Optional<Tag> tagOfId(long tag);
+    Optional<Tag> tagOfId(long id);
+
+    Optional<Tag> tagOfName(String name);
 
     List<Tag> tags();
 
-    Tag create(Tag tag);
+    Tag save(Tag tag);
 }

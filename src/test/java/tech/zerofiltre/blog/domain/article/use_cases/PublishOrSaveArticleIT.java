@@ -4,10 +4,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
-import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
@@ -55,7 +55,7 @@ class PublishOrSaveArticleIT {
         User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
-                .map(tagProvider::create)
+                .map(tagProvider::save)
                 .collect(Collectors.toList());
 
         List<Reaction> reactions = ZerofiltreUtils.createMockReactions(true, 1, user).stream()
@@ -149,7 +149,7 @@ class PublishOrSaveArticleIT {
         User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
-                .map(tagProvider::create)
+                .map(tagProvider::save)
                 .collect(Collectors.toList());
 
         List<Reaction> reactions = ZerofiltreUtils.createMockReactions(true, 1, user).stream()
