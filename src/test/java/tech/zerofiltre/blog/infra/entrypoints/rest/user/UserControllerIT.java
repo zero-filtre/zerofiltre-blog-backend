@@ -272,6 +272,25 @@ class UserControllerIT {
     }
 
     @Test
+    @WithMockUser
+    void onDeleteUser_onValidInputWith_ThenReturn200() throws Exception {
+        //ARRANGE
+        User connectedUser = new User();
+        connectedUser.setId(12);
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(connectedUser));
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(connectedUser));
+
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.delete("/user/12");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+
+    }
+
+    @Test
     void onGetGithubToken_onValidInput_thenReturn200() throws Exception {
         //ARRANGE
         when(githubLoginProvider.tokenFromCode(any())).thenReturn(TOKEN);

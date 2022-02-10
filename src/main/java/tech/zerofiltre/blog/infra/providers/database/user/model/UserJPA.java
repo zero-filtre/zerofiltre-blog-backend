@@ -40,6 +40,10 @@ public class UserJPA extends BaseEntityJPA {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<SocialLinkJPA> socialLinks;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    @JoinColumn(name = "verification_token_id")
+    private VerificationTokenJPA verificationTokenJPA;
+
     private String website;
 
 }

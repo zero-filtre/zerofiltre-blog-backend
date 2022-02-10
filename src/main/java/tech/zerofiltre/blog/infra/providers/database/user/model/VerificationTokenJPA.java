@@ -13,7 +13,7 @@ public class VerificationTokenJPA extends BaseEntityJPA {
 
     private String token;
 
-    @OneToOne(targetEntity = UserJPA.class)
+    @OneToOne
     @JoinColumn(nullable = false, name = "user_id")
     private UserJPA user;
 

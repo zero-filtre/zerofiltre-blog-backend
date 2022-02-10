@@ -21,7 +21,6 @@ import javax.validation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/user")
 @Slf4j
 public class UserController {
 
@@ -39,6 +38,7 @@ public class UserController {
     private final JwtAuthenticationToken jwTokenConfiguration;
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
+    private final DeleteUser deleteUser;
 
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
@@ -56,9 +56,10 @@ public class UserController {
         this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
+        this.deleteUser = new DeleteUser(userProvider);
     }
 
-    @PostMapping
+    @PostMapping("/user")
     //TODO Refactor this to delegate the orchestration to the application layer
     public ResponseEntity<User> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws ResourceAlreadyExistException {
         User user = new User();
@@ -86,7 +87,7 @@ public class UserController {
         return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
     }
 
-    @GetMapping("/resendRegistrationConfirm")
+    @GetMapping("/user/resendRegistrationConfirm")
     public String resendRegistrationConfirm(@RequestParam String email, HttpServletRequest request) {
         String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
@@ -98,14 +99,14 @@ public class UserController {
     }
 
 
-    @GetMapping("/registrationConfirm")
+    @GetMapping("/user/registrationConfirm")
     public String registrationConfirm(@RequestParam String token, HttpServletRequest request) throws InvalidTokenException {
         confirmUserRegistration.execute(token);
         return sources.getMessage("message.account.validated", null, request.getLocale());
 
     }
 
-    @GetMapping("/initPasswordReset")
+    @GetMapping("/user/initPasswordReset")
     public String initPasswordReset(@RequestParam String email, HttpServletRequest request) {
         String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
@@ -116,19 +117,19 @@ public class UserController {
         return sources.getMessage("message.reset.password.sent", null, request.getLocale());
     }
 
-    @GetMapping("/verifyTokenForPasswordReset")
+    @GetMapping("/user/verifyTokenForPasswordReset")
     public Map<String, String> verifyTokenForPasswordReset(@RequestParam String token) throws InvalidTokenException {
         verifyToken.execute(token);
         return Collections.singletonMap("token", token);
     }
 
-    @PostMapping("/savePasswordReset")
+    @PostMapping("/user/savePasswordReset")
     public String savePasswordReset(@RequestBody @Valid ResetPasswordVM passwordVM, HttpServletRequest request) throws InvalidTokenException {
         savePasswordReset.execute(passwordEncoder.encode(passwordVM.getPassword()), passwordVM.getToken());
         return sources.getMessage("message.reset.password.success", null, request.getLocale());
     }
 
-    @PostMapping("/updatePassword")
+    @PostMapping("/user/updatePassword")
     public String updatePassword(@RequestBody @Valid UpdatePasswordVM passwordVM, HttpServletRequest request) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
         String newEncodedPassword = passwordEncoder.encode(passwordVM.getPassword());
@@ -137,7 +138,14 @@ public class UserController {
 
     }
 
-    @PostMapping("/github/accessToken")
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable("id") long userId, HttpServletRequest request) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        deleteUser.execute(user, userId);
+        return sources.getMessage("message.delete.user.success", null, request.getLocale());
+    }
+
+    @PostMapping("/user/github/accessToken")
     public void getGithubToken(@RequestParam String code, HttpServletResponse response) throws ResourceNotFoundException {
         String token = retrieveSocialToken.execute(code);
         response.addHeader(HttpHeaders.AUTHORIZATION, "token " + token);
