@@ -30,7 +30,7 @@ public class TagController {
     @GetMapping("/tag/{id}")
     public Tag tagOfId(@PathVariable("id") long tagId) throws ResourceNotFoundException {
         return tagProvider.tagOfId(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("The tag with id: " + tagId + " does not exist", tagId, Domains.TAG.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("The tag with id: " + tagId + " does not exist", String.valueOf(tagId), Domains.TAG.name()));
     }
 
     @PostMapping("/admin/tag")

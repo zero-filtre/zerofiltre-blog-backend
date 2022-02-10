@@ -32,6 +32,13 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.github.client-secret}")
     private String githubAPIClientSecret;
 
+    @Value("${zerofiltre.infra.max-attempts}")
+    private int maxAttempts;
+
     @Value("${zerofiltre.env:dev}")
     private String env;
+
+
+
+
 }

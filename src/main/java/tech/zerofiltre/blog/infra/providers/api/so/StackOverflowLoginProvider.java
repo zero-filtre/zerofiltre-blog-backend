@@ -1,8 +1,11 @@
 package tech.zerofiltre.blog.infra.providers.api.so;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import lombok.extern.slf4j.*;
+import org.apache.commons.lang3.*;
 import org.springframework.http.*;
+import org.springframework.retry.support.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.client.*;
 import org.springframework.web.util.*;
@@ -23,12 +26,14 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final String apiUrl;
+    private final RetryTemplate retryTemplate;
 
 
-    public StackOverflowLoginProvider(RestTemplate restTemplate, InfraProperties infraProperties) {
+    public StackOverflowLoginProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         apiUrl = infraProperties.getStackOverflowAPIRootURL() + infraProperties.getStackOverflowAPIVersion();
+        this.retryTemplate = retryTemplate;
     }
 
     public boolean isValid(String token) {
@@ -36,64 +41,84 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
         String urlTemplate = buildURITemplate(apiUrl + "/access-tokens/" + token, uriVariables.keySet());
 
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(urlTemplate, String.class, uriVariables);
+            return retryTemplate.execute(retryContext -> {
+                ResponseEntity<String> response = restTemplate.getForEntity(urlTemplate, String.class, uriVariables);
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(response.getBody());
-                JsonNode items = root.path("items");
-                JsonNode node = items.get(0);
-                if (node == null) {
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode root = null;
+                    try {
+                        root = mapper.readTree(response.getBody());
+                    } catch (JsonProcessingException e) {
+                        log.error("We couldn't validate the token ", e);
+                        return false;
+                    }
+                    JsonNode items = root.path("items");
+                    JsonNode node = items.get(0);
+                    if (node == null) {
+                        log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
+                        return false;
+                    }
+                    LocalDateTime expiryDate = LocalDateTime.ofEpochSecond(node.get("expires_on_date").longValue(), 0, ZoneOffset.UTC);
+                    if (expiryDate.isBefore(LocalDateTime.now())) {
+                        log.error("We couldn't validate the token because it is expired ");
+                        return false;
+                    }
+                } else {
                     log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
                     return false;
                 }
-                LocalDateTime expiryDate = LocalDateTime.ofEpochSecond(node.get("expires_on_date").longValue(), 0, ZoneOffset.UTC);
-                if (expiryDate.isBefore(LocalDateTime.now())) {
-                    log.error("We couldn't validate the token because it is expired ");
-                    return false;
-                }
-            } else {
-                log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
-                return false;
-            }
+                return true;
+            });
         } catch (Exception e) {
             log.error("We couldn't validate the token ", e);
             return false;
         }
-        return true;
     }
 
     public Optional<User> userOfToken(String token) {
-        StackOverflowUser stackOverflowUser;
-        Map<String, String> uriVariables = new HashMap<>();
-        uriVariables.put("site", SITE);
-        uriVariables.put("order", "desc");
-        uriVariables.put("sort", "reputation");
-        uriVariables.put("access_token", token);
-        uriVariables.put("filter", "default");
-        uriVariables.put("key", infraProperties.getStackOverflowAPIKey());
-
-        String urlTemplate = buildURITemplate(apiUrl + "/me", uriVariables.keySet());
-
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(urlTemplate, String.class, uriVariables);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(response.getBody());
-                JsonNode items = root.path("items");
-                JsonNode node = items.get(0);
-                if (node != null) {
-                    stackOverflowUser = mapper.treeToValue(node, StackOverflowUser.class);
-                    User user = fromStackOverflowUser(stackOverflowUser);
-                    return Optional.of(user);
+            return retryTemplate.execute(retryContext -> {
+                StackOverflowUser stackOverflowUser;
+                Map<String, String> uriVariables = new HashMap<>();
+                uriVariables.put("site", SITE);
+                uriVariables.put("order", "desc");
+                uriVariables.put("sort", "reputation");
+                uriVariables.put("access_token", token);
+                uriVariables.put("filter", "default");
+                uriVariables.put("key", infraProperties.getStackOverflowAPIKey());
+
+                String urlTemplate = buildURITemplate(apiUrl + "/me", uriVariables.keySet());
+
+                ResponseEntity<String> response = restTemplate.getForEntity(urlTemplate, String.class, uriVariables);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode root = mapper.readTree(response.getBody());
+                        JsonNode items = root.path("items");
+                        JsonNode node = items.get(0);
+                        if (node != null) {
+                            stackOverflowUser = mapper.treeToValue(node, StackOverflowUser.class);
+                            User user = fromStackOverflowUser(stackOverflowUser);
+                            return Optional.of(user);
+                        }
+                    } catch (JsonProcessingException e) {
+                        log.error("We couldn't find a user ", e);
+                        return Optional.empty();
+                    }
                 }
-            }
-            log.error("We couldn't find a user because stackoverflow returned this {} ", response.getBody());
+                log.error("We couldn't find a user because stackoverflow returned this {} ", response.getBody());
+                return Optional.empty();
+            });
         } catch (Exception e) {
             log.error("We couldn't find a user ", e);
             return Optional.empty();
         }
-        return Optional.empty();
+    }
+
+    @Override
+    public String tokenFromCode(String accessCode) {
+        throw new NotImplementedException("Please provide an implementation for this method in: " + this.getClass().getCanonicalName());
     }
 
 

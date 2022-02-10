@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
+import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -37,9 +38,10 @@ public class UserController {
     private final SecurityContextManager securityContextManager;
     private final JwtAuthenticationToken jwTokenConfiguration;
     private final InfraProperties infraProperties;
+    private final RetrieveSocialToken retrieveSocialToken;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
@@ -53,6 +55,7 @@ public class UserController {
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
         this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
+        this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
     }
 
     @PostMapping
@@ -132,5 +135,11 @@ public class UserController {
         updatePassword.execute(user.getEmail(), passwordVM.getOldPassword(), newEncodedPassword);
         return sources.getMessage("message.reset.password.success", null, request.getLocale());
 
+    }
+
+    @PostMapping("/github/accessToken")
+    public void getGithubToken(@RequestParam String code, HttpServletResponse response) throws ResourceNotFoundException {
+        String token = retrieveSocialToken.execute(code);
+        response.addHeader(HttpHeaders.AUTHORIZATION, "token " + token);
     }
 }

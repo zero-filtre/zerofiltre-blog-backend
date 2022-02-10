@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.json.*;
 import org.springframework.context.annotation.*;
 import org.springframework.http.*;
+import org.springframework.retry.support.*;
 import org.springframework.test.web.client.*;
 import org.springframework.web.client.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -13,7 +14,6 @@ import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 
 import java.net.*;
-import java.nio.charset.*;
 import java.time.*;
 import java.util.*;
 
@@ -22,7 +22,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @JsonTest //I don't know why @RunWith(SpringExtension.class) is not working
-@Import({InfraProperties.class, APIClientConfiguration.class})
+@Import({InfraProperties.class, APIClientConfiguration.class,InfraConfiguration.class})
 class StackOverflowLoginProviderTest {
 
     private static final String TOKEN = "token";
@@ -38,6 +38,9 @@ class StackOverflowLoginProviderTest {
     private InfraProperties infraProperties;
 
     @Autowired
+    private RetryTemplate retryTemplate;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     private String tokenResponse;
@@ -45,7 +48,7 @@ class StackOverflowLoginProviderTest {
     @BeforeEach
     void setUp() {
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        stackOverflowProvider = new StackOverflowLoginProvider(restTemplate, infraProperties);
+        stackOverflowProvider = new StackOverflowLoginProvider(restTemplate, infraProperties, retryTemplate);
     }
 
     @Test

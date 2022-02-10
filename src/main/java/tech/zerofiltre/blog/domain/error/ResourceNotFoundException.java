@@ -2,14 +2,14 @@ package tech.zerofiltre.blog.domain.error;
 
 public class ResourceNotFoundException extends BlogException {
 
-    private final long resourceId;
+    private final String resourceId;
 
-    public ResourceNotFoundException(String message, long resourceId, String domain) {
+    public ResourceNotFoundException(String message, String resourceId, String domain) {
         super(message, domain);
         this.resourceId = resourceId;
     }
 
-    public long getResourceId() {
+    public String getResourceId() {
         return resourceId;
     }
 }

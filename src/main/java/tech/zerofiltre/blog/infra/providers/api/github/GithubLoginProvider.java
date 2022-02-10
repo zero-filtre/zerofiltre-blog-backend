@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.api.github;
 
 import lombok.extern.slf4j.*;
 import org.springframework.http.*;
+import org.springframework.retry.support.*;
 import org.springframework.stereotype.*;
 import org.springframework.util.*;
 import org.springframework.web.client.*;
@@ -19,26 +20,34 @@ public class GithubLoginProvider implements SocialLoginProvider {
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final String apiUrl;
+    private final String clientId;
+    private final String clientSecret;
+    private final RetryTemplate retryTemplate;
 
-    public GithubLoginProvider(RestTemplate restTemplate, InfraProperties infraProperties) {
+    public GithubLoginProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         this.apiUrl = infraProperties.getGithubAPIRootURL();
+        this.clientId = infraProperties.getGithubAPIClientId();
+        this.clientSecret = infraProperties.getGithubAPIClientSecret();
+        this.retryTemplate = retryTemplate;
     }
 
     @Override
     public boolean isValid(String token) {
         try {
-            String finalUrl = apiUrl + "applications/" + infraProperties.getGithubAPIClientId() + "/token";
-            HttpEntity requestEntity = new HttpEntity(
-                    Collections.singletonMap("access_token", token),
-                    new GithubAPIHeadersBuilder()
-                            .withBasicAuth(infraProperties.getGithubAPIClientId(), infraProperties.getGithubAPIClientSecret())
-                            .build()
-            );
-            ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, requestEntity, String.class);
-            return response.getStatusCode().is2xxSuccessful();
-        } catch (RestClientException e) {
+            return retryTemplate.execute(retryContext -> {
+                String finalUrl = apiUrl + "applications/" + infraProperties.getGithubAPIClientId() + "/token";
+                HttpEntity requestEntity = new HttpEntity(
+                        Collections.singletonMap("access_token", token),
+                        new GithubAPIHeadersBuilder()
+                                .withBasicAuth(infraProperties.getGithubAPIClientId(), infraProperties.getGithubAPIClientSecret())
+                                .build()
+                );
+                ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, requestEntity, String.class);
+                return response.getStatusCode().is2xxSuccessful();
+            });
+        } catch (Exception e) {
             log.error("We couldn't validate the token", e);
             return false;
         }
@@ -47,17 +56,38 @@ public class GithubLoginProvider implements SocialLoginProvider {
     @Override
     public Optional<User> userOfToken(String token) {
         try {
-            String finalUrl = apiUrl + "user";
-            HttpEntity requestEntity = new HttpEntity(new GithubAPIHeadersBuilder()
-                    .withOAuth("token", token)
-                    .build());
-            ResponseEntity<GithubUser> response = restTemplate.exchange(finalUrl, HttpMethod.GET, requestEntity, GithubUser.class);
-            GithubUser githubUser = response.getBody();
-            User user = fromGithubUser(githubUser);
-            return Optional.of(user);
+            return retryTemplate.execute(retryContext -> {
+                String finalUrl = apiUrl + "user";
+                HttpEntity requestEntity = new HttpEntity(new GithubAPIHeadersBuilder()
+                        .withOAuth("token", token)
+                        .build());
+                ResponseEntity<GithubUser> response = restTemplate.exchange(finalUrl, HttpMethod.GET, requestEntity, GithubUser.class);
+                GithubUser githubUser = response.getBody();
+                User user = fromGithubUser(githubUser);
+                return Optional.of(user);
+            });
         } catch (Exception e) {
             log.error("We couldn't find a user ", e);
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public String tokenFromCode(String accessCode) {
+        try {
+            return retryTemplate.execute(retryContext -> {
+                String finalUrl = "https://github.com/login/oauth/access_token" +
+                        "?code=" + accessCode +
+                        "&client_id=" + clientId +
+                        "&client_secret=" + clientSecret;
+                HttpEntity requestEntity = new HttpEntity(new GithubAPIHeadersBuilder()
+                        .addHeader("Accept", "application/json").build());
+                ResponseEntity<GithubAccessToken> response = restTemplate.exchange(finalUrl, HttpMethod.POST, requestEntity, GithubAccessToken.class);
+                return response.getBody().getAccessToken();
+            });
+        } catch (Exception e) {
+            log.error("We couldn't retrieve the token ", e);
+            return null;
         }
     }
 

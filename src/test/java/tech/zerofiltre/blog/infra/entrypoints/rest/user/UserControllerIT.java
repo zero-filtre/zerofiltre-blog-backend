@@ -36,8 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationToken.class,
-        StackOverflowLoginProvider.class, UserMailNotificationProvider.class, APIClientConfiguration.class, GithubLoginProvider.class,
-        GithubAuthenticationToken.class})
+        UserMailNotificationProvider.class, APIClientConfiguration.class, GithubAuthenticationToken.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -48,6 +47,12 @@ class UserControllerIT {
 
     @MockBean
     UserProvider userProvider;
+
+    @MockBean
+    StackOverflowLoginProvider loginProvider;
+
+    @MockBean
+    GithubLoginProvider githubLoginProvider;
 
 
     @MockBean
@@ -99,7 +104,7 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(header().exists("Authorization"))
+                .andExpect(header().exists(HttpHeaders.AUTHORIZATION))
                 .andExpect(jsonPath("$.firstName").value("firstName"));
 
 
@@ -264,6 +269,38 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful());
 
+    }
+
+    @Test
+    void onGetGithubToken_onValidInput_thenReturn200() throws Exception {
+        //ARRANGE
+        when(githubLoginProvider.tokenFromCode(any())).thenReturn(TOKEN);
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.post("/user/github/accessToken")
+                .param("code", "code");
+
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(header().stringValues(HttpHeaders.AUTHORIZATION, "token " + TOKEN));
+    }
+
+    @Test
+    void onGetGithubToken_onNullToken_thenReturn404() throws Exception {
+        //ARRANGE
+        when(githubLoginProvider.tokenFromCode(any())).thenReturn(null);
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.post("/user/github/accessToken")
+                .param("code", "code");
+
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(header().doesNotExist(HttpHeaders.AUTHORIZATION));
     }
 
     public String asJsonString(final Object obj) throws JsonProcessingException {

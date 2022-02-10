@@ -59,3 +59,4 @@ zerofiltre:
         allowed-origins-pattern: "*"
     reminder-rate: 100
     reminder-initial-delay: 0
+    max-attempts: 1

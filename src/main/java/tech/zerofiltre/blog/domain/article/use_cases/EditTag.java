@@ -21,7 +21,7 @@ public class EditTag {
 
     public Tag update(Tag tag) throws ResourceNotFoundException {
         if (tagProvider.tagOfId(tag.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("We couldn't find a tag of id: " + tag.getId() + " to update", tag.getId(), Domains.TAG.name());
+            throw new ResourceNotFoundException("We couldn't find a tag of id: " + tag.getId() + " to update", String.valueOf(tag.getId()), Domains.TAG.name());
         }
         return tagProvider.save(tag);
     }

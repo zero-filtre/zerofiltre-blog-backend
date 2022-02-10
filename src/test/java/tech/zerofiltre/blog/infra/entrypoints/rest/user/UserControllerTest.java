@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
+import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 
 import javax.servlet.http.*;
@@ -39,6 +40,9 @@ class UserControllerTest {
 
     @MockBean
     UserProvider userProvider;
+
+    @MockBean
+    GithubLoginProvider githubLoginProvider;
 
     @MockBean
     JwtAuthenticationToken jwTokenConfiguration;
@@ -74,7 +78,9 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources, passwordEncoder, securityContextManager, passwordVerifierProvider, jwTokenConfiguration, infraProperties);
+                userProvider, userNotificationProvider, verificationTokenProvider, sources,
+                passwordEncoder, securityContextManager, passwordVerifierProvider,
+                jwTokenConfiguration, infraProperties, githubLoginProvider);
         when(infraProperties.getEnv()).thenReturn("dev");
     }
 
