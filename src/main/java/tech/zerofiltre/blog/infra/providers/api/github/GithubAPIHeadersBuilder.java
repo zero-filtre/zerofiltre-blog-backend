@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.api.github;
 
+import org.springframework.http.*;
 import org.springframework.util.*;
 
 import java.nio.charset.*;
@@ -11,14 +12,25 @@ public class GithubAPIHeadersBuilder {
 
     public GithubAPIHeadersBuilder() {
         this.headers = new LinkedMultiValueMap<>();
-        headers.add("Accept", "application/vnd.github.v3+json");
+        headers.add(HttpHeaders.ACCEPT, "application/vnd.github.v3+json");
     }
 
     public GithubAPIHeadersBuilder withBasicAuth(String login, String password) {
         String auth = login + ":" + password;
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.US_ASCII));
         String authHeader = "Basic " + new String(encodedAuth);
-        headers.add("Authorization", authHeader);
+        headers.add(HttpHeaders.AUTHORIZATION, authHeader);
+        return this;
+    }
+
+
+    public GithubAPIHeadersBuilder withOAuth(String prefix, String token) {
+        headers.add(HttpHeaders.AUTHORIZATION, prefix + " " + token);
+        return this;
+    }
+
+    public GithubAPIHeadersBuilder addHeader(String key, String value) {
+        headers.replace(key, Collections.singletonList(value));
         return this;
     }
 
@@ -26,8 +38,4 @@ public class GithubAPIHeadersBuilder {
         return headers;
     }
 
-    public GithubAPIHeadersBuilder withOAuth(String prefix, String token) {
-        headers.add("Authorization", prefix + " " + token);
-        return this;
-    }
 }

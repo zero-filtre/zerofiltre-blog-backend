@@ -91,19 +91,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new GithubAuthenticationFilter(githubTokenConfiguration, githubLoginProvider, userProvider), StackOverflowAuthenticationFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
-                .antMatchers(HttpMethod.POST, jwTokenConfiguration.getUri()).permitAll()
-                .antMatchers(HttpMethod.POST, "/user").permitAll()
-                .antMatchers(HttpMethod.POST, "/user/savePasswordReset").permitAll()
-                .antMatchers(HttpMethod.POST, "/user/initPasswordReset").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth").permitAll()
-                .antMatchers(HttpMethod.GET, "/article/**").permitAll()
+                .antMatchers(HttpMethod.POST,
+                        "/auth",
+                        jwTokenConfiguration.getUri(),
+                        "/user",
+                        "/user/savePasswordReset",
+                        "/user/initPasswordReset",
+                        "/user/github/**").permitAll()
                 .antMatchers(HttpMethod.GET,
+                        "/article/**",
                         "/user/registrationConfirm",
                         "/user/resendRegistrationConfirm",
                         "/user/initPasswordReset",
                         "/user/verifyTokenForPasswordReset",
-                        "/tag/**"
-                ).permitAll()
+                        "/tag/**",
+                        "/user/github/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)

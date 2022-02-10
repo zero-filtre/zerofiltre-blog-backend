@@ -65,5 +65,6 @@ zerofiltre:
         allowed-origins-pattern: "*"
     reminder-rate: 864000000 #10 days
     reminder-initial-delay: 864000000 #10 days
+    max-attempts: 2
 
 

@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.json.*;
 import org.springframework.context.annotation.*;
 import org.springframework.http.*;
+import org.springframework.retry.support.*;
 import org.springframework.test.web.client.*;
 import org.springframework.web.client.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
@@ -20,13 +22,22 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @JsonTest //I don't know why @RunWith(SpringExtension.class) is not working
-@Import({InfraProperties.class, APIClientConfiguration.class})
+@Import({InfraProperties.class, APIClientConfiguration.class, InfraConfiguration.class})
 class GithubLoginProviderTest {
+
+    public static final String ACCESS_CODE = "code";
+    public static final String ACCESS_TOKEN = "gho_16C7e42F292c6912E7710c838347Ae178B4a";
+
+    @Value("${zerofiltre.infra.api.github.client-id}")
+    String clientId;
+
+    @Value("${zerofiltre.infra.api.github.client-secret}")
+    String clientSecret;
 
     private MockRestServiceServer mockServer;
     private static final String TOKEN = "token";
-    private final String checkTokenUri = "https://api.github.com/applications/9b6bffa9841d19dfd8aa/token";
     private final String getUserInfoUri = "https://api.github.com/user";
+
 
     private GithubLoginProvider githubLoginProvider;
 
@@ -36,17 +47,44 @@ class GithubLoginProviderTest {
     @Autowired
     private InfraProperties infraProperties;
 
+    @Autowired
+    private RetryTemplate retryTemplate;
+
+    private String checkTokenUri;
+
     @BeforeEach
     void setUp() {
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        githubLoginProvider = new GithubLoginProvider(restTemplate, infraProperties);
+        githubLoginProvider = new GithubLoginProvider(restTemplate, infraProperties, retryTemplate);
+        checkTokenUri = "https://api.github.com/applications/" + clientId + "/token";
+
+    }
+
+    @Test
+    void getTokenFromCode_returnsAValidToken() throws URISyntaxException, ResourceNotFoundException {
+        //ARRANGE
+        String response = "{\n" +
+                "  \"access_token\": \"" + ACCESS_TOKEN + "\",\n" +
+                "  \"scope\":\"repo,gist\",\n" +
+                "  \"token_type\":\"bearer\"\n" +
+                "}";
+
+        String getTokenFromCodeURI = "https://github.com/login/oauth/access_token?code=" + ACCESS_CODE + "&client_id="
+                + clientId + "&client_secret=" + clientSecret;
+        prepareMockRequest(getTokenFromCodeURI, response, HttpStatus.OK, HttpMethod.POST, false, false, true);
+
+        //ACT
+        String token = githubLoginProvider.tokenFromCode(ACCESS_CODE);
+
+        //ASSERT
+        assertThat(token).isEqualTo(ACCESS_TOKEN);
     }
 
     @Test
     void isValid_returnsTrue_onValidToken() throws URISyntaxException {
 
         //ARRANGE
-        sendMockRequest(checkTokenUri, "", HttpStatus.OK, HttpMethod.POST, true, false);
+        prepareMockRequest(checkTokenUri, "", HttpStatus.OK, HttpMethod.POST, true, false, false);
 
         //ACT
         boolean isValid = githubLoginProvider.isValid(TOKEN);
@@ -59,7 +97,7 @@ class GithubLoginProviderTest {
     void isValid_returnsFalse_onResponseError() throws URISyntaxException {
 
         //ARRANGE
-        sendMockRequest(checkTokenUri, "", HttpStatus.NOT_FOUND, HttpMethod.POST, true, false);
+        prepareMockRequest(checkTokenUri, "", HttpStatus.NOT_FOUND, HttpMethod.POST, true, false, false);
 
         //ACT
         boolean isValid = githubLoginProvider.isValid(TOKEN);
@@ -117,7 +155,7 @@ class GithubLoginProviderTest {
                 "        \"private_repos\": 10000\n" +
                 "    }\n" +
                 "}";
-        sendMockRequest(getUserInfoUri, response, HttpStatus.OK, HttpMethod.GET, false, true);
+        prepareMockRequest(getUserInfoUri, response, HttpStatus.OK, HttpMethod.GET, false, true, false);
 
         //ACT
         Optional<User> optionalUser = githubLoginProvider.userOfToken(TOKEN);
@@ -189,7 +227,7 @@ class GithubLoginProviderTest {
                 "        \"private_repos\": 10000\n" +
                 "    }\n" +
                 "}";
-        sendMockRequest(getUserInfoUri, response, HttpStatus.OK, HttpMethod.GET, false, true);
+        prepareMockRequest(getUserInfoUri, response, HttpStatus.OK, HttpMethod.GET, false, true, false);
 
         //ACT
         Optional<User> optionalUser = githubLoginProvider.userOfToken(TOKEN);
@@ -213,22 +251,28 @@ class GithubLoginProviderTest {
         )).isTrue();
     }
 
-    private void sendMockRequest(String uri, String response, HttpStatus status, HttpMethod expectedMethod, boolean withBasicAuth, boolean withTokenAuth) throws URISyntaxException {
+    private void prepareMockRequest(String uri, String response, HttpStatus status, HttpMethod expectedMethod, boolean withBasicAuth, boolean withTokenAuth, boolean withAcceptJson) throws URISyntaxException {
 
-        String auth = "9b6bffa9841d19dfd8aa" + ":" + "1e70ed907875eb633f6232235e4c4037888d0adb";
+
+        String auth = clientId + ":" + clientSecret;
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.US_ASCII));
         String authHeader = "Basic " + new String(encodedAuth);
 
         ResponseActions responseActions = mockServer.expect(ExpectedCount.once(),
                 requestTo(new URI(uri)))
-                .andExpect(method(expectedMethod))
-                .andExpect(header("Accept", "application/vnd.github.v3+json"));
+                .andExpect(method(expectedMethod));
         if (withBasicAuth) {
-            responseActions.andExpect(header("Authorization", authHeader));
+            responseActions.andExpect(header(HttpHeaders.AUTHORIZATION, authHeader));
         }
         if (withTokenAuth) {
-            responseActions.andExpect(header("Authorization", "token " + TOKEN));
+            responseActions.andExpect(header(HttpHeaders.AUTHORIZATION, "token " + TOKEN));
         }
+        if (withAcceptJson)
+            responseActions.andExpect(header(HttpHeaders.ACCEPT, "application/json"));
+        else
+            responseActions.andExpect(header(HttpHeaders.ACCEPT, "application/vnd.github.v3+json"));
+
+
         responseActions.andRespond(withStatus(status)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response)

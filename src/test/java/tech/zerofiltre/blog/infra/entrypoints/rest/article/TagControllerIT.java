@@ -33,14 +33,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = TagController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class, StackOverflowLoginProvider.class,
-        APIClientConfiguration.class, GithubLoginProvider.class, GithubAuthenticationToken.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class,
+        APIClientConfiguration.class, GithubAuthenticationToken.class})
 class TagControllerIT {
 
     public static final String COLOR_CODE = "#fffff";
     public static final String NAME = "name";
     @MockBean
     TagProvider tagProvider;
+
+
+    @MockBean
+    StackOverflowLoginProvider loginProvider;
+
+    @MockBean
+    GithubLoginProvider githubLoginProvider;
 
     @MockBean
     UserProvider userProvider;

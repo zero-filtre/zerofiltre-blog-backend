@@ -62,3 +62,4 @@ zerofiltre:
         allowed-origins-pattern: ${ALLOWED_ORIGINS_PATTERN}
     reminder-rate: ${REMINDER_RATE}
     reminder-initial-delay: ${REMINDER_INITIAL_DELAY}
+    max-attempts: 3

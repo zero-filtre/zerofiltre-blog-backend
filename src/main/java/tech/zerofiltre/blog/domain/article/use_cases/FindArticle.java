@@ -18,7 +18,7 @@ public class FindArticle {
 
     public Article byId(long id) throws ResourceNotFoundException {
         return articleProvider.articleOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", id, Domains.ARTICLE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id), Domains.ARTICLE.name()));
     }
 
     public List<Article> of(FindArticleRequest request) throws ForbiddenActionException {

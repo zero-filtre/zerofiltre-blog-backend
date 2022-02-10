@@ -34,8 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ArticleController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class, StackOverflowLoginProvider.class,
-        APIClientConfiguration.class, GithubLoginProvider.class, GithubAuthenticationToken.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class,
+        APIClientConfiguration.class, GithubAuthenticationToken.class})
 class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";
@@ -53,6 +53,13 @@ class ArticleControllerIT {
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
+
+
+    @MockBean
+    StackOverflowLoginProvider loginProvider;
+
+    @MockBean
+    GithubLoginProvider githubLoginProvider;
 
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);

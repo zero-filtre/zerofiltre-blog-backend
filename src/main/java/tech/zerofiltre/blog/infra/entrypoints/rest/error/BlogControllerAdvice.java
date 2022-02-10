@@ -30,7 +30,7 @@ public class BlogControllerAdvice {
     private MessageSource messageSource;
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<BlogError> handleArticleNotFoundException(ResourceNotFoundException exception, Locale locale) {
+    public ResponseEntity<BlogError> handleResourceNotFoundException(ResourceNotFoundException exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
