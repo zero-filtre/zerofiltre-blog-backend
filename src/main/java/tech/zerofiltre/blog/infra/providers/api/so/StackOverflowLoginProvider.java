@@ -59,10 +59,12 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
                         log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
                         return false;
                     }
-                    LocalDateTime expiryDate = LocalDateTime.ofEpochSecond(node.get("expires_on_date").longValue(), 0, ZoneOffset.UTC);
-                    if (expiryDate.isBefore(LocalDateTime.now())) {
-                        log.error("We couldn't validate the token because it is expired ");
-                        return false;
+                    if (node.get("expires_on_date") != null) {
+                        LocalDateTime expiryDate = LocalDateTime.ofEpochSecond(node.get("expires_on_date").longValue(), 0, ZoneOffset.UTC);
+                        if (expiryDate.isBefore(LocalDateTime.now())) {
+                            log.error("We couldn't validate the token because it is expired ");
+                            return false;
+                        }
                     }
                 } else {
                     log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());

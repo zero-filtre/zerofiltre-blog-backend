@@ -15,7 +15,7 @@ public class UpdatePassword {
 
     public void execute(String email, String oldPassword, String newEncodedPassword) throws UserNotFoundException, InvalidPasswordException {
         User userFromEmail = userProvider.userOfEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("We were unable to find a connected user"));
+                .orElseThrow(() -> new UserNotFoundException("We were unable to find a connected user", email));
 
         if (!passwordVerifierProvider.isValid(userFromEmail, oldPassword)) {
             throw new InvalidPasswordException("The password provided does not match the current user");

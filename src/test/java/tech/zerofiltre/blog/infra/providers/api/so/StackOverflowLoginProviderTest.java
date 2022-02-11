@@ -130,6 +130,47 @@ class StackOverflowLoginProviderTest {
     }
 
     @Test
+    void isValid_returnsFalse_onJsonParsingError() throws URISyntaxException {
+
+        //ARRANGE
+        tokenResponse = "{:}"; // Invalid Json, will trigger a Json parsing error
+
+        //ACT
+        boolean isValid = checkIfValid(checkTokenUri);
+
+        //ASSERT
+        assertThat(isValid).isFalse();
+
+    }
+
+    @Test
+    void isValid_returnsTrue_onValidNoExpiryToken() throws URISyntaxException {
+
+        //ARRANGE
+        tokenResponse = "{\n" +
+                "    \"items\": [\n" +
+                "        {\n" +
+                "            \"scope\": [\n" +
+                "                \"no_expiry\"\n" +
+                "            ],\n" +
+                "            \"account_id\": 7377225,\n" +
+                "            \"access_token\": \"T5NLaPRd3Dz3ZbLl8pLC6g))\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"has_more\": false,\n" +
+                "    \"quota_max\": 10000,\n" +
+                "    \"quota_remaining\": 9990\n" +
+                "}";
+
+        //ACT
+        boolean isValid = checkIfValid(checkTokenUri);
+
+        //ASSERT
+        assertThat(isValid).isTrue();
+
+    }
+
+    @Test
     void isValid_isFalse_onResponseError() throws URISyntaxException {
         //ARRANGE
 
@@ -212,6 +253,19 @@ class StackOverflowLoginProviderTest {
         assertThat(user.getRegisteredOn()).isBeforeOrEqualTo(LocalDateTime.now());
 
 
+    }
+
+    @Test
+    void userOfToken_isEmptyOnJsonParsingError() throws URISyntaxException {
+        //ARRANGE
+        String getUserInfoResponse = "{:}"; // Invalid Json, will trigger a Json parsing error
+
+        //ACT
+        sendMockRequest(getUserInfoURI, getUserInfoResponse, HttpStatus.OK);
+        Optional<User> userOptional = stackOverflowProvider.userOfToken(TOKEN);
+
+        //ASSERT
+        assertThat(userOptional).isEmpty();
     }
 
     private boolean checkIfValid(String uri) throws URISyntaxException {
