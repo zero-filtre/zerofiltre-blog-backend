@@ -8,6 +8,7 @@ import org.springframework.context.*;
 import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -49,6 +50,9 @@ class UserControllerTest {
     GithubLoginProvider githubLoginProvider;
 
     @MockBean
+    ArticleProvider articleProvider;
+
+    @MockBean
     JwtAuthenticationToken jwTokenConfiguration;
 
     @MockBean
@@ -82,7 +86,7 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         userController = new UserController(
-                userProvider, userNotificationProvider, verificationTokenProvider, sources,
+                userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
                 jwTokenConfiguration, infraProperties, githubLoginProvider);
         when(infraProperties.getEnv()).thenReturn("dev");

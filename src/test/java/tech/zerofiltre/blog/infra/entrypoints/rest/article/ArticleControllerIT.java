@@ -84,7 +84,7 @@ class ArticleControllerIT {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any())).thenReturn(Collections.singletonList(mockArticle));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(Collections.singletonList(mockArticle));
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle));
         when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
 
@@ -248,7 +248,7 @@ class ArticleControllerIT {
 
 
         //ACT
-        RequestBuilder request = MockMvcRequestBuilders.get("/article/list")
+        RequestBuilder request = MockMvcRequestBuilders.get("/article")
                 .param("pageNumber", "2")
                 .param("pageSize", "3")
                 .param("status", "PUBLISHED");

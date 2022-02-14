@@ -10,5 +10,5 @@ public interface ArticleProvider {
 
     Article save(Article article);
 
-    List<Article> articlesOf(int pageNumber, int pageSize, Status status);
+    List<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId);
 }

@@ -11,7 +11,8 @@ import org.springframework.http.converter.json.*;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
-import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.article.*;
+import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -26,6 +27,7 @@ import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
+import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
 
@@ -69,6 +71,8 @@ class UserControllerIT {
     @MockBean
     ConfirmUserRegistration confirmUserRegistration;
 
+    @MockBean
+    ArticleProvider articleProvider;
 
 
     @Autowired
@@ -78,13 +82,15 @@ class UserControllerIT {
     RegisterUserVM registerUserVM;
 
     @BeforeEach
-    void init() throws UserNotFoundException, InvalidTokenException, ForbiddenActionException {
+    void init() throws UserNotFoundException, InvalidTokenException {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
         when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), TOKEN)));
+
+
     }
 
 
@@ -381,6 +387,33 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("bio").value(NEW_BIO));
+    }
+
+    @Test
+    @WithMockUser
+    void onGetArticles_ifValidInput_return200() throws Exception {
+
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(Collections.singletonList(mockArticle));
+
+        User user = new User();
+        user.setBio(NEW_BIO);
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
+
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/articles")
+                .param("pageNumber", "2")
+                .param("pageSize", "3")
+                .param("status", "DRAFT");
+
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].title").value("Des applications très évolutives alignées aux derniers standards."));
     }
 
     public String asJsonString(final Object obj) throws JsonProcessingException {

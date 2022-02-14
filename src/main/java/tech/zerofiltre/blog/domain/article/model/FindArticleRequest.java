@@ -7,6 +7,7 @@ public class FindArticleRequest {
     private int pageSize;
     private Status status;
     private User user;
+    private boolean yours;
 
     public FindArticleRequest() {
     }
@@ -48,5 +49,13 @@ public class FindArticleRequest {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isYours() {
+        return yours;
+    }
+
+    public void setYours(boolean yours) {
+        this.yours = yours;
     }
 }

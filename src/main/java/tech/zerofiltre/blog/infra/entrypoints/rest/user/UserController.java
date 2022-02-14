@@ -6,6 +6,9 @@ import org.springframework.context.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.article.*;
+import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -45,9 +48,10 @@ public class UserController {
     private final PublicUserProfileVMMapper publicUserProfileVMMapper = Mappers.getMapper(PublicUserProfileVMMapper.class);
     private final UpdateUser updateUser;
     private final UserProvider userProvider;
+    private final FindArticle findArticle;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
         this.registerUser = new RegisterUser(userProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
@@ -55,6 +59,7 @@ public class UserController {
         this.jwTokenConfiguration = jwTokenConfiguration;
         this.infraProperties = infraProperties;
         this.updateUser = new UpdateUser(userProvider);
+        this.findArticle = new FindArticle(articleProvider);
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -86,7 +91,7 @@ public class UserController {
             log.error("We were unable to send the registration confirmation email", e);
         }
 
-        //add toke to header
+        //add token to header
         HttpHeaders headers = new HttpHeaders();
         headers.add(
                 jwTokenConfiguration.getHeader(),
@@ -100,11 +105,24 @@ public class UserController {
         return securityContextManager.getAuthenticatedUser();
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/profile/{id}")
     public PublicUserProfileVM getUserProfile(@PathVariable long id) throws UserNotFoundException {
         return userProvider.userOfId(id)
                 .map(publicUserProfileVMMapper::toVM)
                 .orElseThrow(() -> new UserNotFoundException("Unable to find the wanted user", String.valueOf(id)));
+    }
+
+    @GetMapping("/user/articles")
+    public List<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws UserNotFoundException, ForbiddenActionException {
+        User user = securityContextManager.getAuthenticatedUser();
+        status = status.toUpperCase();
+        FindArticleRequest request = new FindArticleRequest();
+        request.setPageNumber(pageNumber);
+        request.setPageSize(pageSize);
+        request.setStatus(Status.valueOf(status));
+        request.setUser(user);
+        request.setYours(true);
+        return findArticle.of(request);
     }
 
     @PatchMapping("/user")
