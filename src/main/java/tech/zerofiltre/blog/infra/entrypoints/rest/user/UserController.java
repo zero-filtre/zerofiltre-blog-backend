@@ -42,7 +42,9 @@ public class UserController {
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
     private final UpdateUserVMMapper updateUserVMMapper = Mappers.getMapper(UpdateUserVMMapper.class);
+    private final PublicUserProfileVMMapper publicUserProfileVMMapper = Mappers.getMapper(PublicUserProfileVMMapper.class);
     private final UpdateUser updateUser;
+    private final UserProvider userProvider;
 
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
@@ -62,6 +64,7 @@ public class UserController {
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider);
+        this.userProvider = userProvider;
     }
 
     @PostMapping("/user")
@@ -90,6 +93,18 @@ public class UserController {
                 jwTokenConfiguration.getPrefix() + " " + jwTokenConfiguration.buildToken(user.getEmail(), user.getRoles())
         );
         return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/user")
+    public User getUser() throws UserNotFoundException {
+        return securityContextManager.getAuthenticatedUser();
+    }
+
+    @GetMapping("/user/{id}")
+    public PublicUserProfileVM getUserProfile(@PathVariable long id) throws UserNotFoundException {
+        return userProvider.userOfId(id)
+                .map(publicUserProfileVMMapper::toVM)
+                .orElseThrow(() -> new UserNotFoundException("Unable to find the wanted user", String.valueOf(id)));
     }
 
     @PatchMapping("/user")

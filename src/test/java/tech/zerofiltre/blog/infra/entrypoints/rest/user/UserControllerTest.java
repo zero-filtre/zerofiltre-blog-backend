@@ -24,6 +24,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static tech.zerofiltre.blog.domain.user.model.SocialLink.Platform.*;
 
 @ExtendWith(SpringExtension.class)
 class UserControllerTest {
@@ -32,6 +33,9 @@ class UserControllerTest {
     public static final String EMAIL = "email";
     public static final String LAST_NAME = "lastName";
     public static final String FIRST_NAME = "firstName";
+    public static final String BIO = "bio";
+    public static final String GITHUBLINK = "Github link";
+    public static final String WEBSITE = "website";
     @MockBean
     MessageSource sources;
 
@@ -186,6 +190,48 @@ class UserControllerTest {
         verify(userProvider, times(1)).userOfEmail(EMAIL);
         verify(passwordVerifierProvider, times(1)).isValid(user, updatePasswordVM.getOldPassword());
         verify(userProvider, times(1)).save(any());
+
+    }
+
+    @Test
+    void getUserProfile_mustBuildPublicUserProfileVM_properly() throws UserNotFoundException {
+        //ARRANGE
+        User user = new User();
+        user.setLastName(LAST_NAME);
+        user.setFirstName(FIRST_NAME);
+        user.setBio(BIO);
+        user.setLanguage(Locale.FRANCE.getLanguage());
+        user.setSocialLinks(Collections.singleton(new SocialLink(GITHUB, GITHUBLINK)));
+        user.setWebsite(WEBSITE);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        //ACT
+        PublicUserProfileVM result = userController.getUserProfile(23);
+
+        //ASSERT
+        assertThat(result).isNotNull();
+        assertThat(result.getLastName()).isEqualTo(LAST_NAME);
+        assertThat(result.getFirstName()).isEqualTo(FIRST_NAME);
+        assertThat(result.getBio()).isEqualTo(BIO);
+        assertThat(result.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
+        Set<SocialLink> socialLinks = result.getSocialLinks();
+        socialLinks.forEach(socialLink -> {
+            assertThat(socialLink.getLink()).isEqualTo(GITHUBLINK);
+            assertThat(socialLink.getPlatform()).isEqualTo(GITHUB);
+        });
+        assertThat(result.getWebsite()).isEqualTo(WEBSITE);
+
+    }
+
+    @Test
+    void getUserProfile_throwUserNotFoundException_IfNoUserExists() {
+        //ARRANGE
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.empty());
+
+        //ACT & ASSERT
+        assertThatExceptionOfType(UserNotFoundException.class)
+                .isThrownBy(() -> userController.getUserProfile(23));
+
 
     }
 }

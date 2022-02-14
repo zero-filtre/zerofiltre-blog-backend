@@ -78,11 +78,10 @@ class UpdateUserTest {
         assertThat(patchedUser.getFirstName()).isEqualTo(NEW_FIRST_NAME);
         assertThat(patchedUser.getLanguage()).isEqualTo(NEW_LANGUAGE);
         Set<SocialLink> socialLinks = patchedUser.getSocialLinks();
-        assertThat(socialLinks.size()).isEqualTo(3);
+        assertThat(socialLinks.size()).isEqualTo(1);
         assertThat(socialLinks.stream().anyMatch(link ->
                 link.getLink().equals(NEW_LINK) && link.getPlatform().equals(SocialLink.Platform.STACKOVERFLOW)
         )).isTrue();
-
 
     }
 

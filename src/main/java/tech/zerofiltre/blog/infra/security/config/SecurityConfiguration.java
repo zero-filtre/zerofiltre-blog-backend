@@ -105,6 +105,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/initPasswordReset",
                         "/user/verifyTokenForPasswordReset",
                         "/tag/**",
+                        "/user/*",
                         "/user/github/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()

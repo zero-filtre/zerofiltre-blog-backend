@@ -325,6 +325,36 @@ class UserControllerIT {
                 .andExpect(header().doesNotExist(HttpHeaders.AUTHORIZATION));
     }
 
+    @Test
+    @WithMockUser
+    void onGetUser_thenReturn200() throws Exception {
+        //ARRANGE
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user");
+
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser
+    void onGetUser_onNoUser_returns404() throws Exception {
+        //ARRANGE
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user");
+
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     @WithMockUser
