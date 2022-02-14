@@ -15,7 +15,7 @@ import java.util.stream.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class UserDatabaseProvider implements UserProvider {
+public class DatabaseUserProvider implements UserProvider {
     private final UserJPARepository repository;
     private final UserJPAMapper mapper = Mappers.getMapper(UserJPAMapper.class);
 

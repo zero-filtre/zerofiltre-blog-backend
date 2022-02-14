@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
 import lombok.extern.slf4j.*;
+import org.mapstruct.factory.*;
 import org.springframework.context.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
@@ -11,6 +12,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.security.model.*;
@@ -39,6 +41,8 @@ public class UserController {
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
+    private final UpdateUserVMMapper updateUserVMMapper = Mappers.getMapper(UpdateUserVMMapper.class);
+    private final UpdateUser updateUser;
 
 
     public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider) {
@@ -48,6 +52,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
         this.jwTokenConfiguration = jwTokenConfiguration;
         this.infraProperties = infraProperties;
+        this.updateUser = new UpdateUser(userProvider);
         this.updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -85,6 +90,21 @@ public class UserController {
                 jwTokenConfiguration.getPrefix() + " " + jwTokenConfiguration.buildToken(user.getEmail(), user.getRoles())
         );
         return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/user")
+    public User updateUser(@RequestBody @Valid UpdateUserVM updateUserVM) throws BlogException {
+        User user = updateUserVMMapper.fromVM(updateUserVM);
+        User currentUser = securityContextManager.getAuthenticatedUser();
+        return updateUser.patch(currentUser, user);
+    }
+
+
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable("id") long userId, HttpServletRequest request) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        deleteUser.execute(user, userId);
+        return sources.getMessage("message.delete.user.success", null, request.getLocale());
     }
 
     @GetMapping("/user/resendRegistrationConfirm")
@@ -138,12 +158,6 @@ public class UserController {
 
     }
 
-    @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable("id") long userId, HttpServletRequest request) throws BlogException {
-        User user = securityContextManager.getAuthenticatedUser();
-        deleteUser.execute(user, userId);
-        return sources.getMessage("message.delete.user.success", null, request.getLocale());
-    }
 
     @PostMapping("/user/github/accessToken")
     public void getGithubToken(@RequestParam String code, HttpServletResponse response) throws ResourceNotFoundException {

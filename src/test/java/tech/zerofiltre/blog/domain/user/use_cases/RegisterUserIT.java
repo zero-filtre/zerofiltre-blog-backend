@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.*;
 
 
 @DataJpaTest
-@Import(UserDatabaseProvider.class)
+@Import(DatabaseUserProvider.class)
 class RegisterUserIT {
 
     private RegisterUser registerUser;

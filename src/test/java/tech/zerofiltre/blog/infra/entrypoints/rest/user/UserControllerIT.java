@@ -11,6 +11,7 @@ import org.springframework.http.converter.json.*;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -42,6 +43,7 @@ class UserControllerIT {
     public static final String EMAIL = "email@toto.fr";
     private static final String TOKEN = "token";
     private static final String PASSWORD = "COmplic$t6d";
+    public static final String NEW_BIO = "NEW_BIO";
     @Autowired
     MockMvc mockMvc;
 
@@ -68,6 +70,7 @@ class UserControllerIT {
     ConfirmUserRegistration confirmUserRegistration;
 
 
+
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
 
@@ -75,7 +78,7 @@ class UserControllerIT {
     RegisterUserVM registerUserVM;
 
     @BeforeEach
-    void init() throws UserNotFoundException, InvalidTokenException {
+    void init() throws UserNotFoundException, InvalidTokenException, ForbiddenActionException {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
@@ -320,6 +323,34 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andExpect(header().doesNotExist(HttpHeaders.AUTHORIZATION));
+    }
+
+
+    @Test
+    @WithMockUser
+    void onUpdateUser_ifValidInput_thenReturn200() throws Exception {
+        //ARRANGE
+        UpdateUserVM updateUserVM = new UpdateUserVM();
+        updateUserVM.setBio(NEW_BIO);
+        updateUserVM.setId(1);
+        updateUserVM.setLanguage("fr");
+
+        User user = new User();
+        user.setBio(NEW_BIO);
+        user.setId(1);
+
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.patch("/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateUserVM));
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("bio").value(NEW_BIO));
     }
 
     public String asJsonString(final Object obj) throws JsonProcessingException {
