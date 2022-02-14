@@ -37,7 +37,7 @@ public class ArticleController {
         return findArticle.byId(articleId);
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public List<Article> articles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
         User user = null;
         try {
