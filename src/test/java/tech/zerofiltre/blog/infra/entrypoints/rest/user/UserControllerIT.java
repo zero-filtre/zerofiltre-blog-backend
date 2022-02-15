@@ -56,6 +56,9 @@ class UserControllerIT {
     StackOverflowLoginProvider loginProvider;
 
     @MockBean
+    AvatarProvider avatarProvider;
+
+    @MockBean
     GithubLoginProvider githubLoginProvider;
 
 

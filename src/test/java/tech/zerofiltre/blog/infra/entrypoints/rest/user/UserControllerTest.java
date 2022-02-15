@@ -47,6 +47,9 @@ class UserControllerTest {
     UserProvider userProvider;
 
     @MockBean
+    AvatarProvider profilePictureGenerator;
+
+    @MockBean
     GithubLoginProvider githubLoginProvider;
 
     @MockBean
@@ -88,7 +91,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                jwTokenConfiguration, infraProperties, githubLoginProvider);
+                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator);
         when(infraProperties.getEnv()).thenReturn("dev");
     }
 
