@@ -7,13 +7,14 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 
 import static org.assertj.core.api.Assertions.*;
 
 
 @DataJpaTest
-@Import(DatabaseUserProvider.class)
+@Import({DatabaseUserProvider.class, GravatarProvider.class})
 class RegisterUserIT {
 
     private RegisterUser registerUser;
@@ -21,12 +22,15 @@ class RegisterUserIT {
     @Autowired
     UserProvider userProvider;
 
+    @Autowired
+    AvatarProvider profilePictureGenerator;
+
 
     User toRegister = new User();
 
     @BeforeEach
     void init() {
-        registerUser = new RegisterUser(userProvider);
+        registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         toRegister.setPassword("pass");
         toRegister.setLastName("last");
         toRegister.setFirstName("first");
@@ -49,6 +53,8 @@ class RegisterUserIT {
         assertThat(registeredUser.getPassword()).isEqualTo(toRegister.getPassword());
         assertThat(registeredUser.getRoles()).contains("ROLE_USER");
         assertThat(registeredUser.getId()).isNotZero();
+        assertThat(registeredUser.getProfilePicture()).isNotNull();
+        assertThat(registeredUser.getProfilePicture()).isNotEmpty();
 
     }
 
