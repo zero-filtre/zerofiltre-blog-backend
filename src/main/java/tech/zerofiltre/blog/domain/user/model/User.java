@@ -15,7 +15,7 @@ public class User {
     private String profession;
     private String bio;
     private String language = Locale.FRANCE.getLanguage();
-    private Set<SocialLink> socialLinks;
+    private Set<SocialLink> socialLinks = new HashSet<>();
     private String website;
     private Set<String> roles = new HashSet<>(Collections.singletonList("ROLE_USER"));
     private boolean isActive = false;

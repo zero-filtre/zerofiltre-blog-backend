@@ -12,7 +12,6 @@ public class RetrieveSocialToken {
         this.socialLoginProvider = socialLoginProvider;
     }
 
-
     public String execute(String code) throws ResourceNotFoundException {
         String token = socialLoginProvider.tokenFromCode(code);
         if (token == null)

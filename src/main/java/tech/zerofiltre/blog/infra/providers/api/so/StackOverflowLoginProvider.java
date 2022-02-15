@@ -49,22 +49,20 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
                     JsonNode root = null;
                     try {
                         root = mapper.readTree(response.getBody());
-                    } catch (JsonProcessingException e) {
-                        log.error("We couldn't validate the token ", e);
-                        return false;
-                    }
-                    JsonNode items = root.path("items");
-                    JsonNode node = items.get(0);
-                    if (node == null) {
-                        log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
-                        return false;
-                    }
-                    if (node.get("expires_on_date") != null) {
-                        LocalDateTime expiryDate = LocalDateTime.ofEpochSecond(node.get("expires_on_date").longValue(), 0, ZoneOffset.UTC);
-                        if (expiryDate.isBefore(LocalDateTime.now())) {
+                        JsonNode items = root.path("items");
+                        JsonNode node = items.get(0);
+                        if (node == null) {
+                            log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
+                            return false;
+                        }
+                        JsonNode expiresOnDate = node.get("expires_on_date");
+                        if (expiresOnDate != null && LocalDateTime.ofEpochSecond(expiresOnDate.longValue(), 0, ZoneOffset.UTC).isBefore(LocalDateTime.now())) {
                             log.error("We couldn't validate the token because it is expired ");
                             return false;
                         }
+                    } catch (JsonProcessingException e) {
+                        log.error("We couldn't validate the token ", e);
+                        return false;
                     }
                 } else {
                     log.error(THE_TOKEN_IS_NO_MORE_VALID_DUE_TO, response.getBody());
@@ -76,6 +74,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
             log.error("We couldn't validate the token ", e);
             return false;
         }
+
     }
 
     public Optional<User> userOfToken(String token) {

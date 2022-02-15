@@ -29,9 +29,10 @@ class FindArticleTest {
         findArticle = new FindArticle(articleProvider);
     }
 
+
     @Test
     @DisplayName("Must return the article corresponding ot the id")
-    void mustReturnAnArticle() throws ResourceNotFoundException {
+    void mustNotFilterOnAuthors() throws ResourceNotFoundException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
@@ -64,18 +65,15 @@ class FindArticleTest {
         published.setStatus(PUBLISHED);
 
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED))).thenReturn(Collections.singletonList(published));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(Collections.singletonList(published));
 
         //ACT
         List<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
-        List<Article> otherArticles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, null));
 
         //ASSERT
-        verify(articleProvider, times(2)).articlesOf(0, 3, PUBLISHED);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0);
         assertThat(articles).isNotNull();
-        assertThat(otherArticles).isNotNull();
         articles.forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
-        otherArticles.forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
     }
 
     @Test
@@ -87,6 +85,47 @@ class FindArticleTest {
         assertThatExceptionOfType(ForbiddenActionException.class).
                 isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, DRAFT, new User())));
 
+    }
+
+    @Test
+    @DisplayName("Must not filter on authors it the user is not requesting his own articles")
+    void mustReturnAnArticle() throws ForbiddenActionException {
+        //ARRANGE
+        Article published = new Article();
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong()))
+                .thenReturn(Collections.singletonList(published));
+
+        User user = new User();
+        user.setId(24);
+
+        //ACT
+        findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, user));
+
+        //ASSERT
+        //call with authorId = 0
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0);
+
+
+    }
+
+    @Test
+    @DisplayName("Not being an admin, a user can ask for his OTHER THAN PUBLISHED articles")
+    void mustAllow_Asking_YourDraftedArticles() throws ForbiddenActionException {
+        //ARRANGE
+        Article drafted = new Article();
+        drafted.setStatus(DRAFT);
+
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong())).thenReturn(Collections.singletonList(drafted));
+
+        //ACT
+        FindArticleRequest request = new FindArticleRequest(0, 3, DRAFT, new User());
+        request.setYours(true);
+        List<Article> articles = findArticle.of(request);
+
+        //ASSERT
+        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0);
+        assertThat(articles).isNotNull();
+        articles.forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
     }
 
     @Test

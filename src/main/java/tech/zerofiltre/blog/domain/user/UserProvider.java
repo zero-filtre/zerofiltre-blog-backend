@@ -15,4 +15,6 @@ public interface UserProvider {
     Optional<User> userOfEmail(String email);
 
     List<User> nonActiveUsers();
+
+    void deleteUser(User user);
 }

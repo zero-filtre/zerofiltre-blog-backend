@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
+import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import java.util.*;
 import java.util.stream.*;
@@ -14,7 +15,7 @@ import java.util.stream.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class UserDatabaseProvider implements UserProvider {
+public class DatabaseUserProvider implements UserProvider {
     private final UserJPARepository repository;
     private final UserJPAMapper mapper = Mappers.getMapper(UserJPAMapper.class);
 
@@ -49,5 +50,12 @@ public class UserDatabaseProvider implements UserProvider {
                 .stream().map(mapper::fromJPA)
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        UserJPA userJPA = mapper.toJPA(user);
+        userJPA.setVerificationTokenJPA(null);
+        repository.delete(userJPA);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
@@ -16,7 +17,9 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 
 @DataJpaTest
-@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, UserDatabaseProvider.class, ReactionDatabaseProvider.class})
+@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, DatabaseUserProvider.class,
+        ReactionDatabaseProvider.class
+})
 class FindArticleIT {
 
     public static final String DDD = "DDD";
@@ -27,6 +30,9 @@ class FindArticleIT {
     public static final String UX_DESIGN = "UX Design";
     @Autowired
     private ArticleProvider articleProvider;
+
+    @Autowired
+    private UserProvider userProvider;
 
     private FindArticle findArticle;
 
@@ -43,6 +49,7 @@ class FindArticleIT {
         //ARRANGE
         User user = new User();
         user.setRoles(Collections.singleton("ROLE_ADMIN"));
+        user = userProvider.save(user);
 
         Article ddd = new Article();
         ddd.setTitle(DDD);
@@ -56,10 +63,12 @@ class FindArticleIT {
         Article cleanCode = new Article();
         cleanCode.setTitle(CLEAN_CODE);
         cleanCode.setStatus(Status.DRAFT);
+        cleanCode.setAuthor(user);
 
         Article hexagonalArchitecture = new Article();
         hexagonalArchitecture.setTitle(HEXAGONAL_ARCHITECTURE);
         hexagonalArchitecture.setStatus(Status.DRAFT);
+        hexagonalArchitecture.setAuthor(user);
 
         Article uiDesign = new Article();
         uiDesign.setTitle(UI_DESIGN);
@@ -80,7 +89,10 @@ class FindArticleIT {
         //ACT
         List<Article> firstPageWithTwoInReview = findArticle.of(new FindArticleRequest(0, 2, Status.IN_REVIEW, user));
         List<Article> firstPageWith2Published = findArticle.of(new FindArticleRequest(0, 2, Status.PUBLISHED, user));
-        List<Article> firstPageWith2Drafts = findArticle.of(new FindArticleRequest(0, 2, Status.DRAFT, user));
+        FindArticleRequest draftRequest = new FindArticleRequest(0, 2, Status.DRAFT, user);
+        List<Article> firstPageWith2Drafts = findArticle.of(draftRequest);
+        draftRequest.setYours(true);
+        List<Article> firstPageWithYour2Drafts = findArticle.of(draftRequest);
         List<Article> thirdPageWithThreePublished = findArticle.of(new FindArticleRequest(2, 3, Status.PUBLISHED, user));
 
         //ASSERT
@@ -95,6 +107,10 @@ class FindArticleIT {
         assertThat(firstPageWith2Drafts).hasSize(2);
         assertThat(firstPageWith2Drafts.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
         assertThat(firstPageWith2Drafts.get(1).getTitle()).isEqualTo(CLEAN_CODE);
+
+        assertThat(firstPageWithYour2Drafts).hasSize(2);
+        assertThat(firstPageWithYour2Drafts.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
+        assertThat(firstPageWithYour2Drafts.get(1).getTitle()).isEqualTo(CLEAN_CODE);
 
         assertThat(thirdPageWithThreePublished).isEmpty();
 

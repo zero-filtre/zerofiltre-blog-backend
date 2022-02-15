@@ -3,7 +3,7 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
-      springframework: DEBUG
+      springframework: INFO
     tech:
       zerofiltre: DEBUG
 server:
@@ -20,7 +20,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: philippesimo@zerofiltre.tech
-    password: upoafthyaafaadzr
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
