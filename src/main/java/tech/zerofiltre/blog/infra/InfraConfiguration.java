@@ -4,6 +4,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.retry.backoff.*;
 import org.springframework.retry.policy.*;
 import org.springframework.retry.support.*;
+import org.springframework.web.filter.*;
 
 @Configuration
 public class InfraConfiguration {
@@ -21,4 +22,16 @@ public class InfraConfiguration {
 
         return retryTemplate;
     }
+
+    @Bean
+    public CommonsRequestLoggingFilter logFilter() {
+        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(true);
+        filter.setMaxPayloadLength(10000);
+        filter.setIncludeHeaders(false);
+        filter.setAfterMessagePrefix("REQUEST DATA : ");
+        return filter;
+    }
+
 }

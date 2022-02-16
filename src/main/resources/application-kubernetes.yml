@@ -3,7 +3,8 @@ logging:
     org:
       hibernate:
         SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL}
-      springframework: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK}
+      springframework:
+        web: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK}
     tech:
       zerofiltre: ${LOGGING_LEVEL_TECH_ZEROFILTRE}
 server:

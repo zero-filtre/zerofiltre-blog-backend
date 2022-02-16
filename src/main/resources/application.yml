@@ -3,7 +3,8 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
-      springframework: INFO
+      springframework:
+        web: DEBUG
     tech:
       zerofiltre: DEBUG
 server:
