@@ -37,6 +37,11 @@ spring:
     hibernate:
       ddl-auto: update
 
+
+  messages:
+    fallback-to-system-locale: false
+    basename: i18n.messages
+
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
