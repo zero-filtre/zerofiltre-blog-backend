@@ -53,7 +53,7 @@ class PublishOrSaveArticleTest {
         //ARRANGE
 
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
-        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
+
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
 
@@ -143,7 +143,6 @@ class PublishOrSaveArticleTest {
     void save_MustNotDraft_AnAlreadyPublishArticle() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
-        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
         mockArticle.setId(45);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
@@ -174,7 +173,6 @@ class PublishOrSaveArticleTest {
         //ARRANGE
 
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
-        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
 
@@ -291,6 +289,19 @@ class PublishOrSaveArticleTest {
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+
+    }
+
+    @Test
+    void mustNotThrowExceptionIfNotOwnerButAdmin() {
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
+        User editor = new User();
+        editor.setEmail("email");
+        editor.setRoles(Collections.singleton("ROLE_ADMIN"));
+
+        assertThatNoException().isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+
 
     }
 

@@ -28,7 +28,7 @@ public class PublishOrSaveArticle {
                 .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish/save an unknown article. Could not find an article with id: " + id, id));
 
         User author = existingArticle.getAuthor();
-        if (!currentEditor.getEmail().equals(author.getEmail()) && !author.getRoles().contains("ROLE_ADMIN"))
+        if (!currentEditor.getEmail().equals(author.getEmail()) && !currentEditor.getRoles().contains("ROLE_ADMIN"))
             throw new ForbiddenActionException("You are not allowed to edit this article", Domains.ARTICLE.name());
 
         checkTags(tags);

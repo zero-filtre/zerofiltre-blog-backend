@@ -30,6 +30,11 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
 
+  messages:
+    fallback-to-system-locale: false
+    basename: i18n.messages
+
+
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**

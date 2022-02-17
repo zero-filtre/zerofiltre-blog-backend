@@ -34,6 +34,11 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO}
+
+  messages:
+    fallback-to-system-locale: false
+    basename: i18n.messages
+
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
