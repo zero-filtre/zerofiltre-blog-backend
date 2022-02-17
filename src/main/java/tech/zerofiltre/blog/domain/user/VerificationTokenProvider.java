@@ -10,7 +10,11 @@ public interface VerificationTokenProvider {
 
     Optional<VerificationToken> ofUser(User user);
 
-    VerificationToken save(VerificationToken verificationToken);
+    VerificationToken update(VerificationToken verificationToken);
+
+    VerificationToken generate(User user, long durationInSeconds);
+
+    VerificationToken generate(User user);
 
     void delete(VerificationToken token);
 }

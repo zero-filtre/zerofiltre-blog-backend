@@ -48,7 +48,7 @@ zerofiltre:
   infra:
     security:
       jwt:
-        expiration: ${SECURITY_JWT_EXPIRATION}
+        expiration-seconds: ${SECURITY_JWT_EXPIRATION}
         secret: ${SECURITY_JWT_SECRET}
         prefix: Bearer
         header: Authorization

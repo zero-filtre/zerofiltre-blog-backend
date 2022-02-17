@@ -13,10 +13,10 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class JwtTokenAuthenticationFilter extends AuthenticationFilter<JwtAuthenticationToken, SocialLoginProvider> {
+public class JwtTokenAuthenticationCheckerFilter extends AuthenticationCheckerFilter<JwtAuthenticationTokenProperties, SocialLoginProvider> {
 
 
-    public JwtTokenAuthenticationFilter(JwtAuthenticationToken tokenConfiguration) {
+    public JwtTokenAuthenticationCheckerFilter(JwtAuthenticationTokenProperties tokenConfiguration) {
         super(tokenConfiguration, null, null);
     }
 

@@ -43,7 +43,7 @@ class InitArticleIT {
     }
 
     @Test
-    @DisplayName("Must save article with all data")
+    @DisplayName("Must update article with all data")
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeCreation = LocalDateTime.now();
@@ -67,8 +67,7 @@ class InitArticleIT {
         assertThat(publisher).isNotNull();
         assertThat(publisher.getRegisteredOn()).isEqualTo(mockUser.getRegisteredOn());
         assertThat(publisher.getId()).isEqualTo(mockUser.getId());
-        assertThat(publisher.getFirstName()).isEqualTo(mockUser.getFirstName());
-        assertThat(publisher.getLastName()).isEqualTo(mockUser.getLastName());
+        assertThat(publisher.getFullName()).isEqualTo(mockUser.getFullName());
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
 

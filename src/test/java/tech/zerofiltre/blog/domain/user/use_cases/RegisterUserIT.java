@@ -32,8 +32,7 @@ class RegisterUserIT {
     void init() {
         registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         toRegister.setPassword("pass");
-        toRegister.setLastName("last");
-        toRegister.setFirstName("first");
+        toRegister.setFullName("first");
 
     }
 
@@ -48,8 +47,7 @@ class RegisterUserIT {
         User registeredUser = registerUser.execute(toRegister);
 
         //ASSERT
-        assertThat(registeredUser.getFirstName()).isEqualTo(toRegister.getFirstName());
-        assertThat(registeredUser.getLastName()).isEqualTo(toRegister.getLastName());
+        assertThat(registeredUser.getFullName()).isEqualTo(toRegister.getFullName());
         assertThat(registeredUser.getPassword()).isEqualTo(toRegister.getPassword());
         assertThat(registeredUser.getRoles()).contains("ROLE_USER");
         assertThat(registeredUser.getId()).isNotZero();

@@ -3,7 +3,7 @@ package tech.zerofiltre.blog.infra.security.model;
 import lombok.*;
 
 @Data
-public class AuthenticationToken {
+public class AuthenticationTokenProperties {
 
     private String header;
 

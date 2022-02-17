@@ -12,14 +12,14 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.stream.*;
 
-public class AuthenticationFilter<T extends AuthenticationToken, L extends SocialLoginProvider> extends OncePerRequestFilter {
+public class AuthenticationCheckerFilter<T extends AuthenticationTokenProperties, L extends SocialLoginProvider> extends OncePerRequestFilter {
 
     final T tokenConfiguration;
     final L socialLoginProvider;
     final UserProvider userProvider;
 
 
-    public AuthenticationFilter(T tokenConfiguration, L socialLoginProvider, UserProvider userProvider) {
+    public AuthenticationCheckerFilter(T tokenConfiguration, L socialLoginProvider, UserProvider userProvider) {
         this.tokenConfiguration = tokenConfiguration;
         this.socialLoginProvider = socialLoginProvider;
         this.userProvider = userProvider;
@@ -59,7 +59,7 @@ public class AuthenticationFilter<T extends AuthenticationToken, L extends Socia
                 //5. Get the user info from the token
                 socialLoginProvider.userOfToken(token)
                         .ifPresent(user -> {
-                            //7. Check if user in DB, otherwise save him
+                            //7. Check if user in DB, otherwise update him
                             userProvider.userOfEmail(user.getEmail())
                                     .ifPresentOrElse(user1 -> {
                                     }, () -> userProvider.save(user));

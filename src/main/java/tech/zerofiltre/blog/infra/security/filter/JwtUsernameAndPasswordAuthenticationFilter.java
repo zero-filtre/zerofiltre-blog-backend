@@ -2,28 +2,36 @@ package tech.zerofiltre.blog.infra.security.filter;
 
 import com.fasterxml.jackson.databind.*;
 import lombok.*;
+import org.springframework.http.converter.json.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.*;
+import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     // We use auth manager to validate the user credentials
     private final AuthenticationManager authManager;
 
-    private final JwtAuthenticationToken jwTokenConfiguration;
+    private final GenerateToken generateToken;
 
-    public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtAuthenticationToken jwTokenConfiguration) {
+    private final Jackson2ObjectMapperBuilder objectMapperBuilder;
+
+    private final UserProvider userProvider;
+
+    public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtAuthenticationTokenProperties jwTokenConfiguration, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder, UserProvider userProvider) {
         this.authManager = authManager;
-        this.jwTokenConfiguration = jwTokenConfiguration;
+        this.objectMapperBuilder = objectMapperBuilder;
+        this.userProvider = userProvider;
+        this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, this.userProvider);
 
         // By default, UsernamePasswordAuthenticationFilter listens to "/login" path.
         // In our case, we use "/auth". So, we need to override the defaults.
@@ -57,15 +65,22 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     // Upon successful authentication, generate a token.
     // The 'auth' passed to successfulAuthentication() is the current authenticated user.
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authenticatedUser) {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authenticatedUser) {
 
-        String token = jwTokenConfiguration.buildToken(
-                authenticatedUser.getName(),
-                authenticatedUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet())
-        );
-        // Add token to header
-        response.addHeader(jwTokenConfiguration.getHeader(), jwTokenConfiguration.getPrefix() + " " + token);
+        try {
+            Token token = generateToken.byEmail(authenticatedUser.getName());
+
+            // Add token to header
+            String tokenAsString = objectMapperBuilder.build().writeValueAsString(token);
+            PrintWriter out = response.getWriter();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            out.print(tokenAsString);
+            out.flush();
+        } catch (IOException | UserNotFoundException e) {
+            logger.error("An error occurred during authentication", e);
+            throw new RuntimeException(e);
+        }
     }
 
 

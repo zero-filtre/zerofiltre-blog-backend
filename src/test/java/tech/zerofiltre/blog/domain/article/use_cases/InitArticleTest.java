@@ -39,7 +39,7 @@ class InitArticleTest {
     }
 
     @Test
-    @DisplayName("Must set the status to draft then save the article")
+    @DisplayName("Must set the status to draft then update the article")
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeInit = LocalDateTime.now();
@@ -70,8 +70,7 @@ class InitArticleTest {
         assertThat(publisher).isNotNull();
         assertThat(publisher.getRegisteredOn()).isEqualTo(mockUser.getRegisteredOn());
         assertThat(publisher.getId()).isEqualTo(mockUser.getId());
-        assertThat(publisher.getFirstName()).isEqualTo(mockUser.getFirstName());
-        assertThat(publisher.getLastName()).isEqualTo(mockUser.getLastName());
+        assertThat(publisher.getFullName()).isEqualTo(mockUser.getFullName());
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
 

@@ -55,8 +55,7 @@ class UpdateUserTest {
         patchUser.setBio(NEW_BIO);
         patchUser.setProfession(NEW_PROFESSION);
         patchUser.setProfilePicture(NEW_PROFILE_PICTURE);
-        patchUser.setLastName(NEW_LAST_NAME);
-        patchUser.setFirstName(NEW_FIRST_NAME);
+        patchUser.setFullName(NEW_FIRST_NAME);
         SocialLink socialLink = new SocialLink(SocialLink.Platform.STACKOVERFLOW, NEW_LINK);
         patchUser.setSocialLinks(Collections.singleton(socialLink));
         patchUser.setLanguage(NEW_LANGUAGE);
@@ -74,8 +73,7 @@ class UpdateUserTest {
         assertThat(patchedUser.getBio()).isEqualTo(NEW_BIO);
         assertThat(patchedUser.getProfession()).isEqualTo(NEW_PROFESSION);
         assertThat(patchedUser.getProfilePicture()).isEqualTo(NEW_PROFILE_PICTURE);
-        assertThat(patchedUser.getLastName()).isEqualTo(NEW_LAST_NAME);
-        assertThat(patchedUser.getFirstName()).isEqualTo(NEW_FIRST_NAME);
+        assertThat(patchedUser.getFullName()).isEqualTo(NEW_FIRST_NAME);
         assertThat(patchedUser.getLanguage()).isEqualTo(NEW_LANGUAGE);
         Set<SocialLink> socialLinks = patchedUser.getSocialLinks();
         assertThat(socialLinks.size()).isEqualTo(1);

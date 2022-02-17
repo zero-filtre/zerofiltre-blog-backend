@@ -243,7 +243,7 @@ class StackOverflowLoginProviderTest {
         assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         assertThat(user.getEmail()).isEqualTo("8787878");
         assertThat(user.getProfilePicture()).isEqualTo("https://www.gravatar.com/avatar/30bb65fba474796ea67d26cfe0a501bc?s=256&d=identicon&r=PG&f=1");
-        assertThat(user.getFirstName()).isEqualTo("Philippe Simo");
+        assertThat(user.getFullName()).isEqualTo("Philippe Simo");
         assertThat(user.getWebsite()).isEqualTo("https://zerofiltre.tech");
         assertThat(user.getLoginFrom()).isEqualTo(SocialLink.Platform.STACKOVERFLOW);
         user.getSocialLinks().forEach(socialLink -> {

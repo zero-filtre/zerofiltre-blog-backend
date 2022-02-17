@@ -2,7 +2,6 @@ package tech.zerofiltre.blog.infra.providers.notification.user;
 
 import lombok.*;
 import lombok.extern.slf4j.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.stereotype.*;
@@ -24,7 +23,7 @@ public class ConfirmRegistrationReminder {
     private final UserProvider userProvider;
     private final BlogEmailSender emailSender;
     private final MessageSource messages;
-    private final VerificationTokenManager tokenManager;
+    private final VerificationTokenProvider tokenProvider;
     private final InfraProperties infraProperties;
 
     @Scheduled(fixedRateString = "${zerofiltre.infra.reminder-rate}", initialDelayString = "${zerofiltre.infra.reminder-initial-delay}")
@@ -45,14 +44,13 @@ public class ConfirmRegistrationReminder {
 
                         String subject = messages.getMessage("message.registration.subject.remind", null, locale);
 
-                        String token = tokenManager.generateToken(user);
+                        String token = tokenProvider.generate(user).getToken();
 
-                        String firstName = user.getFirstName() != null ? StringUtils.capitalize(user.getFirstName()) : "";
-                        String lastName = user.getLastName() != null ? user.getLastName().toUpperCase() : "";
+                        String firstName = user.getFullName() != null ? StringUtils.capitalize(user.getFullName()) : "";
 
                         String message = messages.getMessage(
                                 "message.registration.success.remind.content",
-                                new Object[]{firstName, lastName},
+                                new Object[]{firstName},
                                 locale
                         );
 

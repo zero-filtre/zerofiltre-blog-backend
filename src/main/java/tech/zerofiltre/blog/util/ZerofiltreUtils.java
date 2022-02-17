@@ -86,8 +86,7 @@ public class ZerofiltreUtils {
         User user = new User();
         user.setId(1);
         user.setEmail("ola.eloundou@zerofiltre.tech");
-        user.setFirstName("Philippe");
-        user.setLastName("GUEMKAM SIMO");
+        user.setFullName("Philippe GUEMKAM SIMO");
         user.setPseudoName("imphilippesimo");
         user.setRegisteredOn(LocalDateTime.now().minusDays(50));
         user.setProfilePicture("https://i.ibb.co/QKX6gyr/profile-pic.jpg");

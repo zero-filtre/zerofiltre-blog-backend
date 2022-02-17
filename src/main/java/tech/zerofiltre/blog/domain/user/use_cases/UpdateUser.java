@@ -21,8 +21,7 @@ public class UpdateUser {
         User foundUser = userProvider.userOfId(user.getId())
                 .orElseThrow(() -> new UserNotFoundException("We could not find the user you want to update", String.valueOf(user.getId())));
 
-        foundUser.setFirstName(user.getFirstName());
-        foundUser.setLastName(user.getLastName());
+        foundUser.setFullName(user.getFullName());
         foundUser.setProfilePicture(user.getProfilePicture());
         foundUser.setProfession(user.getProfession());
         foundUser.setBio(user.getBio());

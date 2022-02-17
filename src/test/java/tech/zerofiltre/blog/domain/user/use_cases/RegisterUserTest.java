@@ -35,8 +35,7 @@ class RegisterUserTest {
     void init() {
         registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         toRegister.setPassword("pass");
-        toRegister.setLastName("last");
-        toRegister.setFirstName("first");
+        toRegister.setFullName("first");
         toRegister.setEmail("email");
 
     }
@@ -59,8 +58,7 @@ class RegisterUserTest {
         verify(userProvider, times(1)).userOfEmail(any());
         verify(userProvider, times(1)).save(any());
         verify(profilePictureGenerator,times(1)).byEmail(EMAIL);
-        assertThat(registeredUser.getFirstName()).isEqualTo(toRegister.getFirstName());
-        assertThat(registeredUser.getLastName()).isEqualTo(toRegister.getLastName());
+        assertThat(registeredUser.getFullName()).isEqualTo(toRegister.getFullName());
         assertThat(registeredUser.getPassword()).isEqualTo(toRegister.getPassword());
         assertThat(registeredUser.getRegisteredOn()).isNotNull();
         assertThat(registeredUser.getRoles()).contains("ROLE_USER");

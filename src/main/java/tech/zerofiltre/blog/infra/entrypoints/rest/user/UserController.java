@@ -40,7 +40,7 @@ public class UserController {
     private final SavePasswordReset savePasswordReset;
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
-    private final JwtAuthenticationToken jwTokenConfiguration;
+    private final JwtAuthenticationTokenProperties jwTokenConfiguration;
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
@@ -49,9 +49,10 @@ public class UserController {
     private final UpdateUser updateUser;
     private final UserProvider userProvider;
     private final FindArticle findArticle;
+    private final GenerateToken generateToken;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationToken jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationTokenProperties jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, JwtTokenProvider jwtTokenProvider) {
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
@@ -70,14 +71,14 @@ public class UserController {
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider);
         this.userProvider = userProvider;
+        this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
     }
 
     @PostMapping("/user")
     //TODO Refactor this to delegate the orchestration to the application layer
-    public ResponseEntity<User> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws ResourceAlreadyExistException {
+    public ResponseEntity<Token> registerUser(@RequestBody @Valid RegisterUserVM registerUserVM, HttpServletRequest request) throws ResourceAlreadyExistException {
         User user = new User();
-        user.setFirstName(registerUserVM.getFirstName());
-        user.setLastName(registerUserVM.getLastName());
+        user.setFullName(registerUserVM.getFullName());
         user.setEmail(registerUserVM.getEmail());
         user.setPassword(passwordEncoder.encode(registerUserVM.getPassword()));
         user.setLanguage(request.getLocale().getLanguage());
@@ -91,13 +92,8 @@ public class UserController {
             log.error("We were unable to send the registration confirmation email", e);
         }
 
-        //add token to header
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(
-                jwTokenConfiguration.getHeader(),
-                jwTokenConfiguration.getPrefix() + " " + jwTokenConfiguration.buildToken(user.getEmail(), user.getRoles())
-        );
-        return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
+        Token token = generateToken.byUser(user);
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
     @GetMapping("/user")
@@ -193,8 +189,17 @@ public class UserController {
 
 
     @PostMapping("/user/github/accessToken")
-    public void getGithubToken(@RequestParam String code, HttpServletResponse response) throws ResourceNotFoundException {
-        String token = retrieveSocialToken.execute(code);
-        response.addHeader(HttpHeaders.AUTHORIZATION, "token " + token);
+    public Token getGithubToken(@RequestParam String code) throws ResourceNotFoundException {
+        String accessToken = retrieveSocialToken.execute(code);
+        Token token = new Token();
+        token.setAccessToken(accessToken);
+        token.setTokenType("token");
+        token.setRefreshToken("");
+        return token;
+    }
+
+    @GetMapping("/user/jwt/refreshToken")
+    public Token refreshJwtToken(@RequestParam(name = "refreshToken") String refreshingToken) throws InvalidTokenException {
+        return this.generateToken.byRefreshToken(refreshingToken);
     }
 }

@@ -19,8 +19,7 @@ public class UserJPA extends BaseEntityJPA {
     private String pseudoName;
     @Column(unique = true)
     private String email;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String password;
     private LocalDateTime registeredOn;
     private String profilePicture;

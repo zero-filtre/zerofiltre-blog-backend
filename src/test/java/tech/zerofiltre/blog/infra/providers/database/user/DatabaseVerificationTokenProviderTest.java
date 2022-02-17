@@ -1,12 +1,12 @@
-package tech.zerofiltre.blog.infra.providers.notification.user;
+package tech.zerofiltre.blog.infra.providers.database.user;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import java.time.*;
 import java.util.*;
@@ -15,21 +15,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class VerificationTokenManagerTest {
+class DatabaseVerificationTokenProviderTest {
 
-    public static final String TOKEN = "token";
-    private VerificationTokenManager verificationTokenManager;
+    public static final String TOKEN = "TOKEN";
+    DatabaseVerificationTokenProvider provider;
 
     @MockBean
-    VerificationTokenProvider verificationTokenProvider;
+    VerificationTokenJPARepository repository;
 
     User user = new User();
 
     @BeforeEach
-    void setUp() {
-        verificationTokenManager = new VerificationTokenManager(verificationTokenProvider);
-        when(verificationTokenProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-
+    void init() {
+        provider = new DatabaseVerificationTokenProvider(repository);
     }
 
     @Test
@@ -39,13 +37,13 @@ class VerificationTokenManagerTest {
 
 
         //ACT
-        verificationTokenManager.generateToken(user);
+        provider.generate(user);
 
         //ASSERT
         LocalDateTime afterSavePlus1d = LocalDateTime.now().plusDays(1);
-        ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(verificationTokenProvider, times(1)).save(captor.capture());
-        VerificationToken verificationToken = captor.getValue();
+        ArgumentCaptor<VerificationTokenJPA> captor = ArgumentCaptor.forClass(VerificationTokenJPA.class);
+        verify(repository, times(1)).save(captor.capture());
+        VerificationTokenJPA verificationToken = captor.getValue();
         assertThat(verificationToken).isNotNull();
         assertThat(verificationToken.getExpiryDate()).isBeforeOrEqualTo(afterSavePlus1d);
         assertThat(verificationToken.getExpiryDate()).isAfterOrEqualTo(beforeSavePlus1d);
@@ -54,20 +52,21 @@ class VerificationTokenManagerTest {
     @Test
     void updateToken_mustCheckTokenAndExtendExpiryDate_ThenSave_ifTokenExists() {
         //ARRANGE
-        VerificationToken verificationToken = new VerificationToken(user, TOKEN);
-        when(verificationTokenProvider.ofUser(user)).thenReturn(Optional.of(verificationToken));
+        VerificationTokenJPA verificationToken = new VerificationTokenJPA();
+        verificationToken.setExpiryDate(LocalDateTime.now().minusHours(24));
+        when(repository.findByUser(any())).thenReturn(Optional.of(verificationToken));
         LocalDateTime previousExpiryDate = verificationToken.getExpiryDate();
 
         //ACT
-        verificationTokenManager.generateToken(user);
+        provider.generate(user);
 
         //ASSERT
-        verify(verificationTokenProvider, times(1)).ofUser(user);
-        ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(verificationTokenProvider, times(1)).save(captor.capture());
+        verify(repository, times(1)).findByUser(any());
+        ArgumentCaptor<VerificationTokenJPA> captor = ArgumentCaptor.forClass(VerificationTokenJPA.class);
+        verify(repository, times(1)).save(captor.capture());
         LocalDateTime afterSavePlus1d = LocalDateTime.now().plusDays(1);
 
-        VerificationToken savedVerificationToken = captor.getValue();
+        VerificationTokenJPA savedVerificationToken = captor.getValue();
         assertThat(savedVerificationToken).isNotNull();
 
         LocalDateTime expiryDate = savedVerificationToken.getExpiryDate();
@@ -80,21 +79,21 @@ class VerificationTokenManagerTest {
     @Test
     void updateToken_mustCheckTokenAndCreateToken_ThenSave_ifTokenDoesNotExist() {
         //ARRANGE
-        when(verificationTokenProvider.ofUser(user)).thenReturn(Optional.empty());
+        when(repository.findByUser(any())).thenReturn(Optional.empty());
         LocalDateTime beforeSavePlus1d = LocalDateTime.now().plusDays(1);
 
 
         //ACT
-        verificationTokenManager.generateToken(user);
+        provider.generate(user);
 
         //ASSERT
-        verify(verificationTokenProvider, times(1)).ofUser(user);
+        verify(repository, times(1)).findByUser(any());
 
-        ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(verificationTokenProvider, times(1)).save(captor.capture());
+        ArgumentCaptor<VerificationTokenJPA> captor = ArgumentCaptor.forClass(VerificationTokenJPA.class);
+        verify(repository, times(1)).save(captor.capture());
         LocalDateTime afterSavePlus1d = LocalDateTime.now().plusDays(1);
 
-        VerificationToken savedVerificationToken = captor.getValue();
+        VerificationTokenJPA savedVerificationToken = captor.getValue();
         assertThat(savedVerificationToken).isNotNull();
 
         LocalDateTime expiryDate = savedVerificationToken.getExpiryDate();

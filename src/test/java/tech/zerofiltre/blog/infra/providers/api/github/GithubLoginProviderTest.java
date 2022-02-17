@@ -164,7 +164,7 @@ class GithubLoginProviderTest {
         assertThat(optionalUser).isNotEmpty();
         User user = optionalUser.get();
         assertThat(user.getEmail()).isEqualTo("optimium@gmail.com");
-        assertThat(user.getFirstName()).isEqualTo("Login");
+        assertThat(user.getFullName()).isEqualTo("Login");
         assertThat(user.getProfilePicture()).isEqualTo("https://avatars.githubusercontent.com/u/13754910?v=4");
         assertThat(user.getBio()).isNull();
         assertThat(user.getWebsite()).isEqualTo("https://zerofiltre.tech");
@@ -236,7 +236,7 @@ class GithubLoginProviderTest {
         assertThat(optionalUser).isNotEmpty();
         User user = optionalUser.get();
         assertThat(user.getEmail()).isEqualTo("login");
-        assertThat(user.getFirstName()).isEqualTo("Watson ONANA");
+        assertThat(user.getFullName()).isEqualTo("Watson ONANA");
         assertThat(user.getProfilePicture()).isEqualTo("https://avatars.githubusercontent.com/u/13754910?v=4");
         assertThat(user.getBio()).isNull();
         assertThat(user.getWebsite()).isEqualTo("https://zerofiltre.tech");

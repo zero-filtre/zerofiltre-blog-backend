@@ -44,7 +44,7 @@ zerofiltre:
   infra:
     security:
       jwt:
-        expiration: 1440 #minutes
+        expiration-seconds: 86400 #minutes
         secret: JwtSecretKey
         prefix: Bearer
         header: Authorization
