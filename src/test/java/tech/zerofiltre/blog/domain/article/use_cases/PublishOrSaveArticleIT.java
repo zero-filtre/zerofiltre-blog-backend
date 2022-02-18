@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({ArticleDatabaseProvider.class, TagDatabaseProvider.class, DatabaseUserProvider.class, ReactionDatabaseProvider.class})
+@Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class, ReactionDatabaseProvider.class})
 class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";

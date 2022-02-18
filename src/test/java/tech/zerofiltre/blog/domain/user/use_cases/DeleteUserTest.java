@@ -3,14 +3,18 @@ package tech.zerofiltre.blog.domain.user.use_cases;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
+import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.article.*;
+import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -19,13 +23,17 @@ class DeleteUserTest {
 
     @MockBean
     private UserProvider userProvider;
+
+    @MockBean
+    private ArticleProvider articleProvider;
+
     private DeleteUser deleteUser;
     User currentUser = new User();
     User foundUser = new User();
 
     @BeforeEach
     void setUp() {
-        deleteUser = new DeleteUser(userProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider);
     }
 
     @Test
@@ -72,6 +80,31 @@ class DeleteUserTest {
                 .isThrownBy(() -> deleteUser.execute(currentUser, 10));
         verify(userProvider, times(1)).userOfId(10);
         verify(userProvider, times(0)).deleteUser(foundUser);
+
+    }
+
+    @Test
+    @DisplayName("Deleting a user that has articles deactivates the user and deletes his sensible information")
+    void deleteUser_WithArticles_deactivatesAndDeletesInfo() throws ForbiddenActionException, ResourceNotFoundException {
+        //ARRANGE
+        currentUser.setId(10);
+        foundUser.setId(10);
+        Article draftArticle = new Article();
+        Article publishedArticle = new Article();
+        List<Article> userArticles = Arrays.asList(draftArticle, publishedArticle);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(foundUser));
+        when(articleProvider.articlesOf(foundUser)).thenReturn(userArticles);
+
+        //ACT
+        deleteUser.execute(currentUser, 10);
+
+        verify(articleProvider, times(1)).articlesOf(foundUser);
+        verify(userProvider, times(0)).deleteUser(foundUser);
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userProvider, times(1)).save(captor.capture());
+        User updatedUser = captor.getValue();
+        assertThat(updatedUser.isExpired()).isTrue();
+
 
     }
 }
