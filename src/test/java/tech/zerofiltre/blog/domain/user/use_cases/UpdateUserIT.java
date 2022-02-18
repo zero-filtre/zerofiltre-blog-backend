@@ -15,7 +15,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DatabaseUserProvider.class})
+@Import({DBUserProvider.class})
 class UpdateUserIT {
 
     public static final String NEW_WEBSITE = "new website";

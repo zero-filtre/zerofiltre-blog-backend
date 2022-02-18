@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 
 
 @DataJpaTest
-@Import({DatabaseUserProvider.class, GravatarProvider.class})
+@Import({DBUserProvider.class, GravatarProvider.class})
 class RegisterUserIT {
 
     private RegisterUser registerUser;

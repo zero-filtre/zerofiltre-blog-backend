@@ -7,15 +7,17 @@ import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ArticleDatabaseProvider implements ArticleProvider {
+public class DBArticleProvider implements ArticleProvider {
 
     private final ArticleJPARepository repository;
     private final ArticleJPAMapper mapper = Mappers.getMapper(ArticleJPAMapper.class);
@@ -44,6 +46,12 @@ public class ArticleDatabaseProvider implements ArticleProvider {
 
         return page.map(mapper::fromJPA)
                 .getContent();
+    }
+
+    @Override
+    public List<Article> articlesOf(User user) {
+        return repository.findByAuthorId(user.getId())
+                .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
 
