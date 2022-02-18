@@ -15,8 +15,19 @@ podTemplate(label: label, containers: [
                 checkout scm
             }
 
-            stage('Build with test') {
-                buildTestAndPackage()
+            stage('Build with tests') {
+                container('maven') {
+                    sh "mvn clean package "
+                }
+            }
+
+            if (getEnvName(env.BRANCH_NAME) == 'uat' || getEnvName(env.BRANCH_NAME) == 'prod') {
+                stage('Integration tests') {
+                    container('maven') {
+                        sh "mvn failsafe:integration-test "
+                    }
+                }
+
             }
 
             stage('Sonarqube Analysis') {
@@ -53,13 +64,6 @@ podTemplate(label: label, containers: [
             //send email
         }
 
-    }
-}
-
-
-def buildTestAndPackage() {
-    container('maven') {
-        sh "mvn clean install"
     }
 }
 

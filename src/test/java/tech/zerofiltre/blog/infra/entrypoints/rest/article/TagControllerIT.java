@@ -21,6 +21,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
@@ -31,10 +32,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = TagController.class)
-@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class,
-        APIClientConfiguration.class, GithubAuthenticationToken.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class,
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
 class TagControllerIT {
 
     public static final String COLOR_CODE = "#fffff";
@@ -48,6 +49,12 @@ class TagControllerIT {
 
     @MockBean
     GithubLoginProvider githubLoginProvider;
+
+    @MockBean
+    VerificationTokenProvider verificationTokenProvider;
+
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
 
     @MockBean
     UserProvider userProvider;

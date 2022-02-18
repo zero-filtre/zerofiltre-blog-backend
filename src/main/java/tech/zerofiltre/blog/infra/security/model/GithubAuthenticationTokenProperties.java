@@ -7,7 +7,7 @@ import org.springframework.stereotype.*;
 @Data
 @Component
 @EqualsAndHashCode(callSuper = true)
-public class GithubAuthenticationToken extends AuthenticationToken {
+public class GithubAuthenticationTokenProperties extends AuthenticationTokenProperties {
 
     @Value("${security.jwt.header:Authorization}")
     private String header;

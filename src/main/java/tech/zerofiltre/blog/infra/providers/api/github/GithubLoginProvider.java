@@ -94,7 +94,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
     private User fromGithubUser(GithubUser githubUser) {
         User user = new User();
         user.setEmail(githubUser.getEmail() == null ? githubUser.getLogin() : githubUser.getEmail());
-        user.setFirstName(githubUser.getName() == null ? StringUtils.capitalize(githubUser.getLogin()) : githubUser.getName());
+        user.setFullName(githubUser.getName() == null ? StringUtils.capitalize(githubUser.getLogin()) : githubUser.getName());
         user.setProfilePicture(githubUser.getAvatarUrl());
         user.setBio(user.getBio());
         user.setWebsite(githubUser.getBlog());

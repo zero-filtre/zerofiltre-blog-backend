@@ -40,7 +40,6 @@ class UserMailNotificationProviderTest {
         doNothing().when(eventPublisher).publishEvent(any());
 
         //ACT
-        user.setLastName(LAST_NAME);
         userMailNotificationProvider.notify(new UserActionEvent(
                 APP_URL, Locale.FRANCE, user, Action.REGISTRATION_COMPLETE));
 
@@ -52,7 +51,6 @@ class UserMailNotificationProviderTest {
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
         assertThat(event.getAction()).isEqualTo(Action.REGISTRATION_COMPLETE);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
-        assertThat(event.getUser().getLastName()).isEqualTo(LAST_NAME);
     }
 
     @Test
@@ -61,7 +59,6 @@ class UserMailNotificationProviderTest {
         doNothing().when(eventPublisher).publishEvent(any());
 
         //ACT
-        user.setLastName(LAST_NAME);
         userMailNotificationProvider.notify(new UserActionEvent(
                 APP_URL, Locale.FRANCE, user, Action.PASSWORD_RESET));
 
@@ -73,7 +70,6 @@ class UserMailNotificationProviderTest {
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
         assertThat(event.getAction()).isEqualTo(Action.PASSWORD_RESET);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
-        assertThat(event.getUser().getLastName()).isEqualTo(LAST_NAME);
 
     }
 }

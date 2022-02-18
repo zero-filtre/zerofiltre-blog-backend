@@ -8,9 +8,7 @@ import java.util.*;
 @Data
 public class PublicUserProfileVM {
 
-    private String firstName;
-
-    private String lastName;
+    private String fullName;
 
     private String profilePicture;
 

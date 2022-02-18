@@ -56,7 +56,7 @@ class UserControllerTest {
     ArticleProvider articleProvider;
 
     @MockBean
-    JwtAuthenticationToken jwTokenConfiguration;
+    JwtAuthenticationTokenProperties jwTokenConfiguration;
 
     @MockBean
     PasswordVerifierProvider passwordVerifierProvider;
@@ -85,13 +85,16 @@ class UserControllerTest {
     @MockBean
     private SecurityContextManager securityContextManager;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
 
     @BeforeEach
     void setUp() {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator);
+                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, jwtTokenProvider);
         when(infraProperties.getEnv()).thenReturn("dev");
     }
 
@@ -99,12 +102,12 @@ class UserControllerTest {
     void registerUser_MustRegisterUser_ThenNotifyRegistrationComplete() throws ResourceAlreadyExistException {
         //ARRANGE
         userVM.setEmail(EMAIL);
-        userVM.setFirstName(FIRST_NAME);
-        userVM.setLastName(LAST_NAME);
+        userVM.setFullName(FIRST_NAME);
         when(request.getLocale()).thenReturn(Locale.FRANCE);
-        when(jwTokenConfiguration.buildToken(any(), any())).thenReturn(TOKEN);
-        when(jwTokenConfiguration.getHeader()).thenReturn("Authorization");
-        when(jwTokenConfiguration.getPrefix()).thenReturn("Bearer" + " ");
+        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        when(verificationTokenProvider.generate(any())).thenReturn(t);
+        when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
+        when(jwtTokenProvider.generate(any())).thenReturn(new JwtToken(TOKEN, 784587));
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //ACT
@@ -113,15 +116,14 @@ class UserControllerTest {
         //ASSERT
         verify(userProvider, times(1)).userOfEmail(any());
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-
         verify(userProvider, times(1)).save(captor.capture());
         User user = captor.getValue();
         assertThat(user.getEmail()).isEqualTo(EMAIL);
-        assertThat(user.getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(user.getLastName()).isEqualTo(LAST_NAME);
+        assertThat(user.getFullName()).isEqualTo(FIRST_NAME);
         assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         verify(userNotificationProvider, times(1)).notify(any());
-        verify(jwTokenConfiguration, times(1)).buildToken(EMAIL, Collections.singleton("ROLE_USER"));
+        verify(verificationTokenProvider, times(1)).generate(any(), anyLong());
+        verify(jwtTokenProvider, times(1)).generate(any());
     }
 
     @Test
@@ -204,8 +206,7 @@ class UserControllerTest {
     void getUserProfile_mustBuildPublicUserProfileVM_properly() throws UserNotFoundException {
         //ARRANGE
         User user = new User();
-        user.setLastName(LAST_NAME);
-        user.setFirstName(FIRST_NAME);
+        user.setFullName(FIRST_NAME);
         user.setBio(BIO);
         user.setLanguage(Locale.FRANCE.getLanguage());
         user.setSocialLinks(Collections.singleton(new SocialLink(GITHUB, GITHUBLINK)));
@@ -217,8 +218,7 @@ class UserControllerTest {
 
         //ASSERT
         assertThat(result).isNotNull();
-        assertThat(result.getLastName()).isEqualTo(LAST_NAME);
-        assertThat(result.getFirstName()).isEqualTo(FIRST_NAME);
+        assertThat(result.getFullName()).isEqualTo(FIRST_NAME);
         assertThat(result.getBio()).isEqualTo(BIO);
         assertThat(result.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         Set<SocialLink> socialLinks = result.getSocialLinks();

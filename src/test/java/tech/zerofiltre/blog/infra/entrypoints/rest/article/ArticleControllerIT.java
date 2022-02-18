@@ -21,6 +21,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
@@ -32,10 +33,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ArticleController.class)
-@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationToken.class,
-        APIClientConfiguration.class, GithubAuthenticationToken.class})
+        InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class,
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
 class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";
@@ -51,6 +52,10 @@ class ArticleControllerIT {
     @MockBean
     ReactionProvider reactionProvider;
 
+
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
 
@@ -60,6 +65,9 @@ class ArticleControllerIT {
 
     @MockBean
     GithubLoginProvider githubLoginProvider;
+
+    @MockBean
+    DatabaseVerificationTokenProvider verificationTokenProvider;
 
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);

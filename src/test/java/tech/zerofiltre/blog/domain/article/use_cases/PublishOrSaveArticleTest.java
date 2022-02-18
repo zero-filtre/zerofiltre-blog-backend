@@ -98,8 +98,7 @@ class PublishOrSaveArticleTest {
         assertThat(publisher).isNotNull();
         assertThat(publisher.getRegisteredOn()).isEqualTo(mockUser.getRegisteredOn());
         assertThat(publisher.getId()).isEqualTo(mockUser.getId());
-        assertThat(publisher.getFirstName()).isEqualTo(mockUser.getFirstName());
-        assertThat(publisher.getLastName()).isEqualTo(mockUser.getLastName());
+        assertThat(publisher.getFullName()).isEqualTo(mockUser.getFullName());
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
 
@@ -127,8 +126,7 @@ class PublishOrSaveArticleTest {
                 articleReactions.stream().anyMatch(mockReaction ->
                         reaction.getId() == mockReaction.getId()
                                 && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFirstName().equals(mockReaction.getAuthor().getFirstName())
-                                && reaction.getAuthor().getLastName().equals(mockReaction.getAuthor().getLastName())
+                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
                                 && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
                                 && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
                                 && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())
@@ -168,7 +166,7 @@ class PublishOrSaveArticleTest {
     }
 
     @Test
-    @DisplayName("Must properly partially update the data on save")
+    @DisplayName("Must properly partially update the data on update")
     void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
@@ -213,8 +211,7 @@ class PublishOrSaveArticleTest {
         assertThat(publisher).isNotNull();
         assertThat(publisher.getRegisteredOn()).isEqualTo(mockUser.getRegisteredOn());
         assertThat(publisher.getId()).isEqualTo(mockUser.getId());
-        assertThat(publisher.getFirstName()).isEqualTo(mockUser.getFirstName());
-        assertThat(publisher.getLastName()).isEqualTo(mockUser.getLastName());
+        assertThat(publisher.getFullName()).isEqualTo(mockUser.getFullName());
         assertThat(publisher.getProfilePicture()).isEqualTo(mockUser.getProfilePicture());
         assertThat(publisher.getPseudoName()).isEqualTo(mockUser.getPseudoName());
 
@@ -251,8 +248,7 @@ class PublishOrSaveArticleTest {
                 articleReactions.stream().anyMatch(mockReaction ->
                         reaction.getId() == mockReaction.getId()
                                 && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFirstName().equals(mockReaction.getAuthor().getFirstName())
-                                && reaction.getAuthor().getLastName().equals(mockReaction.getAuthor().getLastName())
+                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
                                 && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
                                 && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
                                 && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())

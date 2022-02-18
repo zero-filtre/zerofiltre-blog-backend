@@ -22,7 +22,7 @@ public class SecurityContextManager {
             String userEmail = null;
         };
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             ref.userEmail = authentication.getName();
         }
         return userProvider.userOfEmail(ref.userEmail)

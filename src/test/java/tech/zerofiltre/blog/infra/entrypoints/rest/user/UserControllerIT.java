@@ -36,10 +36,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = UserController.class)
-@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationToken.class,
+@Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
-        InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationToken.class,
-        UserMailNotificationProvider.class, APIClientConfiguration.class, GithubAuthenticationToken.class})
+        InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
+        UserMailNotificationProvider.class, APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -77,6 +77,9 @@ class UserControllerIT {
     @MockBean
     ArticleProvider articleProvider;
 
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
@@ -91,7 +94,12 @@ class UserControllerIT {
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
-        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), TOKEN)));
+        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(t));
+        when(verificationTokenProvider.generate(any())).thenReturn(t);
+        when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
+        JwtToken jwtToken = new JwtToken(TOKEN, 864252546);
+        when(jwtTokenProvider.generate(any())).thenReturn(jwtToken);
 
 
     }
@@ -107,6 +115,7 @@ class UserControllerIT {
                 "hola@zerofiltre.fr"
         );
 
+
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -116,8 +125,11 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(header().exists(HttpHeaders.AUTHORIZATION))
-                .andExpect(jsonPath("$.firstName").value("firstName"));
+                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("refreshToken").exists())
+                .andExpect(jsonPath("accessTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("refreshTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("tokenType").exists());
 
 
     }
@@ -315,7 +327,12 @@ class UserControllerIT {
         //ASSERT
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(header().stringValues(HttpHeaders.AUTHORIZATION, "token " + TOKEN));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("refreshToken").exists())
+                .andExpect(jsonPath("accessTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("refreshTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("tokenType").exists());
     }
 
     @Test
@@ -419,6 +436,26 @@ class UserControllerIT {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].title").value("Des applications très évolutives alignées aux derniers standards."));
+    }
+
+    @Test
+    void onRefreshToken_ifRefreshingTokenValid_return200() throws Exception {
+        //ARRANGE
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/jwt/refreshToken")
+                .param("refreshToken", TOKEN);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("accessToken").exists())
+                .andExpect(jsonPath("refreshToken").exists())
+                .andExpect(jsonPath("accessTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("refreshTokenExpiryDateInSeconds").exists())
+                .andExpect(jsonPath("tokenType").exists());
+
     }
 
     public String asJsonString(final Object obj) throws JsonProcessingException {

@@ -18,6 +18,9 @@
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd_HH-mm-ss</maven.build.timestamp.format>
+        <skipTests>false</skipTests>
+        <skipUnitTests>${skipTests}</skipUnitTests>
+        <skipIntegrationTests>${skipTests}</skipIntegrationTests>
     </properties>
     <dependencies>
         <dependency>
@@ -203,6 +206,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <skipTests>${skipIntegrationTests}</skipTests>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

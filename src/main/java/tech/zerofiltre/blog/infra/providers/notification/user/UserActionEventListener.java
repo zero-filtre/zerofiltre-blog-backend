@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.context.*;
 import org.springframework.stereotype.*;
 import org.springframework.util.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
@@ -13,7 +14,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
 
     private final MessageSource messages;
     private final BlogEmailSender emailSender;
-    private final VerificationTokenManager tokenManager;
+    private final VerificationTokenProvider tokenProvider;
 
 
     @Override
@@ -23,7 +24,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
 
     private void handleEvent(UserActionApplicationEvent event) {
         User user = event.getUser();
-        String token = tokenManager.generateToken(user);
+        String token = tokenProvider.generate(user).getToken();
 
         boolean isPasswordResetAction = event.getAction().equals(Action.PASSWORD_RESET);
         String subjectCode = isPasswordResetAction ?
@@ -39,9 +40,8 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
         String recipientAddress = user.getEmail();
         String subject = messages.getMessage(subjectCode, null, event.getLocale());
         String url = event.getAppUrl() + pageUri + token;
-        String firstName = StringUtils.capitalize(user.getFirstName());
-        String lastName = user.getLastName().toUpperCase();
-        String message = messages.getMessage(messageCode, new Object[]{firstName, lastName}, event.getLocale());
+        String firstName = StringUtils.capitalize(user.getFullName());
+        String message = messages.getMessage(messageCode, new Object[]{firstName}, event.getLocale());
         String greetings = messages.getMessage("message.greetings", null, event.getLocale());
         String emailContent = message + "\r\n" + url + "\r\n" + greetings;
 

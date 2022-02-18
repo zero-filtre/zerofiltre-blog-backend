@@ -3,6 +3,8 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
+      springframework:
+        web: INFO
     tech:
       zerofiltre: DEBUG
 server:
@@ -44,7 +46,7 @@ zerofiltre:
   infra:
     security:
       jwt:
-        expiration: 1440 #minutes
+        expiration-seconds: 86400 #minutes
         secret: JwtSecretKey
         prefix: Bearer
         header: Authorization

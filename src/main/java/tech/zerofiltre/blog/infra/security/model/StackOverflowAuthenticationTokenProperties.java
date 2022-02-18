@@ -7,7 +7,7 @@ import org.springframework.stereotype.*;
 @Data
 @Component
 @EqualsAndHashCode(callSuper = true)
-public class StackOverflowAuthenticationToken extends AuthenticationToken {
+public class StackOverflowAuthenticationTokenProperties extends AuthenticationTokenProperties {
 
     @Value("${security.jwt.header:Authorization}")
     private String header;

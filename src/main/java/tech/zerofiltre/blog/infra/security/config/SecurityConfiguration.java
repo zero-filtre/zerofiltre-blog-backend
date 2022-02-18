@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.infra.security.config;
 import lombok.extern.slf4j.*;
 import org.springframework.context.annotation.*;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
@@ -23,25 +24,28 @@ import tech.zerofiltre.blog.infra.security.model.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-    private final JwtAuthenticationToken jwTokenConfiguration;
+    private final JwtAuthenticationTokenProperties jwTokenConfiguration;
     private final LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint;
     private final RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler;
     private final PasswordEncoder passwordEncoder;
-    private final StackOverflowAuthenticationToken stackOverflowTokenConfiguration;
-    private final GithubAuthenticationToken githubTokenConfiguration;
+    private final StackOverflowAuthenticationTokenProperties stackOverflowTokenConfiguration;
+    private final GithubAuthenticationTokenProperties githubTokenConfiguration;
     private final StackOverflowLoginProvider stackOverflowLoginProvider;
     private final GithubLoginProvider githubLoginProvider;
     private final UserProvider userProvider;
+    private final VerificationTokenProvider verificationTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final Jackson2ObjectMapperBuilder objectMapperBuilder;
 
     public SecurityConfiguration(
             UserDetailsService userDetailsService,
-            JwtAuthenticationToken jwTokenConfiguration,
+            JwtAuthenticationTokenProperties jwTokenConfiguration,
             LoginFirstAuthenticationEntryPoint loginFirstAuthenticationEntryPoint,
             RoleRequiredAccessDeniedHandler roleRequiredAccessDeniedHandler,
             PasswordEncoder passwordEncoder,
-            StackOverflowAuthenticationToken stackOverflowTokenConfiguration,
-            GithubAuthenticationToken githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
-            GithubLoginProvider githubLoginProvider, UserProvider userProvider) {
+            StackOverflowAuthenticationTokenProperties stackOverflowTokenConfiguration,
+            GithubAuthenticationTokenProperties githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
+            GithubLoginProvider githubLoginProvider, UserProvider userProvider, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder) {
 
         this.userDetailsService = userDetailsService;
         this.jwTokenConfiguration = jwTokenConfiguration;
@@ -53,6 +57,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.stackOverflowLoginProvider = stackOverflowLoginProvider;
         this.githubLoginProvider = githubLoginProvider;
         this.userProvider = userProvider;
+        this.verificationTokenProvider = verificationTokenProvider;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.objectMapperBuilder = objectMapperBuilder;
     }
 
     @Override
@@ -84,11 +91,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // What's the authenticationManager()?
                 // An object provided by WebSecurityConfigurerAdapter, used to authenticate the user passing user's credentials
                 // The filter needs this auth manager to authenticate the user.
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwTokenConfiguration))
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(
+                        authenticationManager(),
+                        jwTokenConfiguration,
+                        verificationTokenProvider,
+                        jwtTokenProvider,
+                        objectMapperBuilder,
+                        userProvider)
+
+                )
                 // Add a filter to validate the tokens with every request
-                .addFilterAfter(new JwtTokenAuthenticationFilter(jwTokenConfiguration), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new StackOverflowAuthenticationFilter(stackOverflowTokenConfiguration, stackOverflowLoginProvider, userProvider), JwtTokenAuthenticationFilter.class)
-                .addFilterAfter(new GithubAuthenticationFilter(githubTokenConfiguration, githubLoginProvider, userProvider), StackOverflowAuthenticationFilter.class)
+                .addFilterAfter(new JwtTokenAuthenticationCheckerFilter(jwTokenConfiguration), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, stackOverflowLoginProvider, userProvider), JwtTokenAuthenticationCheckerFilter.class)
+                .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, githubLoginProvider, userProvider), StackOverflowAuthenticationCheckerFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST,
@@ -106,6 +121,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/verifyTokenForPasswordReset",
                         "/tag/**",
                         "/user/profile/*",
+                        "/user/jwt/refreshToken",
                         "/user/github/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()

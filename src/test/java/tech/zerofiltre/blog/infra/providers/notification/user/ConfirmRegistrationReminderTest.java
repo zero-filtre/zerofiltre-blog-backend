@@ -42,7 +42,7 @@ class ConfirmRegistrationReminderTest {
     InfraProperties infraProperties;
 
     @MockBean
-    VerificationTokenManager verificationTokenManager;
+    VerificationTokenProvider tokenProvider;
 
 
     @BeforeEach
@@ -51,10 +51,11 @@ class ConfirmRegistrationReminderTest {
                 userProvider,
                 blogEmailSender,
                 messageSource,
-                verificationTokenManager,
+                tokenProvider,
                 infraProperties
         );
         when(infraProperties.getEnv()).thenReturn("dev");
+        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(new User(), "TOKEN"));
     }
 
     @Test
@@ -89,20 +90,17 @@ class ConfirmRegistrationReminderTest {
         User user = new User();
         user.setEmail(EMAIL_1);
         user.setLanguage("FR");
-        user.setLastName("lastname1");
-        user.setFirstName("firstname1");
+        user.setFullName("firstname1");
 
         User user1 = new User();
         user1.setEmail(EMAIL_2);
         user1.setLanguage("DE");
-        user1.setLastName("lastname2");
-        user1.setFirstName("firstname2");
+        user1.setFullName("firstname2");
 
         User user2 = new User();
         user2.setEmail(EMAIL_3);
         user2.setLanguage("EN");
-        user2.setLastName("lastname3");
-        user2.setFirstName("firstname3");
+        user2.setFullName("firstname3");
 
         List<User> users = Arrays.asList(user, user1, user2);
 

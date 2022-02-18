@@ -7,8 +7,7 @@ public class User {
     private long id;
     private String pseudoName;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String password;
     private LocalDateTime registeredOn = LocalDateTime.now();
     private String profilePicture;
@@ -40,20 +39,12 @@ public class User {
         this.pseudoName = pseudoName;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public LocalDateTime getRegisteredOn() {
@@ -166,5 +157,28 @@ public class User {
 
     public void setLoginFrom(SocialLink.Platform loginFrom) {
         this.loginFrom = loginFrom;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", pseudoName='" + pseudoName + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + fullName + '\'' +
+                ", password='" + password + '\'' +
+                ", registeredOn=" + registeredOn +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", profession='" + profession + '\'' +
+                ", bio='" + bio + '\'' +
+                ", language='" + language + '\'' +
+                ", socialLinks=" + socialLinks +
+                ", website='" + website + '\'' +
+                ", roles=" + roles +
+                ", isActive=" + isActive +
+                ", isLocked=" + isLocked +
+                ", isExpired=" + isExpired +
+                ", loginFrom=" + loginFrom +
+                '}';
     }
 }
