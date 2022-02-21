@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class, ReactionDatabaseProvider.class})
+@Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class, DBReactionProvider.class})
 class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";
@@ -58,12 +58,13 @@ class PublishOrSaveArticleIT {
                 .map(tagProvider::save)
                 .collect(Collectors.toList());
 
-        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(true, 1, user).stream()
-                .map(reactionProvider::create)
-                .collect(Collectors.toList());
 
-        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), reactions);
+        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
+
+        ZerofiltreUtils.createMockReactions(true, article.getId(), user)
+                .forEach(reactionProvider::save);
+
 
         LocalDateTime beforePublication = LocalDateTime.now();
 
@@ -114,8 +115,6 @@ class PublishOrSaveArticleIT {
         assertThat(publishedArticle.getTitle()).isEqualTo(NEW_TITLE);
 
         List<Tag> publishedArticleTags = publishedArticle.getTags();
-        List<Reaction> publishedArticleReactions = publishedArticle.getReactions();
-        List<Reaction> articleReactions = article.getReactions();
 
         assertThat(publishedArticleTags.size()).isEqualTo(newTags.size());
 
@@ -124,17 +123,6 @@ class PublishOrSaveArticleIT {
                         tag.getId() == mockTag.getId() &&
                                 tag.getName().equals(mockTag.getName())
                 )
-        )).isTrue();
-
-        assertThat(publishedArticleReactions.stream().anyMatch(reaction ->
-                articleReactions.stream().anyMatch(mockReaction ->
-                        reaction.getId() == mockReaction.getId()
-                                && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
-                                && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
-                                && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
-                                && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())
-                                && reaction.getAuthor().getId() == mockReaction.getAuthor().getId())
         )).isTrue();
 
         assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
@@ -150,12 +138,12 @@ class PublishOrSaveArticleIT {
                 .map(tagProvider::save)
                 .collect(Collectors.toList());
 
-        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(true, 1, user).stream()
-                .map(reactionProvider::create)
-                .collect(Collectors.toList());
-
-        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), reactions);
+        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
+
+        ZerofiltreUtils.createMockReactions(true, article.getId(), user)
+                .forEach(reactionProvider::save);
+
 
         LocalDateTime beforePublication = LocalDateTime.now();
 
@@ -189,8 +177,6 @@ class PublishOrSaveArticleIT {
         assertThat(savedArticle.getTitle()).isEqualTo(NEW_TITLE);
 
         List<Tag> publishedArticleTags = savedArticle.getTags();
-        List<Reaction> publishedArticleReactions = savedArticle.getReactions();
-        List<Reaction> articleReactions = article.getReactions();
 
         assertThat(publishedArticleTags.size()).isEqualTo(newTags.size());
 
@@ -199,17 +185,6 @@ class PublishOrSaveArticleIT {
                         tag.getId() == mockTag.getId() &&
                                 tag.getName().equals(mockTag.getName())
                 )
-        )).isTrue();
-
-        assertThat(publishedArticleReactions.stream().anyMatch(reaction ->
-                articleReactions.stream().anyMatch(mockReaction ->
-                        reaction.getId() == mockReaction.getId()
-                                && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
-                                && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
-                                && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
-                                && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())
-                                && reaction.getAuthor().getId() == mockReaction.getAuthor().getId())
         )).isTrue();
 
         assertThat(savedArticle.getStatus()).isEqualTo(DRAFT);

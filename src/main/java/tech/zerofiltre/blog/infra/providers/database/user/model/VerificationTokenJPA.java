@@ -6,14 +6,18 @@ import tech.zerofiltre.blog.infra.providers.database.*;
 import javax.persistence.*;
 import java.time.*;
 
-@Data
 @Entity
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, exclude = "user")
+@Table(name = "verification_token")
 public class VerificationTokenJPA extends BaseEntityJPA {
 
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     private UserJPA user;
 

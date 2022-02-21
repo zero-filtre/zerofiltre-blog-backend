@@ -14,7 +14,7 @@ import java.util.stream.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class ReactionDatabaseProvider implements ReactionProvider {
+public class DBReactionProvider implements ReactionProvider {
 
     private final ReactionJPARepository repository;
     private final ReactionJPAMapper mapper = Mappers.getMapper(ReactionJPAMapper.class);
@@ -35,7 +35,7 @@ public class ReactionDatabaseProvider implements ReactionProvider {
 
 
     @Override
-    public Reaction create(Reaction reaction) {
+    public Reaction save(Reaction reaction) {
         return mapper.fromJPA(repository.save(mapper.toJPA(reaction)));
     }
 }

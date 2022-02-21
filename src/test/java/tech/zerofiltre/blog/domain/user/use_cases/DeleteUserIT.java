@@ -39,7 +39,7 @@ class DeleteUserIT {
     void deleteUser_WithArticles_deactivatesHim() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
         User user = ZerofiltreUtils.createMockUser(false);
-        userProvider.save(user);
+        user = userProvider.save(user);
         Article draftArticle = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         articleProvider.save(draftArticle);
 

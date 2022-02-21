@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 
 @DataJpaTest
 @Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class,
-        ReactionDatabaseProvider.class
+        DBReactionProvider.class
 })
 class FindArticleIT {
 

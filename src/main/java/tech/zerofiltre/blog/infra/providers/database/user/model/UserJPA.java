@@ -8,10 +8,13 @@ import javax.persistence.*;
 import java.time.*;
 import java.util.*;
 
-@Data
 @Entity
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "user")
+@EqualsAndHashCode(callSuper = false)
 public class UserJPA extends BaseEntityJPA {
 
 
@@ -36,11 +39,10 @@ public class UserJPA extends BaseEntityJPA {
     @Column(nullable = false)
     private Set<String> roles;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<SocialLinkJPA> socialLinks;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    @JoinColumn(name = "verification_token_id")
     private VerificationTokenJPA verificationTokenJPA;
 
     private String website;

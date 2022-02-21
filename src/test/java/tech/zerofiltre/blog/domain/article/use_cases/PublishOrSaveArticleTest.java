@@ -126,11 +126,7 @@ class PublishOrSaveArticleTest {
                 articleReactions.stream().anyMatch(mockReaction ->
                         reaction.getId() == mockReaction.getId()
                                 && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
-                                && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
-                                && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
-                                && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())
-                                && reaction.getAuthor().getId() == mockReaction.getAuthor().getId())
+                                && reaction.getAuthorId() == mockReaction.getAuthorId())
         )).isTrue();
 
         assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
@@ -248,11 +244,7 @@ class PublishOrSaveArticleTest {
                 articleReactions.stream().anyMatch(mockReaction ->
                         reaction.getId() == mockReaction.getId()
                                 && reaction.getAction().equals(mockReaction.getAction())
-                                && reaction.getAuthor().getFullName().equals(mockReaction.getAuthor().getFullName())
-                                && reaction.getAuthor().getProfilePicture().equals(mockReaction.getAuthor().getProfilePicture())
-                                && reaction.getAuthor().getPseudoName().equals(mockReaction.getAuthor().getPseudoName())
-                                && reaction.getAuthor().getRegisteredOn().equals(mockReaction.getAuthor().getRegisteredOn())
-                                && reaction.getAuthor().getId() == mockReaction.getAuthor().getId())
+                                && reaction.getAuthorId() == mockReaction.getAuthorId())
         )).isTrue();
 
         assertThat(publishedArticle.getStatus()).isEqualTo(DRAFT);
