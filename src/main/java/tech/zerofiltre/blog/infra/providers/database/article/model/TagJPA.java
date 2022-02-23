@@ -6,10 +6,13 @@ import tech.zerofiltre.blog.infra.providers.database.*;
 import javax.persistence.*;
 import java.util.*;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tag")
+@EqualsAndHashCode(callSuper = true,exclude = "articles")
 public class TagJPA extends BaseEntityJPA {
 
     @ManyToMany(mappedBy = "tags")

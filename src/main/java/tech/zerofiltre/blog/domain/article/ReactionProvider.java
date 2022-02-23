@@ -10,5 +10,5 @@ public interface ReactionProvider {
 
     List<Reaction> reactions();
 
-    Reaction create(Reaction reaction);
+    Reaction save(Reaction reaction);
 }

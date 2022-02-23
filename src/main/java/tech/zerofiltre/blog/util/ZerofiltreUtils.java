@@ -25,7 +25,6 @@ public class ZerofiltreUtils {
 
     public static Article createMockArticle(User user, List<Tag> tags, List<Reaction> reactions) {
         Article mockArticle = new Article();
-        mockArticle.setId(1);
         mockArticle.setCreatedAt(LocalDateTime.now());
         String content = "<div class=\"our-service__box\">\n" +
                 "          <div class=\"our-service__text\">\n" +
@@ -84,7 +83,6 @@ public class ZerofiltreUtils {
 
     public static User createMockUser(boolean isAdmin) {
         User user = new User();
-        user.setId(1);
         user.setEmail("ola.eloundou@zerofiltre.tech");
         user.setFullName("Philippe GUEMKAM SIMO");
         user.setPseudoName("imphilippesimo");
@@ -144,7 +142,7 @@ public class ZerofiltreUtils {
         List<Reaction> result = Arrays.asList(clap, like, love, fire, fire2);
         result.forEach(reaction -> {
             reaction.setArticleId(articleId);
-            reaction.setAuthor(author);
+            reaction.setAuthorId(author.getId());
         });
         return result;
 

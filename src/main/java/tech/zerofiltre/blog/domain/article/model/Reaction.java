@@ -1,13 +1,11 @@
 package tech.zerofiltre.blog.domain.article.model;
 
 
-import tech.zerofiltre.blog.domain.user.model.*;
-
 public class Reaction {
 
     private long id;
     private Action action;
-    private User author;
+    private long authorId;
     private long articleId;
 
     public long getId() {
@@ -26,12 +24,12 @@ public class Reaction {
         this.action = action;
     }
 
-    public User getAuthor() {
-        return author;
+    public long getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setAuthorId(long authorId) {
+        this.authorId = authorId;
     }
 
     public long getArticleId() {

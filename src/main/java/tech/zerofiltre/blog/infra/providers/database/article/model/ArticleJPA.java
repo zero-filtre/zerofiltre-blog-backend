@@ -10,10 +10,12 @@ import javax.persistence.*;
 import java.time.*;
 import java.util.*;
 
-@Data
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "article")
-@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArticleJPA extends BaseEntityJPA {
 
@@ -31,7 +33,7 @@ public class ArticleJPA extends BaseEntityJPA {
     private LocalDateTime lastSavedAt;
 
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "article")
     private Set<ReactionJPA> reactions;
 
     private Status status;

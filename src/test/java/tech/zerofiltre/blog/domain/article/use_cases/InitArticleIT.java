@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class, ReactionDatabaseProvider.class})
+@Import({DBArticleProvider.class, TagDatabaseProvider.class, DBUserProvider.class, DBReactionProvider.class})
 class InitArticleIT {
 
     public static final String TITLE = "Title";
