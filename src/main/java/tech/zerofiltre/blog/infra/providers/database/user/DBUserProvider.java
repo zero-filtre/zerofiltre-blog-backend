@@ -56,6 +56,7 @@ public class DBUserProvider implements UserProvider {
     public void deleteUser(User user) {
         UserJPA userJPA = mapper.toJPA(user);
         userJPA.setVerificationTokenJPA(null);
+        userJPA.setSocialLinks(null);
         repository.delete(userJPA);
     }
 }

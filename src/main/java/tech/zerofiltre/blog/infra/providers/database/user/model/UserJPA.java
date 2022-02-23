@@ -39,7 +39,7 @@ public class UserJPA extends BaseEntityJPA {
     @Column(nullable = false)
     private Set<String> roles;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private Set<SocialLinkJPA> socialLinks;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
@@ -60,7 +60,8 @@ public class UserJPA extends BaseEntityJPA {
 
     public void setSocialLinks(Set<SocialLinkJPA> socialLinks) {
         this.socialLinks = new HashSet<>();
-        socialLinks.forEach(this::addSocialLink);
+        if (socialLinks != null)
+            socialLinks.forEach(this::addSocialLink);
     }
 
 }
