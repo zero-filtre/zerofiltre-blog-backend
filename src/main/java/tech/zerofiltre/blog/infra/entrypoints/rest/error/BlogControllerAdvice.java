@@ -79,14 +79,14 @@ public class BlogControllerAdvice {
     public ResponseEntity<BlogError> handleException(ResourceAlreadyExistException exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,
-                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                Integer.toString(HttpStatus.FORBIDDEN.value()),
                 "ZBLOG_005",
                 messageSource.getMessage("ZBLOG_005", new Object[]{exception.getUniqueIdentifier()}, locale),
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.debug(FULL_EXCEPTION, exception);
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
