@@ -47,4 +47,20 @@ public class UserJPA extends BaseEntityJPA {
 
     private String website;
 
+    public void addSocialLink(SocialLinkJPA socialLinkJPA) {
+        socialLinks.add(socialLinkJPA);
+        socialLinkJPA.setUser(this);
+    }
+
+    public void removeSocialLink(SocialLinkJPA socialLinkJPA) {
+        socialLinkJPA.setUser(null);
+        this.socialLinks.remove(socialLinkJPA);
+
+    }
+
+    public void setSocialLinks(Set<SocialLinkJPA> socialLinks) {
+        this.socialLinks = new HashSet<>();
+        socialLinks.forEach(this::addSocialLink);
+    }
+
 }
