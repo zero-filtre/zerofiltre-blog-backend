@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.article;
 
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -11,7 +12,7 @@ public interface ArticleProvider {
 
     Article save(Article article);
 
-    List<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId);
+    Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId);
 
     List<Article> articlesOf(User user);
 }

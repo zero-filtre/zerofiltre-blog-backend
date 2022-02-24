@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.infra.security.config.*;
 import javax.validation.constraints.*;
 
 @Data
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @PasswordMatches

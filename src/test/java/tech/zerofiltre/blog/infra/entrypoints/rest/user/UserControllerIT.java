@@ -11,6 +11,7 @@ import org.springframework.http.converter.json.*;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -417,7 +418,8 @@ class UserControllerIT {
 
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(Collections.singletonList(mockArticle));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(
+                new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false));
 
         User user = new User();
         user.setBio(NEW_BIO);
@@ -435,7 +437,7 @@ class UserControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title").value("Des applications très évolutives alignées aux derniers standards."));
+                .andExpect(jsonPath("$.content[0].title").value("Des applications très évolutives alignées aux derniers standards."));
     }
 
     @Test

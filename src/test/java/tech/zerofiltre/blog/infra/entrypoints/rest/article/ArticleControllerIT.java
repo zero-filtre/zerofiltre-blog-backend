@@ -11,6 +11,7 @@ import org.springframework.http.converter.json.*;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -92,7 +93,9 @@ class ArticleControllerIT {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(Collections.singletonList(mockArticle));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(
+                new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false)
+        );
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle));
         when(reactionProvider.reactionOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle.getReactions().get(0)));
 
@@ -266,7 +269,7 @@ class ArticleControllerIT {
         mockMvc.perform(request)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title").value(TITLE));
+                .andExpect(jsonPath("$.content[0].title").value(TITLE));
 
     }
 

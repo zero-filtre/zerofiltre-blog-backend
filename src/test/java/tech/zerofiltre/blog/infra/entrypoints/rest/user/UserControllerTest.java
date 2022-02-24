@@ -8,6 +8,7 @@ import org.springframework.context.*;
 import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
+import org.springframework.test.util.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -39,6 +40,9 @@ class UserControllerTest {
     public static final String WEBSITE = "website";
     @MockBean
     MessageSource sources;
+
+    @Mock
+    RetrieveSocialToken retrieveSocialToken;
 
     @MockBean
     PasswordEncoder passwordEncoder;
@@ -90,11 +94,12 @@ class UserControllerTest {
 
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws ResourceNotFoundException {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
                 jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, jwtTokenProvider);
+
         when(infraProperties.getEnv()).thenReturn("dev");
     }
 
@@ -239,6 +244,25 @@ class UserControllerTest {
         assertThatExceptionOfType(UserNotFoundException.class)
                 .isThrownBy(() -> userController.getUserProfile(23));
 
+
+    }
+
+    @Test
+    void retrieveSocialToken_constructTheToken() throws ResourceNotFoundException {
+        //ARRANGE
+        ReflectionTestUtils.setField(userController, "retrieveSocialToken", retrieveSocialToken);
+        when(retrieveSocialToken.execute(any())).thenReturn(TOKEN);
+
+        //ACT
+       Token token = userController.getGithubToken("code");
+       assertThat(token.getTokenType()).isEqualTo("token");
+       assertThat(token.getAccessToken()).isEqualTo(TOKEN);
+       assertThat(token.getRefreshToken()).isEmpty();
+       assertThat(token.getAccessTokenExpiryDateInSeconds()).isZero();
+       assertThat(token.getRefreshTokenExpiryDateInSeconds()).isZero();
+
+        //ASSERT
+        verify(retrieveSocialToken, times(1)).execute("code");
 
     }
 }

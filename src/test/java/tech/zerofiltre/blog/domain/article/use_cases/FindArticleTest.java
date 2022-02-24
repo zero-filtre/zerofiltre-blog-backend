@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -23,6 +24,8 @@ class FindArticleTest {
     private ArticleProvider articleProvider;
 
     FindArticle findArticle;
+    private int numberOfElements = 1;
+    private int totalNumberOfPages = 4;
 
     @BeforeEach
     void setUp() {
@@ -65,15 +68,17 @@ class FindArticleTest {
         published.setStatus(PUBLISHED);
 
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(Collections.singletonList(published));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(
+                new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
+        );
 
         //ACT
-        List<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
+        Page<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
 
         //ASSERT
         verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0);
         assertThat(articles).isNotNull();
-        articles.forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
+        articles.getContent().forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
     }
 
     @Test
@@ -92,8 +97,9 @@ class FindArticleTest {
     void mustReturnAnArticle() throws ForbiddenActionException {
         //ARRANGE
         Article published = new Article();
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong()))
-                .thenReturn(Collections.singletonList(published));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(
+                new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
+        );
 
         User user = new User();
         user.setId(24);
@@ -115,17 +121,19 @@ class FindArticleTest {
         Article drafted = new Article();
         drafted.setStatus(DRAFT);
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong())).thenReturn(Collections.singletonList(drafted));
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong())).thenReturn(
+                new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(drafted), true, false)
+        );
 
         //ACT
         FindArticleRequest request = new FindArticleRequest(0, 3, DRAFT, new User());
         request.setYours(true);
-        List<Article> articles = findArticle.of(request);
+        Page<Article> articles = findArticle.of(request);
 
         //ASSERT
         verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0);
         assertThat(articles).isNotNull();
-        articles.forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
+        articles.getContent().forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
     }
 
     @Test

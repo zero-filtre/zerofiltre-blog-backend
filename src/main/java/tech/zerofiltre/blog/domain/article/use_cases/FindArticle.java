@@ -6,8 +6,6 @@ import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-import java.util.*;
-
 public class FindArticle {
 
     private final ArticleProvider articleProvider;
@@ -21,7 +19,7 @@ public class FindArticle {
                 .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id), Domains.ARTICLE.name()));
     }
 
-    public List<Article> of(FindArticleRequest request) throws ForbiddenActionException {
+    public Page<Article> of(FindArticleRequest request) throws ForbiddenActionException {
         User user = request.getUser();
         if (!Status.PUBLISHED.equals(request.getStatus())
                 && (user == null || !user.getRoles().contains("ROLE_ADMIN"))

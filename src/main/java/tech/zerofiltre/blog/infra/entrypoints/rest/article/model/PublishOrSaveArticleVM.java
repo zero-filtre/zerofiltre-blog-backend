@@ -7,6 +7,7 @@ import javax.validation.constraints.*;
 import java.util.*;
 
 @Data
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class PublishOrSaveArticleVM {

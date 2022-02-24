@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.database.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
@@ -21,6 +22,7 @@ public class DBArticleProvider implements ArticleProvider {
 
     private final ArticleJPARepository repository;
     private final ArticleJPAMapper mapper = Mappers.getMapper(ArticleJPAMapper.class);
+    private final SpringPageMapper<Article> pageMapper = new SpringPageMapper<>();
 
 
     @Override
@@ -37,15 +39,14 @@ public class DBArticleProvider implements ArticleProvider {
     }
 
     @Override
-    public List<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId) {
+    public tech.zerofiltre.blog.domain.Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId) {
         Page<ArticleJPA> page;
         if (authorId == 0)
             page = repository.findByStatus(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id"), status);
         else
             page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id"), status, authorId);
 
-        return page.map(mapper::fromJPA)
-                .getContent();
+        return pageMapper.fromSpringPage(page.map(mapper::fromJPA));
     }
 
     @Override
