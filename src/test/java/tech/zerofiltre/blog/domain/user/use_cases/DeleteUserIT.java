@@ -52,4 +52,18 @@ class DeleteUserIT {
 
 
     }
+
+    @Test
+    @DisplayName("Deleting a user that do not have articles deletes it from the DB")
+    void deleteUser_WithNoArticles() throws ForbiddenActionException, ResourceNotFoundException {
+        //ARRANGE
+        User user = ZerofiltreUtils.createMockUser(false);
+        user = userProvider.save(user);
+        //ACT
+        deleteUser.execute(user, user.getId());
+
+        Optional<User> updatedUser = userProvider.userOfId(user.getId());
+        assertThat(updatedUser).isEmpty();
+
+    }
 }
