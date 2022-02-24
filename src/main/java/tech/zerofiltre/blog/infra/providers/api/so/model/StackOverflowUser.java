@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 
 @Data
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StackOverflowUser {
 

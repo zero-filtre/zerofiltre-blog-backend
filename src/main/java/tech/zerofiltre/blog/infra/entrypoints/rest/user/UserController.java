@@ -6,6 +6,7 @@ import org.springframework.context.*;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
@@ -109,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/user/articles")
-    public List<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws UserNotFoundException, ForbiddenActionException {
+    public Page<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws UserNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         status = status.toUpperCase();
         FindArticleRequest request = new FindArticleRequest();

@@ -117,6 +117,15 @@ public class Article {
         this.createdAt = createdAt;
     }
 
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -130,11 +139,22 @@ public class Article {
         return Objects.hash(getId(), getTitle(), getThumbnail(), getContent(), getAuthor(), getCreatedAt(), getPublishedAt(), getLastPublishedAt(), getLastSavedAt(), getReactions(), getStatus(), getTags());
     }
 
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
+    @Override
+    public String toString() {
+        return "Article{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", content='" + content + '\'' +
+                ", author=" + author +
+                ", createdAt=" + createdAt +
+                ", publishedAt=" + publishedAt +
+                ", lastPublishedAt=" + lastPublishedAt +
+                ", lastSavedAt=" + lastSavedAt +
+                ", reactions=" + reactions +
+                ", status=" + status +
+                ", tags=" + tags +
+                ", summary='" + summary + '\'' +
+                '}';
     }
 }

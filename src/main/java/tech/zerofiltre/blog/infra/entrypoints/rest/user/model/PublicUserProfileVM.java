@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import java.util.*;
 
 @Data
+@ToString
 public class PublicUserProfileVM {
 
     private String fullName;

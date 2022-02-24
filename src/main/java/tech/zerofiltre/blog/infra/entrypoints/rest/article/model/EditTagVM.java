@@ -5,6 +5,7 @@ import lombok.*;
 import javax.validation.constraints.*;
 
 @Data
+@ToString
 public class EditTagVM {
 
     private long id;

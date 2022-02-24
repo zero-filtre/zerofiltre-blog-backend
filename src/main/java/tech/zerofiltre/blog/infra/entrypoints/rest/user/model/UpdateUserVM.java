@@ -7,6 +7,7 @@ import javax.validation.constraints.*;
 import java.util.*;
 
 @Data
+@ToString
 public class UpdateUserVM {
 
     @Min(value = 1, message = "The id must be greater or equal than one")

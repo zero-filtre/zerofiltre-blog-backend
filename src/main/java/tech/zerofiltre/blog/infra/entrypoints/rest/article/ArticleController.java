@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
@@ -12,7 +13,6 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 
 import javax.validation.*;
 import javax.validation.constraints.*;
-import java.util.*;
 
 @Slf4j
 @RestController
@@ -38,7 +38,7 @@ public class ArticleController {
     }
 
     @GetMapping
-    public List<Article> articles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
+    public Page<Article> articles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();

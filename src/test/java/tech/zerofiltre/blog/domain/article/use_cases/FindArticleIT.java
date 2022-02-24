@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -87,32 +88,32 @@ class FindArticleIT {
 
 
         //ACT
-        List<Article> firstPageWithTwoInReview = findArticle.of(new FindArticleRequest(0, 2, Status.IN_REVIEW, user));
-        List<Article> firstPageWith2Published = findArticle.of(new FindArticleRequest(0, 2, Status.PUBLISHED, user));
+        Page<Article> firstPageWithTwoInReview = findArticle.of(new FindArticleRequest(0, 2, Status.IN_REVIEW, user));
+        Page<Article> firstPageWith2Published = findArticle.of(new FindArticleRequest(0, 2, Status.PUBLISHED, user));
         FindArticleRequest draftRequest = new FindArticleRequest(0, 2, Status.DRAFT, user);
-        List<Article> firstPageWith2Drafts = findArticle.of(draftRequest);
+        Page<Article> firstPageWith2Drafts = findArticle.of(draftRequest);
         draftRequest.setYours(true);
-        List<Article> firstPageWithYour2Drafts = findArticle.of(draftRequest);
-        List<Article> thirdPageWithThreePublished = findArticle.of(new FindArticleRequest(2, 3, Status.PUBLISHED, user));
+        Page<Article> firstPageWithYour2Drafts = findArticle.of(draftRequest);
+        Page<Article> thirdPageWithThreePublished = findArticle.of(new FindArticleRequest(2, 3, Status.PUBLISHED, user));
 
         //ASSERT
-        assertThat(firstPageWithTwoInReview).hasSize(2);
-        assertThat(firstPageWithTwoInReview.get(0).getTitle()).isEqualTo(UX_DESIGN);
-        assertThat(firstPageWithTwoInReview.get(1).getTitle()).isEqualTo(UI_DESIGN);
+        assertThat(firstPageWithTwoInReview.getContent()).hasSize(2);
+        assertThat(firstPageWithTwoInReview.getContent().get(0).getTitle()).isEqualTo(UX_DESIGN);
+        assertThat(firstPageWithTwoInReview.getContent().get(1).getTitle()).isEqualTo(UI_DESIGN);
 
-        assertThat(firstPageWith2Published).hasSize(2);
-        assertThat(firstPageWith2Published.get(0).getTitle()).isEqualTo(TDD);
-        assertThat(firstPageWith2Published.get(1).getTitle()).isEqualTo(DDD);
+        assertThat(firstPageWith2Published.getContent()).hasSize(2);
+        assertThat(firstPageWith2Published.getContent().get(0).getTitle()).isEqualTo(TDD);
+        assertThat(firstPageWith2Published.getContent().get(1).getTitle()).isEqualTo(DDD);
 
-        assertThat(firstPageWith2Drafts).hasSize(2);
-        assertThat(firstPageWith2Drafts.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
-        assertThat(firstPageWith2Drafts.get(1).getTitle()).isEqualTo(CLEAN_CODE);
+        assertThat(firstPageWith2Drafts.getContent()).hasSize(2);
+        assertThat(firstPageWith2Drafts.getContent().get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
+        assertThat(firstPageWith2Drafts.getContent().get(1).getTitle()).isEqualTo(CLEAN_CODE);
 
-        assertThat(firstPageWithYour2Drafts).hasSize(2);
-        assertThat(firstPageWithYour2Drafts.get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
-        assertThat(firstPageWithYour2Drafts.get(1).getTitle()).isEqualTo(CLEAN_CODE);
+        assertThat(firstPageWithYour2Drafts.getContent()).hasSize(2);
+        assertThat(firstPageWithYour2Drafts.getContent().get(0).getTitle()).isEqualTo(HEXAGONAL_ARCHITECTURE);
+        assertThat(firstPageWithYour2Drafts.getContent().get(1).getTitle()).isEqualTo(CLEAN_CODE);
 
-        assertThat(thirdPageWithThreePublished).isEmpty();
+        assertThat(thirdPageWithThreePublished.getContent()).isEmpty();
 
 
     }
