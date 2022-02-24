@@ -68,7 +68,7 @@ class FindArticleTest {
         published.setStatus(PUBLISHED);
 
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), true, "tag")).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
         );
 
@@ -76,7 +76,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, true, "tag");
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
     }
@@ -97,7 +97,7 @@ class FindArticleTest {
     void mustReturnAnArticle() throws ForbiddenActionException {
         //ARRANGE
         Article published = new Article();
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), true, "tag")).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
         );
 
@@ -109,7 +109,7 @@ class FindArticleTest {
 
         //ASSERT
         //call with authorId = 0
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, true, "tag");
 
 
     }
@@ -121,7 +121,7 @@ class FindArticleTest {
         Article drafted = new Article();
         drafted.setStatus(DRAFT);
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong(), true, "tag")).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(drafted), true, false)
         );
 
@@ -131,7 +131,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(request);
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0);
+        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0, true, "tag");
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
     }
@@ -144,6 +144,23 @@ class FindArticleTest {
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class).
                 isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, IN_REVIEW, new User())));
+
+    }
+
+    @Test
+    void mustCallArticleProvider_WithCorrectParams() throws ForbiddenActionException {
+        //ARRANGE
+
+
+        FindArticleRequest request = new FindArticleRequest(0,3,PUBLISHED,new User());
+        request.setByPopularity(true);
+        request.setTag("tag");
+
+        findArticle.of(request);
+
+        //ASSERT
+        verify(articleProvider,times(1))
+                .articlesOf(0,3,PUBLISHED,0,true,"tag");
 
     }
 }

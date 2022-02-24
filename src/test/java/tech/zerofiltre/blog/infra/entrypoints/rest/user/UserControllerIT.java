@@ -418,7 +418,7 @@ class UserControllerIT {
 
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), true, "tag")).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false));
 
         User user = new User();

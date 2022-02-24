@@ -110,4 +110,9 @@ class AddReactionTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> addReaction.execute(reaction));
     }
+
+    @Test
+    void canNotReactOnAnUnpublishedArticle(){
+        assertThat(false).isTrue();
+    }
 }

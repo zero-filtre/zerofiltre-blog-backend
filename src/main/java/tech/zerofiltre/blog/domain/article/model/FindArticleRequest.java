@@ -6,13 +6,15 @@ public class FindArticleRequest {
     private int pageNumber;
     private int pageSize;
     private Status status;
+    private String tag;
     private User user;
+    private boolean byPopularity;
     private boolean yours;
 
     public FindArticleRequest() {
     }
 
-    public FindArticleRequest(int pageNumber, int pageSize, Status status,User user) {
+    public FindArticleRequest(int pageNumber, int pageSize, Status status, User user) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.status = status;
@@ -57,5 +59,21 @@ public class FindArticleRequest {
 
     public void setYours(boolean yours) {
         this.yours = yours;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public boolean isByPopularity() {
+        return byPopularity;
+    }
+
+    public void setByPopularity(boolean byPopularity) {
+        this.byPopularity = byPopularity;
     }
 }

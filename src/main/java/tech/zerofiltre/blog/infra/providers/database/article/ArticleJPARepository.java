@@ -13,4 +13,7 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
     Page<ArticleJPA> findByStatusAndAuthorId(Pageable pageable, Status status, long authorId);
 
     List<ArticleJPA> findByAuthorId(long userId);
+
+    @Query("select a from ArticleJPA a WHERE a.status=?1 ORDER BY a.reactions.size desc ")
+    Page<ArticleJPA> findByReactionsDesc(Pageable pageable, Status status);
 }

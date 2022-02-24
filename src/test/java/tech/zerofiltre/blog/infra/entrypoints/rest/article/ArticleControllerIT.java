@@ -93,7 +93,7 @@ class ArticleControllerIT {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), true, "tag")).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false)
         );
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle));

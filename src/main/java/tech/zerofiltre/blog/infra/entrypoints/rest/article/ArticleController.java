@@ -38,7 +38,13 @@ public class ArticleController {
     }
 
     @GetMapping
-    public Page<Article> articles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws ForbiddenActionException {
+    public Page<Article> articles(
+            @RequestParam int pageNumber,
+            @RequestParam int pageSize,
+            @RequestParam String status,
+            @RequestParam boolean byPopularity,
+            @RequestParam String tag
+    ) throws ForbiddenActionException {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
@@ -52,6 +58,8 @@ public class ArticleController {
         request.setPageSize(pageSize);
         request.setStatus(Status.valueOf(status));
         request.setUser(user);
+        request.setTag(tag);
+        request.setByPopularity(byPopularity);
         return findArticle.of(request);
     }
 

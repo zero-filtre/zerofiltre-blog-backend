@@ -28,7 +28,7 @@ public class FindArticle {
                     "Please request with status=published or try /user/* API resources", Domains.ARTICLE.name());
         }
         long authorId = request.isYours() ? request.getUser().getId() : 0;
-        return articleProvider.articlesOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId);
+        return articleProvider.articlesOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.isByPopularity(), request.getTag());
 
     }
 }
