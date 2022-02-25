@@ -16,7 +16,7 @@ public class Article {
     private LocalDateTime lastPublishedAt;
     private LocalDateTime lastSavedAt;
     private List<Reaction> reactions = new ArrayList<>();
-    private Status status;
+    private Status status = Status.DRAFT;
     private List<Tag> tags = new ArrayList<>();
     private String summary;
 

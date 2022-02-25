@@ -45,6 +45,7 @@ class AddReactionIT {
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
         Article article = ZerofiltreUtils.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
+        article.setStatus(Status.PUBLISHED);
         article = articleProvider.save(article);
 
         Reaction reaction = new Reaction();
@@ -77,6 +78,7 @@ class AddReactionIT {
 
         Article article = ZerofiltreUtils.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
+        article.setStatus(Status.PUBLISHED);
         long articleId = article.getId();
 
         Reaction previousReaction = new Reaction();

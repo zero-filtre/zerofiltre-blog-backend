@@ -42,8 +42,8 @@ public class ArticleController {
             @RequestParam int pageNumber,
             @RequestParam int pageSize,
             @RequestParam String status,
-            @RequestParam boolean byPopularity,
-            @RequestParam String tag
+            @RequestParam(required = false) boolean byPopularity,
+            @RequestParam(required = false) String tag
     ) throws ForbiddenActionException {
         User user = null;
         try {

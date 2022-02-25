@@ -66,11 +66,13 @@ class ReactionControllerIT {
 
     @Test
     @WithMockUser
-    void addArticle_returns201Created_onValidInput() throws Exception {
+    void addArticle_returns200_onValidInput() throws Exception {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(new Article()));
+        Article article = new Article();
+        article.setStatus(Status.PUBLISHED);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(article));
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/reaction")

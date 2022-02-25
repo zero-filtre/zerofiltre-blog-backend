@@ -41,13 +41,23 @@ public class DBArticleProvider implements ArticleProvider {
     @Override
     public tech.zerofiltre.blog.domain.Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, boolean byPopularity, String tag) {
         Page<ArticleJPA> page;
-        if (authorId == 0 && byPopularity)
-            page = repository.findByReactionsDesc(PageRequest.of(pageNumber, pageSize),status);
-        else if (authorId == 0)
-            page = repository.findByStatus(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id"), status);
-        else
-            page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "id"), status, authorId);
 
+        final var publishedAtPropertyName = "publishedAt";
+        if (authorId == 0) {
+            if (tag != null)
+                page = repository.findByStatusAndTagsName(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, tag);
+            else if (byPopularity)
+                page = repository.findByReactionsDesc(PageRequest.of(pageNumber, pageSize), status);
+            else
+                page = repository.findByStatus(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status);
+        } else {
+            if (tag != null)
+                page = repository.findByStatusAndAuthorIdAndTagsName(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId, tag);
+            else if (byPopularity)
+                page = repository.findByReactionsAndAuthorIdDesc(PageRequest.of(pageNumber, pageSize), status, authorId);
+            else
+                page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId);
+        }
         return pageMapper.fromSpringPage(page.map(mapper::fromJPA));
     }
 

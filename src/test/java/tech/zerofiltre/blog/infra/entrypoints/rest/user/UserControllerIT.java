@@ -418,7 +418,7 @@ class UserControllerIT {
 
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), true, "tag")).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), anyBoolean(), anyString())).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false));
 
         User user = new User();
@@ -430,7 +430,10 @@ class UserControllerIT {
         RequestBuilder request = MockMvcRequestBuilders.get("/user/articles")
                 .param("pageNumber", "2")
                 .param("pageSize", "3")
-                .param("status", "DRAFT");
+                .param("status", "DRAFT")
+                .param("byPopularity", "false")
+                .param("tag", "");
+
 
 
         //ASSERT

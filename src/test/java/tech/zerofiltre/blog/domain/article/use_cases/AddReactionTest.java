@@ -36,6 +36,7 @@ class AddReactionTest {
         User currentUser = ZerofiltreUtils.createMockUser(false);
         currentUser.setId(2);
         Article mockArticle = ZerofiltreUtils.createMockArticle(null, new ArrayList<>(), new ArrayList<>());
+        mockArticle.setStatus(Status.PUBLISHED);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         Reaction reaction = new Reaction();
         reaction.setAuthorId(currentUser.getId());
@@ -112,7 +113,17 @@ class AddReactionTest {
     }
 
     @Test
-    void canNotReactOnAnUnpublishedArticle(){
-        assertThat(false).isTrue();
+    void canNotReactOnAnUnpublishedArticle() {
+        //ARRANGE
+
+        Article article = new Article();
+        article.setStatus(Status.DRAFT);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(article));
+
+        Reaction reaction = new Reaction();
+
+        //ACT && ASSERT
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> addReaction.execute(reaction));
     }
 }
