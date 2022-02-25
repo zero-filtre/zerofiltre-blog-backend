@@ -53,6 +53,7 @@ class PublishOrSaveArticleTest {
         //ARRANGE
 
         Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
 
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
@@ -307,6 +308,23 @@ class PublishOrSaveArticleTest {
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
                 .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), PUBLISHED));
+    }
+
+    @Test
+    @DisplayName("Author but non admin can only submit to validation")
+    void execute_PutInReview_OnAuthorButNotAdmin() throws ForbiddenActionException, PublishOrSaveArticleException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
+        when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(newTag));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        //ACT
+        Article submittedArticle = publishOrSaveArticle.execute(
+                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED);
+
+        assertThat(submittedArticle).isNotNull();
+        assertThat(submittedArticle.getStatus()).isEqualTo(IN_REVIEW);
     }
 
 }
