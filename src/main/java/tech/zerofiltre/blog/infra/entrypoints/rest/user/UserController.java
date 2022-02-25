@@ -110,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/user/articles")
-    public Page<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status) throws UserNotFoundException, ForbiddenActionException {
+    public Page<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status, @RequestParam(required = false) boolean byPopularity, @RequestParam(required = false) String tag) throws UserNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         status = status.toUpperCase();
         FindArticleRequest request = new FindArticleRequest();
@@ -118,6 +118,8 @@ public class UserController {
         request.setPageSize(pageSize);
         request.setStatus(Status.valueOf(status));
         request.setUser(user);
+        request.setByPopularity(byPopularity);
+        request.setTag(tag);
         request.setYours(true);
         return findArticle.of(request);
     }

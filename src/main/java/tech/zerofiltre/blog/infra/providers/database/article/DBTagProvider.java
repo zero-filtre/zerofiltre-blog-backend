@@ -14,7 +14,7 @@ import java.util.stream.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class TagDatabaseProvider implements TagProvider {
+public class DBTagProvider implements TagProvider {
 
     private final TagJPARepository repository;
     private final TagJPAMapper mapper = Mappers.getMapper(TagJPAMapper.class);

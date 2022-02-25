@@ -24,6 +24,8 @@ public class AddReaction {
                         "We couldn't find the article you are trying to react on",
                         String.valueOf(articleId),
                         Domains.ARTICLE.name()));
+        if (article.getStatus().compareTo(Status.PUBLISHED) < 0)
+            throw new ForbiddenActionException("You can not react on an unpublished article", Domains.ARTICLE.name());
 
         List<Reaction> reactions = article.getReactions();
         long currentUserReactionsCount = reactions.stream()
