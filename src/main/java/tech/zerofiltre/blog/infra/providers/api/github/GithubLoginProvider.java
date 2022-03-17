@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.infra.providers.api.github;
 
 import lombok.extern.slf4j.*;
+import org.springframework.cache.annotation.*;
 import org.springframework.http.*;
 import org.springframework.retry.support.*;
 import org.springframework.stereotype.*;
@@ -34,6 +35,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
     }
 
     @Override
+    @Cacheable(value = "github-token-validity", key = "#token")
     public boolean isValid(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
@@ -54,9 +56,11 @@ public class GithubLoginProvider implements SocialLoginProvider {
     }
 
     @Override
+    @Cacheable(value = "github-user", key = "#token")
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
+                log.info("Trying to get github user info from opaque token");
                 String finalUrl = apiUrl + "user";
                 HttpEntity requestEntity = new HttpEntity(new GithubAPIHeadersBuilder()
                         .withOAuth("token", token)

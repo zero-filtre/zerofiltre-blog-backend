@@ -1,9 +1,10 @@
 package tech.zerofiltre.blog.domain.user.model;
 
+import java.io.*;
 import java.time.*;
 import java.util.*;
 
-public class User {
+public class User implements Serializable {
     private long id;
     private String pseudoName;
     private String email;

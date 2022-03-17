@@ -24,9 +24,9 @@ public class SecurityContextManager {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             ref.userEmail = authentication.getName();
+            return userProvider.userOfEmail(ref.userEmail)
+                    .orElseThrow(() -> new UserNotFoundException("No authenticated user found", ref.userEmail));
         }
-        return userProvider.userOfEmail(ref.userEmail)
-                .orElseThrow(() -> new UserNotFoundException("No authenticated user found", ref.userEmail));
-
+        throw new UserNotFoundException("No authenticated user found", ref.userEmail);
     }
 }

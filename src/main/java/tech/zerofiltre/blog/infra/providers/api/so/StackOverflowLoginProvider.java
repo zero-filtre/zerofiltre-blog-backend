@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import lombok.extern.slf4j.*;
 import org.apache.commons.lang3.*;
+import org.springframework.cache.annotation.*;
 import org.springframework.http.*;
 import org.springframework.retry.support.*;
 import org.springframework.stereotype.*;
@@ -36,6 +37,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
         this.retryTemplate = retryTemplate;
     }
 
+    @Cacheable(value = "so-token-validity", key ="#token")
     public boolean isValid(String token) {
         Map<String, String> uriVariables = Collections.singletonMap("key", infraProperties.getStackOverflowAPIKey());
         String urlTemplate = buildURITemplate(apiUrl + "/access-tokens/" + token, uriVariables.keySet());
@@ -77,9 +79,11 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
 
     }
 
+    @Cacheable(value = "so-user", key = "#token")
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
+                log.info("Trying to get Stackoverflow user info from opaque token");
                 StackOverflowUser stackOverflowUser;
                 Map<String, String> uriVariables = new HashMap<>();
                 uriVariables.put("site", SITE);
