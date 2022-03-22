@@ -391,8 +391,7 @@ class UserControllerIT {
         updateUserVM.setBio(NEW_BIO);
         updateUserVM.setId(1);
         updateUserVM.setLanguage("fr");
-        updateUserVM.setFirstName("first name");
-        updateUserVM.setLastName("last name");
+        updateUserVM.setFullName("first name last name");
 
         User user = new User();
         user.setBio(NEW_BIO);
