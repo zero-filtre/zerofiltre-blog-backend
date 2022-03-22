@@ -10,8 +10,6 @@ logging:
 server:
   port: 80
 
-
-
 spring:
   liquibase:
     change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml

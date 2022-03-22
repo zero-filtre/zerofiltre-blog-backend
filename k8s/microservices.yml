@@ -16,6 +16,11 @@ spec:
         app: zerofiltretech-blog-${env_name}
     spec:
       containers:
+        - name: redis-${env_name}
+          image: redis
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
         - name: zerofiltretech-blog-${env_name}
           image: imzerofiltre/zerofiltretech-blog:0.0.1
           imagePullPolicy: IfNotPresent

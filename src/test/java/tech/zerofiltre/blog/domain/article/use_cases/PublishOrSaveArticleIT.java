@@ -52,7 +52,7 @@ class PublishOrSaveArticleIT {
     @DisplayName("Must properly partially update the data on publish")
     void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
+        User user = userProvider.save(ZerofiltreUtils.createMockUser(true));
 
         List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
                 .map(tagProvider::save)

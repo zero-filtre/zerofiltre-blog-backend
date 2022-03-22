@@ -17,7 +17,7 @@ public class JwtTokenAuthenticationCheckerFilter extends AuthenticationCheckerFi
 
 
     public JwtTokenAuthenticationCheckerFilter(JwtAuthenticationTokenProperties tokenConfiguration) {
-        super(tokenConfiguration, null, null);
+        super(tokenConfiguration, null);
     }
 
 
