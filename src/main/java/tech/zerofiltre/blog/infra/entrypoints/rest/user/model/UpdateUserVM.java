@@ -13,13 +13,9 @@ public class UpdateUserVM {
     @Min(value = 1, message = "The id must be greater or equal than one")
     private long id;
 
-    @NotNull(message = "The firstname must not be null")
-    @NotEmpty(message = "The firstname must not be empty")
-    private String firstName;
-
-    @NotNull(message = "The lastname must not be null")
-    @NotEmpty(message = "The lastname must not be empty")
-    private String lastName;
+    @NotNull(message = "The full name must not be null")
+    @NotEmpty(message = "The full name must not be empty")
+    private String fullName;
 
     private String profilePicture;
 
