@@ -79,7 +79,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
 
     }
 
-    @Cacheable(value = "so-user", key = "#token")
+    //@Cacheable(value = "so-user", key = "#token")
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
