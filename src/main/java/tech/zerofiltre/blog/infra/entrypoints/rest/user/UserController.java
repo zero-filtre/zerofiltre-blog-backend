@@ -110,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/user/articles")
-    public Page<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status, @RequestParam(required = false) boolean byPopularity, @RequestParam(required = false) String tag) throws UserNotFoundException, ForbiddenActionException {
+    public Page<Article> getArticles(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String status, @RequestParam(required = false) boolean byPopularity, @RequestParam(required = false) String tag) throws UserNotFoundException, ForbiddenActionException, UnAuthenticatedActionException {
         User user = securityContextManager.getAuthenticatedUser();
         status = status.toUpperCase();
         FindArticleRequest request = new FindArticleRequest();

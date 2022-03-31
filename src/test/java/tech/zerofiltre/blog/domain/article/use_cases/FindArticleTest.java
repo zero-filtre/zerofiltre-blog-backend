@@ -62,7 +62,7 @@ class FindArticleTest {
 
     @Test
     @DisplayName("Can ask for PUBLISHED article whatever the user")
-    void mustAllow_Asking_PublishedArticles_forAll() throws ForbiddenActionException {
+    void mustAllow_Asking_PublishedArticles_forAll() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         Article published = new Article();
         published.setStatus(PUBLISHED);
@@ -93,8 +93,19 @@ class FindArticleTest {
     }
 
     @Test
+    @DisplayName("Not being authenticated, ask for DRAFT throws unauthenticatedExecption")
+    void mustThrowException_IfNotAuthenticatedButAskForDRAFT() {
+        //ARRANGE
+
+        //ACT & ASSERT
+        assertThatExceptionOfType(UnAuthenticatedActionException.class).
+                isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, DRAFT, null)));
+
+    }
+
+    @Test
     @DisplayName("Must not filter on authors it the user is not requesting his own articles")
-    void mustReturnAnArticle() throws ForbiddenActionException {
+    void mustReturnAnArticle() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         Article published = new Article();
         when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), anyBoolean(), any())).thenReturn(
@@ -116,7 +127,7 @@ class FindArticleTest {
 
     @Test
     @DisplayName("Not being an admin, a user can ask for his OTHER THAN PUBLISHED articles")
-    void mustAllow_Asking_YourDraftedArticles() throws ForbiddenActionException {
+    void mustAllow_Asking_YourDraftedArticles() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         Article drafted = new Article();
         drafted.setStatus(DRAFT);
@@ -148,7 +159,7 @@ class FindArticleTest {
     }
 
     @Test
-    void mustCallArticleProvider_WithCorrectParams() throws ForbiddenActionException {
+    void mustCallArticleProvider_WithCorrectParams() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
 
 
@@ -165,7 +176,7 @@ class FindArticleTest {
     }
 
     @Test
-    void mustCallArticleProvider_WithCorrectParamsAndUser() throws ForbiddenActionException {
+    void mustCallArticleProvider_WithCorrectParamsAndUser() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         User user = new User();
         user.setId(2);

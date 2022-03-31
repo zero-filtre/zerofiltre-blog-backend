@@ -67,6 +67,7 @@ public class JwtTokenAuthenticationCheckerFilter extends AuthenticationCheckerFi
 
         } catch (Exception e) {
             // In case of failure. Make sure it's clear; so guarantee user won't be authenticated
+            logger.error("Token is invalid",e);
             SecurityContextHolder.clearContext();
         }
 

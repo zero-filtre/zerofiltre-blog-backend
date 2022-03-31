@@ -44,7 +44,7 @@ class FindArticleIT {
 
     @Test
     @DisplayName("Must properly return articles from the requested page")
-    void mustReturnArticlesFromTheRequestedPage() throws ForbiddenActionException {
+    void mustReturnArticlesFromTheRequestedPage() throws ForbiddenActionException, UnAuthenticatedActionException {
 
 
         //ARRANGE

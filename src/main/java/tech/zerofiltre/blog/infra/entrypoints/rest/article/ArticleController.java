@@ -44,7 +44,7 @@ public class ArticleController {
             @RequestParam String status,
             @RequestParam(required = false) boolean byPopularity,
             @RequestParam(required = false) String tag
-    ) throws ForbiddenActionException {
+    ) throws ForbiddenActionException, UnAuthenticatedActionException {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();

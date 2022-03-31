@@ -117,6 +117,20 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(UnAuthenticatedActionException.class)
+    public ResponseEntity<BlogError> handleException(UnAuthenticatedActionException exception, Locale locale) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.UNAUTHORIZED.value()),
+                "ZBLOG_007",
+                messageSource.getMessage("ZBLOG_007", null, locale),
+                exception.getDomain(),
+                exception.getLocalizedMessage()
+        );
+        log.debug(FULL_EXCEPTION, exception);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler({ServletException.class, MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
     public ResponseEntity<BlogError> handleException(Exception exception, Locale locale) {
         final BlogError error = new BlogError(
