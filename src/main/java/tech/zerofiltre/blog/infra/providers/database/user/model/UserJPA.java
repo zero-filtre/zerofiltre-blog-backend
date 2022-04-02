@@ -42,20 +42,11 @@ public class UserJPA extends BaseEntityJPA {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private Set<SocialLinkJPA> socialLinks;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private VerificationTokenJPA verificationTokenJPA;
-
     private String website;
 
-    public void addSocialLink(SocialLinkJPA socialLinkJPA) {
+    private void addSocialLink(SocialLinkJPA socialLinkJPA) {
         socialLinks.add(socialLinkJPA);
         socialLinkJPA.setUser(this);
-    }
-
-    public void removeSocialLink(SocialLinkJPA socialLinkJPA) {
-        socialLinkJPA.setUser(null);
-        this.socialLinks.remove(socialLinkJPA);
-
     }
 
     public void setSocialLinks(Set<SocialLinkJPA> socialLinks) {

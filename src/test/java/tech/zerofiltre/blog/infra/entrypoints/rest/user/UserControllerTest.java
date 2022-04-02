@@ -51,6 +51,9 @@ class UserControllerTest {
     UserProvider userProvider;
 
     @MockBean
+    private ReactionProvider reactionProvider;
+
+    @MockBean
     AvatarProvider profilePictureGenerator;
 
     @MockBean
@@ -98,7 +101,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, jwtTokenProvider);
+                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }
@@ -254,12 +257,12 @@ class UserControllerTest {
         when(retrieveSocialToken.execute(any())).thenReturn(TOKEN);
 
         //ACT
-       Token token = userController.getGithubToken("code");
-       assertThat(token.getTokenType()).isEqualTo("token");
-       assertThat(token.getAccessToken()).isEqualTo(TOKEN);
-       assertThat(token.getRefreshToken()).isEmpty();
-       assertThat(token.getAccessTokenExpiryDateInSeconds()).isZero();
-       assertThat(token.getRefreshTokenExpiryDateInSeconds()).isZero();
+        Token token = userController.getGithubToken("code");
+        assertThat(token.getTokenType()).isEqualTo("token");
+        assertThat(token.getAccessToken()).isEqualTo(TOKEN);
+        assertThat(token.getRefreshToken()).isEmpty();
+        assertThat(token.getAccessTokenExpiryDateInSeconds()).isZero();
+        assertThat(token.getRefreshTokenExpiryDateInSeconds()).isZero();
 
         //ASSERT
         verify(retrieveSocialToken, times(1)).execute("code");

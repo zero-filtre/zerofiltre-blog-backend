@@ -13,10 +13,14 @@ public class DeleteUser {
 
     private final UserProvider userProvider;
     private final ArticleProvider articleProvider;
+    private final VerificationTokenProvider tokenProvider;
+    private final ReactionProvider reactionProvider;
 
-    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider) {
+    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider) {
         this.userProvider = userProvider;
         this.articleProvider = articleProvider;
+        this.tokenProvider = tokenProvider;
+        this.reactionProvider = reactionProvider;
     }
 
     public void execute(User currentUser, long userIdToDelete) throws ResourceNotFoundException, ForbiddenActionException {
@@ -29,6 +33,8 @@ public class DeleteUser {
 
         List<Article> userArticles = articleProvider.articlesOf(foundUser);
         if (userArticles.isEmpty()) {
+            tokenProvider.ofUser(foundUser).ifPresent(tokenProvider::delete);
+            reactionProvider.ofUser(foundUser).forEach(reactionProvider::delete);
             userProvider.deleteUser(foundUser);
         } else {
             foundUser.setExpired(true);

@@ -60,8 +60,10 @@ class UserControllerIT {
     AvatarProvider avatarProvider;
 
     @MockBean
-    GithubLoginProvider githubLoginProvider;
+    ReactionProvider reactionProvider;
 
+    @MockBean
+    GithubLoginProvider githubLoginProvider;
 
     @MockBean
     NotifyRegistrationComplete notifyRegistrationComplete;
@@ -432,7 +434,6 @@ class UserControllerIT {
                 .param("status", "DRAFT")
                 .param("byPopularity", "false")
                 .param("tag", "");
-
 
 
         //ASSERT

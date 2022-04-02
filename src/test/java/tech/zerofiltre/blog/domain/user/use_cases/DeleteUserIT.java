@@ -18,9 +18,10 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBUserProvider.class, DBArticleProvider.class})
+@Import({DBUserProvider.class, DBArticleProvider.class, DBVerificationTokenProvider.class, DBReactionProvider.class})
 class DeleteUserIT {
 
+    public static final String TOKEN = "tokEN";
     private DeleteUser deleteUser;
 
     @Autowired
@@ -29,9 +30,15 @@ class DeleteUserIT {
     @Autowired
     private ArticleProvider articleProvider;
 
+    @Autowired
+    private VerificationTokenProvider tokenProvider;
+
+    @Autowired
+    private ReactionProvider reactionProvider;
+
     @BeforeEach
     void init() {
-        deleteUser = new DeleteUser(userProvider, articleProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider);
     }
 
     @Test
@@ -54,16 +61,40 @@ class DeleteUserIT {
     }
 
     @Test
-    @DisplayName("Deleting a user that do not have articles deletes it from the DB")
+    @DisplayName("Deleting a user that do not have articles deletes him with his token from the DB")
     void deleteUser_WithNoArticles() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
+        User articleAuthor = ZerofiltreUtils.createMockUser(false);
+        articleAuthor = userProvider.save(articleAuthor);
+
+        Article draftArticle = ZerofiltreUtils.createMockArticle(articleAuthor, Collections.emptyList(), Collections.emptyList());
+        draftArticle = articleProvider.save(draftArticle);
+
         User user = ZerofiltreUtils.createMockUser(false);
+        user.setEmail("another");
+        user.setPseudoName("another");
         user = userProvider.save(user);
+
+        VerificationToken verificationToken = new VerificationToken(user, TOKEN);
+        tokenProvider.save(verificationToken);
+
+        Reaction reaction = new Reaction();
+        reaction.setAction(Reaction.Action.FIRE);
+        reaction.setArticleId(draftArticle.getId());
+        reaction.setAuthorId(user.getId());
+
+        reaction = reactionProvider.save(reaction);
+
         //ACT
         deleteUser.execute(user, user.getId());
 
-        Optional<User> updatedUser = userProvider.userOfId(user.getId());
-        assertThat(updatedUser).isEmpty();
+        Optional<User> deletedUser = userProvider.userOfId(user.getId());
+        assertThat(deletedUser).isEmpty();
 
+        Optional<VerificationToken> deletedToken = tokenProvider.ofToken(TOKEN);
+        assertThat(deletedToken).isEmpty();
+
+        Optional<Reaction> deletedReaction = reactionProvider.reactionOfId(reaction.getId());
+        assertThat(deletedReaction).isEmpty();
     }
 }

@@ -22,10 +22,10 @@ class UpdateUserIT {
     public static final String NEW_BIO = "new bio";
     public static final String NEW_PROFESSION = "new profession";
     public static final String NEW_PROFILE_PICTURE = "new profile picture";
-    public static final String NEW_LAST_NAME = "new last name";
     public static final String NEW_FIRST_NAME = "new first name";
     public static final String NEW_LINK = "new link";
     public static final String NEW_LANGUAGE = "new language";
+    public static final String TOKEN = "torna-7878-osdo";
     private UpdateUser updateUser;
 
     @Autowired
@@ -37,11 +37,13 @@ class UpdateUserIT {
     }
 
     @Test
-    void patchUser_DoesNotOverrideTheUser() throws UserNotFoundException, ForbiddenActionException {
+    @DisplayName("Patching a user updates only the date that are meant to be updated. E.g: loginFrom should not be overridden")
+    void patchUser_UpdatesProperly() throws UserNotFoundException, ForbiddenActionException {
         //ARRANGE
         User existingUser = ZerofiltreUtils.createMockUser(true);
         existingUser = userProvider.save(existingUser);
 
+        //loginFrom will not be set
         User patchUser = new User();
         patchUser.setWebsite(NEW_WEBSITE);
         patchUser.setBio(NEW_BIO);
@@ -54,23 +56,27 @@ class UpdateUserIT {
         patchUser.setLanguage(NEW_LANGUAGE);
 
         //ACT
-        patchUser = updateUser.patch(existingUser, patchUser);
+        updateUser.patch(existingUser, patchUser);
+        User resultUser = userProvider.userOfId(existingUser.getId()).orElseThrow();
 
         //ASSERT
-        assertThat(existingUser.getId()).isNotZero();
-        assertThat(existingUser.getLoginFrom()).isNotNull();
-        assertThat(patchUser.getLoginFrom()).isNotNull();
-        assertThat(patchUser.getWebsite()).isEqualTo(NEW_WEBSITE);
-        assertThat(patchUser.getBio()).isEqualTo(NEW_BIO);
-        assertThat(patchUser.getProfession()).isEqualTo(NEW_PROFESSION);
-        assertThat(patchUser.getProfilePicture()).isEqualTo(NEW_PROFILE_PICTURE);
-        assertThat(patchUser.getFullName()).isEqualTo(NEW_FIRST_NAME);
-        assertThat(patchUser.getLanguage()).isEqualTo(NEW_LANGUAGE);
-        Set<SocialLink> socialLinks = patchUser.getSocialLinks();
+
+        //loginFrom has not been touched
+        assertThat(resultUser.getLoginFrom()).isEqualTo(SocialLink.Platform.LINKEDIN);
+
+        //All the other fields have been updated
+        assertThat(resultUser.getWebsite()).isEqualTo(NEW_WEBSITE);
+        assertThat(resultUser.getBio()).isEqualTo(NEW_BIO);
+        assertThat(resultUser.getProfession()).isEqualTo(NEW_PROFESSION);
+        assertThat(resultUser.getProfilePicture()).isEqualTo(NEW_PROFILE_PICTURE);
+        assertThat(resultUser.getFullName()).isEqualTo(NEW_FIRST_NAME);
+        assertThat(resultUser.getLanguage()).isEqualTo(NEW_LANGUAGE);
+        Set<SocialLink> socialLinks = resultUser.getSocialLinks();
         assertThat(socialLinks.size()).isEqualTo(1);
         assertThat(socialLinks.stream().anyMatch(link ->
                 link.getLink().equals(NEW_LINK) && link.getPlatform().equals(SocialLink.Platform.STACKOVERFLOW)
         )).isTrue();
 
     }
+
 }

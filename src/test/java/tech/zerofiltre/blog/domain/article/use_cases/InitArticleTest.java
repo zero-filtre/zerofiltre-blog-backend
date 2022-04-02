@@ -39,7 +39,7 @@ class InitArticleTest {
     }
 
     @Test
-    @DisplayName("Must set the status to draft then update the article")
+    @DisplayName("Must set the status to draft then save the article")
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeInit = LocalDateTime.now();

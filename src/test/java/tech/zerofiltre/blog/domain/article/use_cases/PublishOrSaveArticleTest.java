@@ -48,7 +48,7 @@ class PublishOrSaveArticleTest {
     }
 
     @Test
-    @DisplayName("Must properly partially update the data on publish")
+    @DisplayName("Must properly partially save the data on publish")
     void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
@@ -163,7 +163,7 @@ class PublishOrSaveArticleTest {
     }
 
     @Test
-    @DisplayName("Must properly partially update the data on update")
+    @DisplayName("Must properly partially save the data on save")
     void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 

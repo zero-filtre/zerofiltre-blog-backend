@@ -27,7 +27,7 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                 //5. Get the user info from the token
                 socialLoginProvider.userOfToken(token)
                         .ifPresent(user -> {
-                            //7. Check if user in DB, otherwise update him
+                            //7. Check if user in DB, otherwise save him
                             userProvider.userOfEmail(user.getEmail())
                                     .ifPresentOrElse(user1 -> {
                                     }, () -> userProvider.save(user));

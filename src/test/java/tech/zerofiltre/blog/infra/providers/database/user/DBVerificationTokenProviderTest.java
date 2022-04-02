@@ -15,10 +15,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class DatabaseVerificationTokenProviderTest {
+class DBVerificationTokenProviderTest {
 
     public static final String TOKEN = "TOKEN";
-    DatabaseVerificationTokenProvider provider;
+    DBVerificationTokenProvider provider;
 
     @MockBean
     VerificationTokenJPARepository repository;
@@ -27,7 +27,7 @@ class DatabaseVerificationTokenProviderTest {
 
     @BeforeEach
     void init() {
-        provider = new DatabaseVerificationTokenProvider(repository);
+        provider = new DBVerificationTokenProvider(repository);
     }
 
     @Test

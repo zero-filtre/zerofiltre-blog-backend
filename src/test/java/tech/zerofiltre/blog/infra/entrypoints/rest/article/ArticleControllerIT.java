@@ -68,7 +68,7 @@ class ArticleControllerIT {
     GithubLoginProvider githubLoginProvider;
 
     @MockBean
-    DatabaseVerificationTokenProvider verificationTokenProvider;
+    DBVerificationTokenProvider verificationTokenProvider;
 
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);

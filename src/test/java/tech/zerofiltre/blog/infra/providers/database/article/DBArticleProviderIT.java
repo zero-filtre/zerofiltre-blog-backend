@@ -290,15 +290,18 @@ class DBArticleProviderIT {
         User user = ZerofiltreUtils.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
+        LocalDateTime now = LocalDateTime.now();
+
 
         List<Tag> tags = ZerofiltreUtils.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
+
 
         Article article0 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
-        article0JPA.setPublishedAt(LocalDateTime.now());
+        article0JPA.setPublishedAt(now);
         article0JPA.setAuthor(userJPA);
         articleJPARepository.save(article0JPA);
 
@@ -306,7 +309,7 @@ class DBArticleProviderIT {
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
-        article1JPA.setPublishedAt(LocalDateTime.now());
+        article1JPA.setPublishedAt(now.plusMinutes(1));
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
@@ -315,7 +318,7 @@ class DBArticleProviderIT {
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
         article2JPA.setStatus(Status.PUBLISHED);
-        article2JPA.setPublishedAt(LocalDateTime.now());
+        article2JPA.setPublishedAt(now.plusMinutes(2));
         articleJPARepository.save(article2JPA);
 
         //ACT
@@ -336,6 +339,8 @@ class DBArticleProviderIT {
         User user = ZerofiltreUtils.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
+        LocalDateTime now = LocalDateTime.now();
+
 
         List<Tag> tags = ZerofiltreUtils.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
@@ -345,14 +350,14 @@ class DBArticleProviderIT {
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
-        article0JPA.setPublishedAt(LocalDateTime.now());
+        article0JPA.setPublishedAt(now);
         articleJPARepository.save(article0JPA);
 
         Article article1 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
-        article1JPA.setPublishedAt(LocalDateTime.now());
+        article1JPA.setPublishedAt(now.plusMinutes(1));
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
@@ -361,7 +366,7 @@ class DBArticleProviderIT {
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
         article2JPA.setStatus(Status.PUBLISHED);
-        article2JPA.setPublishedAt(LocalDateTime.now());
+        article2JPA.setPublishedAt(now.plusMinutes(2));
         articleJPARepository.save(article2JPA);
 
         //ACT
