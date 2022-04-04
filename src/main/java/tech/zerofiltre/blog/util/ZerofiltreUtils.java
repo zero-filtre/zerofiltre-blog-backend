@@ -13,6 +13,20 @@ import java.util.*;
 @Slf4j
 public class ZerofiltreUtils {
 
+    public static final String TEST_BIO = "Je développe des Applications qui boostent votre business. Suivez-moi \uD83D\uDCA1\n" +
+            "\n" +
+            "Ma dévise: L'amélioration continue. \n" +
+            "Une application sert le business et pas le contraire. ";
+    public static final String TEST_EMAIL = "ola.eloundou@zerofiltre.tech";
+    public static final String TEST_FULL_NAME = "Philippe GUEMKAM SIMO";
+    public static final String TEST_PSEUDONAME = "imphilippesimo";
+    public static final String TEST_PROFILE_PICTURE = "https://i.ibb.co/QKX6gyr/profile-pic.jpg";
+    public static final String TEST_GUTHUB_LINK = "https://github.com/imphilippesimo";
+    public static final String TEST_STACKOVERFLOW_LINK = "https://stackoverflow.com/users/5615357/philippe-simo";
+    public static final String TEST_LINKEDIN_LINK = "https://www.linkedin.com/in/philippesimo/";
+    public static final String TEST_PROFESSION = "Senior Java Developer";
+    public static final String TEST_WEBSITE = "https://zerofiltre.tech";
+
     private ZerofiltreUtils() {
     }
 
@@ -83,23 +97,20 @@ public class ZerofiltreUtils {
 
     public static User createMockUser(boolean isAdmin) {
         User user = new User();
-        user.setEmail("ola.eloundou@zerofiltre.tech");
-        user.setFullName("Philippe GUEMKAM SIMO");
-        user.setPseudoName("imphilippesimo");
+        user.setEmail(TEST_EMAIL);
+        user.setFullName(TEST_FULL_NAME);
+        user.setPseudoName(TEST_PSEUDONAME);
         user.setRegisteredOn(LocalDateTime.now().minusDays(50));
-        user.setProfilePicture("https://i.ibb.co/QKX6gyr/profile-pic.jpg");
+        user.setProfilePicture(TEST_PROFILE_PICTURE);
         Set<SocialLink> socialLinks = new HashSet<>(Arrays.asList(
-                new SocialLink(SocialLink.Platform.GITHUB, "https://github.com/imphilippesimo"),
-                new SocialLink(SocialLink.Platform.STACKOVERFLOW, "https://stackoverflow.com/users/5615357/philippe-simo"),
-                new SocialLink(SocialLink.Platform.LINKEDIN, "https://www.linkedin.com/in/philippesimo/")
+                new SocialLink(SocialLink.Platform.GITHUB, TEST_GUTHUB_LINK),
+                new SocialLink(SocialLink.Platform.STACKOVERFLOW, TEST_STACKOVERFLOW_LINK),
+                new SocialLink(SocialLink.Platform.LINKEDIN, TEST_LINKEDIN_LINK)
         ));
-        user.setBio("Je développe des Applications qui boostent votre business. Suivez-moi \uD83D\uDCA1\n" +
-                "\n" +
-                "Ma dévise: L'amélioration continue. \n" +
-                "Une application sert le business et pas le contraire. ");
-        user.setProfession("Senior Java Developer");
+        user.setBio(TEST_BIO);
+        user.setProfession(TEST_PROFESSION);
         user.setSocialLinks(socialLinks);
-        user.setWebsite("https://zerofiltre.tech");
+        user.setWebsite(TEST_WEBSITE);
         if (isAdmin)
             user.getRoles().add("ROLE_ADMIN");
         user.setLoginFrom(SocialLink.Platform.LINKEDIN);

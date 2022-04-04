@@ -43,7 +43,7 @@ class InitArticleIT {
     }
 
     @Test
-    @DisplayName("Must update article with all data")
+    @DisplayName("Must save article with all data")
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeCreation = LocalDateTime.now();

@@ -16,10 +16,10 @@ public class UpdateUser {
     public User patch(User currentUser, User user) throws ForbiddenActionException, UserNotFoundException {
 
         if (currentUser.getId() != user.getId() && !currentUser.getRoles().contains("ROLE_ADMIN"))
-            throw new ForbiddenActionException("You can only update your own account", Domains.USER.name());
+            throw new ForbiddenActionException("You can only save your own account", Domains.USER.name());
 
         User foundUser = userProvider.userOfId(user.getId())
-                .orElseThrow(() -> new UserNotFoundException("We could not find the user you want to update", String.valueOf(user.getId())));
+                .orElseThrow(() -> new UserNotFoundException("We could not find the user you want to save", String.valueOf(user.getId())));
 
         foundUser.setFullName(user.getFullName());
         foundUser.setProfilePicture(user.getProfilePicture());

@@ -25,6 +25,12 @@ class DeleteUserTest {
     private UserProvider userProvider;
 
     @MockBean
+    private VerificationTokenProvider tokenProvider;
+
+    @MockBean
+    private ReactionProvider reactionProvider;
+
+    @MockBean
     private ArticleProvider articleProvider;
 
     private DeleteUser deleteUser;
@@ -33,20 +39,36 @@ class DeleteUserTest {
 
     @BeforeEach
     void setUp() {
-        deleteUser = new DeleteUser(userProvider, articleProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider);
     }
 
     @Test
-    void deleteUser_MustDeleteViaTheUserProvider() {
+    void deleteUser_MustDeleteTheUserReactionsAndToken() {
         //ARRANGE
+        Reaction reaction = new Reaction();
+        VerificationToken token = new VerificationToken(foundUser, "token");
+
         currentUser.setRoles(Collections.singleton("ROLE_ADMIN"));
         foundUser.setId(10);
-        doNothing().when(userProvider).deleteUser(any());
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(foundUser));
+        when(reactionProvider.ofUser(any())).thenReturn(Collections.singletonList(reaction));
+        when(tokenProvider.ofUser(any())).thenReturn(Optional.of(token));
+
+        doNothing().when(userProvider).deleteUser(any());
+        doNothing().when(reactionProvider).delete(any());
+        doNothing().when(tokenProvider).delete(any());
+
 
         //ACT & ASSERT
         Assertions.assertThatNoException().isThrownBy(() -> deleteUser.execute(currentUser, 10));
+
+        verify(tokenProvider, times(1)).ofUser(foundUser);
+        verify(tokenProvider, times(1)).delete(token);
+        verify(reactionProvider, times(1)).ofUser(foundUser);
+        verify(reactionProvider, times(1)).delete(reaction);
         verify(userProvider, times(1)).deleteUser(foundUser);
+
+
     }
 
     @Test

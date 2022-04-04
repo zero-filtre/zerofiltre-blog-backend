@@ -49,7 +49,7 @@ class PublishOrSaveArticleIT {
     }
 
     @Test
-    @DisplayName("Must properly partially update the data on publish")
+    @DisplayName("Must properly partially save the data on publish")
     void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
         User user = userProvider.save(ZerofiltreUtils.createMockUser(true));
@@ -129,7 +129,7 @@ class PublishOrSaveArticleIT {
     }
 
     @Test
-    @DisplayName("Must properly partially update the data on update")
+    @DisplayName("Must properly partially save the data on save")
     void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
         User user = userProvider.save(ZerofiltreUtils.createMockUser(false));

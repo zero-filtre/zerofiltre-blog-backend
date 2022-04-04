@@ -7,6 +7,7 @@ public class SocialLink implements Serializable {
     private Platform platform;
     private String link;
     private long userId;
+    private long id;
 
     public SocialLink() {
     }
@@ -38,6 +39,15 @@ public class SocialLink implements Serializable {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public enum Platform {

@@ -14,7 +14,7 @@ import java.util.*;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class DatabaseVerificationTokenProvider implements VerificationTokenProvider {
+public class DBVerificationTokenProvider implements VerificationTokenProvider {
 
     private final VerificationTokenJPARepository repository;
     private final VerificationTokenJPAMapper mapper = Mappers.getMapper(VerificationTokenJPAMapper.class);
@@ -33,7 +33,7 @@ public class DatabaseVerificationTokenProvider implements VerificationTokenProvi
     }
 
     @Override
-    public VerificationToken update(VerificationToken verificationToken) {
+    public VerificationToken save(VerificationToken verificationToken) {
         return mapper.fromJPA(repository.save(mapper.toJPA(verificationToken)));
     }
 
@@ -65,7 +65,7 @@ public class DatabaseVerificationTokenProvider implements VerificationTokenProvi
                     return vToken;
                 }).orElse(new VerificationToken(user, token));
 
-        return update(verificationToken);
+        return save(verificationToken);
     }
 
 

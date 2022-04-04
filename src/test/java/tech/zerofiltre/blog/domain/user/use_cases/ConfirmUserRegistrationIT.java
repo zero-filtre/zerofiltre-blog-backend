@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBUserProvider.class, DatabaseVerificationTokenProvider.class})
+@Import({DBUserProvider.class, DBVerificationTokenProvider.class})
 class ConfirmUserRegistrationIT {
 
 
@@ -34,7 +34,7 @@ class ConfirmUserRegistrationIT {
     void setUp() {
         user = userProvider.save(user);
         verificationToken = new VerificationToken(user, TOKEN);
-        verificationTokenProvider.update(verificationToken);
+        verificationTokenProvider.save(verificationToken);
         confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
     }
 

@@ -2,7 +2,6 @@ package tech.zerofiltre.blog.infra.providers.database.user;
 
 import lombok.*;
 import org.mapstruct.factory.*;
-import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -57,7 +56,6 @@ public class DBUserProvider implements UserProvider {
     @Override
     public void deleteUser(User user) {
         UserJPA userJPA = mapper.toJPA(user);
-        userJPA.setVerificationTokenJPA(null);
         userJPA.setSocialLinks(null);
         repository.delete(userJPA);
     }

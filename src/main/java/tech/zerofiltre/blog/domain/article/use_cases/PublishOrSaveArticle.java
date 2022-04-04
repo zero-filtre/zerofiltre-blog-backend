@@ -25,7 +25,7 @@ public class PublishOrSaveArticle {
         LocalDateTime now = LocalDateTime.now();
 
         Article existingArticle = articleProvider.articleOfId(articleId)
-                .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish/update an unknown article. Could not find an article with id: " + articleId, articleId));
+                .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish/save an unknown article. Could not find an article with id: " + articleId, articleId));
 
         User author = existingArticle.getAuthor();
         if (!isAuthor(currentEditor, author) && !isAdmin(currentEditor))
