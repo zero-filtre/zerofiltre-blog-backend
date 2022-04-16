@@ -32,11 +32,11 @@ spec:
                 secretKeyRef:
                   name: zerofiltre-blog-api
                   key: spring_mail_password
-            #            - name: SPRING_DATASOURCE_PASSWORD
-            #              valueFrom:
-            #                secretKeyRef:
-            #                  name: zerofiltre-blog-api
-            #                  key: spring_datasource_password
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_password
             - name: SECURITY_JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -87,16 +87,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: spring_mail_username
-            #            - name: SPRING_DATASOURCE_USERNAME
-            #              valueFrom:
-            #                configMapKeyRef:
-            #                  name: zerofiltre-blog-api
-            #                  key: spring_datasource_username
-            #            - name: SPRING_DATASOURCE_URL
-            #              valueFrom:
-            #                configMapKeyRef:
-            #                  name: zerofiltre-blog-api
-            #                  key: spring_datasource_url
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_username
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: spring_datasource_url
             - name: HIBERNATE_DDL_AUTO
               valueFrom:
                 configMapKeyRef:

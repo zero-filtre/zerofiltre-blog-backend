@@ -22,7 +22,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: zerofiltretech-blog-dev
-          image: imzerofiltre/zerofiltretech-blog:3-unstable
+          image: imzerofiltre/zerofiltretech-blog:imagetosandbox
           imagePullPolicy: Always
           ports:
             - containerPort: 80
