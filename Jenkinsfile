@@ -117,7 +117,7 @@ String getApiHost(String branchName) {
 }
 
 String getTag(String buildNumber, String branchName) {
-    String tag = "imzerofiltre/zerofiltretech-blog:" + buildNumber
+    String tag = "imzerofiltre/zerofiltretech-blog:" + UUID.randomUUID().toString() +'-'+buildNumber
     if (branchName == 'main') {
         return tag + '-stable'
     }

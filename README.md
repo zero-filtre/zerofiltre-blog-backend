@@ -9,7 +9,7 @@ The zerofiltre blog backend
 
 ## Install
 
-Define an env vars :  
+Define env vars :  
 SPRING_DATASOURCE_PASSWORD to the appropriate db password SPRING_MAIL_PASSWORD to the appropriate smtp server password
 
 - Clone the project and cd into it:  

@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+    environment:
+#      SPRING_DATASOURCE_URL: 'jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_dev'
+#      SPRING_DATASOURCE_USERNAME: admin
+#      SPRING_DATASOURCE_PASSWORD: 'AUkSTVaqyZXwgzcw4Nod'
+      SPRING_DATASOURCE_URL: 'jdbc:mysql://mysql-df836d42-o3bc71320.database.cloud.ovh.net:20184/blogapidb_dev'
+      SPRING_DATASOURCE_USERNAME: 'blog-api-uat'
+      SPRING_DATASOURCE_PASSWORD: 'sv9TrufVi8c3XGF25OyL'
+      SPRING_MAIL_HOST: 'smtp.gmail.com'
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: 'philippesimo@zerofiltre.tech'
+      SPRING_MAIL_PASSWORD: ''
+      SPRING_LIQUIBASE_CHANGELOG: 'classpath:/liquibase/db/changelog/db.changelog-dev.yaml'
+      SECURITY_JWT_EXPIRATION: 36600
+      REMINDER_INITIAL_DELAY: 30
+      REMINDER_RATE: 3
+      LOGGING_LEVEL_ORG_HIBERNATE_SQL: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK: INFO
+      LOGGING_LEVEL_TECH_ZEROFILTRE: DEBUG
+      SERVER_PORT: 8080
+      HIBERNATE_DDL_AUTO: update
+      ZEROFILTRE_ENV: dev
+      SECURITY_JWT_SECRET: 'mysecret'
+      GITHUB_CLIENT_ID: 'id'
+      GITHUB_CLIENT_SECRET: 'koko'
+      STACKOVERFLOW_KEY: 'kodl'
+      ALLOWED_ORIGINS_PATTERN: '*'
+      SECURITY_JWT_URI: 'auth/**'
+    ports:
+      - "8080:8080"
