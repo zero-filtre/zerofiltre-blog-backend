@@ -27,9 +27,9 @@ spring:
           starttls:
             enable: true
   datasource:
-    username: blog-api-uat
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: jdbc:mysql://mysql-df836d42-o3bc71320.database.cloud.ovh.net:20184/blogapidb_dev
+    username: 'blog-api-uat'
+    password: 'sv9TrufVi8c3XGF25OyL'
+    url: 'jdbc:mysql://mysql-df836d42-o3bc71320.database.cloud.ovh.net:20184/blogapidb_dev'
   jpa:
     generate-ddl: true
     hibernate:
