@@ -9,6 +9,7 @@ import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -28,6 +29,9 @@ class DeleteUserTest {
     private VerificationTokenProvider tokenProvider;
 
     @MockBean
+    LoggerProvider loggerProvider;
+
+    @MockBean
     private ReactionProvider reactionProvider;
 
     @MockBean
@@ -39,7 +43,8 @@ class DeleteUserTest {
 
     @BeforeEach
     void setUp() {
-        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, loggerProvider);
+        doNothing().when(loggerProvider).log(any());
     }
 
     @Test

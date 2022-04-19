@@ -111,8 +111,7 @@ class UserControllerIT {
     @Test
     void onUserCreation_onValidInput_thenReturn200() throws Exception {
         registerUserVM = new RegisterUserVM(
-                "firstName",
-                "lastName",
+                "firstName lastName",
                 PASSWORD,
                 PASSWORD,
                 "hola@zerofiltre.fr"
@@ -140,8 +139,7 @@ class UserControllerIT {
     @Test
     void onUserCreation_onInValidInput_thenReturn400() throws Exception {
         registerUserVM = new RegisterUserVM(
-                "firstName",
-                "lastName",
+                "firstName lastName",
                 "password",
                 "password",
                 "hola@zerofiltre"
@@ -187,10 +185,9 @@ class UserControllerIT {
     @Test
     void onUserCreation_onNoMatchingPasswords_thenReturn400() throws Exception {
         registerUserVM = new RegisterUserVM(
-                "firstName",
-                "lastName",
+                "firstName lastName",
                 "password",
-                "noMatchingPassword",
+                "password",
                 "hola@zerofiltre"
         );
 
@@ -210,11 +207,10 @@ class UserControllerIT {
     @Test
     void onUserCreation_onInvalidEmail_thenReturn400() throws Exception {
         registerUserVM = new RegisterUserVM(
-                "firstName",
-                "lastName",
+                "firstName lastName",
                 "password",
                 "password",
-                "hola"
+                "hola@zerofiltre"
         );
 
         //ACT
@@ -233,11 +229,10 @@ class UserControllerIT {
     @Test
     void onUserCreation_onEmptyData_thenReturn400() throws Exception {
         registerUserVM = new RegisterUserVM(
-                "",
-                "",
+                "firstName lastName",
                 "password",
                 "password",
-                "hola@gmail.com"
+                "hola@zerofiltre"
         );
 
         //ACT

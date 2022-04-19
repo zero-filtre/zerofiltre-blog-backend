@@ -7,6 +7,7 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
@@ -34,11 +35,14 @@ class DeleteUserIT {
     private VerificationTokenProvider tokenProvider;
 
     @Autowired
+    LoggerProvider loggerProvider;
+
+    @Autowired
     private ReactionProvider reactionProvider;
 
     @BeforeEach
     void init() {
-        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, loggerProvider);
     }
 
     @Test
