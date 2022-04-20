@@ -4,6 +4,8 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
+import tech.zerofiltre.blog.domain.logging.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -15,12 +17,14 @@ public class DeleteUser {
     private final ArticleProvider articleProvider;
     private final VerificationTokenProvider tokenProvider;
     private final ReactionProvider reactionProvider;
+    private final LoggerProvider loggerProvider;
 
-    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider) {
+    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, LoggerProvider loggerProvider) {
         this.userProvider = userProvider;
         this.articleProvider = articleProvider;
         this.tokenProvider = tokenProvider;
         this.reactionProvider = reactionProvider;
+        this.loggerProvider = loggerProvider;
     }
 
     public void execute(User currentUser, long userIdToDelete) throws ResourceNotFoundException, ForbiddenActionException {
@@ -36,9 +40,14 @@ public class DeleteUser {
             tokenProvider.ofUser(foundUser).ifPresent(tokenProvider::delete);
             reactionProvider.ofUser(foundUser).forEach(reactionProvider::delete);
             userProvider.deleteUser(foundUser);
+            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting the user for done", null, DeleteUser.class);
+            loggerProvider.log(logEntry);
         } else {
             foundUser.setExpired(true);
             userProvider.save(foundUser);
+            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deactivating the user as it has articles", null, DeleteUser.class);
+            loggerProvider.log(logEntry);
+
         }
 
 

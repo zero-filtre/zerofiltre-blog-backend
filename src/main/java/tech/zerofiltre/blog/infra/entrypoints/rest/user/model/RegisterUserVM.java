@@ -22,7 +22,6 @@ public class RegisterUserVM extends PasswordHolder {
 
     public RegisterUserVM(
             String fullName,
-            String lastName,
             String password,
             String matchingPassword,
             String email) {

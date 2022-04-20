@@ -60,7 +60,7 @@ zerofiltre:
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa
-        client-secret: 1e70ed907875eb633f6232235e4c4037888d0adb
+        client-secret: ${GITHUB_CLIENT_SECRET}
       stackoverflow:
         version: 2.3
         root-url: https://api.stackexchange.com/

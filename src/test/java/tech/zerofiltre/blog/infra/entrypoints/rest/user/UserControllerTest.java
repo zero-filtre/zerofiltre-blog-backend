@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.*;
 import org.springframework.test.util.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -18,6 +19,7 @@ import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 
 import javax.servlet.http.*;
@@ -65,6 +67,9 @@ class UserControllerTest {
     @MockBean
     JwtAuthenticationTokenProperties jwTokenConfiguration;
 
+
+    LoggerProvider loggerProvider = new Slf4jLoggerProvider();
+
     @MockBean
     PasswordVerifierProvider passwordVerifierProvider;
 
@@ -101,7 +106,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider);
+                jwTokenConfiguration, infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }

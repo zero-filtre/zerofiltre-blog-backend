@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -53,11 +54,13 @@ public class UserController {
     private final ReactionProvider reactionProvider;
     private final FindArticle findArticle;
     private final GenerateToken generateToken;
+    private final LoggerProvider loggerProvider;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationTokenProperties jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationTokenProperties jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider) {
         this.tokenProvider = tokenProvider;
         this.reactionProvider = reactionProvider;
+        this.loggerProvider = loggerProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
@@ -74,7 +77,7 @@ public class UserController {
         this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
-        this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider);
+        this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider, this.loggerProvider);
         this.userProvider = userProvider;
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
     }
