@@ -15,4 +15,6 @@ public interface ArticleProvider {
     Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, boolean byPopularity, String tag);
 
     List<Article> articlesOf(User user);
+
+    void delete(Article article);
 }

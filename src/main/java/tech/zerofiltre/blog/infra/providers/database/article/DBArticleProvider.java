@@ -67,5 +67,11 @@ public class DBArticleProvider implements ArticleProvider {
                 .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
+    @Override
+    public void delete(Article article) {
+        ArticleJPA entity = mapper.toJPA(article);
+        repository.delete(entity);
+    }
+
 
 }

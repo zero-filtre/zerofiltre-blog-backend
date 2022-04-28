@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -19,7 +20,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBUserProvider.class, DBArticleProvider.class, DBVerificationTokenProvider.class, DBReactionProvider.class})
+@Import({DBUserProvider.class, DBArticleProvider.class, Slf4jLoggerProvider.class, DBVerificationTokenProvider.class, DBReactionProvider.class})
 class DeleteUserIT {
 
     public static final String TOKEN = "tokEN";
