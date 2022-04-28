@@ -42,7 +42,6 @@ public class UserController {
     private final SavePasswordReset savePasswordReset;
     private final UpdatePassword updatePassword;
     private final SecurityContextManager securityContextManager;
-    private final JwtAuthenticationTokenProperties jwTokenConfiguration;
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
@@ -65,7 +64,6 @@ public class UserController {
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
-        this.jwTokenConfiguration = jwTokenConfiguration;
         this.infraProperties = infraProperties;
         this.updateUser = new UpdateUser(userProvider);
         this.findArticle = new FindArticle(articleProvider);

@@ -1,16 +1,21 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import lombok.extern.slf4j.*;
+import org.springframework.context.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
 
+import javax.servlet.http.*;
 import javax.validation.*;
 import javax.validation.constraints.*;
 
@@ -23,12 +28,16 @@ public class ArticleController {
     private final InitArticle initArticle;
     private final FindArticle findArticle;
     private final SecurityContextManager securityContextManager;
+    private final DeleteArticle deleteArticle;
+    private final MessageSource sources;
 
-    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider, SecurityContextManager securityContextManager) {
+    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources) {
         this.securityContextManager = securityContextManager;
+        this.sources = sources;
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
         initArticle = new InitArticle(articleProvider);
         findArticle = new FindArticle(articleProvider);
+        deleteArticle = new DeleteArticle(articleProvider, loggerProvider);
     }
 
 
@@ -79,6 +88,13 @@ public class ArticleController {
     public Article init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
         return initArticle.execute(title, user);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteArticle(@PathVariable("id") long articleId, HttpServletRequest request) throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        deleteArticle.execute(user, articleId);
+        return sources.getMessage("message.delete.article.success", null, request.getLocale());
     }
 
 

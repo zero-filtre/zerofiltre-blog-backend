@@ -17,6 +17,7 @@ import java.util.*;
 @NoArgsConstructor
 @Table(name = "article")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@EqualsAndHashCode(callSuper = true)
 public class ArticleJPA extends BaseEntityJPA {
 
     private String title;

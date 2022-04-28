@@ -25,6 +25,7 @@ import tech.zerofiltre.blog.infra.providers.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
-        UserMailNotificationProvider.class, APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
+        UserMailNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -187,8 +188,8 @@ class UserControllerIT {
         registerUserVM = new RegisterUserVM(
                 "firstName lastName",
                 "password",
-                "password",
-                "hola@zerofiltre"
+                "pas$word",
+                "info@zerofiltre.tech"
         );
 
         //ACT
@@ -228,17 +229,11 @@ class UserControllerIT {
 
     @Test
     void onUserCreation_onEmptyData_thenReturn400() throws Exception {
-        registerUserVM = new RegisterUserVM(
-                "firstName lastName",
-                "password",
-                "password",
-                "hola@zerofiltre"
-        );
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(registerUserVM));
+                .content("");
 
         //ASSERT
         mockMvc.perform(request)

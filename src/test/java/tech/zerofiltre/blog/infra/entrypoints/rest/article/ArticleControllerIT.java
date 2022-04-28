@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -23,6 +24,7 @@ import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
@@ -37,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class,
-        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class})
 class ArticleControllerIT {
 
     public static final String TITLE = "Des applications très évolutives alignées aux derniers standards.";
@@ -234,6 +236,19 @@ class ArticleControllerIT {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.title").value(TITLE));
+
+    }
+
+    @Test
+    @WithMockUser
+    void onDeleteArticle_whenValidInput_thenReturn204() throws Exception {
+
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.delete("/article/12");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
 
     }
 
