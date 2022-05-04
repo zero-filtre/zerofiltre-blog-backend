@@ -89,7 +89,7 @@ def runApp() {
                """
         }
         sh """
-                kubectl set image deployment/zerofiltretech-blog-${env_name} zerofiltretech-blog-${env_name}=${api_image_tag} -n zerofiltretech-${env_name}
+                kubectl set image deployment/zerofiltretech-blog-${env_name} zerofiltretech-blog-${env_name}=${api_image_tag} -n zerofiltretech-${env_name} --record
                 if ! kubectl rollout status -w deployment/zerofiltretech-blog-${env_name} -n zerofiltretech-${env_name}; then
                     kubectl rollout undo deployment.v1.apps/zerofiltretech-blog-${env_name} -n zerofiltretech-${env_name}
                     kubectl rollout status deployment/zerofiltretech-blog-${env_name} -n zerofiltretech-${env_name}
