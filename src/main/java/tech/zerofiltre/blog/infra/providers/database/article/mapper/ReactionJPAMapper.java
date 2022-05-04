@@ -7,7 +7,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 @Mapper(uses = UserJPAMapper.class)
-public abstract class ReactionJPAMapper {
+public interface ReactionJPAMapper {
 
     @Mapping(target = "author", source = "authorId", qualifiedByName = "authorFromId")
     @Mapping(target = "article", source = "articleId", qualifiedByName = "articleFromId")
@@ -18,7 +18,7 @@ public abstract class ReactionJPAMapper {
     public abstract Reaction fromJPA(ReactionJPA reactionJPA);
 
     @Named("authorFromId")
-    UserJPA authorFromId(long authorId) {
+    default UserJPA authorFromId(long authorId) {
         UserJPA userJPA = new UserJPA();
         userJPA.setId(authorId);
         return userJPA;
@@ -26,7 +26,7 @@ public abstract class ReactionJPAMapper {
     }
 
     @Named("articleFromId")
-    ArticleJPA articleFromId(long articleId) {
+    default ArticleJPA articleFromId(long articleId) {
         ArticleJPA articleJPA = new ArticleJPA();
         articleJPA.setId(articleId);
         return articleJPA;
