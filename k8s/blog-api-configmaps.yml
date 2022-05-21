@@ -58,7 +58,7 @@ data:
   
   github_client_id: dee4a78da7c2c935ae27
   stackoverflow_key: ZAeo5W0MnZPxiEBgb99MvA((
-  allowed_origins_pattern: https://blog-uat.zerofiltre.tech
+  allowed_origins_pattern: https://uat.zerofiltre.tech
   
   reminder_rate: "864000000" #10 days
   reminder_initial_delay: "864000000" #10 days
