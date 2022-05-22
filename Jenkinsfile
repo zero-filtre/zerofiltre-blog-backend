@@ -1,5 +1,6 @@
 def label = "worker-${UUID.randomUUID().toString()}"
 
+
 podTemplate(label: label, containers: [
         containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
         containerTemplate(name: 'kubectl', image: 'roffe/kubectl', command: 'cat', ttyEnabled: true),
@@ -12,7 +13,9 @@ podTemplate(label: label, containers: [
     node(label) {
         try {
             stage('Checkout') {
-                checkout scm
+                scm_vars = checkout scm
+                env.GIT_COMMIT = scm_vars.GIT_COMMIT
+
             }
 
             stage('Build with tests') {
@@ -60,10 +63,18 @@ podTemplate(label: label, containers: [
                     runApp()
                 }
             }
+        } catch(exc) {
+            currentBuild.result = 'FAILURE'
+            throw exc
         } finally {
-            //send email
+            if(currentBuild.result=='FAILURE') {
+                script {
+                    env.COMMIT_AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%an' ${env.GIT_COMMIT}", returnStdout: true)
+                    env.COMMIT_AUTHOR_EMAIL = sh(script: "git --no-pager show -s --format='%ae' ${env.GIT_COMMIT}", returnStdout: true)
+                }
+                sendEmail()
+            }
         }
-
     }
 }
 
@@ -117,11 +128,19 @@ String getApiHost(String branchName) {
 }
 
 String getTag(String buildNumber, String branchName) {
-    String tag = "imzerofiltre/zerofiltretech-blog:" + UUID.randomUUID().toString() +'-'+buildNumber
+    String tag = "imzerofiltre/zerofiltretech-blog:" + UUID.randomUUID().toString() + '-' + buildNumber
     if (branchName == 'main') {
         return tag + '-stable'
     }
     return tag + '-unstable'
+}
+
+def sendEmail() {
+    String url = env.BUILD_URL.replace("http://jenkins:8080","https://jenkins.zerofiltre.tech")
+    mail(
+            to: env.COMMIT_AUTHOR_EMAIL,
+            subject: env.COMMIT_AUTHOR_NAME + " build #${env.BUILD_NUMBER} is a ${currentBuild.currentResult} - (${currentBuild.fullDisplayName})",
+            body: "Check console output at: ${url}/console" + "\n")
 }
 
 
