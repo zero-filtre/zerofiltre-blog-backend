@@ -25,7 +25,7 @@ public class ZerofiltreUtils {
     public static final String TEST_STACKOVERFLOW_LINK = "https://stackoverflow.com/users/5615357/philippe-simo";
     public static final String TEST_LINKEDIN_LINK = "https://www.linkedin.com/in/philippesimo/";
     public static final String TEST_PROFESSION = "Senior Java Developer";
-    public static final String TEST_WEBSITE = "https://zerofiltre.tech";
+    public static final String ROOT_URL = "https://zerofiltre.tech";
 
     private ZerofiltreUtils() {
     }
@@ -110,7 +110,7 @@ public class ZerofiltreUtils {
         user.setBio(TEST_BIO);
         user.setProfession(TEST_PROFESSION);
         user.setSocialLinks(socialLinks);
-        user.setWebsite(TEST_WEBSITE);
+        user.setWebsite(ROOT_URL);
         if (isAdmin)
             user.getRoles().add("ROLE_ADMIN");
         user.setLoginFrom(SocialLink.Platform.LINKEDIN);
@@ -164,7 +164,7 @@ public class ZerofiltreUtils {
     }
 
     public static String getOriginUrl(String env) {
-        return env.equals("prod") ? "https://blog.zerofiltre.tech" : "https://blog-" + env + ".zerofiltre.tech";
+        return env.equals("prod") ? ROOT_URL : "https://" + env + ".zerofiltre.tech";
     }
 
     public static String hex(byte[] array) {

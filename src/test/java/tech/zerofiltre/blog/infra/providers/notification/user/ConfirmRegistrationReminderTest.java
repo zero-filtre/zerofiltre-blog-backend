@@ -61,26 +61,26 @@ class ConfirmRegistrationReminderTest {
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForUAT() {
         when(infraProperties.getEnv()).thenReturn("uat");
-        testRemindConfirmRegistration("https://blog-uat.zerofiltre.tech");
+        testRemindConfirmRegistration("https://uat.zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForProd() {
         when(infraProperties.getEnv()).thenReturn("prod");
-        testRemindConfirmRegistration("https://blog.zerofiltre.tech");
+        testRemindConfirmRegistration("https://zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData_ForDev() {
-        testRemindConfirmRegistration("https://blog-dev.zerofiltre.tech");
+        testRemindConfirmRegistration("https://dev.zerofiltre.tech");
 
     }
 
     @Test
     void remindConfirmRegistration_mustSendEmailWithProperData() {
-        testRemindConfirmRegistration("https://blog-dev.zerofiltre.tech");
+        testRemindConfirmRegistration("https://dev.zerofiltre.tech");
 
     }
 
