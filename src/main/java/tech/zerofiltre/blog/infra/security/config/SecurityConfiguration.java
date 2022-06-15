@@ -125,6 +125,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/github/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();

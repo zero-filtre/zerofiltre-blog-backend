@@ -1,5 +1,14 @@
 #System env variables takes precedence over application-x.yml(properties) variables !!!
 # Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 ot use as server.port
+management:
+    endpoints:
+        web:
+            exposure:
+                include: '*'
+
+    endpoint:
+        health:
+            show-details: always
 logging:
   level:
     org:
