@@ -48,8 +48,8 @@ data:
   spring_mail_host: smtp.gmail.com
   spring_mail_port: "587"
   spring_mail_username: philippesimo@zerofiltre.tech
-  spring_datasource_username: blog_api_dev
-  spring_datasource_url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_dev
+  spring_datasource_username: blog_api
+  spring_datasource_url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb
   hibernate_ddl_auto: update
   zerofiltre_env: uat
   
