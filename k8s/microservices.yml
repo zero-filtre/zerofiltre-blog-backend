@@ -30,14 +30,14 @@ spec:
               httpGet:
                 path: /article?pageNumber=0&pageSize=1&status=published
                 port: 80
-              initialDelaySeconds: 3
+              initialDelaySeconds: 10
               periodSeconds: 3
 
           readinessProbe:
               httpGet:
                 path: /article?pageNumber=0&pageSize=1&status=published
                 port: 80
-              initialDelaySeconds: 3
+              initialDelaySeconds: 10
               periodSeconds: 3
           env:
             - name: SPRING_MAIL_PASSWORD
