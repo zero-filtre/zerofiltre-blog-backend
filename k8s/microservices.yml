@@ -26,19 +26,26 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          resources:
+            requests:
+                cpu: "500m"
+                memory: "500Mi"
+            limits:
+                cpu: "1"
+                memory: "1Gi"
           livenessProbe:
               httpGet:
                 path: /article?pageNumber=0&pageSize=1&status=published
                 port: 80
-              initialDelaySeconds: 10
-              periodSeconds: 3
+              initialDelaySeconds: 30
+              periodSeconds: 10
 
           readinessProbe:
               httpGet:
                 path: /article?pageNumber=0&pageSize=1&status=published
                 port: 80
-              initialDelaySeconds: 10
-              periodSeconds: 3
+              initialDelaySeconds: 30
+              periodSeconds: 10
           env:
             - name: SPRING_MAIL_PASSWORD
               valueFrom:
