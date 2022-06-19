@@ -83,7 +83,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
-                log.info("Trying to get Stackoverflow user info from opaque token");
+                log.debug("Trying to get Stackoverflow user info from opaque token");
                 StackOverflowUser stackOverflowUser;
                 Map<String, String> uriVariables = new HashMap<>();
                 uriVariables.put("site", SITE);

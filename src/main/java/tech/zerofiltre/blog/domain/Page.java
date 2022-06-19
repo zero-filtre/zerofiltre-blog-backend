@@ -91,4 +91,18 @@ public class Page<T> {
     public void setTotalNumberOfPages(int totalNumberOfPages) {
         this.totalNumberOfPages = totalNumberOfPages;
     }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "pageSize=" + pageSize +
+                ", pageNumber=" + pageNumber +
+                ", numberOfElements=" + numberOfElements +
+                ", totalNumberOfElements=" + totalNumberOfElements +
+                ", totalNumberOfPages=" + totalNumberOfPages +
+                ", content=" + content +
+                ", hasNext=" + hasNext +
+                ", hasPrevious=" + hasPrevious +
+                '}';
+    }
 }
