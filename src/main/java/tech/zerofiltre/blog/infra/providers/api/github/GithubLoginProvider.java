@@ -60,7 +60,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
-                log.info("Trying to get github user info from opaque token");
+                log.debug("Trying to get github user info from opaque token");
                 String finalUrl = apiUrl + "user";
                 HttpEntity requestEntity = new HttpEntity(new GithubAPIHeadersBuilder()
                         .withOAuth("token", token)

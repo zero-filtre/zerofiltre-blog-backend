@@ -58,7 +58,7 @@ public class ArticleController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (BlogException e) {
-            log.info("We did not find a connected user but we can still return published articles", e);
+            log.trace("We did not find a connected user but we can still return published articles", e);
         }
 
         status = status.toUpperCase();
