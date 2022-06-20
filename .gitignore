@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Perf tests results ###
+/src/main/resources/jmeter/results/

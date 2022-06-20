@@ -18,19 +18,20 @@ podTemplate(label: label, containers: [
 
             }
 
-            stage('Build with tests') {
-                container('maven') {
-                    sh "mvn clean package "
+            if (getEnvName(env.BRANCH_NAME) != 'uat' && getEnvName(env.BRANCH_NAME) != 'prod') {
+                stage('Build + unit tests') {
+                    container('maven') {
+                        sh "mvn clean package "
+                    }
                 }
             }
 
-            if (getEnvName(env.BRANCH_NAME) == 'uat' || getEnvName(env.BRANCH_NAME) == 'prod') {
+            if (getEnvName(env.BRANCH_NAME) == 'uat') {
                 stage('Integration tests') {
                     container('maven') {
                         sh "mvn failsafe:integration-test "
                     }
                 }
-
             }
 
             stage('Sonarqube Analysis') {
@@ -61,6 +62,14 @@ podTemplate(label: label, containers: [
 
                 stage('Deploy on k8s') {
                     runApp()
+                }
+
+                if (getEnvName(env.BRANCH_NAME) == 'uat') {
+                    stage('Perf tests') {
+                        container('maven') {
+                            sh "mvn jmeter:jmeter jmeter:results "
+                        }
+                    }
                 }
             }
         } catch(exc) {
