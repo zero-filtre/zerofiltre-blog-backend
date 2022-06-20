@@ -299,6 +299,7 @@
                 <configuration>
                     <testFilesDirectory>${project.basedir}/src/main/resources/jmeter/sources</testFilesDirectory>
                     <resultsDirectory>${project.basedir}/src/main/resources/jmeter/results</resultsDirectory>
+                    <errorRateThresholdInPercent>10</errorRateThresholdInPercent>
                 </configuration>
             </plugin>
         </plugins>

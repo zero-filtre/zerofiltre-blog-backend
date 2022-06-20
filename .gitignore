@@ -34,3 +34,5 @@ build/
 
 ### Perf tests results ###
 /src/main/resources/jmeter/results/
+
+test-docker-compose.yml

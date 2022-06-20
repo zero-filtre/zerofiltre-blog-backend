@@ -5,8 +5,8 @@ metadata:
   name: zerofiltretech-blog-${env_name}
 spec:
   minReadySeconds: 30
-  progressDeadlineSeconds: 120
-  replicas: 1
+  progressDeadlineSeconds: 300
+  replicas: ${replicas}
   selector:
     matchLabels:
       app: zerofiltretech-blog-${env_name}
@@ -28,30 +28,33 @@ spec:
             - containerPort: 80
           resources:
             requests:
-                cpu: "0.5"
-                memory: "1Gi"
+                cpu: ${requests_cpu}
+                memory: ${requests_memory}
             limits:
-                cpu: "2"
-                memory: "4Gi"
+                cpu: ${limits_cpu}
+                memory: ${limits_memory}
           livenessProbe:
               httpGet:
-                path: /article?pageNumber=0&pageSize=1&status=published
+                path: /actuator/health
                 port: 80
-              initialDelaySeconds: 30
+              initialDelaySeconds: 10
               periodSeconds: 300
+              timeoutSeconds: 5
 
           readinessProbe:
               httpGet:
-                path: /article?pageNumber=0&pageSize=1&status=published
+                path: /actuator/health
                 port: 80
               initialDelaySeconds: 30
-              periodSeconds: 10
+              periodSeconds: 300
+              timeoutSeconds: 5
 
           startupProbe:
               httpGet:
-                path: /article?pageNumber=0&pageSize=1&status=published
+                path: /actuator/health
                 port: 80
-              initialDelaySeconds: 30
+              initialDelaySeconds: 60
+              timeoutSeconds: 10
 
           env:
             - name: SPRING_MAIL_PASSWORD

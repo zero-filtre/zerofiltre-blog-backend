@@ -18,11 +18,9 @@ podTemplate(label: label, containers: [
 
             }
 
-            if (getEnvName(env.BRANCH_NAME) != 'uat' && getEnvName(env.BRANCH_NAME) != 'prod') {
-                stage('Build + unit tests') {
-                    container('maven') {
-                        sh "mvn clean package "
-                    }
+            stage('Build + unit tests') {
+                container('maven') {
+                    sh "mvn clean package "
                 }
             }
 
@@ -51,8 +49,12 @@ podTemplate(label: label, containers: [
 
             withEnv(["api_image_tag=${getTag(env.BUILD_NUMBER, env.BRANCH_NAME)}",
                      "env_name=${getEnvName(env.BRANCH_NAME)}",
-                     "api_host=${getApiHost(env.BRANCH_NAME)}"
-
+                     "api_host=${getApiHost(env.BRANCH_NAME)}",
+                     "replicas=${getReplicas(env.BRANCH_NAME)}",
+                     "requests_cpu=${getRequestsCPU(env.BRANCH_NAME)}",
+                     "requests_memory=${getRequestsMemory(env.BRANCH_NAME)}",
+                     "limits_cpu=${getLimitsCPU(env.BRANCH_NAME)}",
+                     "limits_memory=${getLimitsMemory(env.BRANCH_NAME)}"
             ]) {
                 stage('Build and push API to docker registry') {
                     withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
@@ -72,11 +74,11 @@ podTemplate(label: label, containers: [
                     }
                 }
             }
-        } catch(exc) {
+        } catch (exc) {
             currentBuild.result = 'FAILURE'
             throw exc
         } finally {
-            if(currentBuild.result=='FAILURE') {
+            if (currentBuild.result == 'FAILURE') {
                 script {
                     env.COMMIT_AUTHOR_NAME = sh(script: "git --no-pager show -s --format='%an' ${env.GIT_COMMIT}", returnStdout: true)
                     env.COMMIT_AUTHOR_EMAIL = sh(script: "git --no-pager show -s --format='%ae' ${env.GIT_COMMIT}", returnStdout: true)
@@ -127,6 +129,45 @@ String getEnvName(String branchName) {
     return (branchName == 'ready') ? 'uat' : 'dev'
 }
 
+String getRequestsCPU(String branchName) {
+    if (branchName == 'main') {
+        return '1'
+    } else {
+        return '0.5'
+    }
+}
+
+String getRequestsMemory(String branchName) {
+    if (branchName == 'main') {
+        return '1Gi'
+    } else {
+        return '0.5Gi'
+    }
+}
+
+String getLimitsCPU(String branchName) {
+    if (branchName == 'main') {
+        return '2'
+    } else {
+        return '1'
+    }
+}
+
+String getLimitsMemory(String branchName) {
+    if (branchName == 'main') {
+        return '4Gi'
+    } else {
+        return '1Gi'
+    }
+}
+
+String getReplicas(String branchName) {
+    if (branchName == 'main') {
+        return '3'
+    }
+    return (branchName == 'ready') ? '2' : '1'
+}
+
 String getApiHost(String branchName) {
     String prefix = "blog-api"
     String suffix = ".zerofiltre.tech"
@@ -145,7 +186,7 @@ String getTag(String buildNumber, String branchName) {
 }
 
 def sendEmail() {
-    String url = env.BUILD_URL.replace("http://jenkins:8080","https://jenkins.zerofiltre.tech")
+    String url = env.BUILD_URL.replace("http://jenkins:8080", "https://jenkins.zerofiltre.tech")
     mail(
             to: env.COMMIT_AUTHOR_EMAIL,
             subject: env.COMMIT_AUTHOR_NAME + " build #${env.BUILD_NUMBER} is a ${currentBuild.currentResult} - (${currentBuild.fullDisplayName})",
