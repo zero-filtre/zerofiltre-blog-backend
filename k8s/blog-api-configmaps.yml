@@ -81,8 +81,8 @@ data:
   spring_mail_host: smtp.gmail.com
   spring_mail_port: "587"
   spring_mail_username: philippesimo@zerofiltre.tech
-  spring_datasource_username: blog_api
-  spring_datasource_url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb
+  spring_datasource_username: blog_api_prod
+  spring_datasource_url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_prod
   hibernate_ddl_auto: validate
   zerofiltre_env: prod
   
@@ -91,7 +91,7 @@ data:
   
   github_client_id: 844176f44da589a27331
   stackoverflow_key: MmkGEKkwJgc33dqad48n3A((
-  allowed_origins_pattern: https://blog-dev.zerofiltre.tech
+  allowed_origins_pattern: https://zerofiltre.tech
   
   reminder_rate: "864000000" #10 days
   reminder_initial_delay: "864000000" #10 days
