@@ -2,20 +2,25 @@ package tech.zerofiltre.blog.infra.providers.database.article.model;
 
 import lombok.*;
 import tech.zerofiltre.blog.infra.providers.database.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
 import javax.persistence.*;
 import java.util.*;
 
-@Data
+@Entity
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Entity
-public class TagJPA extends BaseEntity {
+@Table(name = "tag")
+@EqualsAndHashCode(callSuper = true,exclude = "articles")
+public class TagJPA extends BaseEntityJPA {
 
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags")
     private List<ArticleJPA> articles;
+
+    @Column(unique = true)
+    private String name;
+
+    private String colorCode;
+
 }

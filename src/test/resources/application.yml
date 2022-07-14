@@ -1,0 +1,71 @@
+#System env variables takes precedence over application-x.yml(properties) variables !!!
+# Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 ot use as server.port
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+      springframework:
+        web: INFO
+    tech:
+      zerofiltre: DEBUG
+server:
+  port: 80
+
+spring:
+  liquibase:
+    enabled: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: philippesimo@zerofiltre.tech
+    password: upoafthyaafaadzr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  datasource:
+    driverClassName: org.h2.Driver
+    password: password
+    url: jdbc:h2:mem:testdb
+    username: sa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  messages:
+    fallback-to-system-locale: false
+    basename: i18n.messages
+
+
+springdoc:
+  packagesToScan: tech.zerofiltre.blog
+  pathsToMatch: /**
+
+zerofiltre:
+  env: dev
+  infra:
+    security:
+      jwt:
+        expiration-seconds: 86400 #minutes
+        secret: JwtSecretKey
+        prefix: Bearer
+        header: Authorization
+        uri: /auth/**
+    api:
+      github:
+        root-url: https://api.github.com/
+        client-id: 9b6bffa9841d19dfd8aa
+        client-secret: 1e70ed907875eb633f6232235e4c4037888d0adb
+      stackoverflow:
+        version: 2.3
+        root-url: https://api.stackexchange.com/
+        key: ZAeo5W0MnZPxiEBgb99MvA((
+    entrypoints:
+      rest:
+        api-version: 1.0
+        allowed-origins-pattern: "*"
+    reminder-rate: 100
+    reminder-initial-delay: 0
+    max-attempts: 1

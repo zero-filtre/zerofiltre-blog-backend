@@ -1,20 +1,87 @@
+#System env variables takes precedence over application-x.yml(properties) variables !!!
+# Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 ot use as server.port
+management:
+    endpoints:
+        web:
+            exposure:
+                include: '*'
+
+    endpoint:
+        health:
+            show-details: always
 logging:
   level:
     org:
       hibernate:
         SQL: DEBUG
+      springframework:
+        web: DEBUG
+    tech:
+      zerofiltre: DEBUG
 server:
-  port: 3534
+  port: 80
 
 spring:
+  liquibase:
+    change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml
+  mvc:
+    log-request-details: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: philippesimo@zerofiltre.tech
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
-    driverClassName: org.h2.Driver
-    password: password
-    url: jdbc:h2:mem:testdb
-    username: sa
+    username: blog_api_dev
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_dev
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+
+
+
+  messages:
+    fallback-to-system-locale: false
+    basename: i18n.messages
 
 springdoc:
   packagesToScan: tech.zerofiltre.blog
   pathsToMatch: /**
+
+zerofiltre:
+  env: dev
+  infra:
+    security:
+      jwt:
+        expiration-seconds: 86400
+        secret: JwtSecretKey
+        prefix: Bearer
+        header: Authorization
+        uri: /auth/**
+    api:
+      github:
+        root-url: https://api.github.com/
+        client-id: 9b6bffa9841d19dfd8aa
+        client-secret: ${GITHUB_CLIENT_SECRET}
+      stackoverflow:
+        version: 2.3
+        root-url: https://api.stackexchange.com/
+        key: ZAeo5W0MnZPxiEBgb99MvA((
+    entrypoints:
+      rest:
+        api-version: 1.0
+        allowed-origins-pattern: "*"
+    reminder-rate: 864000000 #10 days
+    reminder-initial-delay: 864000000 #10 days
+    max-attempts: 2
+
+

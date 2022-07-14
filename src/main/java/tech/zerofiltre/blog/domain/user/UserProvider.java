@@ -10,5 +10,11 @@ public interface UserProvider {
 
     List<User> users();
 
-    User create(User user);
+    User save(User user);
+
+    Optional<User> userOfEmail(String email);
+
+    List<User> nonActiveUsers();
+
+    void deleteUser(User user);
 }

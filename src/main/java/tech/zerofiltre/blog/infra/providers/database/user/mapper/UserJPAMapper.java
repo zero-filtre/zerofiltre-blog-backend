@@ -4,7 +4,7 @@ import org.mapstruct.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
-@Mapper
+@Mapper(uses = SocialLinkJPAMapper.class)
 public interface UserJPAMapper {
 
     UserJPA toJPA(User user);

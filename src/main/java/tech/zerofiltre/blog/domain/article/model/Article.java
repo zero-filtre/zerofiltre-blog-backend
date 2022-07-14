@@ -7,29 +7,19 @@ import java.util.*;
 
 public class Article {
     private long id;
-    private String title;
+    private String title = "Donnez-moi un titre!";
     private String thumbnail;
     private String content;
     private User author;
+    private LocalDateTime createdAt;
     private LocalDateTime publishedAt;
-    private List<Reaction> reactions;
-    private Status status;
-    private List<Tag> tags;
+    private LocalDateTime lastPublishedAt;
+    private LocalDateTime lastSavedAt;
+    private List<Reaction> reactions = new ArrayList<>();
+    private Status status = Status.DRAFT;
+    private List<Tag> tags = new ArrayList<>();
+    private String summary;
 
-    public Article() {
-    }
-
-    public Article(long id, String title, String thumbnail, String content, User author, LocalDateTime publishedAt, List<Reaction> reactions, Status status, List<Tag> tags) {
-        this.id = id;
-        this.title = title;
-        this.thumbnail = thumbnail;
-        this.content = content;
-        this.author = author;
-        this.publishedAt = publishedAt;
-        this.reactions = reactions;
-        this.status = status;
-        this.tags = tags;
-    }
 
     public long getId() {
         return id;
@@ -101,5 +91,70 @@ public class Article {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public LocalDateTime getLastPublishedAt() {
+        return lastPublishedAt;
+    }
+
+    public void setLastPublishedAt(LocalDateTime lastPublishedAt) {
+        this.lastPublishedAt = lastPublishedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getLastSavedAt() {
+        return lastSavedAt;
+    }
+
+    public void setLastSavedAt(LocalDateTime lastSavedAt) {
+        this.lastSavedAt = lastSavedAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Article)) return false;
+        Article article = (Article) o;
+        return getId() == article.getId() && Objects.equals(getTitle(), article.getTitle()) && Objects.equals(getThumbnail(), article.getThumbnail()) && Objects.equals(getContent(), article.getContent()) && Objects.equals(getAuthor(), article.getAuthor()) && Objects.equals(getCreatedAt(), article.getCreatedAt()) && Objects.equals(getPublishedAt(), article.getPublishedAt()) && Objects.equals(getLastPublishedAt(), article.getLastPublishedAt()) && Objects.equals(getLastSavedAt(), article.getLastSavedAt()) && Objects.equals(getReactions(), article.getReactions()) && getStatus() == article.getStatus() && Objects.equals(getTags(), article.getTags());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle(), getThumbnail(), getContent(), getAuthor(), getCreatedAt(), getPublishedAt(), getLastPublishedAt(), getLastSavedAt(), getReactions(), getStatus(), getTags());
+    }
+
+    @Override
+    public String toString() {
+        return "Article{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", content='" + content + '\'' +
+                ", author=" + author +
+                ", createdAt=" + createdAt +
+                ", publishedAt=" + publishedAt +
+                ", lastPublishedAt=" + lastPublishedAt +
+                ", lastSavedAt=" + lastSavedAt +
+                ", reactions=" + reactions +
+                ", status=" + status +
+                ", tags=" + tags +
+                ", summary='" + summary + '\'' +
+                '}';
     }
 }

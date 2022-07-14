@@ -1,13 +1,20 @@
 package tech.zerofiltre.blog;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.cache.annotation.*;
+import org.springframework.retry.annotation.*;
+import org.springframework.scheduling.annotation.*;
 
+@EnableScheduling
+@EnableRetry
 @SpringBootApplication
+@EnableCaching
 public class ZerofiltreBlogApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ZerofiltreBlogApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ZerofiltreBlogApplication.class, args);
+    }
+
 
 }
