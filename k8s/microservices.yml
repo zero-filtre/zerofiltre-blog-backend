@@ -5,7 +5,7 @@ metadata:
   name: zerofiltretech-blog-${env_name}
 spec:
   minReadySeconds: 30
-  progressDeadlineSeconds: 300
+  progressDeadlineSeconds: 600
   replicas: ${replicas}
   selector:
     matchLabels:
