@@ -163,9 +163,9 @@ String getLimitsMemory(String branchName) {
 
 String getReplicas(String branchName) {
     if (branchName == 'main') {
-        return '3'
+        return '1'
     }
-    return (branchName == 'ready') ? '2' : '1'
+    return (branchName == 'ready') ? '1' : '1'
 }
 
 String getApiHost(String branchName) {

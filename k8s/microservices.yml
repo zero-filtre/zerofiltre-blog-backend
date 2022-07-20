@@ -5,7 +5,7 @@ metadata:
   name: zerofiltretech-blog-${env_name}
 spec:
   minReadySeconds: 30
-  progressDeadlineSeconds: 600
+  progressDeadlineSeconds: 300
   replicas: ${replicas}
   selector:
     matchLabels:
@@ -37,7 +37,6 @@ spec:
               httpGet:
                 path: /actuator/health
                 port: 80
-              initialDelaySeconds: 10
               periodSeconds: 300
               timeoutSeconds: 5
 
@@ -45,8 +44,7 @@ spec:
               httpGet:
                 path: /actuator/health
                 port: 80
-              initialDelaySeconds: 30
-              periodSeconds: 300
+              periodSeconds: 30
               timeoutSeconds: 5
 
           startupProbe:
@@ -54,7 +52,7 @@ spec:
                 path: /actuator/health
                 port: 80
               initialDelaySeconds: 60
-              timeoutSeconds: 10
+              timeoutSeconds: 5
 
           env:
             - name: SPRING_MAIL_PASSWORD
