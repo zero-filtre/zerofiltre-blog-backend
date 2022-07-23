@@ -68,8 +68,12 @@ podTemplate(label: label, containers: [
 
                 if (getEnvName(env.BRANCH_NAME) == 'uat') {
                     stage('Perf tests') {
-                        container('maven') {
-                            sh "mvn jmeter:jmeter jmeter:results "
+                        try{
+                            container('maven') {
+                                sh "mvn jmeter:jmeter jmeter:results "
+                            }
+                        }catch (error){
+                            echo error.getMessage()
                         }
                     }
                 }
