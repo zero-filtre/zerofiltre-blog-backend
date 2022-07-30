@@ -6,7 +6,6 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.retry.backoff.*;
 import org.springframework.retry.policy.*;
 import org.springframework.retry.support.*;
-import org.springframework.web.filter.*;
 
 import java.time.*;
 
@@ -25,17 +24,6 @@ public class InfraConfiguration {
         retryTemplate.setRetryPolicy(retryPolicy);
 
         return retryTemplate;
-    }
-
-    @Bean
-    public CommonsRequestLoggingFilter logFilter() {
-        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-        filter.setIncludeQueryString(true);
-        filter.setIncludePayload(true);
-        filter.setMaxPayloadLength(10000);
-        filter.setIncludeHeaders(false);
-        filter.setAfterMessagePrefix("REQUEST DATA : ");
-        return filter;
     }
 
     @Bean
