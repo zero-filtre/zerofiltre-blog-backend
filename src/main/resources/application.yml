@@ -12,12 +12,9 @@ management:
 logging:
   level:
     org:
-      hibernate:
-        SQL: INFO
-      springframework:
-        web: DEBUG
-    tech:
-      zerofiltre: DEBUG
+      zalando.logbook : TRACE
+      hibernate.SQL: INFO
+    tech.zerofiltre: DEBUG
 server:
   port: 80
 
