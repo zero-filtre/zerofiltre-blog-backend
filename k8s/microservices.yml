@@ -14,7 +14,19 @@ spec:
     metadata:
       labels:
         app: zerofiltretech-blog-${env_name}
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'internal-app'
+        vault.hashicorp.com/agent-inject-secret-config: '${env_name}/data/zerofiltre-blog-api'
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "${env_name}/data/zerofiltre-blog-api" -}}
+            export SPRING_MAIL_PASSWORD='{{ .Data.data.spring_mail_password }}'
+            export SPRING_DATASOURCE_PASSWORD='{{ .Data.data.spring_datasource_password }}'
+            export SECURITY_JWT_SECRET='{{ .Data.data.security_jwt_secret }}'
+            export GITHUB_CLIENT_SECRET='{{ .Data.data.github_client_secret }}'
+          {{- end -}}
     spec:
+      serviceAccountName: internal-app
       containers:
         - name: redis-${env_name}
           image: redis
@@ -53,28 +65,10 @@ spec:
                 port: 80
               initialDelaySeconds: 60
               timeoutSeconds: 5
+              failureThreshold: 10
 
           env:
-            - name: SPRING_MAIL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_mail_password
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_datasource_password
-            - name: SECURITY_JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: security_jwt_secret
-            - name: GITHUB_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: github_client_secret
+
             - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
               valueFrom:
                 configMapKeyRef:
