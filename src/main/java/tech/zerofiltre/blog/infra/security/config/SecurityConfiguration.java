@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.*;
 import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.filter.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
@@ -37,7 +36,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final VerificationTokenProvider verificationTokenProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final Jackson2ObjectMapperBuilder objectMapperBuilder;
-    private final RequestMDCFilter requestLoggingFilter;
 
     public SecurityConfiguration(
             UserDetailsService userDetailsService,
@@ -47,7 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             PasswordEncoder passwordEncoder,
             StackOverflowAuthenticationTokenProperties stackOverflowTokenConfiguration,
             GithubAuthenticationTokenProperties githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
-            GithubLoginProvider githubLoginProvider, UserProvider userProvider, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder, RequestMDCFilter requestLoggingFilter) {
+            GithubLoginProvider githubLoginProvider, UserProvider userProvider, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder) {
 
         this.userDetailsService = userDetailsService;
         this.jwTokenConfiguration = jwTokenConfiguration;
@@ -62,7 +60,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.verificationTokenProvider = verificationTokenProvider;
         this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapperBuilder = objectMapperBuilder;
-        this.requestLoggingFilter = requestLoggingFilter;
     }
 
     @Override
@@ -89,7 +86,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // handle an authorized attempt
                 .exceptionHandling().accessDeniedHandler(roleRequiredAccessDeniedHandler)
                 .and()
-                .addFilterBefore(requestLoggingFilter,UsernamePasswordAuthenticationFilter.class)
                 // Add a filter to validate user credentials and add token in the response header
 
                 // What's the authenticationManager()?
