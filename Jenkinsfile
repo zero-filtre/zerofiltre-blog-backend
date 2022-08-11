@@ -161,7 +161,7 @@ String getLimitsMemory(String branchName) {
     if (branchName == 'main') {
         return '4Gi'
     } else {
-        return '1Gi'
+        return '1.2Gi'
     }
 }
 
