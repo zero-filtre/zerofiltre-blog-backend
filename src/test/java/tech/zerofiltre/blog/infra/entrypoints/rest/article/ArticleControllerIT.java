@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -95,7 +94,7 @@ class ArticleControllerIT {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));
         when(articleProvider.save(any())).thenReturn(mockArticle);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), anyBoolean(), anyString())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), any(), anyString())).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false)
         );
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.ofNullable(mockArticle));
@@ -278,7 +277,7 @@ class ArticleControllerIT {
                 .param("pageNumber", "2")
                 .param("pageSize", "3")
                 .param("status", "PUBLISHED")
-                .param("byPopularity", "false")
+                .param("filter", "most_viewed")
                 .param("tag", "");
 
 

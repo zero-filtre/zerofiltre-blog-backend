@@ -47,4 +47,5 @@ public class ArticleJPA extends BaseEntityJPA {
     )
     private Set<TagJPA> tags;
     private String summary;
+    private long viewsCount;
 }

@@ -45,9 +45,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
+    public static final String NEW_BIO = "NEW_BIO";
     private static final String TOKEN = "token";
     private static final String PASSWORD = "COmplic$t6d";
-    public static final String NEW_BIO = "NEW_BIO";
     @Autowired
     MockMvc mockMvc;
 
@@ -409,7 +409,7 @@ class UserControllerIT {
 
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
-        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), anyBoolean(), anyString())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), any(), anyString())).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false));
 
         User user = new User();
@@ -422,7 +422,7 @@ class UserControllerIT {
                 .param("pageNumber", "2")
                 .param("pageSize", "3")
                 .param("status", "DRAFT")
-                .param("byPopularity", "false")
+                .param("filter", "POPULAR")
                 .param("tag", "");
 
 
