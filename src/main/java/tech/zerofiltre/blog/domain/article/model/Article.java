@@ -19,6 +19,7 @@ public class Article {
     private Status status = Status.DRAFT;
     private List<Tag> tags = new ArrayList<>();
     private String summary;
+    private long viewsCount;
 
 
     public long getId() {
@@ -126,17 +127,29 @@ public class Article {
         this.summary = summary;
     }
 
+    public long getViewsCount() {
+        return viewsCount;
+    }
+
+    public void setViewsCount(long viewsCount) {
+        this.viewsCount = viewsCount;
+    }
+
+    public void incrementViewsCount() {
+        this.viewsCount++;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Article)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Article article = (Article) o;
-        return getId() == article.getId() && Objects.equals(getTitle(), article.getTitle()) && Objects.equals(getThumbnail(), article.getThumbnail()) && Objects.equals(getContent(), article.getContent()) && Objects.equals(getAuthor(), article.getAuthor()) && Objects.equals(getCreatedAt(), article.getCreatedAt()) && Objects.equals(getPublishedAt(), article.getPublishedAt()) && Objects.equals(getLastPublishedAt(), article.getLastPublishedAt()) && Objects.equals(getLastSavedAt(), article.getLastSavedAt()) && Objects.equals(getReactions(), article.getReactions()) && getStatus() == article.getStatus() && Objects.equals(getTags(), article.getTags());
+        return id == article.id && viewsCount == article.viewsCount && Objects.equals(title, article.title) && Objects.equals(thumbnail, article.thumbnail) && Objects.equals(content, article.content) && Objects.equals(author, article.author) && Objects.equals(createdAt, article.createdAt) && Objects.equals(publishedAt, article.publishedAt) && Objects.equals(lastPublishedAt, article.lastPublishedAt) && Objects.equals(lastSavedAt, article.lastSavedAt) && Objects.equals(reactions, article.reactions) && status == article.status && Objects.equals(tags, article.tags) && Objects.equals(summary, article.summary);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getTitle(), getThumbnail(), getContent(), getAuthor(), getCreatedAt(), getPublishedAt(), getLastPublishedAt(), getLastSavedAt(), getReactions(), getStatus(), getTags());
+        return Objects.hash(id, title, thumbnail, content, author, createdAt, publishedAt, lastPublishedAt, lastSavedAt, reactions, status, tags, summary, viewsCount);
     }
 
     @Override
@@ -155,6 +168,7 @@ public class Article {
                 ", status=" + status +
                 ", tags=" + tags +
                 ", summary='" + summary + '\'' +
+                ", viewsCount=" + viewsCount +
                 '}';
     }
 }

@@ -15,8 +15,13 @@ public class FindArticle {
     }
 
     public Article byId(long id) throws ResourceNotFoundException {
-        return articleProvider.articleOfId(id)
+        Article result = articleProvider.articleOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id), Domains.ARTICLE.name()));
+
+        result.incrementViewsCount();
+        result = articleProvider.save(result);
+        return result;
+
     }
 
     public Page<Article> of(FindArticleRequest request) throws ForbiddenActionException, UnAuthenticatedActionException {
@@ -38,7 +43,7 @@ public class FindArticle {
         }
 
         long authorId = request.isYours() ? request.getUser().getId() : 0;
-        return articleProvider.articlesOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.isByPopularity(), request.getTag());
+        return articleProvider.articlesOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.getFilter(),request.getTag());
 
     }
 }

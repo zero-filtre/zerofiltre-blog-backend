@@ -20,12 +20,11 @@ import static tech.zerofiltre.blog.domain.article.model.Status.*;
 @ExtendWith(SpringExtension.class)
 class FindArticleTest {
 
+    FindArticle findArticle;
     @MockBean
     private ArticleProvider articleProvider;
-
-    FindArticle findArticle;
-    private int numberOfElements = 1;
-    private int totalNumberOfPages = 4;
+    private final int numberOfElements = 1;
+    private final int totalNumberOfPages = 4;
 
     @BeforeEach
     void setUp() {
@@ -39,6 +38,8 @@ class FindArticleTest {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
 
         //ACT
         Article article = findArticle.byId(12);
@@ -46,6 +47,23 @@ class FindArticleTest {
         //ASSERT
         assertThat(article).isEqualTo(mockArticle);
 
+    }
+
+    @Test
+    @DisplayName("Increment view count if article is found")
+    void mustIncrementViewIfArticleIsFound() throws ResourceNotFoundException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        assertThat(mockArticle.getViewsCount()).isZero();
+
+        //ACT
+        Article article = findArticle.byId(12);
+
+        //ASSERT
+        assertThat(article.getTitle()).isEqualTo(mockArticle.getTitle());
+        assertThat(article.getViewsCount()).isOne();
     }
 
     @Test
@@ -61,14 +79,14 @@ class FindArticleTest {
     }
 
     @Test
-    @DisplayName("Can ask for PUBLISHED article whatever the user")
+    @DisplayName("All users can ask for PUBLISHED article")
     void mustAllow_Asking_PublishedArticles_forAll() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         Article published = new Article();
         published.setStatus(PUBLISHED);
 
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), anyBoolean(), any())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), any(), any())).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
         );
 
@@ -76,7 +94,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, false, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
     }
@@ -93,7 +111,7 @@ class FindArticleTest {
     }
 
     @Test
-    @DisplayName("Not being authenticated, ask for DRAFT throws unauthenticatedExecption")
+    @DisplayName("Not being authenticated, ask for DRAFT throws unauthenticatedException")
     void mustThrowException_IfNotAuthenticatedButAskForDRAFT() {
         //ARRANGE
 
@@ -108,7 +126,7 @@ class FindArticleTest {
     void mustReturnAnArticle() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
         Article published = new Article();
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), anyBoolean(), any())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(PUBLISHED), anyLong(), any(), any())).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(published), true, false)
         );
 
@@ -120,7 +138,7 @@ class FindArticleTest {
 
         //ASSERT
         //call with authorId = 0
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, false, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
 
 
     }
@@ -132,7 +150,7 @@ class FindArticleTest {
         Article drafted = new Article();
         drafted.setStatus(DRAFT);
 
-        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong(), anyBoolean(), any())).thenReturn(
+        when(articleProvider.articlesOf(anyInt(), anyInt(), eq(DRAFT), anyLong(), any(), any())).thenReturn(
                 new Page<>(1, 0, numberOfElements, 1, totalNumberOfPages, Collections.singletonList(drafted), true, false)
         );
 
@@ -142,7 +160,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(request);
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0, false, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0, FindArticleRequest.Filter.POPULAR, null);
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
     }
@@ -164,14 +182,27 @@ class FindArticleTest {
 
 
         FindArticleRequest request = new FindArticleRequest(0, 3, PUBLISHED, new User());
-        request.setByPopularity(true);
         request.setTag("tag");
 
         findArticle.of(request);
 
         //ASSERT
         verify(articleProvider, times(1))
-                .articlesOf(0, 3, PUBLISHED, 0, true, "tag");
+                .articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, "tag");
+
+    }
+
+    @Test
+    void mustCallArticleProvider_WithMostViewed() throws ForbiddenActionException, UnAuthenticatedActionException {
+        //ARRANGE
+        FindArticleRequest request = new FindArticleRequest(0, 3, PUBLISHED, new User());
+        request.setFilter(FindArticleRequest.Filter.MOST_VIEWED);
+
+        findArticle.of(request);
+
+        //ASSERT
+        verify(articleProvider, times(1))
+                .articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.MOST_VIEWED, null);
 
     }
 
@@ -187,7 +218,7 @@ class FindArticleTest {
 
         //ASSERT
         verify(articleProvider, times(1))
-                .articlesOf(0, 3, PUBLISHED, 2, false, null);
+                .articlesOf(0, 3, PUBLISHED, 2, FindArticleRequest.Filter.POPULAR, null);
 
     }
 }
