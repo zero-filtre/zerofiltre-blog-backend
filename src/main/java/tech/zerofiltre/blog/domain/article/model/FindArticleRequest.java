@@ -8,8 +8,13 @@ public class FindArticleRequest {
     private Status status;
     private String tag;
     private User user;
-    private boolean byPopularity;
     private boolean yours;
+    private Filter filter = Filter.POPULAR;
+
+    public enum Filter {
+        POPULAR,
+        MOST_VIEWED;
+    }
 
     public FindArticleRequest() {
     }
@@ -69,11 +74,11 @@ public class FindArticleRequest {
         this.tag = tag;
     }
 
-    public boolean isByPopularity() {
-        return byPopularity;
+    public Filter getFilter() {
+        return filter;
     }
 
-    public void setByPopularity(boolean byPopularity) {
-        this.byPopularity = byPopularity;
+    public void setFilter(Filter filter) {
+        this.filter = filter;
     }
 }

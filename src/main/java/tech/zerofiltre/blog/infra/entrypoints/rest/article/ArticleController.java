@@ -2,7 +2,6 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import lombok.extern.slf4j.*;
 import org.springframework.context.*;
-import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
@@ -51,7 +50,7 @@ public class ArticleController {
             @RequestParam int pageNumber,
             @RequestParam int pageSize,
             @RequestParam String status,
-            @RequestParam(required = false) boolean byPopularity,
+            @RequestParam(required = false) String filter,
             @RequestParam(required = false) String tag
     ) throws ForbiddenActionException, UnAuthenticatedActionException {
         User user = null;
@@ -61,14 +60,20 @@ public class ArticleController {
             log.trace("We did not find a connected user but we can still return published articles", e);
         }
 
-        status = status.toUpperCase();
+
         FindArticleRequest request = new FindArticleRequest();
         request.setPageNumber(pageNumber);
         request.setPageSize(pageSize);
-        request.setStatus(Status.valueOf(status));
         request.setUser(user);
         request.setTag(tag);
-        request.setByPopularity(byPopularity);
+        if (filter != null){
+            filter = filter.toUpperCase();
+            request.setFilter(FindArticleRequest.Filter.valueOf(filter));
+        }
+        if (status != null){
+            status = status.toUpperCase();
+            request.setStatus(Status.valueOf(status));
+        }
         return findArticle.of(request);
     }
 
