@@ -89,6 +89,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: server_port
+            - name: THROTTLING_CAPACITY
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: throttling_capacity
+            - name: THROTTLING_TIME_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: throttling_time_seconds
             - name: SPRING_LIQUIBASE_CHANGELOG
               valueFrom:
                 configMapKeyRef:
