@@ -5,11 +5,16 @@ import tech.zerofiltre.blog.domain.user.model.*;
 public class FindArticleRequest {
     private int pageNumber;
     private int pageSize;
-    private Status status;
+    private Status status = Status.PUBLISHED;
     private String tag;
     private User user;
-    private boolean byPopularity;
     private boolean yours;
+    private Filter filter;
+
+    public enum Filter {
+        POPULAR,
+        MOST_VIEWED;
+    }
 
     public FindArticleRequest() {
     }
@@ -69,11 +74,11 @@ public class FindArticleRequest {
         this.tag = tag;
     }
 
-    public boolean isByPopularity() {
-        return byPopularity;
+    public Filter getFilter() {
+        return filter;
     }
 
-    public void setByPopularity(boolean byPopularity) {
-        this.byPopularity = byPopularity;
+    public void setFilter(Filter filter) {
+        this.filter = filter;
     }
 }

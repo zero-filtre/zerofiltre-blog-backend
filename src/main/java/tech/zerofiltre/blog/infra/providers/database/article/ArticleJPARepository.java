@@ -17,10 +17,16 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
     @Query("select a from ArticleJPA a WHERE a.status=?1 ORDER BY size(a.reactions) desc ")
     Page<ArticleJPA> findByReactionsDesc(Pageable pageable, Status status);
 
+    @Query("select a from ArticleJPA a WHERE a.status=?1 ORDER BY viewsCount desc ")
+    Page<ArticleJPA> findByViewsDesc(Pageable pageable, Status status);
+
     Page<ArticleJPA> findByStatusAndTagsName(Pageable pageable, Status status, String tag);
 
     Page<ArticleJPA> findByStatusAndAuthorIdAndTagsName(Pageable pageable, Status status, long authorId, String tagName);
 
     @Query("select a from ArticleJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY size(a.reactions) desc ")
     Page<ArticleJPA> findByReactionsAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
+
+    @Query("select a from ArticleJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY viewsCount desc ")
+    Page<ArticleJPA> findByViewsAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
 }

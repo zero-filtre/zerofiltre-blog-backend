@@ -1,5 +1,5 @@
 #System env variables takes precedence over application-x.yml(properties) variables !!!
-# Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 ot use as server.port
+# Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 to use as server.port
 management:
     endpoints:
         web:
@@ -12,16 +12,39 @@ management:
 logging:
   level:
     org:
-      hibernate:
-        SQL: DEBUG
-      springframework:
-        web: DEBUG
-    tech:
-      zerofiltre: DEBUG
+      zalando.logbook : TRACE
+      hibernate.SQL: INFO
+    tech.zerofiltre: DEBUG
 server:
   port: 80
 
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: rate-limit-buckets
+    url: .*
+    metrics:
+        enabled: true
+        tags:
+          - key: IP
+            expression: getRemote()
+            types: REJECTED_COUNTER
+    http-response-body: "{\"apiVersion\": \"1.0\",\"error\": {\"status\": \"429\",\"message\": \"TOO MANY REQUESTS!\"}}"
+    rate-limits:
+    - expression: "getRemote()"
+      bandwidths:
+      - capacity: 5
+        time: 10
+        unit: seconds
+
+
+
+
 spring:
+  cache:
+    cache-names:
+    - rate-limit-buckets
+
   liquibase:
     change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml
   mvc:

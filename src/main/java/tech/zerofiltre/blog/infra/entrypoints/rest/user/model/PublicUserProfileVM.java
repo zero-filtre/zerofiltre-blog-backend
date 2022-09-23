@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.user.model;
 import lombok.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
 import java.util.*;
 
 @Data
@@ -18,6 +19,10 @@ public class PublicUserProfileVM {
     private String bio;
 
     private String language;
+
+    private String pseudoName;
+
+    private LocalDateTime registeredOn;
 
     private Set<SocialLink> socialLinks = new HashSet<>();
 

@@ -5,7 +5,7 @@ metadata:
   name: zerofiltretech-blog-${env_name}
 spec:
   minReadySeconds: 30
-  progressDeadlineSeconds: 600
+  progressDeadlineSeconds: 300
   replicas: ${replicas}
   selector:
     matchLabels:
@@ -14,7 +14,19 @@ spec:
     metadata:
       labels:
         app: zerofiltretech-blog-${env_name}
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'internal-app'
+        vault.hashicorp.com/agent-inject-secret-config: '${env_name}/data/zerofiltre-blog-api'
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "${env_name}/data/zerofiltre-blog-api" -}}
+            export SPRING_MAIL_PASSWORD='{{ .Data.data.spring_mail_password }}'
+            export SPRING_DATASOURCE_PASSWORD='{{ .Data.data.spring_datasource_password }}'
+            export SECURITY_JWT_SECRET='{{ .Data.data.security_jwt_secret }}'
+            export GITHUB_CLIENT_SECRET='{{ .Data.data.github_client_secret }}'
+          {{- end -}}
     spec:
+      serviceAccountName: internal-app
       containers:
         - name: redis-${env_name}
           image: redis
@@ -37,7 +49,6 @@ spec:
               httpGet:
                 path: /actuator/health
                 port: 80
-              initialDelaySeconds: 10
               periodSeconds: 300
               timeoutSeconds: 5
 
@@ -45,8 +56,7 @@ spec:
               httpGet:
                 path: /actuator/health
                 port: 80
-              initialDelaySeconds: 30
-              periodSeconds: 300
+              periodSeconds: 30
               timeoutSeconds: 5
 
           startupProbe:
@@ -54,29 +64,11 @@ spec:
                 path: /actuator/health
                 port: 80
               initialDelaySeconds: 60
-              timeoutSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 10
 
           env:
-            - name: SPRING_MAIL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_mail_password
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_datasource_password
-            - name: SECURITY_JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: security_jwt_secret
-            - name: GITHUB_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: zerofiltre-blog-api
-                  key: github_client_secret
+
             - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
               valueFrom:
                 configMapKeyRef:
@@ -97,6 +89,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: server_port
+            - name: THROTTLING_CAPACITY
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: throttling_capacity
+            - name: THROTTLING_TIME_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: throttling_time_seconds
             - name: SPRING_LIQUIBASE_CHANGELOG
               valueFrom:
                 configMapKeyRef:

@@ -68,8 +68,12 @@ podTemplate(label: label, containers: [
 
                 if (getEnvName(env.BRANCH_NAME) == 'uat') {
                     stage('Perf tests') {
-                        container('maven') {
-                            sh "mvn jmeter:jmeter jmeter:results "
+                        try{
+                            container('maven') {
+                                sh "mvn jmeter:jmeter jmeter:results "
+                            }
+                        }catch (error){
+                            echo error.getMessage()
                         }
                     }
                 }
@@ -133,7 +137,7 @@ String getRequestsCPU(String branchName) {
     if (branchName == 'main') {
         return '1'
     } else {
-        return '0.5'
+        return '0.1'
     }
 }
 
@@ -149,7 +153,7 @@ String getLimitsCPU(String branchName) {
     if (branchName == 'main') {
         return '2'
     } else {
-        return '1'
+        return '0.5'
     }
 }
 
@@ -157,15 +161,15 @@ String getLimitsMemory(String branchName) {
     if (branchName == 'main') {
         return '4Gi'
     } else {
-        return '1Gi'
+        return '1.2Gi'
     }
 }
 
 String getReplicas(String branchName) {
     if (branchName == 'main') {
-        return '3'
+        return '1'
     }
-    return (branchName == 'ready') ? '2' : '1'
+    return (branchName == 'ready') ? '1' : '1'
 }
 
 String getApiHost(String branchName) {

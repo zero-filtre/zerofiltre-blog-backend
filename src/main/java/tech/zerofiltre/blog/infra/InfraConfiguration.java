@@ -6,12 +6,12 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.retry.backoff.*;
 import org.springframework.retry.policy.*;
 import org.springframework.retry.support.*;
-import org.springframework.web.filter.*;
 
 import java.time.*;
 
 @Configuration
 public class InfraConfiguration {
+
 
     @Bean
     public RetryTemplate retryTemplate(InfraProperties infraProperties) {
@@ -28,17 +28,6 @@ public class InfraConfiguration {
     }
 
     @Bean
-    public CommonsRequestLoggingFilter logFilter() {
-        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-        filter.setIncludeQueryString(true);
-        filter.setIncludePayload(true);
-        filter.setMaxPayloadLength(10000);
-        filter.setIncludeHeaders(false);
-        filter.setAfterMessagePrefix("REQUEST DATA : ");
-        return filter;
-    }
-
-    @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
                 .withCacheConfiguration("connected-user",
@@ -52,4 +41,5 @@ public class InfraConfiguration {
                 .withCacheConfiguration("so-user",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)));
     }
+
 }

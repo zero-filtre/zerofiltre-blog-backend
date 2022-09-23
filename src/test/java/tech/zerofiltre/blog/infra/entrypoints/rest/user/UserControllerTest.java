@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
 import org.springframework.test.util.*;
 import tech.zerofiltre.blog.domain.article.*;
+import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -43,6 +45,9 @@ class UserControllerTest {
     @MockBean
     MessageSource sources;
 
+    @MockBean
+    FindArticle findArticle;
+
     @Mock
     RetrieveSocialToken retrieveSocialToken;
 
@@ -51,49 +56,32 @@ class UserControllerTest {
 
     @MockBean
     UserProvider userProvider;
-
-    @MockBean
-    private ReactionProvider reactionProvider;
-
     @MockBean
     AvatarProvider profilePictureGenerator;
-
     @MockBean
     GithubLoginProvider githubLoginProvider;
-
     @MockBean
     ArticleProvider articleProvider;
-
     @MockBean
     JwtAuthenticationTokenProperties jwTokenConfiguration;
-
-
     LoggerProvider loggerProvider = new Slf4jLoggerProvider();
-
     @MockBean
     PasswordVerifierProvider passwordVerifierProvider;
-
     @MockBean
     UserNotificationProvider userNotificationProvider;
-
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
-
     @MockBean
     Environment environment;
-
     @MockBean
     HttpServletRequest request;
-
     @MockBean
     InfraProperties infraProperties;
-
     UserController userController;
-
     RegisterUserVM userVM = new RegisterUserVM();
     UpdatePasswordVM updatePasswordVM = new UpdatePasswordVM();
-
-
+    @MockBean
+    private ReactionProvider reactionProvider;
     @MockBean
     private SecurityContextManager securityContextManager;
 
@@ -271,6 +259,75 @@ class UserControllerTest {
 
         //ASSERT
         verify(retrieveSocialToken, times(1)).execute("code");
+
+    }
+
+    @Test
+    void getArticle_constructFindArticleRequest_Properly() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+
+
+        ReflectionTestUtils.setField(userController, "findArticle", findArticle);
+        when(findArticle.of(any())).thenReturn(null);
+
+
+        userController.getArticles(2, 2, "PUBLISHED", "MOST_VIEWED", "java");
+
+        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        verify(findArticle, times(1)).of(argument.capture());
+        FindArticleRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isEqualTo(FindArticleRequest.Filter.MOST_VIEWED);
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
+
+    }
+
+    @Test
+    void getArticle_constructFindArticleRequest_Properly_withNullFilter() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+
+
+        ReflectionTestUtils.setField(userController, "findArticle", findArticle);
+        when(findArticle.of(any())).thenReturn(null);
+
+
+        userController.getArticles(2, 2, "PUBLISHED", null, "java");
+
+        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        verify(findArticle, times(1)).of(argument.capture());
+        FindArticleRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isEqualTo(null);
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
+
+    }
+
+    @Test
+    void getArticle_constructFindArticleRequest_Properly_withNullStatus() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+
+
+        ReflectionTestUtils.setField(userController, "findArticle", findArticle);
+        when(findArticle.of(any())).thenReturn(null);
+
+
+        userController.getArticles(2, 2, null, "MOST_VIEWED", "java");
+
+        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        verify(findArticle, times(1)).of(argument.capture());
+        FindArticleRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isEqualTo(FindArticleRequest.Filter.MOST_VIEWED);
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
 
     }
 }

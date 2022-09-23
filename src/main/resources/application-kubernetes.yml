@@ -21,6 +21,25 @@ logging:
 server:
   port: ${SERVER_PORT}
 
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: rate-limit-buckets
+    url: .*
+    metrics:
+        enabled: true
+        tags:
+          - key: IP
+            expression: getRemote()
+            types: REJECTED_COUNTER
+    http-response-body: "{\"apiVersion\": \"1.0\",\"error\": {\"status\": \"429\",\"message\": \"TOO MANY REQUESTS!\"}}"
+    rate-limits:
+    - expression: "getRemote()"
+      bandwidths:
+      - capacity: ${THROTTLING_CAPACITY}
+        time: ${THROTTLING_TIME_SECONDS}
+        unit: seconds
+
 spring:
   liquibase:
     change-log: ${SPRING_LIQUIBASE_CHANGELOG}

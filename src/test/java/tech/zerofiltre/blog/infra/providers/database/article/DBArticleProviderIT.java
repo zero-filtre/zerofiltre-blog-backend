@@ -28,17 +28,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 class DBArticleProviderIT {
 
     @Autowired
+    TagProvider tagProvider;
+    @Autowired
     private ArticleJPARepository articleJPARepository;
-
     @Autowired
     private UserJPARepository userJPARepository;
-
     @Autowired
     private ReactionJPARepository reactionJPARepository;
-
-    @Autowired
-    TagProvider tagProvider;
-
     private ArticleJPAMapper articleJPAMapper = Mappers.getMapper(ArticleJPAMapper.class);
 
     private UserJPAMapper userJPAMapper = Mappers.getMapper(UserJPAMapper.class);
@@ -111,7 +107,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, true, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -185,13 +181,151 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), true, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
         assertThat(articles.getContent().size()).isEqualTo(2);
         assertThat(articles.getContent().get(0).getTitle()).isEqualTo("article1");
         assertThat(articles.getContent().get(1).getTitle()).isEqualTo("article2");
+
+    }
+
+
+    @Test
+    void articlesOf_returnsMostViewed_InDescendingOrder() {
+        //ARRANGE
+        User user = ZerofiltreUtils.createMockUser(false);
+        UserJPA userJPA = userJPAMapper.toJPA(user);
+        userJPARepository.save(userJPA);
+
+        Article article0 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article0.setTitle("article0");
+        ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
+        article0JPA.setStatus(Status.PUBLISHED);
+        article0JPA.setAuthor(userJPA);
+        article0JPA.setViewsCount(0);
+        articleJPARepository.save(article0JPA);
+
+        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article1.setTitle("article1");
+        ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
+        article1JPA.setStatus(Status.PUBLISHED);
+        article1JPA.setAuthor(userJPA);
+        article1JPA.setViewsCount(2);
+        articleJPARepository.save(article1JPA);
+
+        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article2.setTitle("article2");
+        ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
+        article2JPA.setAuthor(userJPA);
+        article2JPA.setStatus(Status.PUBLISHED);
+        article2JPA.setViewsCount(3);
+        articleJPARepository.save(article2JPA);
+
+        //ACT
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.MOST_VIEWED, null);
+
+        //ASSERT
+        assertThat(articles).isNotNull();
+        assertThat(articles.getContent().size()).isEqualTo(3);
+        assertThat(articles.getContent().get(0).getTitle()).isEqualTo("article2");
+        assertThat(articles.getContent().get(1).getTitle()).isEqualTo("article1");
+        assertThat(articles.getContent().get(2).getTitle()).isEqualTo("article0");
+
+    }
+
+    @Test
+    void articlesOf_returnsMostViewed_InDescendingOrder_WithConnectedUser() {
+        //ARRANGE
+        User user = ZerofiltreUtils.createMockUser(false);
+        UserJPA userJPA = userJPAMapper.toJPA(user);
+        userJPARepository.save(userJPA);
+
+        //article0JPA has no author
+        Article article0 = ZerofiltreUtils.createMockArticle(null, Collections.emptyList(), Collections.emptyList());
+        article0.setTitle("article0");
+        ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
+        article0JPA.setStatus(Status.PUBLISHED);
+        article0JPA.setPublishedAt(LocalDateTime.now());
+        article0JPA.setViewsCount(5);
+        articleJPARepository.save(article0JPA);
+
+        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article1.setTitle("article1");
+        ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
+        article1JPA.setStatus(Status.PUBLISHED);
+        article1JPA.setPublishedAt(LocalDateTime.now());
+        article1JPA.setAuthor(userJPA);
+        article1JPA.setViewsCount(2);
+        articleJPARepository.save(article1JPA);
+
+        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article2.setTitle("article2");
+        ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
+        article2JPA.setAuthor(userJPA);
+        article2JPA.setStatus(Status.PUBLISHED);
+        article2JPA.setViewsCount(3);
+        article2JPA.setPublishedAt(LocalDateTime.now());
+        articleJPARepository.save(article2JPA);
+
+        //ACT
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+
+        //ASSERT
+        assertThat(articles).isNotNull();
+        assertThat(articles.getContent().size()).isEqualTo(2);
+        assertThat(articles.getContent().get(0).getTitle()).isEqualTo("article2");
+        assertThat(articles.getContent().get(1).getTitle()).isEqualTo("article1");
+
+    }
+    @Test
+    void articlesOf_reliesOnTheProperFilter() {
+        //ARRANGE
+        User user = ZerofiltreUtils.createMockUser(false);
+        UserJPA userJPA = userJPAMapper.toJPA(user);
+        userJPARepository.save(userJPA);
+
+        //article1JPA has 2 reactions and 5 views
+        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article1.setTitle("article1");
+        ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
+        article1JPA.setStatus(Status.PUBLISHED);
+        article1JPA.setPublishedAt(LocalDateTime.now());
+        article1JPA.setAuthor(userJPA);
+        article1JPA.setViewsCount(5);
+        articleJPARepository.save(article1JPA);
+
+        ReactionJPA reaction1 = new ReactionJPA();
+        reaction1.setAction(Reaction.Action.CLAP);
+        reaction1.setAuthor(userJPA);
+        reaction1.setArticle(article1JPA);
+
+        ReactionJPA reaction2 = new ReactionJPA();
+        reaction2.setAction(Reaction.Action.LOVE);
+        reaction2.setAuthor(userJPA);
+        reaction2.setArticle(article1JPA);
+        article1JPA.setReactions(new HashSet<>(Arrays.asList(reaction1, reaction2)));
+
+
+        //article1JPA has 0 reactions and 8 views
+        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        article2.setTitle("article2");
+        ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
+        article2JPA.setAuthor(userJPA);
+        article2JPA.setStatus(Status.PUBLISHED);
+        article2JPA.setPublishedAt(LocalDateTime.now());
+        article2JPA.setViewsCount(8);
+        articleJPARepository.save(article2JPA);
+
+        //ACT
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+
+        //ASSERT
+        assertThat(articles).isNotNull();
+        assertThat(articles.getContent().size()).isEqualTo(2);
+        assertThat(articles.getContent().get(0).getTitle()).isEqualTo("article2");
+        assertThat(articles.getContent().get(1).getTitle()).isEqualTo("article1");
 
     }
 
@@ -230,7 +364,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, false, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -275,7 +409,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), false, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -322,7 +456,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, false, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, null, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -370,7 +504,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), false, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
