@@ -94,7 +94,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, null, null);
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(PUBLISHED).isEqualTo(article.getStatus()));
     }
@@ -138,7 +138,7 @@ class FindArticleTest {
 
         //ASSERT
         //call with authorId = 0
-        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, null, null);
 
 
     }
@@ -160,7 +160,7 @@ class FindArticleTest {
         Page<Article> articles = findArticle.of(request);
 
         //ASSERT
-        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0, FindArticleRequest.Filter.POPULAR, null);
+        verify(articleProvider, times(1)).articlesOf(0, 3, DRAFT, 0, null, null);
         assertThat(articles).isNotNull();
         articles.getContent().forEach(article -> assertThat(DRAFT).isEqualTo(article.getStatus()));
     }
@@ -188,7 +188,7 @@ class FindArticleTest {
 
         //ASSERT
         verify(articleProvider, times(1))
-                .articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, "tag");
+                .articlesOf(0, 3, PUBLISHED, 0, null, "tag");
 
     }
 
@@ -218,7 +218,7 @@ class FindArticleTest {
 
         //ASSERT
         verify(articleProvider, times(1))
-                .articlesOf(0, 3, PUBLISHED, 2, FindArticleRequest.Filter.POPULAR, null);
+                .articlesOf(0, 3, PUBLISHED, 2, null, null);
 
     }
 }

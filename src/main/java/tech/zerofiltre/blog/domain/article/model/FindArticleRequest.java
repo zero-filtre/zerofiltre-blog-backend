@@ -9,7 +9,7 @@ public class FindArticleRequest {
     private String tag;
     private User user;
     private boolean yours;
-    private Filter filter = Filter.POPULAR;
+    private Filter filter;
 
     public enum Filter {
         POPULAR,

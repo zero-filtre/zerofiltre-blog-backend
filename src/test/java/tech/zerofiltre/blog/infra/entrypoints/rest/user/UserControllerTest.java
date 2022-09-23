@@ -300,7 +300,7 @@ class UserControllerTest {
         FindArticleRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
-        assertThat(request.getFilter()).isEqualTo(FindArticleRequest.Filter.POPULAR);
+        assertThat(request.getFilter()).isEqualTo(null);
         assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
         assertThat(request.getTag()).isEqualTo("java");
         assertThat(request.getPageNumber()).isEqualTo(2);
