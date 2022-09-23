@@ -12,6 +12,7 @@ import java.time.*;
 @Configuration
 public class InfraConfiguration {
 
+
     @Bean
     public RetryTemplate retryTemplate(InfraProperties infraProperties) {
         RetryTemplate retryTemplate = new RetryTemplate();
@@ -40,4 +41,5 @@ public class InfraConfiguration {
                 .withCacheConfiguration("so-user",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)));
     }
+
 }

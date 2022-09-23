@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.*;
 
 @EnableScheduling
 @EnableRetry
-@SpringBootApplication
 @EnableCaching
+@SpringBootApplication
 public class ZerofiltreBlogApplication {
 
     public static void main(String[] args) {
