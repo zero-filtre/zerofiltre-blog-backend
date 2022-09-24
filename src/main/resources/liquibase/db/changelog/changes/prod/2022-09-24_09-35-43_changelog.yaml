@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: 1664012149539-1
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: views_count
+            type: BIGINT(19)
+        tableName: article
+
