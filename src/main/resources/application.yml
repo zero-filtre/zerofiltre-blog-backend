@@ -18,6 +18,16 @@ logging:
 server:
   port: 80
 
+logbook:
+  write.max-body-size: 50
+  exclude:
+  - '**swagger-ui**'
+  - '**v3/api-docs**'
+  - '**/swagger-resources/**'
+  - '**/webjars/**'
+  - '**/actuator/**'
+  - '**/csrf'
+
 bucket4j:
   enabled: true
   filters:
