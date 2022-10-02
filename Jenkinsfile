@@ -135,7 +135,7 @@ String getEnvName(String branchName) {
 
 String getRequestsCPU(String branchName) {
     if (branchName == 'main') {
-        return '1'
+        return '0.5'
     } else {
         return '0.1'
     }
@@ -151,7 +151,7 @@ String getRequestsMemory(String branchName) {
 
 String getLimitsCPU(String branchName) {
     if (branchName == 'main') {
-        return '2'
+        return '1'
     } else {
         return '0.5'
     }
