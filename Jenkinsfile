@@ -159,7 +159,7 @@ String getLimitsCPU(String branchName) {
 
 String getLimitsMemory(String branchName) {
     if (branchName == 'main') {
-        return '4Gi'
+        return '1.2Gi'
     } else {
         return '1.2Gi'
     }
