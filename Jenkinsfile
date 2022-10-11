@@ -33,7 +33,7 @@ podTemplate(label: label, containers: [
             }
 
             stage('Sonarqube Analysis') {
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('SonarCloudServer') {
                     container('maven') {
                         sh " mvn sonar:sonar -s .m2/settings.xml -Dintegration-tests.skip=true -Dmaven.test.failure.ignore=true"
                     }
