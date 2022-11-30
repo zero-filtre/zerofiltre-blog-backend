@@ -131,6 +131,8 @@ class UserControllerTest {
     void resendRegistrationConfirm_mustNotify() {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
+        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        when(verificationTokenProvider.generate(any())).thenReturn(t);
 
         //ACT
         userController.resendRegistrationConfirm("email", request);
@@ -159,7 +161,8 @@ class UserControllerTest {
     void resetPassword_mustCheckUser_ThenNotify() {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
-
+        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        when(verificationTokenProvider.generate(any())).thenReturn(t);
         //ACT
         userController.initPasswordReset("email", request);
 

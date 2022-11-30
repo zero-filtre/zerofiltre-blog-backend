@@ -24,7 +24,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
 
     private void handleEvent(UserActionApplicationEvent event) {
         User user = event.getUser();
-        String token = tokenProvider.generate(user).getToken();
+        String token = event.getToken();
 
         boolean isPasswordResetAction = event.getAction().equals(Action.PASSWORD_RESET);
         String subjectCode = isPasswordResetAction ?

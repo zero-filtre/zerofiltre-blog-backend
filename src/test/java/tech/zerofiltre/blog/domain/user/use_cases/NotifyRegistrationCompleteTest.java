@@ -18,15 +18,19 @@ import static org.mockito.Mockito.*;
 class NotifyRegistrationCompleteTest {
 
     public static final String APP_URL = "appUrl";
+    public static final String TOKEN = "token";
     NotifyRegistrationComplete notifyRegistrationComplete;
 
     @MockBean
     UserNotificationProvider userNotificationProvider;
 
+    @MockBean
+    VerificationTokenProvider tokenProvider;
+
 
     @BeforeEach
     void setUp() {
-        notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
+        notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider, tokenProvider);
     }
 
     @Test
@@ -35,7 +39,7 @@ class NotifyRegistrationCompleteTest {
         doNothing().when(userNotificationProvider).notify(any());
 
         //ACT
-        notifyRegistrationComplete.execute(new User(), APP_URL, Locale.FRANCE);
+        notifyRegistrationComplete.execute(new User(),TOKEN, Locale.FRANCE, APP_URL);
 
         //ASSERT
         ArgumentCaptor<UserActionEvent> captor = ArgumentCaptor.forClass(UserActionEvent.class);
@@ -44,6 +48,7 @@ class NotifyRegistrationCompleteTest {
         UserActionEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
+        assertThat(event.getCurrentToken()).isEqualTo(TOKEN);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
         assertThat(event.getAction()).isEqualTo(Action.REGISTRATION_COMPLETE);
     }

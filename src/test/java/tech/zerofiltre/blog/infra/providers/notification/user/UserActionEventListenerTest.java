@@ -33,14 +33,37 @@ class UserActionEventListenerTest {
     }
 
     @Test
-    void onRegistrationComplete_CreateToken_ThenNotify() {
+    void onRegistrationComplete_Notify_withoutRegeneratingToken() {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
-                "appUrl",
+                "appUrl","",
+                Action.REGISTRATION_COMPLETE);
+        when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
+        doNothing().when(mailSender).send(any(), any(), any());
+
+        //ACT
+        userActionEventListener.onApplicationEvent(event);
+
+        //ASSERT
+        verify(tokenProvider, times(0)).generate(any());
+        String firstName = StringUtils.capitalize(user.getFullName());
+        verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName}, Locale.FRANCE);
+        verify(mailSender, times(1)).send(any(), any(), any());
+    }
+
+    @Test
+    void onResendRegistrationComplete_Notify() {
+        //ARRANGE
+        User user = new User();
+        user.setFullName("tester");
+        UserActionApplicationEvent event = new UserActionApplicationEvent(
+                user,
+                Locale.FRANCE,
+                "appUrl","",
                 Action.REGISTRATION_COMPLETE);
         when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, ""));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
@@ -50,48 +73,22 @@ class UserActionEventListenerTest {
         userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(tokenProvider, times(1)).generate(any());
         String firstName = StringUtils.capitalize(user.getFullName());
         verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName}, Locale.FRANCE);
         verify(mailSender, times(1)).send(any(), any(), any());
     }
 
     @Test
-    void onResendRegistrationComplete_CheckThenUpdateToken_ThenNotify() {
+    void onResetPassword_Notify() {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
-                "appUrl",
-                Action.REGISTRATION_COMPLETE);
-        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, ""));
-        when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        doNothing().when(mailSender).send(any(), any(), any());
-
-        //ACT
-        userActionEventListener.onApplicationEvent(event);
-
-        //ASSERT
-        verify(tokenProvider, times(1)).generate(user);
-        String firstName = StringUtils.capitalize(user.getFullName());
-        verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName}, Locale.FRANCE);
-        verify(mailSender, times(1)).send(any(), any(), any());
-    }
-
-    @Test
-    void onResetPassword_CreateToken_ThenNotify() {
-        //ARRANGE
-        User user = new User();
-        user.setFullName("tester");
-        UserActionApplicationEvent event = new UserActionApplicationEvent(
-                user,
-                Locale.FRANCE,
-                "appUrl",
+                "appUrl","",
                 Action.PASSWORD_RESET
         );
-        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, ""));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), any(), any());
 
@@ -99,7 +96,6 @@ class UserActionEventListenerTest {
         userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(tokenProvider, times(1)).generate(user);
         String firstName = StringUtils.capitalize(user.getFullName());
         verify(messageSource, times(1)).getMessage("message.reset.content", new Object[]{firstName}, Locale.FRANCE);
         verify(mailSender, times(1)).send(any(), any(), any());

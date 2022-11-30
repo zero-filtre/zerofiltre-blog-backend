@@ -20,6 +20,7 @@ class UserMailNotificationProviderTest {
 
     public static final String APP_URL = "appUrl";
     public static final String LAST_NAME = "last";
+    public static final String TOKEN = "token";
     UserMailNotificationProvider userMailNotificationProvider;
 
     @MockBean
@@ -41,7 +42,7 @@ class UserMailNotificationProviderTest {
 
         //ACT
         userMailNotificationProvider.notify(new UserActionEvent(
-                APP_URL, Locale.FRANCE, user, Action.REGISTRATION_COMPLETE));
+                APP_URL, Locale.FRANCE, user, TOKEN, Action.REGISTRATION_COMPLETE));
 
         //ASSERT
         ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);
@@ -49,6 +50,7 @@ class UserMailNotificationProviderTest {
         UserActionApplicationEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
+        assertThat(event.getToken()).isEqualTo(TOKEN);
         assertThat(event.getAction()).isEqualTo(Action.REGISTRATION_COMPLETE);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
     }
@@ -60,7 +62,7 @@ class UserMailNotificationProviderTest {
 
         //ACT
         userMailNotificationProvider.notify(new UserActionEvent(
-                APP_URL, Locale.FRANCE, user, Action.PASSWORD_RESET));
+                APP_URL, Locale.FRANCE, user, TOKEN, Action.PASSWORD_RESET));
 
         //ASSERT
         ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);
@@ -68,6 +70,7 @@ class UserMailNotificationProviderTest {
         UserActionApplicationEvent event = captor.getValue();
 
         assertThat(event.getAppUrl()).isEqualTo(APP_URL);
+        assertThat(event.getToken()).isEqualTo(TOKEN);
         assertThat(event.getAction()).isEqualTo(Action.PASSWORD_RESET);
         assertThat(event.getLocale()).isEqualTo(Locale.FRANCE);
 
