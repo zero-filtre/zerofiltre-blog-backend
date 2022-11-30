@@ -9,14 +9,15 @@ public class UserActionApplicationEvent extends ApplicationEvent {
     private String appUrl;
     private Locale locale;
     private User user;
+    private String token;
     private Action action;
 
-    public UserActionApplicationEvent(User user, Locale locale, String appUrl, Action action) {
+    public UserActionApplicationEvent(User user, Locale locale, String appUrl, String token, Action action) {
         super(user);
         this.user = user;
         this.locale = locale;
         this.appUrl = appUrl;
-
+        this.token = token;
         this.action = action;
     }
 
@@ -50,6 +51,10 @@ public class UserActionApplicationEvent extends ApplicationEvent {
 
     public void setAction(Action action) {
         this.action = action;
+    }
+
+    public String getToken() {
+        return token;
     }
 
 }

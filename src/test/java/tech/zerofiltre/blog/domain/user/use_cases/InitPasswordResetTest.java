@@ -9,8 +9,8 @@ import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -22,11 +22,16 @@ class InitPasswordResetTest {
     @MockBean
     UserProvider userProvider;
 
+    @MockBean
+    VerificationTokenProvider tokenProvider;
+
     InitPasswordReset initPasswordReset;
 
     @BeforeEach
     void setUp() {
-        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
+        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
+        when(tokenProvider.generate(any())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), ""));
+
     }
 
     @Test

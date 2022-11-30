@@ -95,7 +95,7 @@ class UserControllerIT {
     void init() throws UserNotFoundException, InvalidTokenException {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        doNothing().when(notifyRegistrationComplete).execute(any(), any(), any());
+        doNothing().when(notifyRegistrationComplete).execute(any(), any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
         VerificationToken t = new VerificationToken(new User(), TOKEN);
