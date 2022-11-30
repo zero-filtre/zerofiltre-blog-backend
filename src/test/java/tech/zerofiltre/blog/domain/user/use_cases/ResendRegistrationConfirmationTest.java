@@ -23,11 +23,15 @@ class ResendRegistrationConfirmationTest {
     @MockBean
     UserProvider userProvider;
 
+    @MockBean
+    VerificationTokenProvider tokenProvider;
+
     ResendRegistrationConfirmation resendRegistrationConfirmation;
 
     @BeforeEach
     void setUp() {
-        resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
+        resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider, tokenProvider);
+        when(tokenProvider.generate(any())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), ""));
     }
 
     @Test

@@ -61,7 +61,7 @@ public class UserController {
         this.reactionProvider = reactionProvider;
         this.loggerProvider = loggerProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator);
-        this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
+        this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider, tokenProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
         this.infraProperties = infraProperties;
@@ -71,8 +71,8 @@ public class UserController {
         this.securityContextManager = securityContextManager;
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
-        this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider);
-        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider);
+        this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider, tokenProvider);
+        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider, this.loggerProvider);
@@ -89,16 +89,16 @@ public class UserController {
         user.setPassword(passwordEncoder.encode(registerUserVM.getPassword()));
         user.setLanguage(request.getLocale().getLanguage());
         user = registerUser.execute(user);
+        Token token = generateToken.byUser(user);
 
 
         String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
-            notifyRegistrationComplete.execute(user, appUrl, request.getLocale());
+            notifyRegistrationComplete.execute(user, token.getRefreshToken(), request.getLocale(), appUrl);
         } catch (RuntimeException e) {
             log.error("We were unable to send the registration confirmation email", e);
         }
 
-        Token token = generateToken.byUser(user);
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 

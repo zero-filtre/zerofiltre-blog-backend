@@ -19,6 +19,7 @@ public class UserMailNotificationProvider implements UserNotificationProvider {
                 userActionEvent.getUser(),
                 userActionEvent.getLocale(),
                 userActionEvent.getAppUrl(),
+                userActionEvent.getCurrentToken(),
                 userActionEvent.getAction());
         eventPublisher.publishEvent(event);
 

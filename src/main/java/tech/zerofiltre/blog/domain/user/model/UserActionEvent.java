@@ -6,12 +6,14 @@ public class UserActionEvent {
     private String appUrl;
     private Locale locale;
     private User user;
+    private String currentToken;
     private Action action;
 
-    public UserActionEvent(String appUrl, Locale locale, User user, Action action) {
+    public UserActionEvent(String appUrl, Locale locale, User user, String currentToken, Action action) {
         this.appUrl = appUrl;
         this.locale = locale;
         this.user = user;
+        this.currentToken = currentToken;
         this.action = action;
     }
 
@@ -46,4 +48,9 @@ public class UserActionEvent {
     public void setAction(Action action) {
         this.action = action;
     }
+
+    public String getCurrentToken() {
+        return currentToken;
+    }
+
 }
