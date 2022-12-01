@@ -42,7 +42,13 @@ public class ArticleController {
 
     @GetMapping("/{id}")
     public Article articleById(@PathVariable("id") long articleId) throws ResourceNotFoundException {
-        return findArticle.byId(articleId);
+        User user = null;
+        try {
+            user = securityContextManager.getAuthenticatedUser();
+        } catch (BlogException e) {
+            log.trace("We did not find a connected user but we can still return the wanted article", e);
+        }
+        return findArticle.byId(articleId,user);
     }
 
     @GetMapping
