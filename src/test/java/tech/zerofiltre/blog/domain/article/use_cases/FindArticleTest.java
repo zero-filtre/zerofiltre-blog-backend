@@ -20,11 +20,11 @@ import static tech.zerofiltre.blog.domain.article.model.Status.*;
 @ExtendWith(SpringExtension.class)
 class FindArticleTest {
 
+    private final int numberOfElements = 1;
+    private final int totalNumberOfPages = 4;
     FindArticle findArticle;
     @MockBean
     private ArticleProvider articleProvider;
-    private final int numberOfElements = 1;
-    private final int totalNumberOfPages = 4;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +42,7 @@ class FindArticleTest {
 
 
         //ACT
-        Article article = findArticle.byId(12);
+        Article article = findArticle.byId(12, null);
 
         //ASSERT
         assertThat(article).isEqualTo(mockArticle);
@@ -50,8 +50,26 @@ class FindArticleTest {
     }
 
     @Test
-    @DisplayName("Increment view count if article is found")
+    @DisplayName("Increment view count if article is found and published")
     void mustIncrementViewIfArticleIsFound() throws ResourceNotFoundException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        mockArticle.setStatus(PUBLISHED);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        assertThat(mockArticle.getViewsCount()).isZero();
+
+        //ACT
+        Article article = findArticle.byId(12, null);
+
+        //ASSERT
+        assertThat(article.getTitle()).isEqualTo(mockArticle.getTitle());
+        assertThat(article.getViewsCount()).isOne();
+    }
+
+    @Test
+    @DisplayName("Do not Increment view count if article is not published")
+    void mustNotIncrementView_IfArticle_IsNot_Published() throws ResourceNotFoundException {
         //ARRANGE
         Article mockArticle = ZerofiltreUtils.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
@@ -59,11 +77,29 @@ class FindArticleTest {
         assertThat(mockArticle.getViewsCount()).isZero();
 
         //ACT
-        Article article = findArticle.byId(12);
+        Article article = findArticle.byId(12, null);
 
         //ASSERT
         assertThat(article.getTitle()).isEqualTo(mockArticle.getTitle());
-        assertThat(article.getViewsCount()).isOne();
+        assertThat(article.getViewsCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("Do not Increment view count if viewer is the author even if it is published")
+    void mustNotIncrementView_IfViewer_IsTheAuthor() throws ResourceNotFoundException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        mockArticle.setStatus(PUBLISHED);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        assertThat(mockArticle.getViewsCount()).isZero();
+
+        //ACT
+        Article article = findArticle.byId(12, mockArticle.getAuthor());
+
+        //ASSERT
+        assertThat(article.getTitle()).isEqualTo(mockArticle.getTitle());
+        assertThat(article.getViewsCount()).isZero();
     }
 
     @Test
@@ -73,9 +109,7 @@ class FindArticleTest {
         when(articleProvider.articleOfId(anyLong())).thenReturn(java.util.Optional.empty());
 
         //ACT & ASSERT
-        assertThatExceptionOfType(ResourceNotFoundException.class).isThrownBy(() -> findArticle.byId(12));
-
-
+        assertThatExceptionOfType(ResourceNotFoundException.class).isThrownBy(() -> findArticle.byId(12, null));
     }
 
     @Test
