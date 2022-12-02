@@ -95,11 +95,14 @@ zerofiltre:
   infra:
     security:
       jwt:
-        expiration-seconds: 86400
+        expiration-seconds: 86400 #1 day
         secret: JwtSecretKey
         prefix: Bearer
         header: Authorization
         uri: /auth/**
+      verification-token:
+        expiration-seconds: 604800   #7 days
+
     api:
       github:
         root-url: https://api.github.com/

@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.util.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -34,6 +35,9 @@ class DeleteUserIT {
 
     @Autowired
     private VerificationTokenProvider tokenProvider;
+
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+
 
     @Autowired
     LoggerProvider loggerProvider;
@@ -80,7 +84,7 @@ class DeleteUserIT {
         user.setPseudoName("another");
         user = userProvider.save(user);
 
-        VerificationToken verificationToken = new VerificationToken(user, TOKEN);
+        VerificationToken verificationToken = new VerificationToken(user, TOKEN,expiryDate);
         tokenProvider.save(verificationToken);
 
         Reaction reaction = new Reaction();

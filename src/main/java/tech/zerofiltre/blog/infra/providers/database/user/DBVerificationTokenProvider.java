@@ -1,7 +1,7 @@
 package tech.zerofiltre.blog.infra.providers.database.user;
 
-import lombok.*;
 import org.mapstruct.factory.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -13,12 +13,18 @@ import java.util.*;
 
 @Component
 @Transactional
-@RequiredArgsConstructor
 public class DBVerificationTokenProvider implements VerificationTokenProvider {
 
     private final VerificationTokenJPARepository repository;
     private final VerificationTokenJPAMapper mapper = Mappers.getMapper(VerificationTokenJPAMapper.class);
     private final UserJPAMapper userJPAMapper = Mappers.getMapper(UserJPAMapper.class);
+
+    @Value("${zerofiltre.infra.security.verification-token.expiration-seconds:604800}")
+    private long expiration;
+
+    public DBVerificationTokenProvider(VerificationTokenJPARepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Optional<VerificationToken> ofToken(String token) {
@@ -42,10 +48,6 @@ public class DBVerificationTokenProvider implements VerificationTokenProvider {
         return getVerificationToken(user, durationInSeconds);
     }
 
-    @Override
-    public VerificationToken generate(User user) {
-        return getVerificationToken(user, 0);
-    }
 
     @Override
     public void delete(VerificationToken token) {
@@ -53,18 +55,22 @@ public class DBVerificationTokenProvider implements VerificationTokenProvider {
     }
 
 
+    @Override
+    /*
+      Generates token with the configured expiration
+     */
+    public VerificationToken generate(User user) {
+        return getVerificationToken(user, expiration);
+    }
+
     private VerificationToken getVerificationToken(User user, long durationInSeconds) {
         String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = ofUser(user)
-                .map(vToken -> {
-                    vToken.setToken(token);
-                    if (durationInSeconds != 0)
-                        vToken.setExpiryDate(LocalDateTime.now().plusSeconds(durationInSeconds));
-                    else
-                        vToken.setExpiryDate(LocalDateTime.now().plusDays(1));
-                    return vToken;
-                }).orElse(new VerificationToken(user, token));
-
+        LocalDateTime expiryDate = LocalDateTime.now().plusSeconds(durationInSeconds);
+        VerificationToken verificationToken = ofUser(user).map(vToken -> {
+            vToken.setToken(token);
+            vToken.setExpiryDate(expiryDate);
+            return vToken;
+        }).orElse(new VerificationToken(user, token, expiryDate));
         return save(verificationToken);
     }
 

@@ -10,6 +10,7 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -27,6 +28,9 @@ class UserActionEventListenerTest {
 
     UserActionEventListener userActionEventListener;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+
+
     @BeforeEach
     void setUp() {
         userActionEventListener = new UserActionEventListener(messageSource, mailSender, tokenProvider);
@@ -40,7 +44,7 @@ class UserActionEventListenerTest {
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
-                "appUrl","",
+                "appUrl", "",
                 Action.REGISTRATION_COMPLETE);
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), any(), any());
@@ -63,9 +67,9 @@ class UserActionEventListenerTest {
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
-                "appUrl","",
+                "appUrl", "",
                 Action.REGISTRATION_COMPLETE);
-        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, ""));
+        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, "", expiryDate));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), any(), any());
 
@@ -86,7 +90,7 @@ class UserActionEventListenerTest {
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
-                "appUrl","",
+                "appUrl", "",
                 Action.PASSWORD_RESET
         );
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");

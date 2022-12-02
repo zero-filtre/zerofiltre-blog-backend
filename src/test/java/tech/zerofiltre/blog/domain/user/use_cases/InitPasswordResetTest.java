@@ -7,6 +7,7 @@ import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -25,12 +26,15 @@ class InitPasswordResetTest {
     @MockBean
     VerificationTokenProvider tokenProvider;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+
+
     InitPasswordReset initPasswordReset;
 
     @BeforeEach
     void setUp() {
         initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
-        when(tokenProvider.generate(any())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), ""));
+        when(tokenProvider.generate(any(),anyLong())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), "",expiryDate));
 
     }
 

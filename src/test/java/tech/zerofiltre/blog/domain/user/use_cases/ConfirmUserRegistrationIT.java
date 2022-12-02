@@ -8,6 +8,8 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 
+import java.time.*;
+
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
@@ -23,6 +25,7 @@ class ConfirmUserRegistrationIT {
     @Autowired
     UserProvider userProvider;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
     ConfirmUserRegistration confirmUserRegistration;
 
@@ -33,7 +36,7 @@ class ConfirmUserRegistrationIT {
     @BeforeEach
     void setUp() {
         user = userProvider.save(user);
-        verificationToken = new VerificationToken(user, TOKEN);
+        verificationToken = new VerificationToken(user, TOKEN,expiryDate);
         verificationTokenProvider.save(verificationToken);
         confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
     }

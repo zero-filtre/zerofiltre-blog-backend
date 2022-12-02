@@ -9,6 +9,8 @@ import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
+
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.Mockito.*;
 
@@ -25,6 +27,9 @@ class SavePasswordResetTest {
     @MockBean
     private UserProvider userProvider;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+
+
     @BeforeEach
     void setUp() {
         savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
@@ -36,7 +41,7 @@ class SavePasswordResetTest {
 
         //ARRANGE
         User user = new User();
-        when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.of(new VerificationToken(user, TOKEN)));
+        when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.of(new VerificationToken(user, TOKEN,expiryDate)));
         when(userProvider.save(any())).thenReturn(user);
 
         //ACT

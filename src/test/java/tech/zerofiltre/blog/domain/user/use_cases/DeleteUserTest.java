@@ -13,6 +13,7 @@ import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -23,23 +24,19 @@ import static org.mockito.Mockito.*;
 class DeleteUserTest {
 
     @MockBean
-    private UserProvider userProvider;
-
-    @MockBean
-    private VerificationTokenProvider tokenProvider;
-
-    @MockBean
     LoggerProvider loggerProvider;
-
-    @MockBean
-    private ReactionProvider reactionProvider;
-
-    @MockBean
-    private ArticleProvider articleProvider;
-
-    private DeleteUser deleteUser;
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
     User currentUser = new User();
     User foundUser = new User();
+    @MockBean
+    private UserProvider userProvider;
+    @MockBean
+    private VerificationTokenProvider tokenProvider;
+    @MockBean
+    private ReactionProvider reactionProvider;
+    @MockBean
+    private ArticleProvider articleProvider;
+    private DeleteUser deleteUser;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +48,7 @@ class DeleteUserTest {
     void deleteUser_MustDeleteTheUserReactionsAndToken() {
         //ARRANGE
         Reaction reaction = new Reaction();
-        VerificationToken token = new VerificationToken(foundUser, "token");
+        VerificationToken token = new VerificationToken(foundUser, "token", expiryDate);
 
         currentUser.setRoles(Collections.singleton("ROLE_ADMIN"));
         foundUser.setId(10);

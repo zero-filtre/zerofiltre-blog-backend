@@ -12,10 +12,10 @@ public class VerificationToken {
 
     private LocalDateTime expiryDate;
 
-    public VerificationToken(User user, String token) {
+    public VerificationToken(User user, String token,LocalDateTime expiryDate) {
         this.token = token;
         this.user = user;
-        expiryDate = LocalDateTime.now().plusDays(1);
+        this.expiryDate = expiryDate;
     }
 
 
