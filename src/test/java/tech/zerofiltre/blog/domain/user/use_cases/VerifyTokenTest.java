@@ -20,11 +20,12 @@ class VerifyTokenTest {
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
     VerifyToken verifyToken;
 
     User user = new User();
-    VerificationToken verificationToken = new VerificationToken(user, TOKEN);
+    VerificationToken verificationToken = new VerificationToken(user, TOKEN, expiryDate);
 
 
     @BeforeEach

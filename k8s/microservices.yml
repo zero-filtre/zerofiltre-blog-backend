@@ -144,6 +144,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: security_jwt_expiration
+            - name: SECURITY_VERIFICATION_TOKEN_EXPIRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: security_verification_token_expiration
             - name: SECURITY_JWT_URI
               valueFrom:
                 configMapKeyRef:

@@ -31,6 +31,7 @@ import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -84,6 +85,7 @@ class UserControllerIT {
     @MockBean
     JwtTokenProvider jwtTokenProvider;
 
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
@@ -98,7 +100,7 @@ class UserControllerIT {
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
         when(confirmUserRegistration.execute(any())).thenReturn(new User());
-        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
         when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(t));
         when(verificationTokenProvider.generate(any())).thenReturn(t);
         when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);

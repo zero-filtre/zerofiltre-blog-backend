@@ -93,6 +93,8 @@ zerofiltre:
         prefix: Bearer
         header: Authorization
         uri: ${SECURITY_JWT_URI}
+      verification-token:
+        expiration-seconds: ${SECURITY_VERIFICATION_TOKEN_EXPIRATION}
     api:
       github:
         root-url: https://api.github.com/

@@ -6,9 +6,11 @@ import tech.zerofiltre.blog.infra.security.model.*;
 
 import java.time.*;
 
+/**
+ * Generates a set of data representing authentication credentials for a user
+ */
 public class GenerateToken {
 
-    public static final long DURATION_IN_SECONDS = 86400 * 2L;
     private final VerifyToken verifyToken;
     private final JwtTokenProvider jwtTokenProvider;
     private final VerificationTokenProvider verificationTokenProvider;
@@ -36,7 +38,7 @@ public class GenerateToken {
     }
 
     public Token byUser(User user) {
-        VerificationToken verificationToken = verificationTokenProvider.generate(user, DURATION_IN_SECONDS);
+        VerificationToken verificationToken = verificationTokenProvider.generate(user);
         JwtToken jwTtoken = jwtTokenProvider.generate(user);
         return build(verificationToken, jwTtoken);
 
