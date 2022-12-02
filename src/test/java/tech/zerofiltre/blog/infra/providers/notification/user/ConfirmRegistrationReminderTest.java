@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -27,23 +28,18 @@ class ConfirmRegistrationReminderTest {
     public static final String INVALID_EMAIL = "email4";
     public static final String SUBJECT = "subject";
     public static final String CONTENT = "content";
-    private ConfirmRegistrationReminder confirmRegistrationReminder;
-
     @MockBean
     UserProvider userProvider;
-
     @MockBean
     BlogEmailSender blogEmailSender;
-
     @MockBean
     MessageSource messageSource;
-
     @MockBean
     InfraProperties infraProperties;
-
     @MockBean
     VerificationTokenProvider tokenProvider;
-
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+    private ConfirmRegistrationReminder confirmRegistrationReminder;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +51,7 @@ class ConfirmRegistrationReminderTest {
                 infraProperties
         );
         when(infraProperties.getEnv()).thenReturn("dev");
-        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(new User(), "TOKEN"));
+        when(tokenProvider.generate(any())).thenReturn(new VerificationToken(new User(), "TOKEN", expiryDate));
     }
 
     @Test

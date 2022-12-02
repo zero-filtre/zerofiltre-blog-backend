@@ -25,6 +25,7 @@ import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 
 import javax.servlet.http.*;
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -80,17 +81,16 @@ class UserControllerTest {
     UserController userController;
     RegisterUserVM userVM = new RegisterUserVM();
     UpdatePasswordVM updatePasswordVM = new UpdatePasswordVM();
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
     @MockBean
     private ReactionProvider reactionProvider;
     @MockBean
     private SecurityContextManager securityContextManager;
-
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
-
     @BeforeEach
-    void setUp() throws ResourceNotFoundException {
+    void setUp() {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
@@ -105,7 +105,7 @@ class UserControllerTest {
         userVM.setEmail(EMAIL);
         userVM.setFullName(FIRST_NAME);
         when(request.getLocale()).thenReturn(Locale.FRANCE);
-        VerificationToken t = new VerificationToken(new User(), TOKEN);
+        VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
         when(verificationTokenProvider.generate(any())).thenReturn(t);
         when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
         when(jwtTokenProvider.generate(any())).thenReturn(new JwtToken(TOKEN, 784587));
@@ -123,7 +123,7 @@ class UserControllerTest {
         assertThat(user.getFullName()).isEqualTo(FIRST_NAME);
         assertThat(user.getLanguage()).isEqualTo(Locale.FRANCE.getLanguage());
         verify(userNotificationProvider, times(1)).notify(any());
-        verify(verificationTokenProvider, times(1)).generate(any(), anyLong());
+        verify(verificationTokenProvider, times(1)).generate(any());
         verify(jwtTokenProvider, times(1)).generate(any());
     }
 
@@ -131,8 +131,8 @@ class UserControllerTest {
     void resendRegistrationConfirm_mustNotify() {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
-        VerificationToken t = new VerificationToken(new User(), TOKEN);
-        when(verificationTokenProvider.generate(any())).thenReturn(t);
+        VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
+        when(verificationTokenProvider.generate(any(),anyLong())).thenReturn(t);
 
         //ACT
         userController.resendRegistrationConfirm("email", request);
@@ -146,7 +146,7 @@ class UserControllerTest {
     @Test
     void confirmRegistration_mustCheckToken_ThenSaveUser() throws InvalidTokenException {
         //ARRANGE
-        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "")));
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "", expiryDate)));
 
         //ACT
         userController.registrationConfirm("token", request);
@@ -161,8 +161,8 @@ class UserControllerTest {
     void resetPassword_mustCheckUser_ThenNotify() {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
-        VerificationToken t = new VerificationToken(new User(), TOKEN);
-        when(verificationTokenProvider.generate(any())).thenReturn(t);
+        VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
+        when(verificationTokenProvider.generate(any(),anyLong())).thenReturn(t);
         //ACT
         userController.initPasswordReset("email", request);
 
@@ -175,7 +175,7 @@ class UserControllerTest {
     @Test
     void verifyToken_mustCheckToken() throws InvalidTokenException {
         //ARRANGE
-        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "")));
+        when(verificationTokenProvider.ofToken(any())).thenReturn(Optional.of(new VerificationToken(new User(), "", expiryDate)));
 
 
         //ACT

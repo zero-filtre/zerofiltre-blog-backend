@@ -20,6 +20,7 @@ class ConfirmUserRegistrationTest {
     public static final String TOKEN = "token";
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
     @MockBean
     UserProvider userProvider;
@@ -27,7 +28,7 @@ class ConfirmUserRegistrationTest {
     ConfirmUserRegistration confirmUserRegistration;
 
     User user = new User();
-    VerificationToken verificationToken = new VerificationToken(user, TOKEN);
+    VerificationToken verificationToken = new VerificationToken(user, TOKEN,expiryDate);
 
 
     @BeforeEach

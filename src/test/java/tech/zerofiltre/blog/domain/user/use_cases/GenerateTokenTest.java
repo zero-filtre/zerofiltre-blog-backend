@@ -17,10 +17,10 @@ import static org.mockito.Mockito.*;
 class GenerateTokenTest {
 
     public static final String TOKEN = "token";
-    private GenerateToken generateToken;
-
     @MockBean
     VerificationTokenProvider verificationTokenProvider;
+    LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
+    private GenerateToken generateToken;
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
     @MockBean
@@ -28,7 +28,6 @@ class GenerateTokenTest {
 
     @BeforeEach
     void setUp() {
-
         generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
     }
 
@@ -36,11 +35,10 @@ class GenerateTokenTest {
     void execute_generates_ProperlyFromRefreshToken() throws InvalidTokenException {
         //ARRANGE
         User user = new User();
-        VerificationToken verificationToken = new VerificationToken(user, TOKEN);
-        verificationToken.setExpiryDate(LocalDateTime.now().plusDays(1));
+        VerificationToken verificationToken = new VerificationToken(user, TOKEN, expiryDate);
         when(verificationTokenProvider.ofToken(TOKEN)).thenReturn(java.util.Optional.of(verificationToken));
         when(jwtTokenProvider.generate(user))
-                .thenReturn(new JwtToken("accessToken", LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+                .thenReturn(new JwtToken("accessToken", expiryDate.toEpochSecond(ZoneOffset.UTC)));
 
         //ACT
         Token token = generateToken.byRefreshToken(TOKEN);
@@ -51,8 +49,8 @@ class GenerateTokenTest {
         assertThat(token.getAccessToken()).isNotNull();
         assertThat(token.getTokenType()).isNotNull();
         assertThat(token.getTokenType()).isNotEmpty();
-        assertThat(token.getRefreshTokenExpiryDateInSeconds()).isNotZero();
-        assertThat(token.getAccessTokenExpiryDateInSeconds()).isNotZero();
+        assertThat(token.getRefreshTokenExpiryDateInSeconds()).isEqualTo(expiryDate.toEpochSecond(ZoneOffset.UTC));
+        assertThat(token.getAccessTokenExpiryDateInSeconds()).isEqualTo(expiryDate.toEpochSecond(ZoneOffset.UTC));
     }
 
 
@@ -60,11 +58,10 @@ class GenerateTokenTest {
     void execute_generates_ProperlyFromUser() {
         //ARRANGE
         User user = new User();
-        VerificationToken verificationToken = new VerificationToken(user, TOKEN);
-        verificationToken.setExpiryDate(LocalDateTime.now().plusDays(1));
-        when(verificationTokenProvider.generate(eq(user), anyLong())).thenReturn(verificationToken);
+        VerificationToken verificationToken = new VerificationToken(user, TOKEN, expiryDate);
+        when(verificationTokenProvider.generate(user)).thenReturn(verificationToken);
         when(jwtTokenProvider.generate(user))
-                .thenReturn(new JwtToken("accessToken", LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
+                .thenReturn(new JwtToken("accessToken", expiryDate.toEpochSecond(ZoneOffset.UTC)));
 
         //ACT
         Token token = generateToken.byUser(user);
@@ -75,7 +72,7 @@ class GenerateTokenTest {
         assertThat(token.getAccessToken()).isNotNull();
         assertThat(token.getTokenType()).isNotNull();
         assertThat(token.getTokenType()).isNotEmpty();
-        assertThat(token.getRefreshTokenExpiryDateInSeconds()).isNotZero();
-        assertThat(token.getAccessTokenExpiryDateInSeconds()).isNotZero();
+        assertThat(token.getRefreshTokenExpiryDateInSeconds()).isEqualTo(expiryDate.toEpochSecond(ZoneOffset.UTC));
+        assertThat(token.getAccessTokenExpiryDateInSeconds()).isEqualTo(expiryDate.toEpochSecond(ZoneOffset.UTC));
     }
 }
