@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="./logs"/>
-
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
         <!--        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
@@ -13,7 +11,7 @@
         <!--            <appendLineSeparator>true</appendLineSeparator>-->
         <!--        </layout>-->
         <encoder>
-            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg - %replace(%xThrowable){'\s\s\s','\\n'} %nopex %n</pattern>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg - %replace(%ex){'\n','\\n'} %nopex %n </pattern>
         </encoder>
     </appender>
 
@@ -23,10 +21,5 @@
         <appender-ref ref="Console"/>
     </root>
 
-    <!-- LOG "com.baeldung*" at TRACE level -->
-    <!--    <logger name="com.baeldung" level="trace" additivity="false">-->
-    <!--        <appender-ref ref="RollingFile" />-->
-    <!--        <appender-ref ref="Console" />-->
-    <!--    </logger>-->
 
 </configuration>
