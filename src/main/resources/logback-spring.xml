@@ -13,7 +13,7 @@
         <!--            <appendLineSeparator>true</appendLineSeparator>-->
         <!--        </layout>-->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg - %replace(%xThrowable){'\s\s\s','\\n'} %nopex %n</pattern>
         </encoder>
     </appender>
 

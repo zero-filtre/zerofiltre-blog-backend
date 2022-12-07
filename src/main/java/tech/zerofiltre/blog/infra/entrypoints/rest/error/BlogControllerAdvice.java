@@ -39,7 +39,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -53,7 +53,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -71,7 +71,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -85,7 +85,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
@@ -99,7 +99,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -113,7 +113,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
@@ -127,7 +127,7 @@ public class BlogControllerAdvice {
                 exception.getDomain(),
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
@@ -141,7 +141,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 exception.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -155,7 +155,7 @@ public class BlogControllerAdvice {
                 NO_DOMAIN_AVAILABLE,
                 throwable.getLocalizedMessage()
         );
-        log.debug(FULL_EXCEPTION, throwable);
+        log.error(FULL_EXCEPTION, throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

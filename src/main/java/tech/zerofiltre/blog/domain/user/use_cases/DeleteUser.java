@@ -40,7 +40,7 @@ public class DeleteUser {
             tokenProvider.ofUser(foundUser).ifPresent(tokenProvider::delete);
             reactionProvider.ofUser(foundUser).forEach(reactionProvider::delete);
             userProvider.deleteUser(foundUser);
-            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting the user for done", null, DeleteUser.class);
+            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting the user " + userIdToDelete + " for done", null, DeleteUser.class);
             loggerProvider.log(logEntry);
         } else {
             foundUser.setExpired(true);
