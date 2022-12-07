@@ -30,7 +30,7 @@ public class DeleteArticle {
 
         articleProvider.delete(foundArticle);
 
-        LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting an article for done", null, DeleteArticle.class);
+        LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting article " + articleIdToDelete + " for done", null, DeleteArticle.class);
         loggerProvider.log(logEntry);
     }
 }

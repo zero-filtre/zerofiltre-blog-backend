@@ -11,7 +11,9 @@ management:
             show-details: always
 logging:
   level:
+    root: INFO
     org:
+      zalando.logbook : TRACE
       hibernate:
         SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL}
       springframework:
