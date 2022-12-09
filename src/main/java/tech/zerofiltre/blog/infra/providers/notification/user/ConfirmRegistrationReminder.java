@@ -9,6 +9,7 @@ import org.springframework.util.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
 import java.util.*;
@@ -61,7 +62,11 @@ public class ConfirmRegistrationReminder {
                         String url = getOriginUrl(infraProperties.getEnv()) + pageUri + token;
 
                         String emailContent = message + "\r\n" + url + "\r\n" + greetings;
-                        emailSender.send(user.getEmail(), subject, emailContent);
+                        Email email = new Email();
+                        email.setSubject(subject);
+                        email.setContent(emailContent);
+                        email.setRecipients(Collections.singletonList(user.getEmail()));
+                        emailSender.send(email);
                     }
                 });
         log.info("Triggered {} E-mail addresses confirmation reminders", ref.count);

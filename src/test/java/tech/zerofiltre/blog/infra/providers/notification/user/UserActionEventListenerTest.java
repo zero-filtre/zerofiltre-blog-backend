@@ -47,7 +47,7 @@ class UserActionEventListenerTest {
                 "appUrl", "",
                 Action.REGISTRATION_COMPLETE);
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        doNothing().when(mailSender).send(any(), any(), any());
+        doNothing().when(mailSender).send(any());
 
         //ACT
         userActionEventListener.onApplicationEvent(event);
@@ -56,7 +56,7 @@ class UserActionEventListenerTest {
         verify(tokenProvider, times(0)).generate(any());
         String firstName = StringUtils.capitalize(user.getFullName());
         verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName}, Locale.FRANCE);
-        verify(mailSender, times(1)).send(any(), any(), any());
+        verify(mailSender, times(1)).send(any());
     }
 
     @Test
@@ -71,7 +71,7 @@ class UserActionEventListenerTest {
                 Action.REGISTRATION_COMPLETE);
         when(tokenProvider.generate(any())).thenReturn(new VerificationToken(user, "", expiryDate));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        doNothing().when(mailSender).send(any(), any(), any());
+        doNothing().when(mailSender).send(any());
 
         //ACT
         userActionEventListener.onApplicationEvent(event);
@@ -79,7 +79,7 @@ class UserActionEventListenerTest {
         //ASSERT
         String firstName = StringUtils.capitalize(user.getFullName());
         verify(messageSource, times(1)).getMessage("message.registration.success.content", new Object[]{firstName}, Locale.FRANCE);
-        verify(mailSender, times(1)).send(any(), any(), any());
+        verify(mailSender, times(1)).send(any());
     }
 
     @Test
@@ -94,7 +94,7 @@ class UserActionEventListenerTest {
                 Action.PASSWORD_RESET
         );
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        doNothing().when(mailSender).send(any(), any(), any());
+        doNothing().when(mailSender).send(any());
 
         //ACT
         userActionEventListener.onApplicationEvent(event);
@@ -102,6 +102,6 @@ class UserActionEventListenerTest {
         //ASSERT
         String firstName = StringUtils.capitalize(user.getFullName());
         verify(messageSource, times(1)).getMessage("message.reset.content", new Object[]{firstName}, Locale.FRANCE);
-        verify(mailSender, times(1)).send(any(), any(), any());
+        verify(mailSender, times(1)).send(any());
     }
 }

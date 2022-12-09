@@ -8,6 +8,8 @@ import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
+import java.util.*;
+
 @Component
 @RequiredArgsConstructor
 public class UserActionEventListener implements ApplicationListener<UserActionApplicationEvent> {
@@ -45,7 +47,11 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
         String greetings = messages.getMessage("message.greetings", null, event.getLocale());
         String emailContent = message + "\r\n" + url + "\r\n" + greetings;
 
-        emailSender.send(recipientAddress, subject, emailContent);
+        Email email = new Email();
+        email.setSubject(subject);
+        email.setContent(emailContent);
+        email.setRecipients(Collections.singletonList(recipientAddress));
+        emailSender.send(email);
     }
 
 }
