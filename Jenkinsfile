@@ -143,7 +143,7 @@ String getRequestsCPU(String branchName) {
 
 String getRequestsMemory(String branchName) {
     if (branchName == 'main') {
-        return '1Gi'
+        return '2Gi'
     } else {
         return '0.5Gi'
     }
@@ -159,7 +159,7 @@ String getLimitsCPU(String branchName) {
 
 String getLimitsMemory(String branchName) {
     if (branchName == 'main') {
-        return '1.2Gi'
+        return '2Gi'
     } else {
         return '1.2Gi'
     }
