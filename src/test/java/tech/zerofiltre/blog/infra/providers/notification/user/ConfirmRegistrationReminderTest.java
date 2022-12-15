@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
 import java.time.*;
 import java.util.*;
@@ -111,14 +112,19 @@ class ConfirmRegistrationReminderTest {
 
 
         //ASSERT
-        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
-        verify(blogEmailSender, times(3)).send(emailCaptor.capture(), subjectCaptor.capture(), contentCaptor.capture());
-        List<String> capturedEmailList = emailCaptor.getAllValues();
-        List<String> capturedSubjectList = subjectCaptor.getAllValues();
-        List<String> capturedContentList = contentCaptor.getAllValues();
+        Email email = new Email();
+        verify(blogEmailSender, times(3)).send(emailCaptor.capture());
+        List<String> capturedEmailList = new ArrayList<>();
+        List<String> capturedSubjectList = new ArrayList<>();
+        List<String> capturedContentList = new ArrayList<>();
+
+        emailCaptor.getAllValues().forEach(value -> {
+            capturedEmailList.addAll(value.getRecipients());
+            capturedSubjectList.add(value.getSubject());
+            capturedContentList.add(value.getContent());
+        });
 
         assertThat(capturedEmailList.stream().anyMatch(
                 s -> List.of(EMAIL_1, EMAIL_2, EMAIL_3).contains(s)
@@ -162,10 +168,13 @@ class ConfirmRegistrationReminderTest {
 
 
         //ASSERT
-        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
-        verify(blogEmailSender, times(2)).send(emailCaptor.capture(), any(), any());
-        List<String> capturedEmailList = emailCaptor.getAllValues();
+        verify(blogEmailSender, times(2)).send(emailCaptor.capture());
+        List<String> capturedEmailList = new ArrayList<>();
+        emailCaptor.getAllValues().forEach(value -> {
+            capturedEmailList.addAll(value.getRecipients());
+        });
         assertThat(capturedEmailList.stream().noneMatch(s -> s.equals(INVALID_EMAIL))).isTrue();
 
     }
