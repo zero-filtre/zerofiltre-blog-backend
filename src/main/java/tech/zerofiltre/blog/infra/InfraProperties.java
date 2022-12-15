@@ -38,6 +38,9 @@ public class InfraProperties {
     @Value("${zerofiltre.env:dev}")
     private String env;
 
+    @Value("${zerofiltre.contact.email:info@zerofiltre.tech}")
+    private String contactEmail;
+
 
 
 

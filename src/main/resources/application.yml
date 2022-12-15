@@ -93,6 +93,7 @@ springdoc:
 
 zerofiltre:
   env: dev
+  contact.email: info@zerofiltre.tech
   infra:
     security:
       jwt:

@@ -8,7 +8,7 @@ import java.util.*;
 public class NotifyRegistrationComplete {
     private final UserNotificationProvider userNotificationProvider;
 
-    public NotifyRegistrationComplete(UserNotificationProvider userNotificationProvider, VerificationTokenProvider tokenProvider) {
+    public NotifyRegistrationComplete(UserNotificationProvider userNotificationProvider) {
         this.userNotificationProvider = userNotificationProvider;
     }
 

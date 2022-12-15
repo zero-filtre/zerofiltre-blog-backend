@@ -30,7 +30,7 @@ class NotifyRegistrationCompleteTest {
 
     @BeforeEach
     void setUp() {
-        notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider, tokenProvider);
+        notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
     }
 
     @Test

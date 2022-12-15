@@ -87,6 +87,7 @@ springdoc:
 
 zerofiltre:
   env: ${ZEROFILTRE_ENV}
+  contact.email: info@zerofiltre.tech
   infra:
     security:
       jwt:

@@ -6,12 +6,12 @@ import java.lang.annotation.*;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-@Target({TYPE, FIELD, ANNOTATION_TYPE, PARAMETER})
+@Target({TYPE, FIELD, ANNOTATION_TYPE,PARAMETER})
 @Retention(RUNTIME)
-@Constraint(validatedBy = EmailValidator.class)
+@Constraint(validatedBy = EmailListValidator.class)
 @Documented
-public @interface ValidEmail {
-    String message() default "Invalid email";
+public @interface ValidEmailList {
+    String message() default "At least one invalid email";
 
     Class<?>[] groups() default {};
 

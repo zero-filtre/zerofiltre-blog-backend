@@ -56,12 +56,12 @@ public class UserController {
     private final LoggerProvider loggerProvider;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, JwtAuthenticationTokenProperties jwTokenConfiguration, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider) {
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider) {
         this.tokenProvider = tokenProvider;
         this.reactionProvider = reactionProvider;
         this.loggerProvider = loggerProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator);
-        this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider, tokenProvider);
+        this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
         this.passwordEncoder = passwordEncoder;
         this.infraProperties = infraProperties;
@@ -122,11 +122,11 @@ public class UserController {
         request.setPageSize(pageSize);
         request.setUser(user);
         request.setTag(tag);
-        if (filter != null){
+        if (filter != null) {
             filter = filter.toUpperCase();
             request.setFilter(FindArticleRequest.Filter.valueOf(filter));
         }
-        if (status != null){
+        if (status != null) {
             status = status.toUpperCase();
             request.setStatus(Status.valueOf(status));
         }
