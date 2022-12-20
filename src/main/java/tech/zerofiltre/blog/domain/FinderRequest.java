@@ -1,8 +1,9 @@
-package tech.zerofiltre.blog.domain.article.model;
+package tech.zerofiltre.blog.domain;
 
+import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-public class FindArticleRequest {
+public class FinderRequest {
     private int pageNumber;
     private int pageSize;
     private Status status = Status.PUBLISHED;
@@ -16,10 +17,10 @@ public class FindArticleRequest {
         MOST_VIEWED;
     }
 
-    public FindArticleRequest() {
+    public FinderRequest() {
     }
 
-    public FindArticleRequest(int pageNumber, int pageSize, Status status, User user) {
+    public FinderRequest(int pageNumber, int pageSize, Status status, User user) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.status = status;

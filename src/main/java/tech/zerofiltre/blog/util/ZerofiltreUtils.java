@@ -2,6 +2,8 @@ package tech.zerofiltre.blog.util;
 
 import lombok.extern.slf4j.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import javax.servlet.http.*;
@@ -26,6 +28,15 @@ public class ZerofiltreUtils {
     public static final String TEST_LINKEDIN_LINK = "https://www.linkedin.com/in/philippesimo/";
     public static final String TEST_PROFESSION = "Senior Java Developer";
     public static final String ROOT_URL = "https://zerofiltre.tech";
+    public static final String TEST_SUMMARY = "summary";
+    public static final String TEST_THUMBNAIL = "https://i.ibb.co/qpwg6Mv/google.gif";
+    public static final String TEST_COURSE_TITLE = "test title";
+    public static final String TEST_SECTION_TITLE_1 = "Section 1";
+    public static final String TEST_SECTION_CONTENT_1 = "Section 1 content";
+    public static final String TEST_SECTION_TITLE_2 = "Section 2";
+    public static final String TEST_SECTION_CONTENT_2 = "Section 2 content";
+    public static final String TEST_SECTION_TITLE_3 = "Section 3";
+    public static final String TEST_SECTION_CONTENT_3 = "Section 3 content";
 
     private ZerofiltreUtils() {
     }
@@ -117,6 +128,24 @@ public class ZerofiltreUtils {
         return user;
     }
 
+    public static Course createMockCourse(boolean withId, Status status, CourseProvider courseProvider, User author, List<Section> sections) {
+        return new Course.CourseBuilder()
+                .id(withId ? 45 : 0)
+                .title(TEST_COURSE_TITLE)
+                .thumbnail(TEST_THUMBNAIL)
+                .courseProvider(courseProvider)
+                .createdAt(LocalDateTime.now().minusDays(50))
+                .status(status)
+                .publishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null)
+                .author(author)
+                .enrolledCount(10)
+                .price(35.99)
+                .sections(sections)
+                .summary(TEST_SUMMARY)
+                .build();
+
+    }
+
     public static List<Tag> createMockTags(boolean withTagIds) {
         Tag java = new Tag();
         java.setName("java");
@@ -131,6 +160,34 @@ public class ZerofiltreUtils {
         }
 
         return Arrays.asList(java, angular, springBoot);
+    }
+
+    public static List<Section> createMockSections(SectionProvider sectionProvider, boolean withSectionIds) {
+        Section section1 = new Section.SectionBuilder()
+                .title(TEST_SECTION_TITLE_1)
+                .content(TEST_SECTION_CONTENT_1)
+                .id(withSectionIds ? 1 : 0)
+                .image(TEST_THUMBNAIL)
+                .sectionProvider(sectionProvider)
+                .position(1)
+                .build();
+        Section section2 = new Section.SectionBuilder()
+                .title(TEST_SECTION_TITLE_2)
+                .content(TEST_SECTION_CONTENT_2)
+                .id(withSectionIds ? 2 : 0)
+                .image(TEST_THUMBNAIL)
+                .sectionProvider(sectionProvider)
+                .position(2)
+                .build();
+        Section section3 = new Section.SectionBuilder()
+                .title(TEST_SECTION_TITLE_3)
+                .content(TEST_SECTION_CONTENT_3)
+                .id(withSectionIds ? 3 : 0)
+                .image(TEST_THUMBNAIL)
+                .sectionProvider(sectionProvider)
+                .position(3)
+                .build();
+        return Arrays.asList(section1, section2, section3);
     }
 
     public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, User author) {
@@ -158,6 +215,7 @@ public class ZerofiltreUtils {
         return result;
 
     }
+
 
     public static String getAppURL(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();

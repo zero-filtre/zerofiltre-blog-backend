@@ -107,7 +107,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -181,7 +181,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -224,7 +224,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -270,7 +270,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -319,7 +319,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -364,7 +364,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -409,7 +409,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -504,7 +504,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();

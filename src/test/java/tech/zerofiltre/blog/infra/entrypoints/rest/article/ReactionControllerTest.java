@@ -41,7 +41,7 @@ class ReactionControllerTest {
     }
 
     @Test
-    void addReaction_constructAProperReaction() throws ForbiddenActionException, ResourceNotFoundException {
+    void addReactionOnArticle_constructAProperReaction() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
         doReturn(Collections.emptyList()).when(addReaction).execute(any());
         User currentUser = new User();
@@ -50,7 +50,7 @@ class ReactionControllerTest {
 
 
         //ACT
-        reactionController.addReaction(12, "CLAP");
+        reactionController.addReaction(12,0, "CLAP");
 
         //ASSERT
         ArgumentCaptor<Reaction> captor = ArgumentCaptor.forClass(Reaction.class);
@@ -59,5 +59,26 @@ class ReactionControllerTest {
         assertThat(reaction.getAuthorId()).isEqualTo(10);
         assertThat(reaction.getAction()).isEqualTo(CLAP);
         assertThat(reaction.getArticleId()).isEqualTo(12);
+    }
+
+    @Test
+    void addReactionOnCourse_constructAProperReaction() throws ForbiddenActionException, ResourceNotFoundException {
+        //ARRANGE
+        doReturn(Collections.emptyList()).when(addReaction).execute(any());
+        User currentUser = new User();
+        currentUser.setId(10);
+        when(securityContextManager.getAuthenticatedUser()).thenReturn(currentUser);
+
+
+        //ACT
+        reactionController.addReaction(0,12, "CLAP");
+
+        //ASSERT
+        ArgumentCaptor<Reaction> captor = ArgumentCaptor.forClass(Reaction.class);
+        verify(addReaction, times(1)).execute(captor.capture());
+        Reaction reaction = captor.getValue();
+        assertThat(reaction.getAuthorId()).isEqualTo(10);
+        assertThat(reaction.getAction()).isEqualTo(CLAP);
+        assertThat(reaction.getCourseId()).isEqualTo(12);
     }
 }

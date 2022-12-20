@@ -27,7 +27,7 @@ public class FindArticle {
 
     }
 
-    public Page<Article> of(FindArticleRequest request) throws ForbiddenActionException, UnAuthenticatedActionException {
+    public Page<Article> of(FinderRequest request) throws ForbiddenActionException, UnAuthenticatedActionException {
         User user = request.getUser();
 
         //UNAUTHENTICATED USER TRYING TO GET NON PUBLISHED ARTICLES

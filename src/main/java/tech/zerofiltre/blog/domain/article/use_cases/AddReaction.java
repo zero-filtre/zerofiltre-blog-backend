@@ -17,6 +17,7 @@ public class AddReaction {
 
 
     public List<Reaction> execute(Reaction reaction) throws ResourceNotFoundException, ForbiddenActionException {
+        //TODO  adapt to courses
         long articleId = reaction.getArticleId();
 
         Article article = articleProvider.articleOfId(articleId)
