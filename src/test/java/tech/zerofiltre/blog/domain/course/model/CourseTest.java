@@ -262,6 +262,7 @@ class CourseTest {
         assertThat(result.getStatus()).isEqualTo(PUBLISHED);
 
     }
+
     @Test
     void publishOrSave_should_ThrowResourceNotFoundException_ifTagsNotFound() {
         //GIVEN
@@ -461,30 +462,6 @@ class CourseTest {
     }
 
     @Test
-    void publishOrSave_shouldThrow_ResourceNotFoundException_whenSectionNotFound() {
-        //GIVEN
-        courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
-        tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new SectionProviderSpy();
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .sections(Collections.singletonList(Section.builder().id(1).build()))
-                .build();
-
-        //WHEN
-
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.save(15));
-
-
-    }
-
-    @Test
     void publishOrSave_shouldThrow_ResourceNotFoundException_whenTagNotFound() {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
@@ -508,40 +485,6 @@ class CourseTest {
     }
 
     @Test
-    void publishOrSave_shouldAddSections_Properly() throws ForbiddenActionException, ResourceNotFoundException {
-        //GIVEN
-        courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
-        tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
-
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .title(UPDATED_TITLE)
-                .sections(ZerofiltreUtils.createMockSections(sectionProvider, true))
-                .build();
-
-        //WHEN
-        Course result = course.save(15);
-
-
-        //THEN
-        assertThat(result.getSections().size()).isEqualTo(3);
-        result.getSections().forEach(section -> {
-            assertThat(section.getId()).isNotZero();
-            assertThat(section.getTitle()).isNotBlank();
-            assertThat(section.getPosition()).isNotZero();
-            assertThat(section.getContent()).isNotBlank();
-            assertThat(section.getImage()).isNotBlank();
-        });
-
-    }
-
-    @Test
     void delete_ShouldThrow_ResourceNotFoundException_WhenCourseNotFound() {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
@@ -556,7 +499,7 @@ class CourseTest {
                 .sectionProvider(sectionProvider)
                 .build();
 
-        User deleter = ZerofiltreUtils.createMockUser(true);
+        ZerofiltreUtils.createMockUser(true);
 
 
         //WHEN

@@ -4,10 +4,12 @@ import lombok.extern.slf4j.*;
 import org.springframework.context.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -16,23 +18,27 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 import javax.servlet.http.*;
 import javax.validation.*;
 import javax.validation.constraints.*;
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/course")
 public class CourseController {
 
-
     private final SecurityContextManager securityContextManager;
     private final CourseProvider courseProvider;
     private final UserProvider userProvider;
+    private final TagProvider tagProvider;
+    private final LoggerProvider loggerProvider;
     private Course course;
     private final MessageSource sources;
 
-    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, UserProvider userProvider, MessageSource sources) {
+    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, UserProvider userProvider, TagProvider tagProvider, LoggerProvider loggerProvider, MessageSource sources) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
+        this.tagProvider = tagProvider;
+        this.loggerProvider = loggerProvider;
         this.sources = sources;
     }
 
@@ -54,29 +60,47 @@ public class CourseController {
     public Course save(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws BlogException {
         return Course.builder().courseProvider(courseProvider)
                 .userProvider(userProvider)
+                .tagProvider(tagProvider)
+                .id(publishOrSaveCourseVM.getId())
                 .title(publishOrSaveCourseVM.getTitle())
                 .subTitle(publishOrSaveCourseVM.getSubTitle())
                 .summary(publishOrSaveCourseVM.getSummary())
                 .video(publishOrSaveCourseVM.getVideo())
                 .thumbnail(publishOrSaveCourseVM.getThumbnail())
                 .status(Status.DRAFT)
-                .sections(publishOrSaveCourseVM.getSections())
+                .sections(fromVMs(publishOrSaveCourseVM.getSections()))
                 .tags(publishOrSaveCourseVM.getTags())
                 .build()
                 .save(securityContextManager.getAuthenticatedUser().getId());
+    }
+
+    private List<Section> fromVMs(List<SectionVM> sections) {
+        List<Section> sectionList = new ArrayList<>();
+        for (SectionVM sectionVM : sections) {
+            sectionList.add(Section.builder()
+                    .id(sectionVM.getId())
+                    .position(sectionVM.getPosition())
+                    .image(sectionVM.getImage())
+                    .title(sectionVM.getTitle())
+                    .content(sectionVM.getContent())
+                    .build());
+        }
+        return sectionList;
     }
 
     @PatchMapping("/publish")
     public Course publish(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws BlogException {
         return Course.builder().courseProvider(courseProvider)
                 .userProvider(userProvider)
+                .tagProvider(tagProvider)
+                .id(publishOrSaveCourseVM.getId())
                 .title(publishOrSaveCourseVM.getTitle())
                 .subTitle(publishOrSaveCourseVM.getSubTitle())
                 .summary(publishOrSaveCourseVM.getSummary())
                 .video(publishOrSaveCourseVM.getVideo())
                 .thumbnail(publishOrSaveCourseVM.getThumbnail())
                 .status(Status.PUBLISHED)
-                .sections(publishOrSaveCourseVM.getSections())
+                .sections(fromVMs(publishOrSaveCourseVM.getSections()))
                 .tags(publishOrSaveCourseVM.getTags())
                 .build()
                 .save(securityContextManager.getAuthenticatedUser().getId());
@@ -129,7 +153,10 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     public String deleteCourse(@PathVariable("id") long courseId, HttpServletRequest request) throws BlogException {
-        course = Course.builder().courseProvider(courseProvider).build();
+        course = Course.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .loggerProvider(loggerProvider).build();
         User user = securityContextManager.getAuthenticatedUser();
         course.delete(courseId, user);
         return sources.getMessage("message.delete.article.success", null, request.getLocale());

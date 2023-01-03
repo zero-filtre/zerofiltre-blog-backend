@@ -46,7 +46,6 @@ public class Course {
     private UserProvider userProvider;
     private TagProvider tagProvider;
     private LoggerProvider loggerProvider;
-    private SectionProvider sectionProvider;
 
     private Course(CourseBuilder courseBuilder) {
         this.id = courseBuilder.id;
@@ -69,7 +68,6 @@ public class Course {
         this.courseProvider = courseBuilder.courseProvider;
         this.userProvider = courseBuilder.userProvider;
         this.tagProvider = courseBuilder.tagProvider;
-        this.sectionProvider = courseBuilder.sectionProvider;
         this.loggerProvider = courseBuilder.loggerProvider;
     }
 
@@ -149,9 +147,6 @@ public class Course {
         return tagProvider;
     }
 
-    public SectionProvider getSectionProvider() {
-        return sectionProvider;
-    }
 
     public LoggerProvider getLoggerProvider() {
         return loggerProvider;
@@ -176,20 +171,17 @@ public class Course {
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
         if (viewer == null) {
-            setAttributes(foundCourse);
+            copy(foundCourse);
             if (status != Status.PUBLISHED)
                 throw new ForbiddenActionException("You are not allowed to access this course as it is not yet published", Domains.COURSE.name());
             return setProviders(foundCourse);
         }
-
+        copy(foundCourse);
         Optional<User> existing = userProvider.userOfId(viewer.getId());
         if (existing.isEmpty())
             throw new UserNotFoundException(USER_DOES_NOT_EXIST, viewer.toString());
-        setAttributes(foundCourse);
         if (!isAdmin(existing.get()) && !isAuthor(existing.get()) && status != Status.PUBLISHED)
             throw new ForbiddenActionException("You are not allowed to access this course as it is not yet published", Domains.COURSE.name());
-
-
         return setProviders(foundCourse);
     }
 
@@ -199,7 +191,6 @@ public class Course {
         String summaryToSave = this.summary;
         String thumbnailToSave = this.thumbnail;
         String videoToSave = this.video;
-        List<Section> sectionsToSave = this.sections;
         List<Tag> tagsToSave = this.tags;
         Status statusToSave = this.status;
         LocalDateTime now = LocalDateTime.now();
@@ -209,8 +200,8 @@ public class Course {
 
         Course existingCourse = courseProvider.courseOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + this.id + DOES_NOT_EXIST, String.valueOf(this.id), Domains.COURSE.name()));
-        setAttributes(existingCourse);
-        setAttributes(titleToSave, subTitleToSave, summaryToSave, videoToSave, thumbnailToSave, sectionsToSave, tagsToSave);
+        copy(existingCourse);
+        copy(titleToSave, subTitleToSave, summaryToSave, videoToSave, thumbnailToSave, tagsToSave);
         if (!isAuthor(currentEditor) && !isAdmin(currentEditor))
             throw new ForbiddenActionException("You are not allowed to edit this course", Domains.COURSE.name());
 
@@ -251,7 +242,6 @@ public class Course {
 
 
     private Course setProviders(Course inNeedOfProviders) {
-        inNeedOfProviders.sectionProvider = this.sectionProvider;
         inNeedOfProviders.courseProvider = this.courseProvider;
         inNeedOfProviders.userProvider = this.userProvider;
         inNeedOfProviders.tagProvider = this.tagProvider;
@@ -275,27 +265,17 @@ public class Course {
         return userProvider;
     }
 
-    private void setAttributes(String title, String subTitle, String summary, String video, String thumbnail, List<Section> sections, List<Tag> tags) throws ResourceNotFoundException {
+    private void copy(String title, String subTitle, String summary, String video, String thumbnail, List<Tag> tags) throws ResourceNotFoundException {
         checkTags(tags);
-        checkSections(sections);
         this.title = title;
         this.subTitle = subTitle;
         this.summary = summary;
         this.video = video;
         this.thumbnail = thumbnail;
-        this.sections = sections;
         this.tags = tags;
     }
 
-    private void checkSections(List<Section> sections) throws ResourceNotFoundException {
-        for (Section section : sections) {
-            Optional<Section> existingSection = sectionProvider.findById(section.getId());
-            if (existingSection.isEmpty())
-                throw new ResourceNotFoundException("The section with id: " + section.getId() + DOES_NOT_EXIST, String.valueOf(section.getId()), Domains.COURSE.name());
-        }
-    }
-
-    private void setAttributes(Course course) {
+    private void copy(Course course) {
         this.id = course.getId();
         this.title = course.getTitle();
         this.subTitle = course.getSubTitle();
@@ -312,6 +292,7 @@ public class Course {
         this.publishedAt = course.getPublishedAt();
         this.lastPublishedAt = course.getLastPublishedAt();
         this.lastSavedAt = course.getLastSavedAt();
+        this.sections = course.getSections();
     }
 
     private void checkTags(List<Tag> tags) throws ResourceNotFoundException {

@@ -11,9 +11,12 @@ import org.springframework.http.converter.json.*;
 import org.springframework.security.test.context.support.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import tech.zerofiltre.blog.domain.article.*;
+import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -32,7 +35,7 @@ import tech.zerofiltre.blog.util.*;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = CourseController.class)
@@ -66,6 +69,12 @@ class CourseControllerIT {
     UserProvider userProvider;
 
     @MockBean
+    LoggerProvider loggerProvider;
+
+    @MockBean
+    TagProvider tagProvider;
+
+    @MockBean
     JwtTokenProvider jwtTokenProvider;
 
     @Autowired
@@ -75,7 +84,7 @@ class CourseControllerIT {
 
 
     User author = ZerofiltreUtils.createMockUser(false);
-    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList());
+    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, author, Collections.emptyList());
 
     @BeforeEach
     void setUp() {
@@ -83,6 +92,8 @@ class CourseControllerIT {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(author));
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
         when(courseProvider.save(any())).thenReturn(mockCourse);
+        when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(new Tag()));
+        doNothing().when(loggerProvider).log(any());
 
         publishOrSaveCourseVM.setTitle(TITLE);
         publishOrSaveCourseVM.setSections(Collections.emptyList());
@@ -142,7 +153,6 @@ class CourseControllerIT {
     }
 
     @Test
-    @WithMockUser
     void findById_whenValidInput_Returns200() throws Exception {
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.get("/course/1");

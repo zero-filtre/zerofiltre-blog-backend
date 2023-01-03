@@ -2,7 +2,6 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.course.model;
 
 import lombok.*;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.model.*;
 
 import javax.validation.constraints.*;
 import java.util.*;
@@ -25,7 +24,7 @@ public class PublishOrSaveCourseVM {
 
     private String thumbnail;
 
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
     @NotNull(message = "The title must not be null")
     @NotEmpty(message = "The title must not be empty")
@@ -34,6 +33,6 @@ public class PublishOrSaveCourseVM {
     private String video;
 
 
-    private List<Section> sections;
+    private List<SectionVM> sections = new ArrayList<>();
 
 }
