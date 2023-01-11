@@ -1,15 +1,27 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import java.util.*;
 
 public class Chapter {
+    public static final String AUTHOR_DOES_NOT_EXIST = "The author does not exist";
+    public static final String USER_DOES_NOT_EXIST = "The user does not exist";
+    public static final String DOES_NOT_EXIST = " does not exist";
+
     private long id;
     private String title;
     private long courseId;
     private List<Lesson> lessons;
+
     private ChapterProvider chapterProvider;
+    private UserProvider userProvider;
+    private CourseProvider courseProvider;
 
     private Chapter(ChapterBuilder chapterBuilder) {
         this.id = chapterBuilder.id;
@@ -17,6 +29,8 @@ public class Chapter {
         this.courseId = chapterBuilder.courseId;
         this.lessons = chapterBuilder.lessons;
         this.chapterProvider = chapterBuilder.chapterProvider;
+        this.userProvider = chapterBuilder.userProvider;
+        this.courseProvider = chapterBuilder.courseProvider;
     }
 
     public long getId() {
@@ -43,7 +57,91 @@ public class Chapter {
         return new ChapterBuilder();
     }
 
+    public Chapter init(String title, long courseId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+
+        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
+        }
+
+        this.title = title;
+        this.courseId = courseId;
+
+        return setProviders(chapterProvider.save(this));
+    }
+
+
+    private boolean isAdmin(User existingUser) {
+        return existingUser.getRoles().contains("ROLE_ADMIN");
+    }
+
+    private Chapter setProviders(Chapter chapter) {
+        chapter.chapterProvider = chapterProvider;
+        chapter.userProvider = userProvider;
+        chapter.courseProvider = courseProvider;
+        return chapter;
+    }
+
+    public Chapter save(int currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+
+        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", Domains.COURSE.name());
+        }
+
+        Chapter existingChapter = chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+
+        String titleToSave = title;
+
+        setAttributes(existingChapter);
+        this.title = titleToSave;
+        return setProviders(chapterProvider.save(this));
+    }
+
+    private void setAttributes(Chapter existingChapter) {
+        this.id = existingChapter.getId();
+        this.title = existingChapter.getTitle();
+        this.lessons = existingChapter.getLessons();
+        this.courseId = existingChapter.getCourseId();
+    }
+
+    public void delete(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Chapter existingChapter = chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+        if (!existingChapter.getLessons().isEmpty())
+            throw new ForbiddenActionException("You are not allowed to delete a chapter with lessons", Domains.COURSE.name());
+
+        Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+
+        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to delete a chapter for this course", Domains.COURSE.name());
+        }
+
+        chapterProvider.delete(existingChapter);
+    }
+
+    public Chapter get(long currentUserId) throws ResourceNotFoundException {
+        return setProviders(chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name())));
+    }
+
+
     public static class ChapterBuilder {
+        private UserProvider userProvider;
+        private CourseProvider courseProvider;
         private long id;
         private String title;
         private long courseId;
@@ -72,6 +170,16 @@ public class Chapter {
 
         public ChapterBuilder chapterProvider(ChapterProvider chapterProvider) {
             this.chapterProvider = chapterProvider;
+            return this;
+        }
+
+        public ChapterBuilder userProvider(UserProvider userProvider) {
+            this.userProvider = userProvider;
+            return this;
+        }
+
+        public ChapterBuilder courseProvider(CourseProvider courseProvider) {
+            this.courseProvider = courseProvider;
             return this;
         }
 
