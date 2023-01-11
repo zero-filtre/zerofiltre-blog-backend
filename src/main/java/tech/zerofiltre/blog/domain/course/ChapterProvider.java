@@ -6,5 +6,7 @@ import java.util.*;
 
 public interface ChapterProvider {
     Optional<Chapter> chapterOfId(long id);
-    Chapter registerChapter(Chapter chapter);
+    Chapter save(Chapter chapter);
+    void delete(Chapter chapter);
+
 }
