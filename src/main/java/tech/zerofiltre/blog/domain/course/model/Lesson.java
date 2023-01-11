@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.user.*;
 
 import java.util.*;
 
@@ -15,8 +16,12 @@ public class Lesson {
     private String  free;
     private String  type;
     private long chapterId;
-    private List<Resource> resources;
+    private List<Resource> resources = new ArrayList<>();
     private LessonProvider lessonProvider;
+    private ChapterProvider chapterProvider;
+    private UserProvider userProvider;
+    private CourseProvider courseProvider;
+
 
     private Lesson(LessonBuilder lessonBuilder) {
         this.id = lessonBuilder.id;
@@ -30,10 +35,102 @@ public class Lesson {
         this.chapterId = lessonBuilder.chapterId;
         this.resources = lessonBuilder.resources;
         this.lessonProvider = lessonBuilder.lessonProvider;
+        this.chapterProvider = lessonBuilder.chapterProvider;
+        this.userProvider = lessonBuilder.userProvider;
+        this.courseProvider = lessonBuilder.courseProvider;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public String getVideo() {
+        return video;
+    }
+
+    public String getFree() {
+        return free;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public long getChapterId() {
+        return chapterId;
+    }
+
+    public List<Resource> getResources() {
+        return resources;
+    }
+
+    public LessonProvider getLessonProvider() {
+        return lessonProvider;
     }
 
     public static LessonBuilder builder() {
         return new LessonBuilder();
+    }
+
+    public Lesson init(String title, long chapterId, long currentUserId) {
+        this.title = title;
+        this.chapterId = chapterId;
+
+
+        return setProviders(lessonProvider.save(this));
+    }
+
+    private Lesson setProviders(Lesson lesson) {
+        lesson.lessonProvider = this.lessonProvider;
+        lesson.chapterProvider = this.chapterProvider;
+        lesson.userProvider = this.userProvider;
+        lesson.courseProvider = this.courseProvider;
+        return lesson;
+
+
+    }
+
+    public ChapterProvider getChapterProvider() {
+        return chapterProvider;
+    }
+
+    public UserProvider getUserProvider() {
+        return userProvider;
+    }
+
+    public CourseProvider getCourseProvider() {
+        return courseProvider;
+    }
+
+    public Lesson save(long currentUserId) {
+
+
+    }
+
+    public void delete(long currentUserId) {
+
+
+    }
+
+    public Lesson get(long currentUserId) {
+
+
     }
 
     //generate LessonBuilder class
@@ -49,6 +146,9 @@ public class Lesson {
         private long chapterId;
         private List<Resource> resources = new ArrayList<>();
         private LessonProvider lessonProvider;
+        private ChapterProvider chapterProvider;
+        private UserProvider userProvider;
+        private CourseProvider courseProvider;
 
         public LessonBuilder id(long id) {
             this.id = id;
@@ -102,6 +202,21 @@ public class Lesson {
 
         public LessonBuilder lessonProvider(LessonProvider lessonProvider) {
             this.lessonProvider = lessonProvider;
+            return this;
+        }
+
+        public LessonBuilder chapterProvider(ChapterProvider chapterProvider) {
+            this.chapterProvider = chapterProvider;
+            return this;
+        }
+
+        public LessonBuilder userProvider(UserProvider userProvider) {
+            this.userProvider = userProvider;
+            return this;
+        }
+
+        public LessonBuilder courseProvider(CourseProvider courseProvider) {
+            this.courseProvider = courseProvider;
             return this;
         }
 
