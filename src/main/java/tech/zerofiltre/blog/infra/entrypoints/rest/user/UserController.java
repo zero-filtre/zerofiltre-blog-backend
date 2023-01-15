@@ -80,7 +80,7 @@ public class UserController {
         this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
-        this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider, this.loggerProvider);
+        this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider, courseProvider, this.loggerProvider);
         this.userProvider = userProvider;
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
         course = Course.builder().courseProvider(courseProvider).build();

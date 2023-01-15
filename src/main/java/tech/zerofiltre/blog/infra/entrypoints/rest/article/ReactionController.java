@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.mapper.*;
@@ -22,8 +23,8 @@ public class ReactionController {
     private final ReactionVMMapper mapper = Mappers.getMapper(ReactionVMMapper.class);
 
 
-    public ReactionController(ArticleProvider articleProvider, SecurityContextManager securityContextManager) {
-        addReaction = new AddReaction(articleProvider);
+    public ReactionController(ArticleProvider articleProvider, CourseProvider courseProvider, SecurityContextManager securityContextManager) {
+        addReaction = new AddReaction(articleProvider, courseProvider);
         this.securityContextManager = securityContextManager;
     }
 

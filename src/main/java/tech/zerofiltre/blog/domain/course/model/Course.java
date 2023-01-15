@@ -41,6 +41,7 @@ public class Course {
     private double price;
     private String video;
     private List<Section> sections;
+    private List<Reaction> reactions;
 
     private CourseProvider courseProvider;
     private UserProvider userProvider;
@@ -65,6 +66,8 @@ public class Course {
         this.publishedAt = courseBuilder.publishedAt;
         this.createdAt = courseBuilder.createdAt;
         this.lastSavedAt = courseBuilder.lastSavedAt;
+        this.reactions = courseBuilder.reactions;
+
         this.courseProvider = courseBuilder.courseProvider;
         this.userProvider = courseBuilder.userProvider;
         this.tagProvider = courseBuilder.tagProvider;
@@ -324,7 +327,12 @@ public class Course {
         return courseProvider.courseOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.getFilter(), request.getTag());
     }
 
+    public List<Reaction> getReactions() {
+        return reactions;
+    }
+
     public static class CourseBuilder {
+        public List<Reaction> reactions;
         private SectionProvider sectionProvider;
         private LoggerProvider loggerProvider;
         private Status status = Status.DRAFT;
@@ -405,6 +413,11 @@ public class Course {
 
         public CourseBuilder sections(List<Section> sections) {
             this.sections = sections;
+            return this;
+        }
+
+        public CourseBuilder reactions(List<Reaction> reactions) {
+            this.reactions = reactions;
             return this;
         }
 

@@ -39,7 +39,7 @@ class DBCourseProviderIT {
         User author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(),Collections.emptyList());
         course = courseProvider.save(course);
 
         assertThat(course.getId()).isNotZero();
@@ -50,7 +50,7 @@ class DBCourseProviderIT {
         User author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(),Collections.emptyList());
         course = courseProvider.save(course);
 
         Optional<Course> courseOptional = courseProvider.courseOfId(course.getId());

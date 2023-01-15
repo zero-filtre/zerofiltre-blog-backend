@@ -84,7 +84,7 @@ class SectionControllerIT {
         when(sectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(mockSection));
         when(sectionProvider.save(any())).thenReturn(mockSection);
         User mockUser = ZerofiltreUtils.createMockUser(true);
-        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtils.createMockCourse(false, Status.DRAFT,courseProvider, mockUser,Collections.emptyList())));
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtils.createMockCourse(false, Status.DRAFT,courseProvider, mockUser,Collections.emptyList(),Collections.emptyList())));
         when(securityContextManager.getAuthenticatedUser()).thenReturn(mockUser);
 
         sectionVM.setTitle("title");

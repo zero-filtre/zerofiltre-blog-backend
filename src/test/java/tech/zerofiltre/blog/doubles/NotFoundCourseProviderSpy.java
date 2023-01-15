@@ -4,6 +4,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
@@ -32,5 +33,10 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
     @Override
     public Page<Course> courseOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         return null;
+    }
+
+    @Override
+    public List<Course> courseOf(User foundUser) {
+        return Collections.emptyList();
     }
 }

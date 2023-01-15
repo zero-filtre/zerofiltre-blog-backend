@@ -62,7 +62,7 @@ class PublishOrSaveArticleIT {
         Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
 
-        ZerofiltreUtils.createMockReactions(true, article.getId(), user)
+        ZerofiltreUtils.createMockReactions(true, article.getId(), 0,user)
                 .forEach(reactionProvider::save);
 
 
@@ -141,7 +141,7 @@ class PublishOrSaveArticleIT {
         Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
 
-        ZerofiltreUtils.createMockReactions(true, article.getId(), user)
+        ZerofiltreUtils.createMockReactions(true, article.getId(),0, user)
                 .forEach(reactionProvider::save);
 
 

@@ -84,7 +84,7 @@ class CourseControllerIT {
 
 
     User author = ZerofiltreUtils.createMockUser(false);
-    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, author, Collections.emptyList());
+    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, author, Collections.emptyList(),Collections.emptyList());
 
     @BeforeEach
     void setUp() {

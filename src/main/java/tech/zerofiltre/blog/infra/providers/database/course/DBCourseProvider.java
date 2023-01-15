@@ -10,11 +10,13 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.*;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 @Component
 @Transactional
@@ -67,5 +69,14 @@ public class DBCourseProvider implements CourseProvider {
                 page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId);
         }
         return pageMapper.fromSpringPage(page.map(mapper::fromJPA));
+    }
+
+
+
+
+    @Override
+    public List<Course> courseOf(User user) {
+        return repository.findByAuthorId(user.getId())
+                .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 }

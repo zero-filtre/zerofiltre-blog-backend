@@ -43,7 +43,7 @@ public class ZerofiltreUtils {
 
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser(false);
-        List<Reaction> reactions = createMockReactions(true, 1, user);
+        List<Reaction> reactions = createMockReactions(true, 1,0, user);
         List<Tag> tags = createMockTags(withTagIds);
         return createMockArticle(user, tags, reactions);
     }
@@ -128,7 +128,7 @@ public class ZerofiltreUtils {
         return user;
     }
 
-    public static Course createMockCourse(boolean withId, Status status, CourseProvider courseProvider, User author, List<Section> sections) {
+    public static Course createMockCourse(boolean withId, Status status, CourseProvider courseProvider, User author, List<Section> sections, List<Reaction> reactions) {
         return new Course.CourseBuilder()
                 .id(withId ? 45 : 0)
                 .title(TEST_COURSE_TITLE)
@@ -138,6 +138,7 @@ public class ZerofiltreUtils {
                 .status(status)
                 .publishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null)
                 .author(author)
+                .reactions(reactions)
                 .enrolledCount(10)
                 .price(35.99)
                 .sections(sections)
@@ -190,7 +191,7 @@ public class ZerofiltreUtils {
         return Arrays.asList(section1, section2, section3);
     }
 
-    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, User author) {
+    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId,long courseId, User author) {
         Reaction clap = new Reaction();
         clap.setAction(Reaction.Action.CLAP);
         Reaction like = new Reaction();
@@ -210,6 +211,7 @@ public class ZerofiltreUtils {
         List<Reaction> result = Arrays.asList(clap, like, love, fire, fire2);
         result.forEach(reaction -> {
             reaction.setArticleId(articleId);
+            reaction.setCourseId(courseId);
             reaction.setAuthorId(author.getId());
         });
         return result;

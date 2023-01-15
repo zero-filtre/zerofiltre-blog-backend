@@ -47,5 +47,5 @@ public class CourseJPA extends BaseEntityJPA {
     private Set<SectionJPA> sections;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
-    private Set<ReactionJPA> reactions;
+    private Set<ReactionCourseJPA> reactions;
 }

@@ -9,7 +9,9 @@ import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
 
-public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CourseProvider {
+import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.CLAP;
+
+public class Found_Published_With49Reactions_CourseProvider_Spy implements CourseProvider {
 
     public boolean courseOfIdCalled;
     public boolean registerCourseCalled;
@@ -17,10 +19,15 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     @Override
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
-        User author = new User();
-        author.setId(21L);
-        author.setEmail("just@weirdemail.com");
-        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT,new Found_Draft_WithUnknownAuthor_CourseProviderSpy(), author, Collections.emptyList(),Collections.emptyList()));
+        User author = ZerofiltreUtils.createMockUser(false);
+        List<Reaction> currentUserReactions = new ArrayList<>();
+        for (int i = 0; i < 49; i++) {
+            Reaction reaction = new Reaction();
+            reaction.setAuthorId(author.getId());
+            reaction.setAction(CLAP);
+            currentUserReactions.add(reaction);
+        }
+        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, new Found_Published_WithKnownAuthor_CourseProvider_Spy(), author, Collections.emptyList(), currentUserReactions));
     }
 
     @Override
@@ -28,7 +35,6 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
         registerCourseCalled = true;
         return course;
     }
-
     @Override
     public void delete(Course existingCourse) {
 
@@ -38,8 +44,9 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     public Page<Course> courseOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         return null;
     }
+
     @Override
     public List<Course> courseOf(User foundUser) {
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 }

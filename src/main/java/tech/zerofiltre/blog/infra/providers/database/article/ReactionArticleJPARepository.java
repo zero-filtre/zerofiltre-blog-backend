@@ -6,6 +6,6 @@ import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import java.util.*;
 
-public interface ReactionJPARepository extends JpaRepository<ReactionJPA, Long> {
-    List<ReactionJPA> findByAuthor(UserJPA author);
+public interface ReactionArticleJPARepository extends JpaRepository<ReactionArticleJPA, Long> {
+    List<ReactionArticleJPA> findByAuthor(UserJPA author);
 }

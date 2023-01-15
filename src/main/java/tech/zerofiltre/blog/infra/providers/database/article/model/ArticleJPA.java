@@ -35,7 +35,7 @@ public class ArticleJPA extends BaseEntityJPA {
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "article")
-    private Set<ReactionJPA> reactions;
+    private Set<ReactionArticleJPA> reactions;
 
     private Status status;
 
