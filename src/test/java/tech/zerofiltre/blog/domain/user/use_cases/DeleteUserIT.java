@@ -6,11 +6,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.util.*;
@@ -21,7 +24,8 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBUserProvider.class, DBArticleProvider.class, Slf4jLoggerProvider.class, DBVerificationTokenProvider.class, DBReactionProvider.class})
+@Import({DBUserProvider.class, DBArticleProvider.class, Slf4jLoggerProvider.class,
+        DBVerificationTokenProvider.class, DBReactionProvider.class, DBCourseProvider.class})
 class DeleteUserIT {
 
     public static final String TOKEN = "tokEN";
@@ -36,6 +40,9 @@ class DeleteUserIT {
     @Autowired
     private VerificationTokenProvider tokenProvider;
 
+    @Autowired
+    private CourseProvider courseProvider;
+
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
 
@@ -47,7 +54,7 @@ class DeleteUserIT {
 
     @BeforeEach
     void init() {
-        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, loggerProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
     }
 
     @Test
@@ -70,29 +77,34 @@ class DeleteUserIT {
     }
 
     @Test
-    @DisplayName("Deleting a user that do not have articles deletes him with his token from the DB")
+    @DisplayName("Deleting a user that does not have articles deletes him with his token from the DB")
     void deleteUser_WithNoArticles() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User articleAuthor = ZerofiltreUtils.createMockUser(false);
-        articleAuthor = userProvider.save(articleAuthor);
+        User author = ZerofiltreUtils.createMockUser(false);
+        author = userProvider.save(author);
 
-        Article draftArticle = ZerofiltreUtils.createMockArticle(articleAuthor, Collections.emptyList(), Collections.emptyList());
+        Article draftArticle = ZerofiltreUtils.createMockArticle(author, Collections.emptyList(), Collections.emptyList());
         draftArticle = articleProvider.save(draftArticle);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = courseProvider.save(course);
 
         User user = ZerofiltreUtils.createMockUser(false);
         user.setEmail("another");
         user.setPseudoName("another");
         user = userProvider.save(user);
 
-        VerificationToken verificationToken = new VerificationToken(user, TOKEN,expiryDate);
+        VerificationToken verificationToken = new VerificationToken(user, TOKEN, expiryDate);
         tokenProvider.save(verificationToken);
 
-        Reaction reaction = new Reaction();
-        reaction.setAction(Reaction.Action.FIRE);
-        reaction.setArticleId(draftArticle.getId());
-        reaction.setAuthorId(user.getId());
 
-        reaction = reactionProvider.save(reaction);
+        Reaction reaction2 = new Reaction();
+        reaction2.setAction(Reaction.Action.FIRE);
+        reaction2.setCourseId(course.getId());
+        reaction2.setArticleId(draftArticle.getId());
+        reaction2.setAuthorId(user.getId());
+
+        reaction2 = reactionProvider.save(reaction2);
 
         //ACT
         deleteUser.execute(user, user.getId());
@@ -103,7 +115,7 @@ class DeleteUserIT {
         Optional<VerificationToken> deletedToken = tokenProvider.ofToken(TOKEN);
         assertThat(deletedToken).isEmpty();
 
-        Optional<Reaction> deletedReaction = reactionProvider.reactionOfId(reaction.getId());
-        assertThat(deletedReaction).isEmpty();
+        Optional<Reaction> deletedReaction2 = reactionProvider.reactionOfId(reaction2.getId());
+        assertThat(deletedReaction2).isEmpty();
     }
 }

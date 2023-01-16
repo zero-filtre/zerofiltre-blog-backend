@@ -7,6 +7,7 @@ public class Reaction {
     private Action action;
     private long authorId;
     private long articleId;
+    private long courseId;
 
     public long getId() {
         return id;
@@ -38,6 +39,14 @@ public class Reaction {
 
     public void setArticleId(long articleId) {
         this.articleId = articleId;
+    }
+
+    public long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(long courseId) {
+        this.courseId = courseId;
     }
 
 

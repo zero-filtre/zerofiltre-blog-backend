@@ -3,8 +3,10 @@ package tech.zerofiltre.blog.infra.providers.database.article;
 import lombok.*;
 import org.mapstruct.factory.*;
 import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -39,25 +41,25 @@ public class DBArticleProvider implements ArticleProvider {
     }
 
     @Override
-    public tech.zerofiltre.blog.domain.Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, FindArticleRequest.Filter filter, String tag) {
+    public tech.zerofiltre.blog.domain.Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         Page<ArticleJPA> page;
 
         final var publishedAtPropertyName = "publishedAt";
         if (authorId == 0) {
             if (tag != null)
                 page = repository.findByStatusAndTagsName(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, tag);
-            else if (FindArticleRequest.Filter.POPULAR == filter)
+            else if (FinderRequest.Filter.POPULAR == filter)
                 page = repository.findByReactionsDesc(PageRequest.of(pageNumber, pageSize), status);
-            else if (FindArticleRequest.Filter.MOST_VIEWED == filter)
+            else if (FinderRequest.Filter.MOST_VIEWED == filter)
                 page = repository.findByViewsDesc(PageRequest.of(pageNumber, pageSize), status);
             else
                 page = repository.findByStatus(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status);
         } else {
             if (tag != null)
                 page = repository.findByStatusAndAuthorIdAndTagsName(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId, tag);
-            else if (FindArticleRequest.Filter.POPULAR == filter)
+            else if (FinderRequest.Filter.POPULAR == filter)
                 page = repository.findByReactionsAndAuthorIdDesc(PageRequest.of(pageNumber, pageSize), status, authorId);
-            else if (FindArticleRequest.Filter.MOST_VIEWED == filter)
+            else if (FinderRequest.Filter.MOST_VIEWED == filter)
                 page = repository.findByViewsAndAuthorIdDesc(PageRequest.of(pageNumber, pageSize), status, authorId);
             else
                 page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId);

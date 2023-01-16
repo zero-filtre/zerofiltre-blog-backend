@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -63,6 +64,9 @@ class UserControllerIT {
 
     @MockBean
     ReactionProvider reactionProvider;
+
+    @MockBean
+    CourseProvider courseProvider;
 
     @MockBean
     GithubLoginProvider githubLoginProvider;

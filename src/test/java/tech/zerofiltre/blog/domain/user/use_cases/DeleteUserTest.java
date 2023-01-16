@@ -8,10 +8,12 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.doubles.*;
 
 import java.time.*;
 import java.util.*;
@@ -36,11 +38,13 @@ class DeleteUserTest {
     private ReactionProvider reactionProvider;
     @MockBean
     private ArticleProvider articleProvider;
+
+    private CourseProvider courseProvider = new Found_Published_With49Reactions_CourseProvider_Spy();
     private DeleteUser deleteUser;
 
     @BeforeEach
     void setUp() {
-        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, loggerProvider);
+        deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
         doNothing().when(loggerProvider).log(any());
     }
 

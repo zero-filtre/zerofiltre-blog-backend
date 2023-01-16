@@ -34,7 +34,7 @@ class DBArticleProviderIT {
     @Autowired
     private UserJPARepository userJPARepository;
     @Autowired
-    private ReactionJPARepository reactionJPARepository;
+    private ReactionArticleJPARepository reactionArticleJPARepository;
     private ArticleJPAMapper articleJPAMapper = Mappers.getMapper(ArticleJPAMapper.class);
 
     private UserJPAMapper userJPAMapper = Mappers.getMapper(UserJPAMapper.class);
@@ -61,17 +61,17 @@ class DBArticleProviderIT {
         article0JPA.setAuthor(userJPA);
         articleJPARepository.save(article0JPA);
 
-        ReactionJPA reaction0 = new ReactionJPA();
+        ReactionArticleJPA reaction0 = new ReactionArticleJPA();
         reaction0.setAction(Reaction.Action.FIRE);
         reaction0.setArticle(article0JPA);
         reaction0.setAuthor(userJPA);
 
-        ReactionJPA reaction1 = new ReactionJPA();
+        ReactionArticleJPA reaction1 = new ReactionArticleJPA();
         reaction1.setAction(Reaction.Action.CLAP);
         reaction1.setArticle(article0JPA);
         reaction1.setAuthor(userJPA);
 
-        ReactionJPA reaction2 = new ReactionJPA();
+        ReactionArticleJPA reaction2 = new ReactionArticleJPA();
         reaction2.setAction(Reaction.Action.LOVE);
         reaction2.setArticle(article0JPA);
         reaction2.setAuthor(userJPA);
@@ -85,12 +85,12 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        ReactionJPA reaction3 = new ReactionJPA();
+        ReactionArticleJPA reaction3 = new ReactionArticleJPA();
         reaction3.setAction(Reaction.Action.CLAP);
         reaction3.setAuthor(userJPA);
         reaction3.setArticle(article1JPA);
 
-        ReactionJPA reaction4 = new ReactionJPA();
+        ReactionArticleJPA reaction4 = new ReactionArticleJPA();
         reaction4.setAction(Reaction.Action.LOVE);
         reaction4.setAuthor(userJPA);
         reaction4.setArticle(article1JPA);
@@ -107,7 +107,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -133,17 +133,17 @@ class DBArticleProviderIT {
         article0JPA.setPublishedAt(LocalDateTime.now());
         articleJPARepository.save(article0JPA);
 
-        ReactionJPA reaction0 = new ReactionJPA();
+        ReactionArticleJPA reaction0 = new ReactionArticleJPA();
         reaction0.setAction(Reaction.Action.FIRE);
         reaction0.setArticle(article0JPA);
         reaction0.setAuthor(userJPA);
 
-        ReactionJPA reaction1 = new ReactionJPA();
+        ReactionArticleJPA reaction1 = new ReactionArticleJPA();
         reaction1.setAction(Reaction.Action.CLAP);
         reaction1.setArticle(article0JPA);
         reaction1.setAuthor(userJPA);
 
-        ReactionJPA reaction2 = new ReactionJPA();
+        ReactionArticleJPA reaction2 = new ReactionArticleJPA();
         reaction2.setAction(Reaction.Action.LOVE);
         reaction2.setArticle(article0JPA);
         reaction2.setAuthor(userJPA);
@@ -158,12 +158,12 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        ReactionJPA reaction3 = new ReactionJPA();
+        ReactionArticleJPA reaction3 = new ReactionArticleJPA();
         reaction3.setAction(Reaction.Action.CLAP);
         reaction3.setAuthor(userJPA);
         reaction3.setArticle(article1JPA);
 
-        ReactionJPA reaction4 = new ReactionJPA();
+        ReactionArticleJPA reaction4 = new ReactionArticleJPA();
         reaction4.setAction(Reaction.Action.LOVE);
         reaction4.setAuthor(userJPA);
         reaction4.setArticle(article1JPA);
@@ -181,7 +181,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -224,7 +224,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -270,7 +270,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -296,12 +296,12 @@ class DBArticleProviderIT {
         article1JPA.setViewsCount(5);
         articleJPARepository.save(article1JPA);
 
-        ReactionJPA reaction1 = new ReactionJPA();
+        ReactionArticleJPA reaction1 = new ReactionArticleJPA();
         reaction1.setAction(Reaction.Action.CLAP);
         reaction1.setAuthor(userJPA);
         reaction1.setArticle(article1JPA);
 
-        ReactionJPA reaction2 = new ReactionJPA();
+        ReactionArticleJPA reaction2 = new ReactionArticleJPA();
         reaction2.setAction(Reaction.Action.LOVE);
         reaction2.setAuthor(userJPA);
         reaction2.setArticle(article1JPA);
@@ -319,7 +319,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.MOST_VIEWED, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.MOST_VIEWED, null);
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -364,7 +364,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FindArticleRequest.Filter.POPULAR, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, 0, FinderRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -409,7 +409,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, "java");
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, "java");
 
         //ASSERT
         assertThat(articles).isNotNull();
@@ -504,7 +504,7 @@ class DBArticleProviderIT {
         articleJPARepository.save(article2JPA);
 
         //ACT
-        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FindArticleRequest.Filter.POPULAR, null);
+        Page<Article> articles = articleProvider.articlesOf(0, 3, Status.PUBLISHED, userJPA.getId(), FinderRequest.Filter.POPULAR, null);
 
         //ASSERT
         assertThat(articles).isNotNull();

@@ -9,9 +9,12 @@ import org.springframework.core.env.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.context.junit.jupiter.*;
 import org.springframework.test.util.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -89,12 +92,17 @@ class UserControllerTest {
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
+    @MockBean
+    CourseProvider courseProvider;
+    @Mock
+    private Course course;
+
     @BeforeEach
     void setUp() {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, courseProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }
@@ -275,12 +283,31 @@ class UserControllerTest {
 
         userController.getArticles(2, 2, "PUBLISHED", "MOST_VIEWED", "java");
 
-        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
         verify(findArticle, times(1)).of(argument.capture());
-        FindArticleRequest request = argument.getValue();
+        FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
-        assertThat(request.getFilter()).isEqualTo(FindArticleRequest.Filter.MOST_VIEWED);
+        assertThat(request.getFilter()).isEqualTo(FinderRequest.Filter.MOST_VIEWED);
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
+
+    }
+
+    @Test
+    void getCourse_constructsRequest_Properly() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+        ReflectionTestUtils.setField(userController, "course", course);
+        when(course.of(any())).thenReturn(null);
+        userController.getCourses(2, 2, "PUBLISHED", "MOST_VIEWED", "java");
+
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
+        verify(course, times(1)).of(argument.capture());
+        FinderRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isEqualTo(FinderRequest.Filter.MOST_VIEWED);
         assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
         assertThat(request.getTag()).isEqualTo("java");
         assertThat(request.getPageNumber()).isEqualTo(2);
@@ -298,12 +325,35 @@ class UserControllerTest {
 
         userController.getArticles(2, 2, "PUBLISHED", null, "java");
 
-        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
         verify(findArticle, times(1)).of(argument.capture());
-        FindArticleRequest request = argument.getValue();
+        FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
-        assertThat(request.getFilter()).isEqualTo(null);
+        assertThat(request.getFilter()).isNull();
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
+
+    }
+
+    @Test
+    void getCourse_constructsFinderRequest_Properly_withNullFilter() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+
+
+        ReflectionTestUtils.setField(userController, "course", course);
+        when(course.of(any())).thenReturn(null);
+
+
+        userController.getCourses(2, 2, "PUBLISHED", null, "java");
+
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
+        verify(course, times(1)).of(argument.capture());
+        FinderRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isNull();
         assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
         assertThat(request.getTag()).isEqualTo("java");
         assertThat(request.getPageNumber()).isEqualTo(2);
@@ -321,12 +371,34 @@ class UserControllerTest {
 
         userController.getArticles(2, 2, null, "MOST_VIEWED", "java");
 
-        ArgumentCaptor<FindArticleRequest> argument = ArgumentCaptor.forClass(FindArticleRequest.class);
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
         verify(findArticle, times(1)).of(argument.capture());
-        FindArticleRequest request = argument.getValue();
+        FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
-        assertThat(request.getFilter()).isEqualTo(FindArticleRequest.Filter.MOST_VIEWED);
+        assertThat(request.getFilter()).isEqualTo(FinderRequest.Filter.MOST_VIEWED);
+        assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(request.getTag()).isEqualTo("java");
+        assertThat(request.getPageNumber()).isEqualTo(2);
+        assertThat(request.getPageSize()).isEqualTo(2);
+
+    }
+
+    @Test
+    void getCourse_constructsFinderRequest_Properly_withNullStatus() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
+
+        ReflectionTestUtils.setField(userController, "course", course);
+        when(course.of(any())).thenReturn(null);
+
+
+        userController.getCourses(2, 2, null, "MOST_VIEWED", "java");
+
+        ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
+        verify(course, times(1)).of(argument.capture());
+        FinderRequest request = argument.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.getFilter()).isEqualTo(FinderRequest.Filter.MOST_VIEWED);
         assertThat(request.getStatus()).isEqualTo(Status.PUBLISHED);
         assertThat(request.getTag()).isEqualTo("java");
         assertThat(request.getPageNumber()).isEqualTo(2);

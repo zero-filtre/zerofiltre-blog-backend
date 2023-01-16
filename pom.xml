@@ -268,9 +268,13 @@
                 <version>0.8.2</version>
                 <configuration>
                     <excludes>
-                        <exclude>/tech/zerofiltre/**/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/article/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/logging/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/user/model/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/mapper/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/*JPA.*</exclude>
+                        <exclude>/tech/zerofiltre/**/*VM.*</exclude>
+                        <exclude>/tech/zerofiltre/**/entrypoints/rest/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/ZerofiltreBlogApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/util/*</exclude>
