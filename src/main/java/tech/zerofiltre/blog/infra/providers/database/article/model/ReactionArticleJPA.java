@@ -12,9 +12,9 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "reaction")
-@EqualsAndHashCode(callSuper = true, exclude = "article")
-public class ReactionJPA extends BaseEntityJPA {
+@Table(name = "reaction_article")
+@EqualsAndHashCode(callSuper = true, exclude = {"article"})
+public class ReactionArticleJPA extends BaseEntityJPA {
 
     private Reaction.Action action;
 

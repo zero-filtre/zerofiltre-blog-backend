@@ -125,7 +125,7 @@ class FindArticleTest {
         );
 
         //ACT
-        Page<Article> articles = findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, new User()));
+        Page<Article> articles = findArticle.of(new FinderRequest(0, 3, PUBLISHED, new User()));
 
         //ASSERT
         verify(articleProvider, times(1)).articlesOf(0, 3, PUBLISHED, 0, null, null);
@@ -140,7 +140,7 @@ class FindArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class).
-                isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, DRAFT, new User())));
+                isThrownBy(() -> findArticle.of(new FinderRequest(0, 3, DRAFT, new User())));
 
     }
 
@@ -151,7 +151,7 @@ class FindArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(UnAuthenticatedActionException.class).
-                isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, DRAFT, null)));
+                isThrownBy(() -> findArticle.of(new FinderRequest(0, 3, DRAFT, null)));
 
     }
 
@@ -168,7 +168,7 @@ class FindArticleTest {
         user.setId(24);
 
         //ACT
-        findArticle.of(new FindArticleRequest(0, 3, PUBLISHED, user));
+        findArticle.of(new FinderRequest(0, 3, PUBLISHED, user));
 
         //ASSERT
         //call with authorId = 0
@@ -189,7 +189,7 @@ class FindArticleTest {
         );
 
         //ACT
-        FindArticleRequest request = new FindArticleRequest(0, 3, DRAFT, new User());
+        FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         request.setYours(true);
         Page<Article> articles = findArticle.of(request);
 
@@ -206,7 +206,7 @@ class FindArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class).
-                isThrownBy(() -> findArticle.of(new FindArticleRequest(0, 3, IN_REVIEW, new User())));
+                isThrownBy(() -> findArticle.of(new FinderRequest(0, 3, IN_REVIEW, new User())));
 
     }
 
@@ -215,7 +215,7 @@ class FindArticleTest {
         //ARRANGE
 
 
-        FindArticleRequest request = new FindArticleRequest(0, 3, PUBLISHED, new User());
+        FinderRequest request = new FinderRequest(0, 3, PUBLISHED, new User());
         request.setTag("tag");
 
         findArticle.of(request);
@@ -229,14 +229,14 @@ class FindArticleTest {
     @Test
     void mustCallArticleProvider_WithMostViewed() throws ForbiddenActionException, UnAuthenticatedActionException {
         //ARRANGE
-        FindArticleRequest request = new FindArticleRequest(0, 3, PUBLISHED, new User());
-        request.setFilter(FindArticleRequest.Filter.MOST_VIEWED);
+        FinderRequest request = new FinderRequest(0, 3, PUBLISHED, new User());
+        request.setFilter(FinderRequest.Filter.MOST_VIEWED);
 
         findArticle.of(request);
 
         //ASSERT
         verify(articleProvider, times(1))
-                .articlesOf(0, 3, PUBLISHED, 0, FindArticleRequest.Filter.MOST_VIEWED, null);
+                .articlesOf(0, 3, PUBLISHED, 0, FinderRequest.Filter.MOST_VIEWED, null);
 
     }
 
@@ -245,7 +245,7 @@ class FindArticleTest {
         //ARRANGE
         User user = new User();
         user.setId(2);
-        FindArticleRequest request = new FindArticleRequest(0, 3, PUBLISHED, user);
+        FinderRequest request = new FinderRequest(0, 3, PUBLISHED, user);
         request.setYours(true);
 
         findArticle.of(request);

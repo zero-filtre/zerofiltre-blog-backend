@@ -88,13 +88,13 @@ class FindArticleIT {
 
 
         //ACT
-        Page<Article> firstPageWithTwoInReview = findArticle.of(new FindArticleRequest(0, 2, Status.IN_REVIEW, user));
-        Page<Article> firstPageWith2Published = findArticle.of(new FindArticleRequest(0, 2, Status.PUBLISHED, user));
-        FindArticleRequest draftRequest = new FindArticleRequest(0, 2, Status.DRAFT, user);
+        Page<Article> firstPageWithTwoInReview = findArticle.of(new FinderRequest(0, 2, Status.IN_REVIEW, user));
+        Page<Article> firstPageWith2Published = findArticle.of(new FinderRequest(0, 2, Status.PUBLISHED, user));
+        FinderRequest draftRequest = new FinderRequest(0, 2, Status.DRAFT, user);
         Page<Article> firstPageWith2Drafts = findArticle.of(draftRequest);
         draftRequest.setYours(true);
         Page<Article> firstPageWithYour2Drafts = findArticle.of(draftRequest);
-        Page<Article> thirdPageWithThreePublished = findArticle.of(new FindArticleRequest(2, 3, Status.PUBLISHED, user));
+        Page<Article> thirdPageWithThreePublished = findArticle.of(new FinderRequest(2, 3, Status.PUBLISHED, user));
 
         //ASSERT
         assertThat(firstPageWithTwoInReview.getContent()).hasSize(2);

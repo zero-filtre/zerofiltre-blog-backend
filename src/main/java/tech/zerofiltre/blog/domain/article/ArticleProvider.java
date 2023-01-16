@@ -12,7 +12,7 @@ public interface ArticleProvider {
 
     Article save(Article article);
 
-    Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, FindArticleRequest.Filter filter, String tag);
+    Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag);
 
     List<Article> articlesOf(User user);
 

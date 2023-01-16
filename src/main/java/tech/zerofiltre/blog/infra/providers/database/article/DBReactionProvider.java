@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
+import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
 
 import java.util.*;
@@ -18,39 +19,63 @@ import java.util.stream.*;
 @RequiredArgsConstructor
 public class DBReactionProvider implements ReactionProvider {
 
-    private final ReactionJPARepository repository;
-    private final ReactionJPAMapper mapper = Mappers.getMapper(ReactionJPAMapper.class);
+    private final ReactionArticleJPARepository reactionArticleRepository;
+    private final ReactionCourseJPARepository reactionCourseRepository;
+    private final ReactionArticleJPAMapper reactionArticleJPAMapper = Mappers.getMapper(ReactionArticleJPAMapper.class);
+    private final ReactionCourseJPAMapper reactionCourseJPAMapper = Mappers.getMapper(ReactionCourseJPAMapper.class);
     private final UserJPAMapper userMapper = Mappers.getMapper(UserJPAMapper.class);
 
 
     @Override
     public Optional<Reaction> reactionOfId(long reactionId) {
-        return repository.findById(reactionId)
-                .map(mapper::fromJPA);
+        Optional<ReactionArticleJPA> reactionArticleJPA = reactionArticleRepository.findById(reactionId);
+        Optional<ReactionCourseJPA> reactionCourseJPA = reactionCourseRepository.findById(reactionId);
+        if (reactionArticleJPA.isPresent())
+            return reactionArticleJPA.map(reactionArticleJPAMapper::fromJPA);
+        if (reactionCourseJPA.isPresent())
+            return reactionCourseJPA.map(reactionCourseJPAMapper::fromJPA);
+        return Optional.empty();
     }
 
     @Override
     public List<Reaction> reactions() {
-        return repository.findAll()
-                .stream().map(mapper::fromJPA)
+        List<Reaction> result = reactionArticleRepository.findAll()
+                .stream().map(reactionArticleJPAMapper::fromJPA)
                 .collect(Collectors.toList());
+
+        result.addAll(
+                reactionCourseRepository.findAll()
+                        .stream().map(reactionCourseJPAMapper::fromJPA)
+                        .collect(Collectors.toList())
+        );
+        return result;
     }
 
     @Override
     public List<Reaction> ofUser(User user) {
-        return repository.findByAuthor(userMapper.toJPA(user))
-                .stream().map(mapper::fromJPA)
-                .collect(Collectors.toList());
+
+        List<ReactionArticleJPA> articleReactions = reactionArticleRepository.findByAuthor(userMapper.toJPA(user));
+        List<ReactionCourseJPA> courseReactions = reactionCourseRepository.findByAuthor(userMapper.toJPA(user));
+
+        List<Reaction> result = articleReactions.stream().map(reactionArticleJPAMapper::fromJPA).collect(Collectors.toList());
+        result.addAll(courseReactions.stream().map(reactionCourseJPAMapper::fromJPA).collect(Collectors.toList()));
+        return result;
     }
 
 
     @Override
     public Reaction save(Reaction reaction) {
-        return mapper.fromJPA(repository.save(mapper.toJPA(reaction)));
+        if (reaction.getArticleId() != 0)
+            return reactionArticleJPAMapper.fromJPA(reactionArticleRepository.save(reactionArticleJPAMapper.toJPA(reaction)));
+        else
+            return reactionCourseJPAMapper.fromJPA(reactionCourseRepository.save(reactionCourseJPAMapper.toJPA(reaction)));
     }
 
     @Override
     public void delete(Reaction reaction) {
-        repository.delete(mapper.toJPA(reaction));
+        if (reaction.getArticleId() != 0)
+            reactionArticleRepository.delete(reactionArticleJPAMapper.toJPA(reaction));
+        else
+            reactionCourseRepository.delete(reactionCourseJPAMapper.toJPA(reaction));
     }
 }
