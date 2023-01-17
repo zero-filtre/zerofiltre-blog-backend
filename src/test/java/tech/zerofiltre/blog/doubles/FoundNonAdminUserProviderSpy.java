@@ -13,7 +13,9 @@ public class FoundNonAdminUserProviderSpy implements UserProvider {
     @Override
     public Optional<User> userOfId(long userId) {
         userOfIdCalled = true;
-        return Optional.of(ZerofiltreUtils.createMockUser(false));
+        User mockUser = ZerofiltreUtils.createMockUser(false);
+        mockUser.setId(1);
+        return Optional.of(mockUser);
     }
 
     @Override

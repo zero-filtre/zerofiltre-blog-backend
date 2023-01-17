@@ -47,6 +47,7 @@ class CourseTest {
 
                 .build();
         User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(1);
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
