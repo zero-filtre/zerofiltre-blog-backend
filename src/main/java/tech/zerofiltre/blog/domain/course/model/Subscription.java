@@ -15,8 +15,6 @@ public class Subscription {
     private LocalDateTime subscribedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
 
-
-    //TODO handle completed lessons
     private List<Lesson> completedLessons = new ArrayList<>();
 
     public long getId() {
