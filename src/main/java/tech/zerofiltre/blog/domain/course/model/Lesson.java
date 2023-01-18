@@ -22,7 +22,7 @@ public class Lesson {
     private String free;
     private String type;
     private long chapterId;
-    private List<Resource> resources = new ArrayList<>();
+    private List<Resource> resources;
     private LessonProvider lessonProvider;
     private ChapterProvider chapterProvider;
     private UserProvider userProvider;
@@ -154,15 +154,17 @@ public class Lesson {
     }
 
     public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
-        lessonProvider.lessonOfId(this.id)
-                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        if (lessonProvider.lessonOfId(this.id).isEmpty()) {
+            throw new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+        }
         checkConditions(currentUserId, chapterId);
         lessonProvider.delete(this);
     }
 
     public Lesson get(long currentUserId) throws ResourceNotFoundException {
-        lessonProvider.lessonOfId(this.id)
-                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        if (lessonProvider.lessonOfId(this.id).isEmpty()) {
+            throw new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+        }
         return setProviders(lessonProvider.lessonOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson " + this.id + " does not exist", String.valueOf(id), COURSE.name())));
     }
