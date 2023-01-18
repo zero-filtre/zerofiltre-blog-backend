@@ -1,9 +1,15 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
+
+import static tech.zerofiltre.blog.domain.Domains.*;
+import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 
 public class Lesson {
 
@@ -12,9 +18,9 @@ public class Lesson {
     private String content;
     private String summary;
     private String thumbnail;
-    private String  video;
-    private String  free;
-    private String  type;
+    private String video;
+    private String free;
+    private String type;
     private long chapterId;
     private List<Resource> resources = new ArrayList<>();
     private LessonProvider lessonProvider;
@@ -42,6 +48,19 @@ public class Lesson {
 
     public long getId() {
         return id;
+    }
+
+    public void copyData(Lesson lesson) {
+        this.id = lesson.id;
+        this.title = lesson.title;
+        this.content = lesson.content;
+        this.summary = lesson.summary;
+        this.thumbnail = lesson.thumbnail;
+        this.video = lesson.video;
+        this.free = lesson.free;
+        this.type = lesson.type;
+        this.chapterId = lesson.chapterId;
+        this.resources = lesson.resources;
     }
 
     public String getTitle() {
@@ -88,12 +107,64 @@ public class Lesson {
         return new LessonBuilder();
     }
 
-    public Lesson init(String title, long chapterId, long currentUserId) {
+    public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        checkConditions(currentUserId, chapterId);
         this.title = title;
         this.chapterId = chapterId;
 
 
         return setProviders(lessonProvider.save(this));
+    }
+
+    public Lesson save(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+
+        Lesson lesson = lessonProvider.lessonOfId(this.id)
+                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        checkConditions(currentUserId, chapterId);
+        Lesson lessonToSave = this;
+        copyData(lesson);
+        setAttributes(lessonToSave);
+        return setProviders(lessonProvider.save(this));
+
+    }
+
+    private void setAttributes(Lesson lessonToSave) {
+        this.title = lessonToSave.title;
+        this.content = lessonToSave.content;
+        this.summary = lessonToSave.summary;
+        this.thumbnail = lessonToSave.thumbnail;
+        this.video = lessonToSave.video;
+        this.free = lessonToSave.free;
+        this.type = lessonToSave.type;
+    }
+
+    private void checkConditions(long currentUserId, long chapterId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
+
+        Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
+        }
+    }
+
+    public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
+        lessonProvider.lessonOfId(this.id)
+                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        checkConditions(currentUserId, chapterId);
+        lessonProvider.delete(this);
+    }
+
+    public Lesson get(long currentUserId) throws ResourceNotFoundException {
+        lessonProvider.lessonOfId(this.id)
+                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        return setProviders(lessonProvider.lessonOfId(this.id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson " + this.id + " does not exist", String.valueOf(id), COURSE.name())));
     }
 
     private Lesson setProviders(Lesson lesson) {
@@ -105,6 +176,12 @@ public class Lesson {
 
 
     }
+
+
+    private boolean isAdmin(User existingUser) {
+        return existingUser.getRoles().contains("ROLE_ADMIN");
+    }
+
 
     public ChapterProvider getChapterProvider() {
         return chapterProvider;
@@ -118,20 +195,6 @@ public class Lesson {
         return courseProvider;
     }
 
-    public Lesson save(long currentUserId) {
-
-
-    }
-
-    public void delete(long currentUserId) {
-
-
-    }
-
-    public Lesson get(long currentUserId) {
-
-
-    }
 
     //generate LessonBuilder class
     public static class LessonBuilder {
@@ -140,9 +203,9 @@ public class Lesson {
         private String content;
         private String summary;
         private String thumbnail;
-        private String  video;
-        private String  free;
-        private String  type;
+        private String video;
+        private String free;
+        private String type;
         private long chapterId;
         private List<Resource> resources = new ArrayList<>();
         private LessonProvider lessonProvider;
