@@ -13,7 +13,7 @@ public class NotFoundLessonProviderSpy implements LessonProvider {
 
     @Override
     public Lesson save(Lesson lesson) {
-        return null;
+        return lesson;
     }
 
     @Override

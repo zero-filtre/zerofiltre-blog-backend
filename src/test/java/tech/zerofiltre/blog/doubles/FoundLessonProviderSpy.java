@@ -11,12 +11,15 @@ public class FoundLessonProviderSpy implements LessonProvider {
 
     @Override
     public Optional<Lesson> lessonOfId(long id) {
-        return Optional.ofNullable(Lesson.builder().id(1).chapterId(1).build());
+        return Optional.ofNullable(Lesson.builder()
+                .id(1)
+                .title("Lesson 1")
+                .chapterId(1).build());
     }
 
     @Override
     public Lesson save(Lesson lesson) {
-        return null;
+        return lesson;
     }
 
     @Override
