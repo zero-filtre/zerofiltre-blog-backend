@@ -2,10 +2,17 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import org.junit.jupiter.api.*;
 import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.doubles.*;
 
 class LessonTest {
+
+    public static final String CONTENT_TO_SAVE = "content to save";
+    public static final String TITLE_TO_SAVE = "Lesson 8";
+    public static final String TYPE_TO_SAVE = "any";
+    public static final String THUMBNAIL_TO_SAVE = "thumbnail";
+    public static final String SUMMARY_TO_SAVE = "summary";
+    public static final String VIDEO_TO_SAVE = "video";
+
     @Test
     void init_throws_ResourceNotFoundException_if_author_not_found() {
         //given
@@ -145,9 +152,15 @@ class LessonTest {
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         Found_Draft_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         Lesson lesson = Lesson.builder()
-                .title("Lesson 1")
-                .id(1)
-                .chapterId(1)
+                .title(TITLE_TO_SAVE)
+                .id(1500)
+                .chapterId(561)
+                .content(CONTENT_TO_SAVE)
+                .type(TYPE_TO_SAVE)
+                .thumbnail(THUMBNAIL_TO_SAVE)
+                .free(true)
+                .summary(SUMMARY_TO_SAVE)
+                .video(VIDEO_TO_SAVE)
                 .userProvider(new FoundAdminUserProviderSpy())
                 .chapterProvider(chapterProvider)
                 .courseProvider(courseProvider)
@@ -155,12 +168,18 @@ class LessonTest {
                 .build();
 
         //when
-        lesson.save(100);
+        Lesson saved = lesson.save(100);
 
         //then
-        org.assertj.core.api.Assertions.assertThat(lesson.getId()).isEqualTo(1);
-        org.assertj.core.api.Assertions.assertThat(lesson.getTitle()).isEqualTo("Lesson 1");
-        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(saved.getId()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(saved.getTitle()).isEqualTo(TITLE_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.getContent()).isEqualTo(CONTENT_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.getType()).isEqualTo(TYPE_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.getThumbnail()).isEqualTo(THUMBNAIL_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.isFree()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(saved.getSummary()).isEqualTo(SUMMARY_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.getVideo()).isEqualTo(VIDEO_TO_SAVE);
+        org.assertj.core.api.Assertions.assertThat(saved.getChapterId()).isEqualTo(1);
         org.assertj.core.api.Assertions.assertThat(chapterProvider.chapterOfIdCalled).isTrue();
         org.assertj.core.api.Assertions.assertThat(courseProvider.courseOfIdCalled).isTrue();
     }

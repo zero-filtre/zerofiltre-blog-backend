@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import com.fasterxml.jackson.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -9,6 +10,7 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import java.util.*;
 
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider"})
 public class Chapter {
     public static final String AUTHOR_DOES_NOT_EXIST = "The author does not exist";
     public static final String USER_DOES_NOT_EXIST = "The user does not exist";
@@ -17,6 +19,7 @@ public class Chapter {
     private long id;
     private String title;
     private long courseId;
+    private int number;
     private List<Lesson> lessons;
 
     private ChapterProvider chapterProvider;
@@ -27,6 +30,7 @@ public class Chapter {
         this.id = chapterBuilder.id;
         this.title = chapterBuilder.title;
         this.courseId = chapterBuilder.courseId;
+        this.number = chapterBuilder.number;
         this.lessons = chapterBuilder.lessons;
         this.chapterProvider = chapterBuilder.chapterProvider;
         this.userProvider = chapterBuilder.userProvider;
@@ -49,6 +53,9 @@ public class Chapter {
         return lessons;
     }
 
+    public int getNumber() {
+        return number;
+    }
     public ChapterProvider getChapterProvider() {
         return chapterProvider;
     }
@@ -86,7 +93,7 @@ public class Chapter {
         return chapter;
     }
 
-    public Chapter save(int currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Chapter save(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
@@ -140,6 +147,7 @@ public class Chapter {
 
 
     public static class ChapterBuilder {
+        public int number;
         private UserProvider userProvider;
         private CourseProvider courseProvider;
         private long id;
@@ -180,6 +188,11 @@ public class Chapter {
 
         public ChapterBuilder courseProvider(CourseProvider courseProvider) {
             this.courseProvider = courseProvider;
+            return this;
+        }
+
+        public ChapterBuilder number(int number) {
+            this.number = number;
             return this;
         }
 

@@ -28,7 +28,6 @@ public class Course {
     private String subTitle;
     private String summary;
     private String thumbnail;
-    private String firstLessonId;
     private List<Tag> tags;
     private long enrolledCount;
     private String title;
@@ -54,7 +53,6 @@ public class Course {
         this.subTitle = courseBuilder.subTitle;
         this.summary = courseBuilder.summary;
         this.thumbnail = courseBuilder.thumbnail;
-        this.firstLessonId = courseBuilder.firstLessonId;
         this.tags = courseBuilder.tags;
         this.enrolledCount = courseBuilder.enrolledCount;
         this.author = courseBuilder.author;
@@ -92,10 +90,6 @@ public class Course {
 
     public String getThumbnail() {
         return thumbnail;
-    }
-
-    public String getFirstLessonId() {
-        return firstLessonId;
     }
 
     public List<Tag> getTags() {
@@ -284,7 +278,6 @@ public class Course {
         this.subTitle = course.getSubTitle();
         this.summary = course.getSummary();
         this.thumbnail = course.getThumbnail();
-        this.firstLessonId = course.getFirstLessonId();
         this.tags = course.getTags();
         this.enrolledCount = course.getEnrolledCount();
         this.author = course.getAuthor();

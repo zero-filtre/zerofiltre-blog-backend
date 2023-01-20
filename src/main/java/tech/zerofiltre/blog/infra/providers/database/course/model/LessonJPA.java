@@ -22,7 +22,7 @@ public class LessonJPA extends BaseEntityJPA {
     private String summary;
     private String thumbnail;
     private String video;
-    private String free;
+    private boolean free;
     private String type;
 
     @OneToOne(fetch = FetchType.LAZY)
