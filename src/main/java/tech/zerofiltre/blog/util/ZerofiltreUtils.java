@@ -37,13 +37,14 @@ public class ZerofiltreUtils {
     public static final String TEST_SECTION_CONTENT_2 = "Section 2 content";
     public static final String TEST_SECTION_TITLE_3 = "Section 3";
     public static final String TEST_SECTION_CONTENT_3 = "Section 3 content";
+    private static final String TEST_CHAPTER_TITLE = "test chapter title";
 
     private ZerofiltreUtils() {
     }
 
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser(false);
-        List<Reaction> reactions = createMockReactions(true, 1,0, user);
+        List<Reaction> reactions = createMockReactions(true, 1, 0, user);
         List<Tag> tags = createMockTags(withTagIds);
         return createMockArticle(user, tags, reactions);
     }
@@ -191,7 +192,7 @@ public class ZerofiltreUtils {
         return Arrays.asList(section1, section2, section3);
     }
 
-    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId,long courseId, User author) {
+    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, long courseId, User author) {
         Reaction clap = new Reaction();
         clap.setAction(Reaction.Action.CLAP);
         Reaction like = new Reaction();
@@ -245,4 +246,13 @@ public class ZerofiltreUtils {
         return null;
     }
 
+    public static Chapter createMockChapter(boolean withId, ChapterProvider chapterProvider, List<Lesson> lessons, long courseId) {
+        return Chapter.builder()
+                .title(TEST_CHAPTER_TITLE)
+                .courseId(courseId)
+                .lessons(lessons)
+                .id(withId ? 1 : 0)
+                .chapterProvider(chapterProvider)
+                .build();
+    }
 }

@@ -23,7 +23,6 @@ public class CourseJPA extends BaseEntityJPA {
     private String subTitle;
     private String summary;
     private String thumbnail;
-    private String firstLessonId;
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "course_tag",

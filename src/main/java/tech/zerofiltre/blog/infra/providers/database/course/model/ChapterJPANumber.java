@@ -1,15 +1,17 @@
-package tech.zerofiltre.blog.infra.providers.database;
+package tech.zerofiltre.blog.infra.providers.database.course.model;
 
 import lombok.*;
 import org.hibernate.annotations.*;
 
+import javax.persistence.Entity;
 import javax.persistence.*;
-import java.io.*;
 
-@Data
-@MappedSuperclass
-public class BaseEntityJPA {
-
+@Getter
+@Setter
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChapterJPANumber {
     @Id
     @GeneratedValue(
             strategy = GenerationType.AUTO,
@@ -19,5 +21,5 @@ public class BaseEntityJPA {
             name = "native",
             strategy = "native"
     )
-    private long id;
+    private int number;
 }
