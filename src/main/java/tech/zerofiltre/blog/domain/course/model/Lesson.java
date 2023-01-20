@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import com.fasterxml.jackson.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -11,6 +12,7 @@ import java.util.*;
 import static tech.zerofiltre.blog.domain.Domains.*;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider"})
 public class Lesson {
 
     private long id;
@@ -19,10 +21,11 @@ public class Lesson {
     private String summary;
     private String thumbnail;
     private String video;
-    private String free;
+    private boolean free;
     private String type;
     private long chapterId;
     private List<Resource> resources;
+
     private LessonProvider lessonProvider;
     private ChapterProvider chapterProvider;
     private UserProvider userProvider;
@@ -83,7 +86,7 @@ public class Lesson {
         return video;
     }
 
-    public String getFree() {
+    public boolean isFree() {
         return free;
     }
 
@@ -121,21 +124,29 @@ public class Lesson {
         Lesson lesson = lessonProvider.lessonOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
         checkConditions(currentUserId, chapterId);
-        Lesson lessonToSave = this;
+        String titleToSave = this.title;
+        String contentToSave = this.content;
+        String summaryToSave = this.summary;
+        String thumbnailToSave = this.thumbnail;
+        String videoToSave = this.video;
+        boolean freeToSave = this.free;
+        String typeToSave = this.type;
+
         copyData(lesson);
-        setAttributes(lessonToSave);
+        setAttributes(titleToSave, contentToSave, summaryToSave, thumbnailToSave, videoToSave, freeToSave, typeToSave);
         return setProviders(lessonProvider.save(this));
 
     }
 
-    private void setAttributes(Lesson lessonToSave) {
-        this.title = lessonToSave.title;
-        this.content = lessonToSave.content;
-        this.summary = lessonToSave.summary;
-        this.thumbnail = lessonToSave.thumbnail;
-        this.video = lessonToSave.video;
-        this.free = lessonToSave.free;
-        this.type = lessonToSave.type;
+    private void setAttributes(String titleToSave, String contentToSave, String summaryToSave, String thumbnailToSave, String videoToSave, boolean freeToSave, String typeToSave) {
+        this.title = titleToSave;
+        this.content = contentToSave;
+        this.summary = summaryToSave;
+        this.thumbnail = thumbnailToSave;
+        this.video = videoToSave;
+        this.free = freeToSave;
+        this.type = typeToSave;
+
     }
 
     private void checkConditions(long currentUserId, long chapterId) throws ResourceNotFoundException, ForbiddenActionException {
@@ -143,22 +154,25 @@ public class Lesson {
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
 
         Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
-                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + chapterId + DOES_NOT_EXIST, String.valueOf(chapterId), COURSE.name()));
 
-        Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        long courseId = existingChapter.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
 
         if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
         }
     }
 
     public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
-        if (lessonProvider.lessonOfId(this.id).isEmpty()) {
+        Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
+        if (lesson.isEmpty()) {
             throw new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
         }
-        checkConditions(currentUserId, chapterId);
-        lessonProvider.delete(this);
+
+        checkConditions(currentUserId, lesson.get().getChapterId());
+        lessonProvider.delete(lesson.get());
     }
 
     public Lesson get(long currentUserId) throws ResourceNotFoundException {
@@ -206,7 +220,7 @@ public class Lesson {
         private String summary;
         private String thumbnail;
         private String video;
-        private String free;
+        private boolean free;
         private String type;
         private long chapterId;
         private List<Resource> resources = new ArrayList<>();
@@ -245,7 +259,7 @@ public class Lesson {
             return this;
         }
 
-        public LessonBuilder free(String free) {
+        public LessonBuilder free(boolean free) {
             this.free = free;
             return this;
         }

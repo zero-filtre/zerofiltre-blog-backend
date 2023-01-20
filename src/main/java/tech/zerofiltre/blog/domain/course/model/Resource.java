@@ -1,7 +1,9 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import com.fasterxml.jackson.annotation.*;
 import tech.zerofiltre.blog.domain.course.*;
 
+@JsonIgnoreProperties(value = "resourceProvider")
 public class Resource {
     private long id;
     private String type;

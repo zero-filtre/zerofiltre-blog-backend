@@ -23,6 +23,9 @@ public class ChapterJPA extends BaseEntityJPA {
     @JoinColumn(name = "course_id")
     private CourseJPA course;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private ChapterJPANumber number;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "chapter")
     private Set<LessonJPA> lessons;
 }
