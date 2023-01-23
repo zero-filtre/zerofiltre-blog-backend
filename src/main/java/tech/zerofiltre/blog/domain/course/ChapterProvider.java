@@ -9,4 +9,5 @@ public interface ChapterProvider {
     Chapter save(Chapter chapter);
     void delete(Chapter chapter);
 
+    List<Chapter> ofCourseId(long courseId);
 }

@@ -97,6 +97,19 @@ class SectionControllerIT {
     }
 
     @Test
+    void getSection_whenValidInput_return200OK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/section/1")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.title").value(mockSection.getTitle()));
+    }
+
+    @Test
     @WithMockUser
     void saveSection_whenValidInput_return200OK() throws Exception {
         //ACT

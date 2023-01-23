@@ -108,7 +108,7 @@ public class Section {
         }
     }
 
-    private static boolean isAdmin(User deleter) {
+    private boolean isAdmin(User deleter) {
         return deleter.getRoles().contains("ROLE_ADMIN");
     }
 
@@ -122,10 +122,10 @@ public class Section {
     }
 
     public static class SectionBuilder {
-        public long courseId;
-        public UserProvider userProvider;
-        public CourseProvider courseProvider;
-        public LoggerProvider loggerProvider;
+        private long courseId;
+        private UserProvider userProvider;
+        private CourseProvider courseProvider;
+        private LoggerProvider loggerProvider;
         private long id;
         private int position;
         private String title;
