@@ -72,14 +72,12 @@ class CourseIT {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build()
                 .init("some title", author);
         course = new Course.CourseBuilder()
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .tags(tags)
                 .sections(sections)
                 .status(Status.PUBLISHED)
@@ -124,7 +122,6 @@ class CourseIT {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build()
                 .init("some title", author);
 
@@ -146,7 +143,6 @@ class CourseIT {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .loggerProvider(loggerProvider)
                 .build()
                 .init("some title", author);

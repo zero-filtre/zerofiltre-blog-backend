@@ -21,4 +21,9 @@ public class NotFoundChapterProviderSpy implements ChapterProvider {
     public void delete(Chapter chapter) {
 
     }
+
+    @Override
+    public List<Chapter> ofCourseId(long courseId) {
+        return Collections.emptyList();
+    }
 }

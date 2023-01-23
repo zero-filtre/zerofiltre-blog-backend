@@ -27,4 +27,12 @@ public class FoundChapterProviderSpy implements ChapterProvider {
     public void delete(Chapter chapter) {
         deleteCalled = true;
     }
+
+    @Override
+    public List<Chapter> ofCourseId(long courseId) {
+        List<Chapter> chapters = new ArrayList<>();
+        chapters.add(Chapter.builder().id(1).courseId(courseId).build());
+        chapters.add(Chapter.builder().id(2).courseId(courseId).build());
+        return chapters;
+    }
 }

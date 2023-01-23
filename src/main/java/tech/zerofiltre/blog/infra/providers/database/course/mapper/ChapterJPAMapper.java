@@ -4,6 +4,8 @@ import org.mapstruct.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
+import java.util.*;
+
 @Mapper(uses = {CourseJPAMapper.class, LessonJPAMapper.class})
 public interface ChapterJPAMapper {
 
@@ -14,6 +16,8 @@ public interface ChapterJPAMapper {
     @Mapping(target = "course", source = "courseId", qualifiedByName = "courseFromId")
     @Mapping(target = "number", source = "number", qualifiedByName = "fromNumber")
     ChapterJPA toChapterJPA(Chapter chapter);
+
+    List<Chapter> toChapters(List<ChapterJPA> chapterJPAList);
 
     @Named("courseFromId")
     default CourseJPA courseFromId(long courseId) {
