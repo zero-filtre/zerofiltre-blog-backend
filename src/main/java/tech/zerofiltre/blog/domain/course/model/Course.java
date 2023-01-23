@@ -40,7 +40,7 @@ public class Course {
     private double price;
     private String video;
     private List<Section> sections;
-    private List<Reaction> reactions;
+    private final List<Reaction> reactions;
 
     private CourseProvider courseProvider;
     private UserProvider userProvider;
@@ -325,8 +325,7 @@ public class Course {
     }
 
     public static class CourseBuilder {
-        public List<Reaction> reactions;
-        private SectionProvider sectionProvider;
+        private List<Reaction> reactions;
         private LoggerProvider loggerProvider;
         private Status status = Status.DRAFT;
         private UserProvider userProvider;
@@ -336,7 +335,6 @@ public class Course {
         private String subTitle = "Donnez-moi un sous-titre!";
         private String summary;
         private String thumbnail;
-        private String firstLessonId;
         private List<Tag> tags = new ArrayList<>();
         private long enrolledCount;
         private User author;
@@ -374,10 +372,6 @@ public class Course {
             return this;
         }
 
-        public CourseBuilder firstLessonId(String firstLessonId) {
-            this.firstLessonId = firstLessonId;
-            return this;
-        }
 
         public CourseBuilder tags(List<Tag> tags) {
             this.tags = tags;
@@ -454,10 +448,6 @@ public class Course {
             return this;
         }
 
-        public CourseBuilder sectionProvider(SectionProvider sectionProvider) {
-            this.sectionProvider = sectionProvider;
-            return this;
-        }
 
         public CourseBuilder loggerProvider(LoggerProvider loggerProvider) {
             this.loggerProvider = loggerProvider;

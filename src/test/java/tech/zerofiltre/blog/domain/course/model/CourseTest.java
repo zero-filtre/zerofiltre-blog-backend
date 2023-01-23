@@ -426,7 +426,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN
@@ -450,7 +449,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN
@@ -474,7 +472,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .tags(Collections.singletonList(new Tag(1, "tag")))
                 .build();
 
@@ -497,7 +494,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         ZerofiltreUtils.createMockUser(true);
@@ -521,7 +517,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
 
@@ -543,7 +538,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .loggerProvider(loggerProvider)
                 .build();
 
@@ -567,7 +561,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN
@@ -587,7 +580,6 @@ class CourseTest {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN
@@ -605,7 +597,6 @@ class CourseTest {
         course = new Course.CourseBuilder()
                 .courseProvider(courseProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN
@@ -624,7 +615,6 @@ class CourseTest {
         course = new Course.CourseBuilder()
                 .courseProvider(courseProvider)
                 .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
                 .build();
 
         //WHEN & THEN

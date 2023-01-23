@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.*;
 import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -19,7 +20,7 @@ public class Chapter {
     private long id;
     private String title;
     private long courseId;
-    private int number;
+    private final int number;
     private List<Lesson> lessons;
 
     private ChapterProvider chapterProvider;
@@ -56,6 +57,7 @@ public class Chapter {
     public int getNumber() {
         return number;
     }
+
     public ChapterProvider getChapterProvider() {
         return chapterProvider;
     }
@@ -140,14 +142,26 @@ public class Chapter {
         chapterProvider.delete(existingChapter);
     }
 
-    public Chapter get(long currentUserId) throws ResourceNotFoundException {
+    public Chapter get(User user) throws ResourceNotFoundException {
         return setProviders(chapterProvider.chapterOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name())));
     }
 
+    public List<Chapter> getByCourseId(User user) throws ResourceNotFoundException, ForbiddenActionException {
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+
+        if (
+                (user == null && Status.PUBLISHED != existingCourse.getStatus())
+                        || (user != null && !isAdmin(user) && existingCourse.getAuthor().getId() != user.getId() && Status.PUBLISHED != existingCourse.getStatus())
+        )
+            throw new ForbiddenActionException("You are not allowed to get chapters for this course", Domains.COURSE.name());
+        return chapterProvider.ofCourseId(courseId);
+    }
+
 
     public static class ChapterBuilder {
-        public int number;
+        private int number;
         private UserProvider userProvider;
         private CourseProvider courseProvider;
         private long id;

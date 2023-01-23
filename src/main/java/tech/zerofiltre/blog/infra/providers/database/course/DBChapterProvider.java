@@ -40,4 +40,9 @@ public class DBChapterProvider implements ChapterProvider {
     public void delete(Chapter chapter) {
         chapterJPARepository.delete(chapterJPAMapper.toChapterJPA(chapter));
     }
+
+    @Override
+    public List<Chapter> ofCourseId(long courseId) {
+        return chapterJPAMapper.toChapters(chapterJPARepository.findAllByCourseIdOrderByNumberAsc(courseId));
+    }
 }

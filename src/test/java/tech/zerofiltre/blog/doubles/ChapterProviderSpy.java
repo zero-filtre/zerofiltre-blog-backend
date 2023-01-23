@@ -27,4 +27,9 @@ public class ChapterProviderSpy implements ChapterProvider {
     public void delete(Chapter chapter) {
         deleteCalled = true;
     }
+
+    @Override
+    public List<Chapter> ofCourseId(long courseId) {
+        return Collections.emptyList();
+    }
 }

@@ -3,8 +3,14 @@ package tech.zerofiltre.blog.domain.course.model;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.doubles.*;
+import tech.zerofiltre.blog.util.*;
+
+import java.util.*;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class ChapterTest {
 
@@ -257,7 +263,7 @@ class ChapterTest {
         //when
         //then
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> chapter.get(100));
+                .isThrownBy(() -> chapter.get(new User()));
     }
 
     @Test
@@ -268,7 +274,7 @@ class ChapterTest {
                 .build();
 
         //when
-        Chapter result = chapter.get(100);
+        Chapter result = chapter.get(new User());
 
         //then
         Assertions.assertThat(result).isNotNull();
@@ -277,5 +283,114 @@ class ChapterTest {
         Assertions.assertThat(result.getCourseId()).isEqualTo(1);
         Assertions.assertThat(result.getLessons()).isNotNull();
         Assertions.assertThat(result.getLessons()).isNotEmpty();
+    }
+
+    @Test
+    void getChaptersByCourseId_returns_all_chapters_for_course() throws ResourceNotFoundException, ForbiddenActionException {
+        //given
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(new FoundChapterProviderSpy())
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .build();
+
+        //when
+        List<Chapter> result = chapter.getByCourseId(new User());
+
+        //then
+        Assertions.assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void getChaptersByCourseId_throws_ResourceNotFound_if_course_not_found() {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new NotFoundCourseProviderSpy())
+                .chapterProvider(new ChapterProviderSpy())
+                .build();
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> chapter.getByCourseId(new User()));
+    }
+
+    @Test
+    void getChaptersByCourseId_throws_ForbiddenActionException_if_user_is_not_author_and_course_not_published() {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new Found_Draft_WithUnknownAuthor_CourseProviderSpy())
+                .chapterProvider(new ChapterProviderSpy())
+                .build();
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.getByCourseId(new User()));
+    }
+
+    @Test
+    void getChaptersByCourseId_works_if_course_is_published() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .build();
+
+        //when
+        List<Chapter> result = chapter.getByCourseId(new User());
+
+        //then
+        Assertions.assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void getChaptersByCourseId_works_if_user_is_not_author_but_admin() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new Found_Draft_WithUnknownAuthor_CourseProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .build();
+
+        //when
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtils.createMockUser(true));
+
+        //then
+        Assertions.assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void getChaptersByCourseId_works_if_user_is_author() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new Found_Draft_WithKnownAuthor_CourseProvider_Spy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .build();
+
+        //when
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtils.createMockUser(false));
+
+        //then
+        Assertions.assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void getChaptersByCourseId_works_if_user_is_null() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        Chapter chapter = Chapter.builder()
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .build();
+
+        //when
+        List<Chapter> result = chapter.getByCourseId(null);
+
+        //then
+        Assertions.assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(2);
     }
 }

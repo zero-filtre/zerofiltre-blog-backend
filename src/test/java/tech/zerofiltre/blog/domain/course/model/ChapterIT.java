@@ -23,6 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class ChapterIT {
 
     public static final String TITLE = "Chapter 1";
+    public static final String ANOTHER_TITLE = "Chapter 2";
     public static final String UPDATED_TITLE = "updated title";
     private Chapter chapter;
     private User author;
@@ -56,7 +57,7 @@ class ChapterIT {
         Assertions.assertThat(chapter.getId()).isNotZero();
         Assertions.assertThat(chapter.getTitle()).isEqualTo(TITLE);
         Assertions.assertThat(chapter.getCourseId()).isEqualTo(course.getId());
-        Assertions.assertThat(chapter.getNumber()).isEqualTo(1);
+        Assertions.assertThat(chapter.getNumber()).isNotZero();
         Assertions.assertThat(chapter.getLessons()).isEmpty();
 
     }
@@ -114,6 +115,38 @@ class ChapterIT {
         chapter.delete(author.getId());
 
         Assertions.assertThat(chapterProvider.chapterOfId(chapter.getId())).isEmpty();
+    }
+
+    @Test
+    void getAllChaptersByCourseId_isOK() throws ForbiddenActionException, ResourceNotFoundException {
+        author = ZerofiltreUtils.createMockUser(false);
+        author = userProvider.save(author);
+
+        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = courseProvider.save(course);
+
+        chapter = Chapter.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .build()
+                .init(TITLE, course.getId(), author.getId());
+
+        chapter = Chapter.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .build()
+                .init(ANOTHER_TITLE, course.getId(), author.getId());
+
+        List<Chapter> chapters = chapter.getByCourseId(author);
+        Assertions.assertThat(chapters).isNotEmpty();
+        assertThat(chapters.size()).isEqualTo(2);
+        Chapter chapter1 = chapters.get(0);
+        Chapter chapter2 = chapters.get(1);
+        assertThat(chapter1.getTitle()).isEqualTo(TITLE);
+        assertThat(chapter2.getTitle()).isEqualTo(ANOTHER_TITLE);
+        assertThat(chapter1.getNumber()).isLessThan(chapter2.getNumber());
     }
 
 

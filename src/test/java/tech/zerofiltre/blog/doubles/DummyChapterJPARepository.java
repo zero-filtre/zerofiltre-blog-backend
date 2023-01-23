@@ -153,4 +153,9 @@ public class DummyChapterJPARepository implements ChapterJPARepository {
     public <S extends ChapterJPA, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
     }
+
+    @Override
+    public List<ChapterJPA> findAllByCourseIdOrderByNumberAsc(long courseId) {
+        return Collections.emptyList();
+    }
 }
