@@ -14,7 +14,7 @@ logging:
     root: INFO
     org:
       zalando.logbook : TRACE
-      hibernate.SQL: INFO
+      hibernate.SQL: DEBUG
     tech.zerofiltre: DEBUG
 server:
   port: 80
