@@ -24,6 +24,7 @@ public class Lesson {
     private boolean free;
     private String type;
     private long chapterId;
+    private int number;
     private List<Resource> resources;
 
     private LessonProvider lessonProvider;
@@ -47,6 +48,7 @@ public class Lesson {
         this.chapterProvider = lessonBuilder.chapterProvider;
         this.userProvider = lessonBuilder.userProvider;
         this.courseProvider = lessonBuilder.courseProvider;
+        this.number = lessonBuilder.number;
     }
 
     public long getId() {
@@ -108,6 +110,10 @@ public class Lesson {
 
     public static LessonBuilder builder() {
         return new LessonBuilder();
+    }
+
+    public int getNumber() {
+        return number;
     }
 
     public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
@@ -214,6 +220,7 @@ public class Lesson {
 
     //generate LessonBuilder class
     public static class LessonBuilder {
+        private int number;
         private long id;
         private String title;
         private String content;
@@ -271,6 +278,11 @@ public class Lesson {
 
         public LessonBuilder chapterId(long chapterId) {
             this.chapterId = chapterId;
+            return this;
+        }
+
+        public LessonBuilder number(int number) {
+            this.number = number;
             return this;
         }
 
