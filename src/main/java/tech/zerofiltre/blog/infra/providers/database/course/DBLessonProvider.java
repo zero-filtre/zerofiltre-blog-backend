@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.*;
+import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ import java.util.*;
 public class DBLessonProvider implements LessonProvider {
 
     private final LessonJPARepository lessonJPARepository;
+    private final LessonJPANumberRepository numberRepository;
     LessonJPAMapper lessonJPAMapper = Mappers.getMapper(LessonJPAMapper.class);
 
     @Override
@@ -25,7 +27,11 @@ public class DBLessonProvider implements LessonProvider {
 
     @Override
     public Lesson save(Lesson lesson) {
-        return lessonJPAMapper.fromJPA(lessonJPARepository.save(lessonJPAMapper.toJPA(lesson)));
+        LessonJPA lessonJPA = lessonJPAMapper.toJPA(lesson);
+        if (lesson.getNumber() == 0) {
+            lessonJPA.setNumber(numberRepository.save(new LessonJPANumber()));
+        }
+        return lessonJPAMapper.fromJPA(lessonJPARepository.save(lessonJPA));
     }
 
     @Override
