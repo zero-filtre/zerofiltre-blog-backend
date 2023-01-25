@@ -37,7 +37,6 @@ public class LoginFirstAuthenticationEntryPoint implements AuthenticationEntryPo
                 String.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
                 code,
                 messageSource.getMessage(code, null, request.getLocale()),
-                "no domain available",
                 authException.getLocalizedMessage()
         );
 
