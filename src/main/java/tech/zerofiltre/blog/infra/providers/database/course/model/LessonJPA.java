@@ -18,6 +18,7 @@ import java.util.*;
 public class LessonJPA extends BaseEntityJPA {
 
     private String title;
+    @Lob
     private String content;
     private String summary;
     private String thumbnail;

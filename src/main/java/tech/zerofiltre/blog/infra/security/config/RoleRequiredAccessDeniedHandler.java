@@ -32,7 +32,6 @@ public class RoleRequiredAccessDeniedHandler implements AccessDeniedHandler {
                 String.valueOf(HttpServletResponse.SC_FORBIDDEN),
                 "ZBLOG_008",
                 messageSource.getMessage("ZBLOG_008", null, request.getLocale()),
-                "no domain available",
                 accessDeniedException.getLocalizedMessage()
         );
 

@@ -36,7 +36,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
                 "ZBLOG_003",
                 messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceId()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -50,7 +49,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_001",
                 messageSource.getMessage("ZBLOG_001", new Object[]{exception.getItemId()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -68,7 +66,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_004",
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
-                NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
         log.error(FULL_EXCEPTION, exception);
@@ -82,7 +79,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 "ZBLOG_005",
                 messageSource.getMessage("ZBLOG_005", new Object[]{exception.getUniqueIdentifier()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -96,7 +92,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_006",
                 messageSource.getMessage("ZBLOG_006", null, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -110,7 +105,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 "ZBLOG_008",
                 messageSource.getMessage("ZBLOG_008", null, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -124,7 +118,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.UNAUTHORIZED.value()),
                 "ZBLOG_007",
                 messageSource.getMessage("ZBLOG_007", null, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -138,7 +131,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 ZBLOG_000,
                 messageSource.getMessage(ZBLOG_000, null, locale),
-                NO_DOMAIN_AVAILABLE,
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -147,13 +139,13 @@ public class BlogControllerAdvice {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                ZBLOG_000,
+                errorCode,
                 messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
-                NO_DOMAIN_AVAILABLE,
-                throwable.getLocalizedMessage()
+                "Unknown error, get help by providing the code: " + errorCode
         );
         log.error(FULL_EXCEPTION, throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
