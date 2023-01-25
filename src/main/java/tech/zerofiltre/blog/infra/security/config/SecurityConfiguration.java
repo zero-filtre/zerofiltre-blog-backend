@@ -115,7 +115,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/notification/help",
                         "/user/github/**").permitAll()
                 .antMatchers(HttpMethod.GET,
-                        "/article/**","/course/**","/chapter/**","/section/**",
+                        "/article/**","/course/**","/chapter/**","/section/**","/lesson/*",
                         "/user/registrationConfirm",
                         "/user/resendRegistrationConfirm",
                         "/user/initPasswordReset",

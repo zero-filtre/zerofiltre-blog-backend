@@ -31,7 +31,6 @@ public class BadCredentialsAuthenticationEntryPoint implements AuthenticationEnt
                 String.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
                 "ZBLOG_009",
                 messageSource.getMessage("ZBLOG_009", null, request.getLocale()),
-                "User",
                 authException.getLocalizedMessage()
         );
 
