@@ -8,7 +8,6 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.subscription.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.course.*;
@@ -52,7 +51,7 @@ class SubscribeIT {
         subscriber.setPseudoName("tester");
         subscriber = dbUserProvider.save(subscriber);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, null, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(subscriber.getId(), course.getId());
@@ -66,7 +65,7 @@ class SubscribeIT {
 
         assertThat(subscription.getId()).isNotZero();
         assertThat(subscription.isCompleted()).isFalse();
-        assertThat(subscription.getCompletedLessons().isEmpty()).isTrue();
+        Assertions.assertThat(subscription.getCompletedLessons()).isEmpty();
 
         org.assertj.core.api.Assertions.assertThat(subscription.getSubscribedAt()).isNotNull();
         org.assertj.core.api.Assertions.assertThat(subscription.getSubscribedAt()).isAfterOrEqualTo(beforeSubscribe);

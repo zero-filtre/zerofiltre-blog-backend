@@ -15,6 +15,7 @@ import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 @JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider"})
 public class Lesson {
 
+    public static final String THE_LESSON_OF_ID = "The lesson of id ";
     private long id;
     private String title;
     private String content;
@@ -128,7 +129,7 @@ public class Lesson {
     public Lesson save(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
 
         Lesson lesson = lessonProvider.lessonOfId(this.id)
-                .orElseThrow(() -> new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
         checkConditions(currentUserId, chapterId);
         String titleToSave = this.title;
         String contentToSave = this.content;
@@ -174,16 +175,16 @@ public class Lesson {
     public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
         Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
         if (lesson.isEmpty()) {
-            throw new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+            throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
         }
 
         checkConditions(currentUserId, lesson.get().getChapterId());
         lessonProvider.delete(lesson.get());
     }
 
-    public Lesson get(long currentUserId) throws ResourceNotFoundException {
+    public Lesson get() throws ResourceNotFoundException {
         if (lessonProvider.lessonOfId(this.id).isEmpty()) {
-            throw new ResourceNotFoundException("The lesson of id " + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+            throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
         }
         return setProviders(lessonProvider.lessonOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson " + this.id + " does not exist", String.valueOf(id), COURSE.name())));

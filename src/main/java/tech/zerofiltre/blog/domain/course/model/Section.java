@@ -2,14 +2,16 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.*;
 import tech.zerofiltre.blog.domain.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.logging.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider","courseService"})
 public class Section {
 
     private long id;
@@ -21,6 +23,7 @@ public class Section {
     private SectionProvider sectionProvider;
     private UserProvider userProvider;
     private CourseProvider courseProvider;
+    private CourseService courseService;
     private LoggerProvider loggerProvider;
 
     private Section(SectionBuilder sectionBuilder) {
@@ -31,9 +34,12 @@ public class Section {
         this.image = sectionBuilder.image;
         this.sectionProvider = sectionBuilder.sectionProvider;
         this.courseId = sectionBuilder.courseId;
+        TagProvider tagProvider = sectionBuilder.tagProvider;
+        ChapterProvider chapterProvider = sectionBuilder.chapterProvider;
         this.userProvider = sectionBuilder.userProvider;
         this.courseProvider = sectionBuilder.courseProvider;
         this.loggerProvider = sectionBuilder.loggerProvider;
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
     }
 
     public static SectionBuilder builder() {
@@ -97,10 +103,9 @@ public class Section {
             sectionProvider.delete(findById(id));
         } else {
             try {
-                Course.builder()
-                        .courseProvider(courseProvider)
-                        .userProvider(userProvider).build().findById(courseId, deleter);
-                sectionProvider.delete(findById(id));
+                Section existingSection = findById(id);
+                courseService.findById(existingSection.getCourseId(), deleter);
+                sectionProvider.delete(existingSection);
             } catch (ForbiddenActionException e) {
                 loggerProvider.log(new LogEntry(LogEntry.Level.DEBUG, "You can't delete a section belonging to a course you don't own", e, Section.class));
                 throw e;
@@ -121,7 +126,13 @@ public class Section {
         this.courseId = section.getCourseId();
     }
 
+    public CourseService getCourseService() {
+        return courseService;
+    }
+
     public static class SectionBuilder {
+        private ChapterProvider chapterProvider;
+        private TagProvider tagProvider;
         private long courseId;
         private UserProvider userProvider;
         private CourseProvider courseProvider;
@@ -183,6 +194,16 @@ public class Section {
             return this;
         }
 
+        public SectionBuilder tagProvider(TagProvider tagProvider) {
+            this.tagProvider = tagProvider;
+            return this;
+        }
+
+        public SectionBuilder chapterProvider(ChapterProvider chapterProvider) {
+            this.chapterProvider = chapterProvider;
+            return this;
+        }
+
         public Section build() {
             return new Section(this);
         }
@@ -193,6 +214,7 @@ public class Section {
         inNeedOfProviders.courseProvider = this.courseProvider;
         inNeedOfProviders.loggerProvider = this.loggerProvider;
         inNeedOfProviders.userProvider = this.userProvider;
+        inNeedOfProviders.courseService = this.courseService;
         return inNeedOfProviders;
     }
 }

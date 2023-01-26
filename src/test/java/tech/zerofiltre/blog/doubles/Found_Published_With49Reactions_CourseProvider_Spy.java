@@ -27,7 +27,7 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
             reaction.setAction(CLAP);
             currentUserReactions.add(reaction);
         }
-        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, new Found_Published_WithKnownAuthor_CourseProvider_Spy(), author, Collections.emptyList(), currentUserReactions));
+        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), currentUserReactions));
     }
 
     @Override

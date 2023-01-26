@@ -263,7 +263,7 @@ class ChapterTest {
         //when
         //then
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> chapter.get(new User()));
+                .isThrownBy(chapter::get);
     }
 
     @Test
@@ -274,7 +274,7 @@ class ChapterTest {
                 .build();
 
         //when
-        Chapter result = chapter.get(new User());
+        Chapter result = chapter.get();
 
         //then
         Assertions.assertThat(result).isNotNull();

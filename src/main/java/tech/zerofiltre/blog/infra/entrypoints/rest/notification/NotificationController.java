@@ -38,7 +38,7 @@ public class NotificationController {
     }
 
     @PostMapping("help")
-    public String notifyForHelp(@RequestParam @NotEmpty @Max(100) String subject,@RequestParam @ValidEmail String replyTo,@RequestParam @NotEmpty @Max(255) String message) throws UserNotFoundException, ForbiddenActionException {
+    public String notifyForHelp(@RequestParam @NotEmpty @Max(100) String subject, @RequestParam @ValidEmail String replyTo, @RequestParam @NotEmpty @Max(255) String message) {
         Email email = new Email();
         email.setRecipients(Collections.singletonList(infraProPerties.getContactEmail()));
         email.setSubject(subject);

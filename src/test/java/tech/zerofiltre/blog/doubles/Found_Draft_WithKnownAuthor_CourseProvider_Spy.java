@@ -19,7 +19,7 @@ public class Found_Draft_WithKnownAuthor_CourseProvider_Spy implements CoursePro
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
         User author = ZerofiltreUtils.createMockUser(false);
-        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT,new Found_Draft_WithKnownAuthor_CourseProvider_Spy(), author, Collections.emptyList(),Collections.emptyList()));
+        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT, author, Collections.emptyList(),Collections.emptyList()));
     }
 
     @Override

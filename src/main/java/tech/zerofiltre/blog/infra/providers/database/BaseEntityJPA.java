@@ -4,7 +4,6 @@ import lombok.*;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
-import java.io.*;
 
 @Data
 @MappedSuperclass

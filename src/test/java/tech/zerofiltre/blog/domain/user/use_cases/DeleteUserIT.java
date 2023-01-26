@@ -86,7 +86,7 @@ class DeleteUserIT {
         Article draftArticle = ZerofiltreUtils.createMockArticle(author, Collections.emptyList(), Collections.emptyList());
         draftArticle = articleProvider.save(draftArticle);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         User user = ZerofiltreUtils.createMockUser(false);

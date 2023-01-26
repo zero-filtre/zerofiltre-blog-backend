@@ -6,7 +6,6 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -167,7 +166,7 @@ class AddReactionTest {
     void execute_ThrowsExceptionIfCourseIsNotFound() {
         //ARRANGE
         User currentUser = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, null, currentUser, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, currentUser, Collections.emptyList(), Collections.emptyList());
         Reaction reaction = new Reaction();
         reaction.setAuthorId(currentUser.getId());
         reaction.setCourseId(course.getId());
@@ -201,7 +200,7 @@ class AddReactionTest {
     @Test
     void canNotReactOnAnUnpublishedCourse() {
         //ARRANGE
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, null, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Reaction reaction = new Reaction();
         reaction.setCourseId(course.getId());
 

@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.model;
+package tech.zerofiltre.blog.domain.course.use_cases.course;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -8,6 +8,8 @@ import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -23,9 +25,9 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class,
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class,
         Slf4jLoggerProvider.class})
-class CourseIT {
+class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
     public static final String UPDATED_SUB_TITLE = "This is the updated sub title";
@@ -48,12 +50,21 @@ class CourseIT {
     @Autowired
     private LoggerProvider loggerProvider;
 
+    @Autowired
+    private ChapterProvider chapterProvider;
+
     private Course course;
 
     private User author;
 
-    private List<Section> sections = new ArrayList<>();
-    private List<Tag> tags = new ArrayList<>();
+    private List<Section> sections;
+    private List<Tag> tags;
+
+    @BeforeEach
+    void init() {
+        sections = new ArrayList<>();
+        tags = new ArrayList<>();
+    }
 
 
     @Test
@@ -61,34 +72,26 @@ class CourseIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockSections(sectionProvider, false)
-                .forEach(section -> sections.add(sectionProvider.save(section)));
-
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .build()
-                .init("some title", author);
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .tags(tags)
-                .sections(sections)
-                .status(Status.PUBLISHED)
-                .thumbnail(UPDATED_THUMBNAIL)
-                .video(UPDATED_VIDEO)
-                .summary(UPDATED_SUMMARY)
-                .subTitle(UPDATED_SUB_TITLE)
-                .title(UPDATED_TITLE)
-                .id(course.getId())
-                .build()
-                .save(author.getId());
+        course = courseService.init("some title", author);
+
+        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, false);
+        section1.save();
+
+        course.setTags(tags);
+        course.setSections(List.of(section1));
+        course.setTitle(UPDATED_TITLE);
+        course.setStatus(Status.PUBLISHED);
+        course.setThumbnail(UPDATED_THUMBNAIL);
+        course.setVideo(UPDATED_VIDEO);
+        course.setSummary(UPDATED_SUMMARY);
+        course.setSubTitle(UPDATED_SUB_TITLE);
+
+        course = courseService.save(course, author);
 
         assertThat(course.getId()).isNotZero();
         assertThat(course.getTitle()).isEqualTo(UPDATED_TITLE);
@@ -99,7 +102,7 @@ class CourseIT {
         assertThat(course.getStatus()).isEqualTo(Status.IN_REVIEW);
 
         assertThat(
-                course.getSections().stream().allMatch(section -> sections.stream().anyMatch(section1 -> section1.getId() == section.getId()))
+                course.getSections().stream().allMatch(section -> sections.stream().anyMatch(s -> s.getId() == section.getId()))
         ).isTrue();
 
         assertThat(
@@ -112,20 +115,11 @@ class CourseIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockSections(sectionProvider, false)
-                .forEach(section -> sections.add(sectionProvider.save(section)));
 
-        ZerofiltreUtils.createMockTags(false)
-                .forEach(tag -> tags.add(tagProvider.save(tag)));
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        Course course = courseService.init("some title", author);
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .build()
-                .init("some title", author);
-
-        assertThat(course.findById(course.getId(), author)).isNotNull();
+        assertThat(courseService.findById(course.getId(), author)).isNotNull();
     }
 
     @Test
@@ -139,17 +133,12 @@ class CourseIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .loggerProvider(loggerProvider)
-                .build()
-                .init("some title", author);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course = courseService.init("some title", author);
 
-        course.delete(course.getId(), author);
+        courseService.delete(course.getId(), author);
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.findById(course.getId(), author));
+                .isThrownBy(() -> courseService.findById(course.getId(), author));
     }
 }

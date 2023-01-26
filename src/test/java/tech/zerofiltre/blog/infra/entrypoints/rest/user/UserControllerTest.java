@@ -14,7 +14,7 @@ import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -93,16 +93,23 @@ class UserControllerTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @MockBean
+    TagProvider tagProvider;
+
+    @MockBean
+    ChapterProvider chapterProvider;
+
+    @MockBean
     CourseProvider courseProvider;
+
     @Mock
-    private Course course;
+    private CourseService courseService;
 
     @BeforeEach
     void setUp() {
         userController = new UserController(
                 userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, courseProvider);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, chapterProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }
@@ -140,7 +147,7 @@ class UserControllerTest {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
         VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
-        when(verificationTokenProvider.generate(any(),anyLong())).thenReturn(t);
+        when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
 
         //ACT
         userController.resendRegistrationConfirm("email", request);
@@ -170,7 +177,7 @@ class UserControllerTest {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
         VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
-        when(verificationTokenProvider.generate(any(),anyLong())).thenReturn(t);
+        when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
         //ACT
         userController.initPasswordReset("email", request);
 
@@ -298,12 +305,13 @@ class UserControllerTest {
 
     @Test
     void getCourse_constructsRequest_Properly() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
-        ReflectionTestUtils.setField(userController, "course", course);
-        when(course.of(any())).thenReturn(null);
+        ReflectionTestUtils.setField(userController, "courseService", courseService);
+
+        when(courseService.of(any())).thenReturn(null);
         userController.getCourses(2, 2, "PUBLISHED", "MOST_VIEWED", "java");
 
         ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
-        verify(course, times(1)).of(argument.capture());
+        verify(courseService, times(1)).of(argument.capture());
         FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
@@ -341,15 +349,13 @@ class UserControllerTest {
     @Test
     void getCourse_constructsFinderRequest_Properly_withNullFilter() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
 
-
-        ReflectionTestUtils.setField(userController, "course", course);
-        when(course.of(any())).thenReturn(null);
-
+        ReflectionTestUtils.setField(userController, "courseService", courseService);
+        when(courseService.of(any())).thenReturn(null);
 
         userController.getCourses(2, 2, "PUBLISHED", null, "java");
 
         ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
-        verify(course, times(1)).of(argument.capture());
+        verify(courseService, times(1)).of(argument.capture());
         FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
@@ -363,7 +369,6 @@ class UserControllerTest {
 
     @Test
     void getArticle_constructFindArticleRequest_Properly_withNullStatus() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
-
 
         ReflectionTestUtils.setField(userController, "findArticle", findArticle);
         when(findArticle.of(any())).thenReturn(null);
@@ -387,14 +392,14 @@ class UserControllerTest {
     @Test
     void getCourse_constructsFinderRequest_Properly_withNullStatus() throws UserNotFoundException, UnAuthenticatedActionException, ForbiddenActionException {
 
-        ReflectionTestUtils.setField(userController, "course", course);
-        when(course.of(any())).thenReturn(null);
+        ReflectionTestUtils.setField(userController, "courseService", courseService);
+        when(courseService.of(any())).thenReturn(null);
 
 
         userController.getCourses(2, 2, null, "MOST_VIEWED", "java");
 
         ArgumentCaptor<FinderRequest> argument = ArgumentCaptor.forClass(FinderRequest.class);
-        verify(course, times(1)).of(argument.capture());
+        verify(courseService, times(1)).of(argument.capture());
         FinderRequest request = argument.getValue();
 
         assertThat(request).isNotNull();
