@@ -81,7 +81,7 @@ class AddReactionIT {
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, currentUser, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         long courseId = course.getId();
 
@@ -158,7 +158,7 @@ class AddReactionIT {
         long currentUserId = currentUser.getId();
 
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, currentUser, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         long courseId = course.getId();
 

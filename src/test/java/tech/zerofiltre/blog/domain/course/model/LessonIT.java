@@ -5,21 +5,26 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
-import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class, Slf4jLoggerProvider.class, DBTagProvider.class})
 class LessonIT {
 
     public static final String TITLE = "Lesson 1";
@@ -29,6 +34,7 @@ class LessonIT {
     public static final String UPDATED_CONTENT = "updated content";
     private static final String UPDATED_SUMMARY = "updated summary";
     public static final String THUMBNAIL = "https://img.bb.com/THU";
+    public static final String TITLE_2 = "title 2";
 
     @Autowired
     private LessonProvider lessonProvider;
@@ -38,6 +44,10 @@ class LessonIT {
     private UserProvider userProvider;
     @Autowired
     private CourseProvider courseProvider;
+    @Autowired
+    private LoggerProvider loggerProvider;
+    @Autowired
+    private TagProvider tagProvider;
 
     private Chapter chapter;
     private User author;
@@ -51,7 +61,7 @@ class LessonIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
@@ -79,7 +89,7 @@ class LessonIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
@@ -130,7 +140,7 @@ class LessonIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
@@ -151,5 +161,38 @@ class LessonIT {
 
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isEmpty();
 
+    }
+
+    @Test
+    @Disabled("Not working yet")
+    void save_Lesson_increases_course_lessonsCount() throws ForbiddenActionException, ResourceNotFoundException {
+        author = ZerofiltreUtils.createMockUser(false);
+        author = userProvider.save(author);
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        Course course = courseService.init("A course", author);
+
+        chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter2 = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        chapter = chapterProvider.save(chapter);
+        chapter2 = chapterProvider.save(chapter2);
+
+        Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init(TITLE, chapter.getId(), author.getId());
+
+        Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init(TITLE_2, chapter2.getId(), author.getId());
+
+        assertThat(courseService.getLessonsCount(course.getId())).isEqualTo(2);
     }
 }

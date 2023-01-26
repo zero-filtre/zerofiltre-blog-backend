@@ -8,7 +8,6 @@ import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 
@@ -67,7 +66,7 @@ public class ChapterController {
         } catch (BlogException e) {
             log.debug("We did not find a connected user but we can still return the wanted chapter", e);
         }
-        return chapter.get(user);
+        return chapter.get();
     }
 
     @GetMapping("/course/{id}")

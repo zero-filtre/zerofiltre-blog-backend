@@ -249,7 +249,7 @@ class LessonTest {
         //when
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> lesson.get(100));
+                .isThrownBy(() -> lesson.get());
     }
 
     @Test
@@ -264,7 +264,7 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(100);
+        Lesson result = lesson.get();
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(1);

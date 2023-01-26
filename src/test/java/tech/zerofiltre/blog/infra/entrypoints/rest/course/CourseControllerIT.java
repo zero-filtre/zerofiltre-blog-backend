@@ -26,6 +26,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -42,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
-        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class})
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
 class CourseControllerIT {
 
     public static final String TITLE = "THIS IS MY TITLE";
@@ -55,6 +56,9 @@ class CourseControllerIT {
 
     @MockBean
     CourseProvider courseProvider;
+
+    @MockBean
+    ChapterProvider chapterProvider;
 
     @MockBean
     StackOverflowLoginProvider stackOverflowLoginProvider;
@@ -84,7 +88,7 @@ class CourseControllerIT {
 
 
     User author = ZerofiltreUtils.createMockUser(false);
-    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, courseProvider, author, Collections.emptyList(),Collections.emptyList());
+    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(),Collections.emptyList());
 
     @BeforeEach
     void setUp() {

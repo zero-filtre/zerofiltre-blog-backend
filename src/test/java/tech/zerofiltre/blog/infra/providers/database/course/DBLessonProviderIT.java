@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-public class DBLessonProviderIT {
+class DBLessonProviderIT {
 
     DBLessonProvider lessonProvider;
 
@@ -20,7 +20,7 @@ public class DBLessonProviderIT {
 
     @BeforeEach
     void setUp() {
-        lessonProvider = new DBLessonProvider(lessonJPARepository,lessonJPANumberRepository);
+        lessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository);
     }
 
     @Test

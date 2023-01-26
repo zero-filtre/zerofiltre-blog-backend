@@ -20,7 +20,7 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
         User author = new User();
         author.setId(21L);
         author.setEmail("just@weirdemail.com");
-        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT,new Found_Draft_WithUnknownAuthor_CourseProviderSpy(), author, Collections.emptyList(),Collections.emptyList()));
+        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT, author, Collections.emptyList(),Collections.emptyList()));
     }
 
     @Override
