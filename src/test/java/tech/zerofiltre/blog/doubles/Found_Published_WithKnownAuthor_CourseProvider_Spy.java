@@ -18,7 +18,7 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy implements Cours
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
         User author = ZerofiltreUtils.createMockUser(false);
-        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, new Found_Published_WithKnownAuthor_CourseProvider_Spy(), author, Collections.emptyList(), new ArrayList<>()));
+        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>()));
     }
 
     @Override

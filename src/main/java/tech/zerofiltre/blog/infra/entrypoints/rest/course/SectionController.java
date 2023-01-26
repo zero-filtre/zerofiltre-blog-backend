@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 
@@ -19,15 +19,17 @@ public class SectionController {
     private final SectionProvider sectionProvider;
     private final CourseProvider courseProvider;
     private final UserProvider userProvider;
+    private final ChapterProvider chapterProvider;
     private final SecurityContextManager securityContextManager;
+    private final LoggerProvider loggerProvider;
 
-    private User user;
-
-    public SectionController(SectionProvider sectionProvider, CourseProvider courseProvider, UserProvider userProvider, SecurityContextManager securityContextManager) {
+    public SectionController(SectionProvider sectionProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SecurityContextManager securityContextManager, LoggerProvider loggerProvider) {
         this.sectionProvider = sectionProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
+        this.chapterProvider = chapterProvider;
         this.securityContextManager = securityContextManager;
+        this.loggerProvider = loggerProvider;
     }
 
     @GetMapping("{id}")
@@ -58,11 +60,13 @@ public class SectionController {
 
     @DeleteMapping("{id}")
     public void deleteSection(@PathVariable("id") long id) throws ResourceNotFoundException, ForbiddenActionException {
-        user = securityContextManager.getAuthenticatedUser();
+        User user = securityContextManager.getAuthenticatedUser();
         Section.builder().sectionProvider(sectionProvider)
                 .id(id)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .chapterProvider(chapterProvider)
+                .loggerProvider(loggerProvider)
                 .build()
                 .delete(user);
     }

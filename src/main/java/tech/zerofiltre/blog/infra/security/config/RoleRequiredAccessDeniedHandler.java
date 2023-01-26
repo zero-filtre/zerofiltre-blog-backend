@@ -9,7 +9,6 @@ import org.springframework.security.web.access.*;
 import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.error.*;
 
-import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 

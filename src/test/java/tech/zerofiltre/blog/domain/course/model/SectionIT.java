@@ -4,13 +4,17 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
-import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
+import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -19,7 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 
 @DataJpaTest
-@Import({DBSectionProvider.class, DBCourseProvider.class, DBUserProvider.class})
+@Import({DBSectionProvider.class, Slf4jLoggerProvider.class, DBCourseProvider.class, DBUserProvider.class, DBTagProvider.class,DBChapterProvider.class})
 class SectionIT {
 
     private Section section;
@@ -27,8 +31,18 @@ class SectionIT {
     private SectionProvider sectionProvider;
     @Autowired
     private CourseProvider courseProvider;
+
+    @Autowired
+    TagProvider tagProvider;
+
+    @Autowired
+    ChapterProvider chapterProvider;
+
     @Autowired
     UserProvider userProvider;
+
+    @Autowired
+    LoggerProvider loggerProvider;
 
     @Test
     void save_Section_IsOK() {
@@ -75,14 +89,11 @@ class SectionIT {
         //GIVEN
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
-        Course course = new Course.CourseBuilder()
-                .title("title")
-                .status(Status.DRAFT)
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .sections(Collections.emptyList())
-                .build()
-                .init("", user);
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        Course course = courseService.init("", user);
+
         section = new Section.SectionBuilder()
                 .position(0)
                 .title("title")
@@ -92,7 +103,9 @@ class SectionIT {
                 .courseProvider(courseProvider)
                 .sectionProvider(sectionProvider)
                 .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
                 .build().save();
+        assertThat(sectionProvider.findById(section.getId())).isNotEmpty();
 
         //WHEN
         section.delete(user);

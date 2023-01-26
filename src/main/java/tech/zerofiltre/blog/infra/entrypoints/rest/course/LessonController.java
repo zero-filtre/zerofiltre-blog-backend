@@ -69,7 +69,7 @@ public class LessonController {
                 .courseProvider(courseProvider)
                 .id(id)
                 .build();
-        return lesson.get(securityContextManager.getAuthenticatedUser().getId());
+        return lesson.get();
     }
 
     @DeleteMapping("/{id}")

@@ -31,8 +31,8 @@ public class FoundChapterProviderSpy implements ChapterProvider {
     @Override
     public List<Chapter> ofCourseId(long courseId) {
         List<Chapter> chapters = new ArrayList<>();
-        chapters.add(Chapter.builder().id(1).courseId(courseId).build());
-        chapters.add(Chapter.builder().id(2).courseId(courseId).build());
+        chapters.add(Chapter.builder().id(1).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
+        chapters.add(Chapter.builder().id(2).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
         return chapters;
     }
 }

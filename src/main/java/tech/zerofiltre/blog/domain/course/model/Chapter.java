@@ -16,6 +16,8 @@ public class Chapter {
     public static final String AUTHOR_DOES_NOT_EXIST = "The author does not exist";
     public static final String USER_DOES_NOT_EXIST = "The user does not exist";
     public static final String DOES_NOT_EXIST = " does not exist";
+    public static final String THE_COURSE_WITH_ID = "The course with id: ";
+    public static final String THE_CHAPTER_WITH_ID = "The chapter with id: ";
 
     private long id;
     private String title;
@@ -71,9 +73,9 @@ public class Chapter {
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
         }
 
@@ -84,8 +86,8 @@ public class Chapter {
     }
 
 
-    private boolean isAdmin(User existingUser) {
-        return existingUser.getRoles().contains("ROLE_ADMIN");
+    private boolean isNotAdmin(User existingUser) {
+        return !existingUser.getRoles().contains("ROLE_ADMIN");
     }
 
     private Chapter setProviders(Chapter chapter) {
@@ -100,14 +102,14 @@ public class Chapter {
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", Domains.COURSE.name());
         }
 
         Chapter existingChapter = chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
         String titleToSave = title;
 
@@ -128,32 +130,32 @@ public class Chapter {
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
         Chapter existingChapter = chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
         if (!existingChapter.getLessons().isEmpty())
             throw new ForbiddenActionException("You are not allowed to delete a chapter with lessons", Domains.COURSE.name());
 
         Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to delete a chapter for this course", Domains.COURSE.name());
         }
 
         chapterProvider.delete(existingChapter);
     }
 
-    public Chapter get(User user) throws ResourceNotFoundException {
+    public Chapter get() throws ResourceNotFoundException {
         return setProviders(chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name())));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name())));
     }
 
     public List<Chapter> getByCourseId(User user) throws ResourceNotFoundException, ForbiddenActionException {
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
         if (
                 (user == null && Status.PUBLISHED != existingCourse.getStatus())
-                        || (user != null && !isAdmin(user) && existingCourse.getAuthor().getId() != user.getId() && Status.PUBLISHED != existingCourse.getStatus())
+                        || (user != null && isNotAdmin(user) && existingCourse.getAuthor().getId() != user.getId() && Status.PUBLISHED != existingCourse.getStatus())
         )
             throw new ForbiddenActionException("You are not allowed to get chapters for this course", Domains.COURSE.name());
         return chapterProvider.ofCourseId(courseId);

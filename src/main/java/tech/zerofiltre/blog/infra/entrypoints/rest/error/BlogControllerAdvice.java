@@ -20,7 +20,6 @@ import java.util.*;
 @RestControllerAdvice
 public class BlogControllerAdvice {
 
-    public static final String NO_DOMAIN_AVAILABLE = "No domain available";
     public static final String ZBLOG_000 = "ZBLOG_000";
     public static final String FULL_EXCEPTION = "Full exception";
     @Value("${zerofiltre.infra.entrypoints.rest.api-version}")
@@ -145,9 +144,9 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 errorCode,
                 messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
-                "Unknown error, get help by providing the code: " + errorCode
+                "Unknown error, get help by providing the code: " + errorCode + " to the support team"
         );
-        log.error(FULL_EXCEPTION, throwable);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -42,7 +42,7 @@ class ChapterIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
 
@@ -67,7 +67,7 @@ class ChapterIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -101,7 +101,7 @@ class ChapterIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -122,7 +122,7 @@ class ChapterIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, courseProvider, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()

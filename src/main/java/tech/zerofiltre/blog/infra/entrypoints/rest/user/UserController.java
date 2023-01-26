@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -51,20 +52,13 @@ public class UserController {
     private final PublicUserProfileVMMapper publicUserProfileVMMapper = Mappers.getMapper(PublicUserProfileVMMapper.class);
     private final UpdateUser updateUser;
     private final UserProvider userProvider;
-    private final VerificationTokenProvider tokenProvider;
-    private final ReactionProvider reactionProvider;
     private final FindArticle findArticle;
     private final GenerateToken generateToken;
-    private final LoggerProvider loggerProvider;
-    private final CourseProvider courseProvider;
-    private Course course;
+    private final CourseService courseService;
 
 
-    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, CourseProvider courseProvider) {
-        this.tokenProvider = tokenProvider;
-        this.reactionProvider = reactionProvider;
-        this.loggerProvider = loggerProvider;
-        this.courseProvider = courseProvider;
+    public UserController(UserProvider userProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
+        this.userProvider = userProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
         this.sources = sources;
@@ -80,10 +74,9 @@ public class UserController {
         this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
-        this.deleteUser = new DeleteUser(userProvider, articleProvider, this.tokenProvider, this.reactionProvider, courseProvider, this.loggerProvider);
-        this.userProvider = userProvider;
+        this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
-        course = Course.builder().courseProvider(courseProvider).build();
+        this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
     }
 
@@ -159,7 +152,7 @@ public class UserController {
             request.setStatus(Status.valueOf(status));
         }
         request.setYours(true);
-        return course.of(request);
+        return courseService.of(request);
     }
 
     @PatchMapping("/user")

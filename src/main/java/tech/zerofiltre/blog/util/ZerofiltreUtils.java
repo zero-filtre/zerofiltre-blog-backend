@@ -129,22 +129,22 @@ public class ZerofiltreUtils {
         return user;
     }
 
-    public static Course createMockCourse(boolean withId, Status status, CourseProvider courseProvider, User author, List<Section> sections, List<Reaction> reactions) {
-        return new Course.CourseBuilder()
-                .id(withId ? 45 : 0)
-                .title(TEST_COURSE_TITLE)
-                .thumbnail(TEST_THUMBNAIL)
-                .courseProvider(courseProvider)
-                .createdAt(LocalDateTime.now().minusDays(50))
-                .status(status)
-                .publishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null)
-                .author(author)
-                .reactions(reactions)
-                .enrolledCount(10)
-                .price(35.99)
-                .sections(sections)
-                .summary(TEST_SUMMARY)
-                .build();
+    public static Course createMockCourse(boolean withId, Status status, User author, List<Section> sections, List<Reaction> reactions) {
+        Course course = new Course();
+        course.setId(withId ? 45 : 0);
+        course.setTitle(TEST_COURSE_TITLE);
+        course.setThumbnail(TEST_THUMBNAIL);
+
+        course.setCreatedAt(LocalDateTime.now().minusDays(50));
+        course.setStatus(status);
+        course.setPublishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null);
+        course.setAuthor(author);
+        course.setReactions(reactions);
+        course.setEnrolledCount(10);
+        course.setPrice(35.99);
+        course.setSections(sections);
+        course.setSummary(TEST_SUMMARY);
+        return course;
 
     }
 
@@ -190,6 +190,18 @@ public class ZerofiltreUtils {
                 .position(3)
                 .build();
         return Arrays.asList(section1, section2, section3);
+    }
+
+    public static Section createMockSection(long courseId, SectionProvider sectionProvider, boolean withSectionIds){
+        return new Section.SectionBuilder()
+                .title(TEST_SECTION_TITLE_3)
+                .content(TEST_SECTION_CONTENT_3)
+                .courseId(courseId)
+                .id(withSectionIds ? 3 : 0)
+                .image(TEST_THUMBNAIL)
+                .sectionProvider(sectionProvider)
+                .position(3)
+                .build();
     }
 
     public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, long courseId, User author) {

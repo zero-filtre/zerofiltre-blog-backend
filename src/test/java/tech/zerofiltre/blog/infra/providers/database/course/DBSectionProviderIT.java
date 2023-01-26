@@ -11,7 +11,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-public class DBSectionProviderIT {
+class DBSectionProviderIT {
 
     private DBSectionProvider sectionProvider;
     @Autowired
