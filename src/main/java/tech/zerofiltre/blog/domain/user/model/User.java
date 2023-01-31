@@ -182,4 +182,8 @@ public class User implements Serializable {
                 ", loginFrom=" + loginFrom +
                 '}';
     }
+
+    public boolean isAdmin() {
+        return roles.contains("ROLE_ADMIN");
+    }
 }

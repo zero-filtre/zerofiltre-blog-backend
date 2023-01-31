@@ -17,8 +17,8 @@ public class CompleteLesson {
         this.chapterProvider = chapterProvider;
     }
 
-    public Subscription execute(long courseId, long lessonId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
-        Subscription existingSubscription = subscriptionProvider.subscriptionOf(currentUserId, courseId)
+    public Subscription execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws ResourceNotFoundException, ForbiddenActionException {
+        Subscription existingSubscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no subscription regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 
         Lesson lesson = lessonProvider.lessonOfId(lessonId)
@@ -30,7 +30,12 @@ public class CompleteLesson {
                 .orElseThrow(() -> forbiddenActionException);
 
         if (chapter.getCourseId() != courseId) throw forbiddenActionException;
-        existingSubscription.getCompletedLessons().add(lesson);
+
+        if (completeLesson) {
+            existingSubscription.getCompletedLessons().add(lesson);
+        } else {
+            existingSubscription.getCompletedLessons().remove(lesson);
+        }
 
         return subscriptionProvider.save(existingSubscription);
     }

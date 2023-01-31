@@ -25,7 +25,7 @@ public class Lesson {
     private boolean free;
     private String type;
     private long chapterId;
-    private int number;
+    private final int number;
     private List<Resource> resources;
 
     private LessonProvider lessonProvider;
@@ -167,7 +167,7 @@ public class Lesson {
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
 
-        if (!isAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
         }
     }
@@ -198,11 +198,6 @@ public class Lesson {
         return lesson;
 
 
-    }
-
-
-    private boolean isAdmin(User existingUser) {
-        return existingUser.getRoles().contains("ROLE_ADMIN");
     }
 
 

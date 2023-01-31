@@ -6,7 +6,16 @@ import tech.zerofiltre.blog.domain.course.model.*;
 
 import java.util.*;
 
-public class NotSubscribedSubscriptionProvider implements SubscriptionProvider {
+public class NotFoundSubscriptionProviderDummy implements SubscriptionProvider {
+
+    public boolean saveCalled;
+
+    @Override
+    public Subscription save(Subscription subscription) {
+        saveCalled = true;
+        subscription.setId(1);
+        return subscription;
+    }
 
     @Override
     public void delete(long userId, long courseId) {
@@ -15,16 +24,12 @@ public class NotSubscribedSubscriptionProvider implements SubscriptionProvider {
 
     @Override
     public Page<Subscription> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
-        return new Page<>();
+        return null;
     }
+
 
     @Override
     public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
         return Optional.empty();
-    }
-
-    @Override
-    public Subscription save(Subscription subscription) {
-        return null;
     }
 }

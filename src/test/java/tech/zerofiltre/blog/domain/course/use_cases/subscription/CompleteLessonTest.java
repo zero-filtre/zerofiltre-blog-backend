@@ -8,8 +8,7 @@ import tech.zerofiltre.blog.doubles.*;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 
 
 class CompleteLessonTest {
@@ -28,7 +27,7 @@ class CompleteLessonTest {
         //when
         //then
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> completeLesson.execute(1, 1, 1));
+                .isThrownBy(() -> completeLesson.execute(1, 1, 1, false));
 
     }
 
@@ -44,7 +43,7 @@ class CompleteLessonTest {
         //when
         //then
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> completeLesson.execute(1, 1, 1));
+                .isThrownBy(() -> completeLesson.execute(1, 1, 1, true));
 
     }
 
@@ -58,12 +57,35 @@ class CompleteLessonTest {
         completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
 
         //when
-        Subscription subscription = completeLesson.execute(1,3,1);
+        Subscription subscription = completeLesson.execute(1, 3, 1, true);
 
         //then
         List<Lesson> completedLessons = subscription.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
         completedLessons.forEach(lesson -> assertThat(lesson.getId()).isEqualTo(1));
+        assertThat(subscriptionProvider.saveCalled).isTrue();
+    }
+
+    @Test
+    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws ResourceNotFoundException, ForbiddenActionException {
+        //given
+        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        LessonProvider lessonProvider = new FoundLessonProviderSpy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+
+        //when
+        Subscription subscription = completeLesson.execute(1, 3, 1, true);
+        List<Lesson> completedLessons = subscription.getCompletedLessons();
+        assertThat(completedLessons).isNotEmpty();
+
+
+        subscription = completeLesson.execute(1, 3, 1, false);
+        completedLessons = subscription.getCompletedLessons();
+        assertThat(completedLessons).isEmpty();
+
+        //then
         assertThat(subscriptionProvider.saveCalled).isTrue();
     }
 
@@ -81,7 +103,7 @@ class CompleteLessonTest {
         //when
         //then
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> completeLesson.execute(1, 1, 1));
+                .isThrownBy(() -> completeLesson.execute(1, 1, 1, true));
 
     }
 
@@ -99,7 +121,7 @@ class CompleteLessonTest {
         //when
         //then
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> completeLesson.execute(1, 1, 1));
+                .isThrownBy(() -> completeLesson.execute(1, 1, 1, true));
 
     }
 

@@ -9,7 +9,6 @@ import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class,
-        Slf4jLoggerProvider.class})
+        Slf4jLoggerProvider.class, DBSubscriptionProvider.class})
 class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -40,6 +39,9 @@ class CourseServiceIT {
 
     @Autowired
     private SectionProvider sectionProvider;
+
+    @Autowired
+    SubscriptionProvider subscriptionProvider;
 
     @Autowired
     private UserProvider userProvider;
@@ -140,5 +142,54 @@ class CourseServiceIT {
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> courseService.findById(course.getId(), author));
+    }
+
+    @Test
+    void subscribeOrSuspend_increasesOrDecreases_EnrolledCount() throws ForbiddenActionException, ResourceNotFoundException {
+        author = ZerofiltreUtils.createMockUser(false);
+        author = userProvider.save(author);
+
+        User student1 = ZerofiltreUtils.createMockUser(false);
+        student1.setEmail("bable@gma.fr");
+        student1.setPseudoName("bable");
+        student1 = userProvider.save(student1);
+
+        User student2 = ZerofiltreUtils.createMockUser(false);
+        student2.setEmail("poseidon@gma.fr");
+        student2.setPseudoName("poseidon");
+        student2 = userProvider.save(student2);
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course = courseService.init("some title", author);
+        course.setStatus(Status.PUBLISHED);
+        course = courseService.save(course, author);
+
+
+        Subscription subscription1 = new Subscription();
+        subscription1.setCourse(course);
+        subscription1.setSubscriber(student1);
+        subscriptionProvider.save(subscription1);
+
+        Subscription subscription2 = new Subscription();
+        subscription2.setCourse(course);
+        subscription2.setSubscriber(student2);
+        subscriptionProvider.save(subscription2);
+
+
+        Subscription suspendedSubscription = new Subscription();
+        suspendedSubscription.setCourse(course);
+        suspendedSubscription.setSubscriber(student2);
+        suspendedSubscription = subscriptionProvider.save(suspendedSubscription);
+
+        int enrolledCount = courseService.getEnrolledCount(course.getId());
+
+        assertThat(enrolledCount).isEqualTo(3);
+
+        suspendedSubscription.setActive(false);
+        subscriptionProvider.save(suspendedSubscription);
+
+        enrolledCount = courseService.getEnrolledCount(course.getId());
+
+        assertThat(enrolledCount).isEqualTo(2);
     }
 }
