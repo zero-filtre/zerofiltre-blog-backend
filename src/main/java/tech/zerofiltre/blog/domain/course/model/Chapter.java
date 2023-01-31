@@ -75,7 +75,7 @@ public class Chapter {
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
         }
 
@@ -104,7 +104,7 @@ public class Chapter {
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", Domains.COURSE.name());
         }
 
@@ -137,7 +137,7 @@ public class Chapter {
         Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (isNotAdmin(existingUser) && existingCourse.getAuthor().getId() != existingUser.getId()) {
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException("You are not allowed to delete a chapter for this course", Domains.COURSE.name());
         }
 

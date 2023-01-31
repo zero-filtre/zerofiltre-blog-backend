@@ -52,10 +52,11 @@ public class CourseService {
 
 
         if ((viewer == null && Status.PUBLISHED != foundCourse.getStatus())
-                || (viewer != null && !isAdmin(viewer) && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
+                || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
             throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published", Domains.COURSE.name());
         }
         foundCourse.setLessonsCount(getLessonsCount(foundCourse.getId()));
+        foundCourse.setEnrolledCount(getEnrolledCount(foundCourse.getId()));
         return foundCourse;
     }
 
@@ -67,13 +68,13 @@ public class CourseService {
         long updatedCourseId = updatedCourse.getId();
         Course existingCourse = courseProvider.courseOfId(updatedCourseId)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + updatedCourseId + DOES_NOT_EXIST, String.valueOf(updatedCourseId), Domains.COURSE.name()));
-        if (isNotAuthor(currentEditor, existingCourse) && !isAdmin(currentEditor))
+        if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
             throw new ForbiddenActionException("You are not allowed to edit this course", Domains.COURSE.name());
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !isAdmin(currentEditor))
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
             existingCourse.setStatus(Status.IN_REVIEW);
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || isAdmin(currentEditor)))
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
             existingCourse.setStatus(updatedCourse.getStatus());
 
         if (isAlreadyPublished(existingCourse.getStatus())) {
@@ -91,6 +92,7 @@ public class CourseService {
         existingCourse.setTags(updatedCourse.getTags());
         Course result = courseProvider.save(existingCourse);
         result.setLessonsCount(getLessonsCount(result.getId()));
+        result.setEnrolledCount(getEnrolledCount(result.getId()));
         return result;
     }
 
@@ -99,7 +101,7 @@ public class CourseService {
         Course existingCourse = courseProvider.courseOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
-        if (isNotAuthor(deleter, existingCourse) && !isAdmin(deleter))
+        if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
             throw new ForbiddenActionException("You are not allowed to delete this course", Domains.COURSE.name());
         courseProvider.delete(existingCourse);
 
@@ -127,7 +129,10 @@ public class CourseService {
 
         long authorId = request.isYours() ? request.getUser().getId() : 0;
         Page<Course> courses = courseProvider.courseOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.getFilter(), request.getTag());
-        courses.getContent().forEach(course -> course.setLessonsCount(getLessonsCount(course.getId())));
+        courses.getContent().forEach(course -> {
+            course.setLessonsCount(getLessonsCount(course.getId()));
+            course.setEnrolledCount(getEnrolledCount(course.getId()));
+        });
         return courses;
     }
 
@@ -162,4 +167,7 @@ public class CourseService {
     }
 
 
+    public int getEnrolledCount(long courseId) {
+        return courseProvider.getEnrolledCount(courseId);
+    }
 }

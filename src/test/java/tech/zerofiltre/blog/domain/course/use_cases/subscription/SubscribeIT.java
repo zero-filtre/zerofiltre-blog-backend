@@ -26,6 +26,7 @@ class SubscribeIT {
 
 
     Subscribe subscribe;
+    Suspend suspend;
 
     @Autowired
     SubscriptionProvider subscriptionProvider;
@@ -39,6 +40,7 @@ class SubscribeIT {
     @BeforeEach
     void init() {
         subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
+        suspend = new Suspend(subscriptionProvider);
     }
 
     @Test
@@ -71,5 +73,28 @@ class SubscribeIT {
         org.assertj.core.api.Assertions.assertThat(subscription.getSubscribedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getSubscribedAt()).isBeforeOrEqualTo(afterSubscribe);
         Assertions.assertThat(subscription.isActive()).isTrue();
+    }
+
+
+    @Test
+    void executeSetSuspendeAt_toNull() throws ResourceNotFoundException, ForbiddenActionException {
+        User subscriber = ZerofiltreUtils.createMockUser(false);
+        subscriber.setEmail("test@gmail.grok");
+        subscriber.setPseudoName("tester");
+        subscriber = dbUserProvider.save(subscriber);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, subscriber, Collections.emptyList(), Collections.emptyList());
+        course = dbCourseProvider.save(course);
+
+        subscribe.execute(subscriber.getId(), course.getId());
+
+        Subscription suspendedSubscription = suspend.execute(subscriber.getId(), course.getId());
+        assertThat(suspendedSubscription.getSuspendedAt()).isNotNull();
+
+        Subscription subscription = subscribe.execute(subscriber.getId(), course.getId());
+
+        Assertions.assertThat(subscription.getSuspendedAt()).isNull();
+        Assertions.assertThat(subscription.getId()).isEqualTo(suspendedSubscription.getId());
+
     }
 }

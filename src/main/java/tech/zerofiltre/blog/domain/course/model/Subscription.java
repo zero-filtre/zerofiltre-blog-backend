@@ -13,6 +13,7 @@ public class Subscription {
     private boolean completed;
     private boolean active = true;
     private LocalDateTime subscribedAt = LocalDateTime.now();
+    private LocalDateTime lastModifiedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
 
     private List<Lesson> completedLessons = new ArrayList<>();
@@ -79,5 +80,13 @@ public class Subscription {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public LocalDateTime getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
     }
 }

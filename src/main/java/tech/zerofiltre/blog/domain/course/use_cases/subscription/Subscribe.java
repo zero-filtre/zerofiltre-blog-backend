@@ -8,6 +8,9 @@ import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.*;
+import java.util.*;
+
 public class Subscribe {
 
     private final SubscriptionProvider subscriptionProvider;
@@ -38,8 +41,18 @@ public class Subscribe {
             throw new ForbiddenActionException("You can not subscribe to an unpublished course", Domains.COURSE.name());
 
         Subscription subscription = new Subscription();
-        subscription.setCourse(course);
-        subscription.setSubscriber(user);
+        LocalDateTime lastModifiedAt = LocalDateTime.now();
+        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
+        if (existingSubscription.isPresent()) {
+            subscription = existingSubscription.get();
+            subscription.setActive(true);
+            subscription.setSuspendedAt(null);
+        } else {
+            subscription.setCourse(course);
+            subscription.setSubscriber(user);
+            lastModifiedAt = subscription.getSubscribedAt();
+        }
+        subscription.setLastModifiedAt(lastModifiedAt);
         return subscriptionProvider.save(subscription);
     }
 }

@@ -15,7 +15,7 @@ public class Suspend {
     }
 
     public Subscription execute(long userId, long courseId) throws ForbiddenActionException {
-        Subscription subscription = subscriptionProvider.subscriptionOf(userId, courseId)
+        Subscription subscription = subscriptionProvider.subscriptionOf(userId, courseId, true)
                 .orElseThrow(() -> new ForbiddenActionException("You are not subscribed to the course of id " + courseId, Domains.COURSE.name()));
         subscription.setActive(false);
         subscription.setSuspendedAt(LocalDateTime.now());

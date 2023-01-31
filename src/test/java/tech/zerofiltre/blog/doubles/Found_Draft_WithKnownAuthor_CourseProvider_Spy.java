@@ -42,4 +42,9 @@ public class Found_Draft_WithKnownAuthor_CourseProvider_Spy implements CoursePro
     public List<Course> courseOf(User foundUser) {
         return Collections.emptyList();
     }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
+    }
 }

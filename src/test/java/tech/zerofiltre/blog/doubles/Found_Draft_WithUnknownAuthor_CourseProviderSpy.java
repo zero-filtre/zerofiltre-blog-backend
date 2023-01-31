@@ -38,8 +38,14 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     public Page<Course> courseOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         return null;
     }
+
     @Override
     public List<Course> courseOf(User foundUser) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
     }
 }

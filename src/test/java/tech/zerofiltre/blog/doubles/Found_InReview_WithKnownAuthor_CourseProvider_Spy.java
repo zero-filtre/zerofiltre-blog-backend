@@ -40,4 +40,9 @@ public class Found_InReview_WithKnownAuthor_CourseProvider_Spy implements Course
     public List<Course> courseOf(User foundUser) {
         return Collections.emptyList();
     }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
+    }
 }

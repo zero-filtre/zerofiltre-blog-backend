@@ -27,5 +27,6 @@ public class SubscriptionJPA extends BaseEntityJPA {
     private boolean active;
     private LocalDateTime subscribedAt;
     private LocalDateTime suspendedAt;
+    private LocalDateTime lastModifiedAt;
 
 }

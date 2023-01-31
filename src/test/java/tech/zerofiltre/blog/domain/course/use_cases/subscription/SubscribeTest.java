@@ -13,6 +13,7 @@ import java.time.*;
 class SubscribeTest {
 
     private Subscribe subscribe;
+    private Suspend suspend;
 
 
     @Test
@@ -53,7 +54,7 @@ class SubscribeTest {
 
     @Test
     void executeSavesSubscriptionProperly() throws ResourceNotFoundException, ForbiddenActionException {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        SubscriptionProvider subscriptionProvider = new NotFoundSubscriptionProviderDummy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
@@ -71,6 +72,31 @@ class SubscribeTest {
         Assertions.assertThat(subscription.getSubscribedAt()).isNotNull();
         Assertions.assertThat(subscription.getSubscribedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getSubscribedAt()).isBeforeOrEqualTo(afterSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isEqualTo(subscription.getSubscribedAt());
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
         Assertions.assertThat(subscription.isActive()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Subscribing after a suspension should set fields properly")
+    void executeSetSuspendeAt_toNull() throws ResourceNotFoundException, ForbiddenActionException {
+        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        suspend = new Suspend(subscriptionProvider);
+
+        LocalDateTime beforeSubscribe = LocalDateTime.now();
+        Subscription subscription = subscribe.execute(1, 1);
+        LocalDateTime afterSubscribe = LocalDateTime.now();
+
+        Assertions.assertThat(subscription.getSuspendedAt()).isNull();
+        Assertions.assertThat(subscription.isActive()).isTrue();
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfter(subscription.getSubscribedAt());
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
+
+
     }
 }

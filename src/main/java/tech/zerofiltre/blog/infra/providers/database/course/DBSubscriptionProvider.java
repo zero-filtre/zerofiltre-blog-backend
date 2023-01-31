@@ -2,14 +2,18 @@ package tech.zerofiltre.blog.infra.providers.database.course;
 
 import lombok.*;
 import org.mapstruct.factory.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.infra.providers.database.*;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.*;
+import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
 import java.util.*;
-import java.util.stream.*;
 
 @Component
 @Transactional
@@ -18,6 +22,8 @@ public class DBSubscriptionProvider implements SubscriptionProvider {
 
     private final SubscriptionJPARepository repository;
     private final SubscriptionJPAMapper mapper = Mappers.getMapper(SubscriptionJPAMapper.class);
+    private final SpringPageMapper<Subscription> pageMapper = new SpringPageMapper<>();
+
 
     @Override
     public void delete(long userId, long courseId) {
@@ -25,16 +31,16 @@ public class DBSubscriptionProvider implements SubscriptionProvider {
     }
 
     @Override
-    public List<Subscription> subscriptionsOf(long userId) {
-        return repository.findBySubscriberId(userId)
-                .stream()
-                .map(mapper::fromJPA)
-                .collect(Collectors.toList());
+    public Page<Subscription> of(int pageNumber, int pageSize, long subscriberId, FinderRequest.Filter filter, String tag) {
+        org.springframework.data.domain.Page<SubscriptionJPA> page
+                = repository.findBySubscriberIdAndActive(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "subscribedAt"), subscriberId, true);
+        return pageMapper.fromSpringPage(page.map(mapper::fromJPA));
+
     }
 
     @Override
-    public Optional<Subscription> subscriptionOf(long userId, long courseId) {
-        return repository.findBySubscriberIdAndCourseId(userId, courseId)
+    public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
+        return repository.findBySubscriberIdAndCourseIdAndActive(userId, courseId, isActive)
                 .map(mapper::fromJPA);
     }
 
@@ -42,4 +48,5 @@ public class DBSubscriptionProvider implements SubscriptionProvider {
     public Subscription save(Subscription subscription) {
         return mapper.fromJPA(repository.save(mapper.toJPA(subscription)));
     }
+
 }
