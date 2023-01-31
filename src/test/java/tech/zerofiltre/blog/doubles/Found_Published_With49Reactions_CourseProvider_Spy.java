@@ -9,7 +9,7 @@ import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
 
-import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.CLAP;
+import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.*;
 
 public class Found_Published_With49Reactions_CourseProvider_Spy implements CourseProvider {
 
@@ -48,5 +48,10 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
     @Override
     public List<Course> courseOf(User foundUser) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
     }
 }

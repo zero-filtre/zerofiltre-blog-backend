@@ -99,7 +99,7 @@ public class Section {
     public void delete(User deleter) throws ResourceNotFoundException, ForbiddenActionException {
         if (deleter == null)
             throw new ForbiddenActionException("You are not allowed to delete this section", Domains.COURSE.name());
-        if (isAdmin(deleter)) {
+        if (deleter.isAdmin()) {
             sectionProvider.delete(findById(id));
         } else {
             try {
@@ -111,10 +111,6 @@ public class Section {
                 throw e;
             }
         }
-    }
-
-    private boolean isAdmin(User deleter) {
-        return deleter.getRoles().contains("ROLE_ADMIN");
     }
 
     private void setAttributes(Section section) {

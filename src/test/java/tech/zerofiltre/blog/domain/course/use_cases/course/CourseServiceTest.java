@@ -493,4 +493,19 @@ class CourseServiceTest {
         assertThat(result).isEqualTo(2);
     }
 
+    @Test
+    void getEnrolledCount_returns_theProperNumber() {
+        //given
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        //when
+        int result = courseService.getEnrolledCount(15);
+
+        //then
+        assertThat(result).isEqualTo(2);
+
+
+    }
+
 }

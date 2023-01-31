@@ -39,4 +39,9 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
     public List<Course> courseOf(User foundUser) {
         return Collections.emptyList();
     }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
+    }
 }

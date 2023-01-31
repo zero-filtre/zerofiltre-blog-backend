@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
@@ -7,9 +8,9 @@ import java.util.*;
 
 public interface SubscriptionJPARepository extends JpaRepository<SubscriptionJPA, Long> {
 
-    Optional<SubscriptionJPA> findBySubscriberIdAndCourseId(long subscriberId, long courseId);
+    Optional<SubscriptionJPA> findBySubscriberIdAndCourseIdAndActive(long subscriberId, long courseId, boolean isActive);
 
-    List<SubscriptionJPA> findBySubscriberId(long subscriberId);
+    Page<SubscriptionJPA> findBySubscriberIdAndActive(Pageable pageable, long subscriberId, boolean isActive);
 
     void deleteBySubscriberIdAndCourseId(long userId, long courseId);
 }
