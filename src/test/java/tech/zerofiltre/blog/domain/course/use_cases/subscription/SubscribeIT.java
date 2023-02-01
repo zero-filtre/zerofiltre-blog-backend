@@ -40,7 +40,7 @@ class SubscribeIT {
     @BeforeEach
     void init() {
         subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
-        suspend = new Suspend(subscriptionProvider);
+        suspend = new Suspend(subscriptionProvider, dbCourseProvider);
     }
 
     @Test

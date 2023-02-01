@@ -10,6 +10,8 @@ import tech.zerofiltre.blog.doubles.*;
 
 import java.time.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 class SubscribeTest {
 
     private Subscribe subscribe;
@@ -54,8 +56,8 @@ class SubscribeTest {
 
     @Test
     void executeSavesSubscriptionProperly() throws ResourceNotFoundException, ForbiddenActionException {
-        SubscriptionProvider subscriptionProvider = new NotFoundSubscriptionProviderDummy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        NotFoundSubscriptionProviderDummy subscriptionProvider = new NotFoundSubscriptionProviderDummy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
 
@@ -63,6 +65,11 @@ class SubscribeTest {
         Subscription subscription = subscribe.execute(1, 1);
         LocalDateTime afterSubscribe = LocalDateTime.now();
 
+        Course course = subscription.getCourse();
+        assertThat(course.getEnrolledCount()).isEqualTo(1);
+        assertThat(courseProvider.enrollCalledCount).isTrue();
+
+        assertThat(courseProvider.enrollCalledCount).isTrue();
         Assertions.assertThat(subscription).isNotNull();
         Assertions.assertThat(subscription.getId()).isNotZero();
         Assertions.assertThat(subscription.getCourse().getId()).isNotZero();
@@ -82,21 +89,23 @@ class SubscribeTest {
     @DisplayName("Subscribing after a suspension should set fields properly")
     void executeSetSuspendeAt_toNull() throws ResourceNotFoundException, ForbiddenActionException {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
-        suspend = new Suspend(subscriptionProvider);
+        suspend = new Suspend(subscriptionProvider, courseProvider);
 
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(1, 1);
         LocalDateTime afterSubscribe = LocalDateTime.now();
+
+        Course course = subscription.getCourse();
+        assertThat(course.getEnrolledCount()).isEqualTo(1);
+        assertThat(courseProvider.enrollCalledCount).isTrue();
 
         Assertions.assertThat(subscription.getSuspendedAt()).isNull();
         Assertions.assertThat(subscription.isActive()).isTrue();
         Assertions.assertThat(subscription.getLastModifiedAt()).isAfter(subscription.getSubscribedAt());
         Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
-
-
     }
 }

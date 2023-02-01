@@ -9,15 +9,15 @@ import tech.zerofiltre.blog.doubles.*;
 
 import java.time.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 class SuspendTest {
     private Suspend suspend;
 
     @Test
     void suspendThrowsExceptionWhenUserIsNotSubscribedToCourse() {
         SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
-
-        suspend = new Suspend(subscriptionProvider);
-
+        suspend = new Suspend(subscriptionProvider, new Found_Published_WithUnknownAuthor_CourseProviderSpy());
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> suspend.execute(1, 1))
                 .withMessage("You are not subscribed to the course of id 1");
@@ -26,11 +26,14 @@ class SuspendTest {
     @Test
     void suspendDeactivatesTheSubscription() throws ForbiddenActionException {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         LocalDateTime beforeSuspend = LocalDateTime.now();
-        suspend = new Suspend(subscriptionProvider);
+        suspend = new Suspend(subscriptionProvider, courseProvider);
         LocalDateTime afterSuspendPlus10Sec = LocalDateTime.now().plusSeconds(10);
 
         Subscription deactivatedSubscription = suspend.execute(1, 1);
+        assertThat(courseProvider.enrollCalledCount).isTrue();
+
         Assertions.assertThat(deactivatedSubscription).isNotNull();
         Assertions.assertThat(deactivatedSubscription.isActive()).isFalse();
         Assertions.assertThat(subscriptionProvider.saveCalled).isTrue();
