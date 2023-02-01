@@ -21,12 +21,15 @@ public class CompleteLesson {
         Subscription existingSubscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no subscription regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 
+        if (existingSubscription.getCompletedLessons().stream().anyMatch(lesson -> lesson.getId() == lessonId) == completeLesson && completeLesson)
+            return existingSubscription;
+
         Lesson lesson = lessonProvider.lessonOfId(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson of id " + lessonId + " does not exist", String.valueOf(lessonId), Domains.COURSE.name()));
 
         ForbiddenActionException forbiddenActionException = new ForbiddenActionException("Lesson not part of this subscription", Domains.COURSE.name());
 
-        Chapter chapter = chapterProvider.chapterOfId(lessonId)
+        Chapter chapter = chapterProvider.chapterOfId(lesson.getChapterId())
                 .orElseThrow(() -> forbiddenActionException);
 
         if (chapter.getCourseId() != courseId) throw forbiddenActionException;
@@ -34,7 +37,7 @@ public class CompleteLesson {
         if (completeLesson) {
             existingSubscription.getCompletedLessons().add(lesson);
         } else {
-            existingSubscription.getCompletedLessons().remove(lesson);
+            existingSubscription.getCompletedLessons().removeIf(existingLesson -> existingLesson.getId() == lesson.getId());
         }
 
         return subscriptionProvider.save(existingSubscription);

@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import javax.persistence.*;
 import java.time.*;
+import java.util.*;
 
 @Entity
 @Getter
@@ -28,5 +29,9 @@ public class SubscriptionJPA extends BaseEntityJPA {
     private LocalDateTime subscribedAt;
     private LocalDateTime suspendedAt;
     private LocalDateTime lastModifiedAt;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<LessonJPA> completedLessons;
+
 
 }

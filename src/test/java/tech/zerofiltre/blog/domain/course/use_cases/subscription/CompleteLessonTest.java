@@ -48,11 +48,27 @@ class CompleteLessonTest {
     }
 
     @Test
+    void completeLesson_returns_existingSubscription_ifLessonAlreadyCompleted() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        AlreadyCompletedLessonSubscriptionProvider subscriptionProvider = new AlreadyCompletedLessonSubscriptionProvider();
+        FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+
+        //when
+        Subscription subscription = completeLesson.execute(1, 3, 1, true);
+
+        //then
+        assertThat(subscription.getId()).isEqualTo(224);
+    }
+
+    @Test
     void completeLesson_addLessonId_toCompletedLessons() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
-        LessonProvider lessonProvider = new FoundLessonProviderSpy();
-        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
 
         completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
 
@@ -62,6 +78,8 @@ class CompleteLessonTest {
         //then
         List<Lesson> completedLessons = subscription.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
+        assertThat(lessonProvider.calledLessonId).isEqualTo(3);
+        assertThat(chapterProvider.calledChapterId).isEqualTo(lessonProvider.lessonOfId(3).get().getChapterId());
         completedLessons.forEach(lesson -> assertThat(lesson.getId()).isEqualTo(1));
         assertThat(subscriptionProvider.saveCalled).isTrue();
     }

@@ -8,9 +8,11 @@ import java.util.*;
 public class FoundLessonProviderSpy implements LessonProvider {
 
     public boolean deleteCalled;
+    public long calledLessonId;
 
     @Override
-    public Optional<Lesson> lessonOfId(long id) {
+    public Optional<Lesson> lessonOfId(long lessonId) {
+        calledLessonId = lessonId;
         return Optional.ofNullable(Lesson.builder()
                 .id(1)
                 .title("Lesson 1")

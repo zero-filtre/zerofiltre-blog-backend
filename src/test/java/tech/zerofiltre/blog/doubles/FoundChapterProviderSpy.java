@@ -10,10 +10,12 @@ public class FoundChapterProviderSpy implements ChapterProvider {
     public boolean chapterOfIdCalled;
     public boolean saveCalled;
     public boolean deleteCalled;
+    public long calledChapterId;
 
     @Override
-    public Optional<Chapter> chapterOfId(long id) {
+    public Optional<Chapter> chapterOfId(long chapterId) {
         chapterOfIdCalled = true;
+        calledChapterId = chapterId;
         return Optional.ofNullable(Chapter.builder().id(1).courseId(1).build());
     }
 
