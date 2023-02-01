@@ -13,6 +13,7 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy implements Cours
 
     public boolean courseOfIdCalled;
     public boolean registerCourseCalled;
+    public boolean enrollCalledCount;
 
     @Override
     public Optional<Course> courseOfId(long id) {
@@ -44,6 +45,7 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy implements Cours
 
     @Override
     public int getEnrolledCount(long courseId) {
-        return 2;
+        enrollCalledCount = true;
+        return 1;
     }
 }

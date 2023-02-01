@@ -503,7 +503,7 @@ class CourseServiceTest {
         int result = courseService.getEnrolledCount(15);
 
         //then
-        assertThat(result).isEqualTo(2);
+        assertThat(result).isEqualTo(1);
 
 
     }

@@ -38,7 +38,7 @@ class SuspendIT {
 
     @BeforeEach
     void init() {
-        suspend = new Suspend(subscriptionProvider);
+        suspend = new Suspend(subscriptionProvider, dbCourseProvider);
         subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
     }
 

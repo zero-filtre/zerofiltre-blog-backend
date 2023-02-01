@@ -19,6 +19,8 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
     public Subscription save(Subscription subscription) {
         saveCalled = true;
         subscription.setId(1);
+        subscription.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+                Collections.emptyList(), Collections.emptyList()));
         return subscription;
     }
 

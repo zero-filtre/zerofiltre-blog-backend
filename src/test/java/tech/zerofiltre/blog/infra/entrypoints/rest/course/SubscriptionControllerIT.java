@@ -82,6 +82,11 @@ class SubscriptionControllerIT {
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(Chapter.builder().courseId(mockCourse.getId()).build()));
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(Lesson.builder().build()));
         when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new Subscription()));
+        when(subscriptionProvider.save(any())).thenAnswer(i -> {
+            Subscription subscription = (Subscription) i.getArguments()[0];
+            subscription.setCourse(mockCourse);
+            return subscription;
+        });
         doNothing().when(loggerProvider).log(any());
     }
 
