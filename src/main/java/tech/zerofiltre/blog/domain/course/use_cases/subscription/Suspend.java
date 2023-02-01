@@ -9,9 +9,11 @@ import java.time.*;
 
 public class Suspend {
     private final SubscriptionProvider subscriptionProvider;
+    private final CourseProvider courseProvider;
 
-    public Suspend(SubscriptionProvider subscriptionProvider) {
+    public Suspend(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider) {
         this.subscriptionProvider = subscriptionProvider;
+        this.courseProvider = courseProvider;
     }
 
     public Subscription execute(long userId, long courseId) throws ForbiddenActionException {
@@ -19,6 +21,12 @@ public class Suspend {
                 .orElseThrow(() -> new ForbiddenActionException("You are not subscribed to the course of id " + courseId, Domains.COURSE.name()));
         subscription.setActive(false);
         subscription.setSuspendedAt(LocalDateTime.now());
-        return subscriptionProvider.save(subscription);
+        Subscription result = subscriptionProvider.save(subscription);
+
+        Course resultCourse = result.getCourse();
+        resultCourse.setEnrolledCount(courseProvider.getEnrolledCount(resultCourse.getId()));
+        return result;
+
+
     }
 }

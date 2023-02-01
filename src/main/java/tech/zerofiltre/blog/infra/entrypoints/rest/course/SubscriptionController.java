@@ -32,7 +32,7 @@ public class SubscriptionController {
             ChapterProvider chapterProvider) {
         this.securityContextManager = securityContextManager;
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
-        suspend = new Suspend(subscriptionProvider);
+        suspend = new Suspend(subscriptionProvider, courseProvider);
         completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
         findSubscription = new FindSubscription(subscriptionProvider);
     }

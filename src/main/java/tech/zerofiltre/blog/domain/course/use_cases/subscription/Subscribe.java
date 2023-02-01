@@ -53,6 +53,9 @@ public class Subscribe {
             lastModifiedAt = subscription.getSubscribedAt();
         }
         subscription.setLastModifiedAt(lastModifiedAt);
-        return subscriptionProvider.save(subscription);
+        Subscription result = subscriptionProvider.save(subscription);
+        Course resultCourse = result.getCourse();
+        resultCourse.setEnrolledCount(courseProvider.getEnrolledCount(resultCourse.getId()));
+        return result;
     }
 }
