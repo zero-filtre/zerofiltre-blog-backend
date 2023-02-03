@@ -145,7 +145,7 @@ class CourseServiceIT {
     }
 
     @Test
-    void subscribeOrSuspend_increasesOrDecreases_EnrolledCount() throws ForbiddenActionException, ResourceNotFoundException {
+    void subscribeOrSuspend_increasesOrDecreases_EnrolledCount() throws BlogException {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
@@ -158,6 +158,11 @@ class CourseServiceIT {
         student2.setEmail("poseidon@gma.fr");
         student2.setPseudoName("poseidon");
         student2 = userProvider.save(student2);
+
+        User student3 = ZerofiltreUtils.createMockUser(false);
+        student3.setEmail("chaka@gma.fr");
+        student3.setPseudoName("zulu");
+        student3 = userProvider.save(student3);
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         course = courseService.init("some title", author);
@@ -178,7 +183,7 @@ class CourseServiceIT {
 
         Subscription suspendedSubscription = new Subscription();
         suspendedSubscription.setCourse(course);
-        suspendedSubscription.setSubscriber(student2);
+        suspendedSubscription.setSubscriber(student3);
         suspendedSubscription = subscriptionProvider.save(suspendedSubscription);
 
         int enrolledCount = courseService.getEnrolledCount(course.getId());

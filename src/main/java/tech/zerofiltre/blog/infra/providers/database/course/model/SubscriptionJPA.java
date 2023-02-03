@@ -13,7 +13,7 @@ import java.util.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "subscription")
+@Table(name = "subscription", uniqueConstraints = {@UniqueConstraint(name = "UniqueSubscriberPerCourseId", columnNames = {"subscriber_id", "course_id"})})
 @EqualsAndHashCode(callSuper = true)
 public class SubscriptionJPA extends BaseEntityJPA {
 

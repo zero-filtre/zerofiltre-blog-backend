@@ -10,7 +10,7 @@ public interface SubscriptionJPARepository extends JpaRepository<SubscriptionJPA
 
     Optional<SubscriptionJPA> findBySubscriberIdAndCourseIdAndActive(long subscriberId, long courseId, boolean isActive);
 
-    Page<SubscriptionJPA> findBySubscriberIdAndActive(Pageable pageable, long subscriberId, boolean isActive);
+    Page<SubscriptionJPA> findBySubscriberIdAndActiveAndCompleted(Pageable pageable, long subscriberId, boolean isActive, boolean isCompleted);
 
     void deleteBySubscriberIdAndCourseId(long userId, long courseId);
 }

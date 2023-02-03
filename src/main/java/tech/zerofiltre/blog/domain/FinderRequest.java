@@ -14,7 +14,9 @@ public class FinderRequest {
 
     public enum Filter {
         POPULAR,
-        MOST_VIEWED;
+        MOST_VIEWED,
+        INACTIVE,
+        COMPLETED
     }
 
     public FinderRequest() {

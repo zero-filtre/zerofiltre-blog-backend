@@ -39,23 +39,23 @@ public class SubscriptionController {
 
 
     @PostMapping
-    public Subscription subscribe(@RequestParam long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Subscription subscribe(@RequestParam long courseId) throws BlogException {
         return subscribe.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
 
     }
 
     @DeleteMapping
-    public void unsubscribe(@RequestParam long courseId) throws UserNotFoundException, ForbiddenActionException {
+    public void unsubscribe(@RequestParam long courseId) throws BlogException {
         suspend.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
     }
 
     @PatchMapping("/complete")
-    public Subscription completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Subscription completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), true);
     }
 
     @PatchMapping("/uncomplete")
-    public Subscription unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Subscription unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), false);
     }
 
