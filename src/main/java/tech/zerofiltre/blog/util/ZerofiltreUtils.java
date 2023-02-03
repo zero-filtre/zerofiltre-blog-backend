@@ -267,4 +267,13 @@ public class ZerofiltreUtils {
                 .chapterProvider(chapterProvider)
                 .build();
     }
+
+    public static Subscription createMockSubscription(boolean withId, User subscriber, Course course) {
+        Subscription subscription = new Subscription();
+        subscription.setId(withId ? 1 : 0);
+        subscription.setSubscriber(subscriber);
+        subscription.setCourse(course);
+        return subscription;
+
+    }
 }

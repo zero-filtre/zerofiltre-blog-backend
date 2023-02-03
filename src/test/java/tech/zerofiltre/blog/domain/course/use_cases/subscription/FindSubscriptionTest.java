@@ -10,6 +10,7 @@ import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static tech.zerofiltre.blog.domain.FinderRequest.Filter.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 
@@ -37,6 +38,38 @@ class FindSubscriptionTest {
         assertThat(courses.getTotalNumberOfElements()).isEqualTo(10);
         assertThat(courses.getTotalNumberOfPages()).isEqualTo(4);
 
+    }
+
+    @Test
+    void findSubscription_calls_SubscriptionProvider_withTheInactiveParam() {
+        //given
+        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        //when
+        FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
+        request.setFilter(INACTIVE);
+        findSubscription.of(request);
+
+        //then
+        assertThat(subscriptionProvider.ofCalled).isTrue();
+        assertThat(subscriptionProvider.ofFilter).isNotNull();
+        assertThat(subscriptionProvider.ofFilter).isEqualTo(INACTIVE);
+    }
+
+    @Test
+    void findSubscription_calls_SubscriptionProvider_withTheCompletedParam() {
+        //given
+        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        //when
+        FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
+        request.setFilter(COMPLETED);
+        findSubscription.of(request);
+
+        //then
+        assertThat(subscriptionProvider.ofCalled).isTrue();
+        assertThat(subscriptionProvider.ofFilter).isNotNull();
+        assertThat(subscriptionProvider.ofFilter).isEqualTo(COMPLETED);
     }
 
     @Test

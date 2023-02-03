@@ -24,7 +24,7 @@ class SuspendTest {
     }
 
     @Test
-    void suspendDeactivatesTheSubscription() throws ForbiddenActionException {
+    void suspendDeactivatesTheSubscription() throws BlogException {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         LocalDateTime beforeSuspend = LocalDateTime.now();

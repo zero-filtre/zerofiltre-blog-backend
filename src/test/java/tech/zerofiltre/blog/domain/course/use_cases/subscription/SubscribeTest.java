@@ -15,7 +15,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 class SubscribeTest {
 
     private Subscribe subscribe;
-    private Suspend suspend;
 
 
     @Test
@@ -55,7 +54,7 @@ class SubscribeTest {
     }
 
     @Test
-    void executeSavesSubscriptionProperly() throws ResourceNotFoundException, ForbiddenActionException {
+    void executeSavesSubscriptionProperly() throws BlogException {
         NotFoundSubscriptionProviderDummy subscriptionProvider = new NotFoundSubscriptionProviderDummy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
@@ -87,12 +86,11 @@ class SubscribeTest {
 
     @Test
     @DisplayName("Subscribing after a suspension should set fields properly")
-    void executeSetSuspendeAt_toNull() throws ResourceNotFoundException, ForbiddenActionException {
+    void executeSetSuspendeAt_toNull() throws BlogException {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
-        suspend = new Suspend(subscriptionProvider, courseProvider);
 
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(1, 1);

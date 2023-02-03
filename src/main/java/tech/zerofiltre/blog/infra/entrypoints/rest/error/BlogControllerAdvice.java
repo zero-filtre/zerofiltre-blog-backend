@@ -123,7 +123,7 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({ServletException.class, MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
+    @ExceptionHandler({BlogException.class, ServletException.class, MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
     public ResponseEntity<BlogError> handleException(Exception exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,

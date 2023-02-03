@@ -23,7 +23,7 @@ public class Subscribe {
         this.userProvider = userProvider;
     }
 
-    public Subscription execute(long userId, long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Subscription execute(long userId, long courseId) throws BlogException {
 
         User user = userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(

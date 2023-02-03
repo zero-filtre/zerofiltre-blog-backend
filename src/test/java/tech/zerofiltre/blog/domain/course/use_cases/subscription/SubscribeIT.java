@@ -44,7 +44,7 @@ class SubscribeIT {
     }
 
     @Test
-    void subscribeGetsExecutedProperly() throws ForbiddenActionException, ResourceNotFoundException {
+    void subscribeGetsExecutedProperly() throws BlogException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -77,7 +77,7 @@ class SubscribeIT {
 
 
     @Test
-    void executeSetSuspendeAt_toNull() throws ResourceNotFoundException, ForbiddenActionException {
+    void executeSetSuspendeAt_toNull() throws BlogException {
         User subscriber = ZerofiltreUtils.createMockUser(false);
         subscriber.setEmail("test@gmail.grok");
         subscriber.setPseudoName("tester");

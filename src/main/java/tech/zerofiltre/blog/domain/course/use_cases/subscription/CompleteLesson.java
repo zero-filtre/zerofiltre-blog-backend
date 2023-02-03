@@ -17,7 +17,7 @@ public class CompleteLesson {
         this.chapterProvider = chapterProvider;
     }
 
-    public Subscription execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws ResourceNotFoundException, ForbiddenActionException {
+    public Subscription execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws BlogException {
         Subscription existingSubscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no subscription regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 
