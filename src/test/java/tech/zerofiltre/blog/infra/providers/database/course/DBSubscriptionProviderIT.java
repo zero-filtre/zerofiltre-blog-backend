@@ -7,6 +7,7 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.util.*;
@@ -28,7 +29,7 @@ class DBSubscriptionProviderIT {
 
 
     @Test
-    void of_returns_ProperPageOfSubscription() {
+    void of_returns_ProperPageOfSubscription() throws BlogException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
@@ -67,7 +68,7 @@ class DBSubscriptionProviderIT {
     }
 
     @Test
-    void of_does_not_return_inactive_subscriptions() {
+    void of_does_not_return_inactive_subscriptions() throws BlogException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);

@@ -14,6 +14,7 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
 
     public boolean saveCalled = false;
     public boolean ofCalled = false;
+    public FinderRequest.Filter ofFilter = null;
 
     @Override
     public Subscription save(Subscription subscription) {
@@ -31,6 +32,7 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
 
     @Override
     public Page<Subscription> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
+        ofFilter = filter;
         User mockUser = ZerofiltreUtils.createMockUser(false);
         Course mockCourse2 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
                 Collections.emptyList(), Collections.emptyList());

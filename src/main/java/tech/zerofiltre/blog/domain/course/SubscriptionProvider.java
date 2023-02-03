@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course;
 
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 
 import java.util.*;
 
@@ -13,6 +14,6 @@ public interface SubscriptionProvider {
 
     Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive);
 
-    Subscription save(Subscription subscription);
+    Subscription save(Subscription subscription) throws BlogException;
 
 }

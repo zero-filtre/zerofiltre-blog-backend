@@ -43,7 +43,7 @@ class SuspendIT {
     }
 
     @Test
-    void suspendSavesSubscriptionProperly() throws ForbiddenActionException, ResourceNotFoundException, InterruptedException {
+    void suspendSavesSubscriptionProperly() throws BlogException, InterruptedException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 

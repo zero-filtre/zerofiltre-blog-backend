@@ -48,7 +48,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_returns_existingSubscription_ifLessonAlreadyCompleted() throws ForbiddenActionException, ResourceNotFoundException {
+    void completeLesson_returns_existingSubscription_ifLessonAlreadyCompleted() throws BlogException {
         //given
         AlreadyCompletedLessonSubscriptionProvider subscriptionProvider = new AlreadyCompletedLessonSubscriptionProvider();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
@@ -64,7 +64,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_addLessonId_toCompletedLessons() throws ResourceNotFoundException, ForbiddenActionException {
+    void completeLesson_addLessonId_toCompletedLessons() throws BlogException {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
@@ -85,7 +85,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws ResourceNotFoundException, ForbiddenActionException {
+    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws BlogException {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();

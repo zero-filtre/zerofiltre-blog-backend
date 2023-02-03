@@ -13,10 +13,10 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
@@ -74,7 +74,7 @@ class SubscriptionControllerIT {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() throws UserNotFoundException {
+    void setUp() throws BlogException {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(author));
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
