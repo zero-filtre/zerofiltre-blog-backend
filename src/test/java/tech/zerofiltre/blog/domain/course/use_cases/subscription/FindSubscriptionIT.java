@@ -35,6 +35,8 @@ class FindSubscriptionIT {
     private ChapterJPANumberRepository cJPANumberRepository;
     @Autowired
     private ChapterJPARepository chapterJPARepository;
+    @Autowired
+    private ChapterJPANumberRepository chapterJPANumberRepository;
 
     @Test
     void findSubscription_returns_properPage_forInActiveSubscriptions() throws BlogException {
@@ -74,6 +76,9 @@ class FindSubscriptionIT {
         assertThat(courses).isNotNull();
         assertThat(courses.getContent()).isNotNull();
         assertThat(courses.getContent().size()).isEqualTo(2);
+
+        courses.getContent().forEach(course -> assertThat(course.getEnrolledCount()).isOne());
+
         assertThat(courses.getHasNext()).isFalse();
         assertThat(courses.getHasPrevious()).isFalse();
         assertThat(courses.getNumberOfElements()).isEqualTo(2);
@@ -158,8 +163,8 @@ class FindSubscriptionIT {
         SubscriptionProvider subscriptionProvider = new DBSubscriptionProvider(subscriptionJPARepository);
         UserProvider userProvider = new DBUserProvider(userJPARepository);
         CourseProvider courseProvider = new DBCourseProvider(courseJPARepository);
-
-        findSubscription = new FindSubscription(subscriptionProvider);
+        ChapterProvider chapterProvider = new DBChapterProvider(chapterJPARepository, chapterJPANumberRepository);
+        findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
 
 
         User author = ZerofiltreUtils.createMockUser(false);

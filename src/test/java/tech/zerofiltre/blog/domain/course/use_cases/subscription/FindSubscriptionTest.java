@@ -20,7 +20,9 @@ class FindSubscriptionTest {
     void findSubscription_returns_theProperPage() {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         Page<Course> courses = findSubscription.of(request);
@@ -37,14 +39,19 @@ class FindSubscriptionTest {
         assertThat(courses.getPageSize()).isEqualTo(2);
         assertThat(courses.getTotalNumberOfElements()).isEqualTo(10);
         assertThat(courses.getTotalNumberOfPages()).isEqualTo(4);
-
+        courses.getContent().forEach(course -> {
+            assertThat(course.getEnrolledCount()).isEqualTo(1);
+            assertThat(course.getLessonsCount()).isEqualTo(2);
+        });
     }
 
     @Test
     void findSubscription_calls_SubscriptionProvider_withTheInactiveParam() {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         request.setFilter(INACTIVE);
@@ -60,7 +67,9 @@ class FindSubscriptionTest {
     void findSubscription_calls_SubscriptionProvider_withTheCompletedParam() {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         request.setFilter(COMPLETED);
@@ -76,7 +85,9 @@ class FindSubscriptionTest {
     void findASubscription_returns_theProperOne() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(true);
         //when
         Subscription subscription = findSubscription.of(0, 1, executor);
@@ -89,7 +100,9 @@ class FindSubscriptionTest {
     void findASubscription_throwsResourceNotFoundException() {
         //given
         SubscriptionProvider subscriptionProvider = new NotFoundSubscriptionProviderDummy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(true);
 
         //when
@@ -103,7 +116,9 @@ class FindSubscriptionTest {
     void findASubscription_throwsForbiddenActionException_ifExecutor_isNotAdmin_NorInvolved() {
         //given
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
+        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(false);
 
         //when

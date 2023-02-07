@@ -22,7 +22,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new NotFoundUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -34,7 +35,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -46,7 +48,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -58,7 +61,8 @@ class SubscribeTest {
         NotFoundSubscriptionProviderDummy subscriptionProvider = new NotFoundSubscriptionProviderDummy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(1, 1);
@@ -67,6 +71,10 @@ class SubscribeTest {
         Course course = subscription.getCourse();
         assertThat(course.getEnrolledCount()).isEqualTo(1);
         assertThat(courseProvider.enrollCalledCount).isTrue();
+
+        assertThat(course.getLessonsCount()).isEqualTo(2);
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
+
 
         assertThat(courseProvider.enrollCalledCount).isTrue();
         Assertions.assertThat(subscription).isNotNull();
@@ -90,7 +98,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(1, 1);
@@ -99,6 +108,9 @@ class SubscribeTest {
         Course course = subscription.getCourse();
         assertThat(course.getEnrolledCount()).isEqualTo(1);
         assertThat(courseProvider.enrollCalledCount).isTrue();
+
+        assertThat(course.getLessonsCount()).isEqualTo(2);
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
 
         Assertions.assertThat(subscription.getSuspendedAt()).isNull();
         Assertions.assertThat(subscription.isActive()).isTrue();

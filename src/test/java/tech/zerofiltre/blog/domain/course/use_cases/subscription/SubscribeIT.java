@@ -21,7 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSubscriptionProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSubscriptionProvider.class, DBChapterProvider.class})
 class SubscribeIT {
 
 
@@ -37,10 +37,13 @@ class SubscribeIT {
     @Autowired
     DBCourseProvider dbCourseProvider;
 
+    @Autowired
+    ChapterProvider chapterProvider;
+
     @BeforeEach
     void init() {
-        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
-        suspend = new Suspend(subscriptionProvider, dbCourseProvider);
+        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider, chapterProvider);
+        suspend = new Suspend(subscriptionProvider, dbCourseProvider, chapterProvider);
     }
 
     @Test
@@ -64,6 +67,7 @@ class SubscribeIT {
         assertThat(subscription.getSubscriber().getEmail()).isEqualTo(subscriber.getEmail());
         assertThat(subscription.getSubscriber().getPseudoName()).isEqualTo(subscriber.getPseudoName());
         assertThat(subscription.getCourse().getId()).isEqualTo(course.getId());
+        assertThat(subscription.getCourse().getEnrolledCount()).isOne();
 
         assertThat(subscription.getId()).isNotZero();
         assertThat(subscription.isCompleted()).isFalse();
