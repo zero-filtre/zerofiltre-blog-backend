@@ -25,7 +25,7 @@ public class Lesson {
     private boolean free;
     private String type;
     private long chapterId;
-    private final int number;
+    private int number;
     private List<Resource> resources;
 
     private LessonProvider lessonProvider;
@@ -67,6 +67,7 @@ public class Lesson {
         this.type = lesson.type;
         this.chapterId = lesson.chapterId;
         this.resources = lesson.resources;
+        this.number = lesson.number;
     }
 
     public String getTitle() {
@@ -153,23 +154,6 @@ public class Lesson {
         this.video = videoToSave;
         this.free = freeToSave;
         this.type = typeToSave;
-
-    }
-
-    private void checkConditions(long currentUserId, long chapterId) throws ResourceNotFoundException, ForbiddenActionException {
-        User existingUser = userProvider.userOfId(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
-
-        Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
-                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + chapterId + DOES_NOT_EXIST, String.valueOf(chapterId), COURSE.name()));
-
-        long courseId = existingChapter.getCourseId();
-        Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
-
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
-        }
     }
 
     public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
@@ -190,17 +174,6 @@ public class Lesson {
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson " + this.id + " does not exist", String.valueOf(id), COURSE.name())));
     }
 
-    private Lesson setProviders(Lesson lesson) {
-        lesson.lessonProvider = this.lessonProvider;
-        lesson.chapterProvider = this.chapterProvider;
-        lesson.userProvider = this.userProvider;
-        lesson.courseProvider = this.courseProvider;
-        return lesson;
-
-
-    }
-
-
     public ChapterProvider getChapterProvider() {
         return chapterProvider;
     }
@@ -211,6 +184,32 @@ public class Lesson {
 
     public CourseProvider getCourseProvider() {
         return courseProvider;
+    }
+
+
+    private void checkConditions(long currentUserId, long chapterId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
+
+        Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + chapterId + DOES_NOT_EXIST, String.valueOf(chapterId), COURSE.name()));
+
+        long courseId = existingChapter.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
+        }
+    }
+
+
+    private Lesson setProviders(Lesson lesson) {
+        lesson.lessonProvider = this.lessonProvider;
+        lesson.chapterProvider = this.chapterProvider;
+        lesson.userProvider = this.userProvider;
+        lesson.courseProvider = this.courseProvider;
+        return lesson;
     }
 
 
