@@ -22,7 +22,7 @@ public class Chapter {
     private long id;
     private String title;
     private long courseId;
-    private final int number;
+    private int number;
     private List<Lesson> lessons;
 
     private ChapterProvider chapterProvider;
@@ -123,6 +123,7 @@ public class Chapter {
         this.title = existingChapter.getTitle();
         this.lessons = existingChapter.getLessons();
         this.courseId = existingChapter.getCourseId();
+        this.number = existingChapter.getNumber();
     }
 
     public void delete(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
