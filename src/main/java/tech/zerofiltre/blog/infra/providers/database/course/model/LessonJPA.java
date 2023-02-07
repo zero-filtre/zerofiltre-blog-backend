@@ -14,7 +14,7 @@ import java.util.*;
 @NoArgsConstructor
 @Table(name = "lesson")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"resources"})
 public class LessonJPA extends BaseEntityJPA {
 
     private String title;
@@ -30,9 +30,10 @@ public class LessonJPA extends BaseEntityJPA {
     @JoinColumn(name = "chapter_id")
     private ChapterJPA chapter;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private LessonJPANumber number;
 
+    @OrderBy("name ASC")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lesson")
     private Set<ResourceJPA> resources;
 }
