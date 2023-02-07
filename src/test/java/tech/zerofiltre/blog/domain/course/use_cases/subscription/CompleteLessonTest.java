@@ -22,7 +22,8 @@ class CompleteLessonTest {
         SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -37,8 +38,8 @@ class CompleteLessonTest {
         SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
         LessonProvider lessonProvider = new NotFoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -53,14 +54,17 @@ class CompleteLessonTest {
         AlreadyCompletedLessonSubscriptionProvider subscriptionProvider = new AlreadyCompletedLessonSubscriptionProvider();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         Subscription subscription = completeLesson.execute(1, 3, 1, true);
 
+
         //then
         assertThat(subscription.getId()).isEqualTo(224);
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
+        assertThat(courseProvider.enrollCalledCount).isTrue();
     }
 
     @Test
@@ -69,8 +73,8 @@ class CompleteLessonTest {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         Subscription subscription = completeLesson.execute(1, 3, 1, true);
@@ -90,8 +94,8 @@ class CompleteLessonTest {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         Subscription subscription = completeLesson.execute(1, 3, 1, true);
@@ -115,8 +119,8 @@ class CompleteLessonTest {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -133,8 +137,8 @@ class CompleteLessonTest {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterWithUnknownCourseProviderSpy();
-
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider);
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then

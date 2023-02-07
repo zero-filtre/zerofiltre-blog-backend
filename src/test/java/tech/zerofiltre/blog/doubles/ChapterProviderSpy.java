@@ -10,6 +10,7 @@ public class ChapterProviderSpy implements ChapterProvider {
     public boolean chapterOfIdCalled;
     public boolean saveCalled;
     public boolean deleteCalled;
+    public boolean ofCourseIdCalled;
 
     @Override
     public Optional<Chapter> chapterOfId(long id) {
@@ -30,6 +31,7 @@ public class ChapterProviderSpy implements ChapterProvider {
 
     @Override
     public List<Chapter> ofCourseId(long courseId) {
+        ofCourseIdCalled = true;
         return Collections.emptyList();
     }
 }

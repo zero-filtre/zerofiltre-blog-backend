@@ -17,7 +17,8 @@ class SuspendTest {
     @Test
     void suspendThrowsExceptionWhenUserIsNotSubscribedToCourse() {
         SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
-        suspend = new Suspend(subscriptionProvider, new Found_Published_WithUnknownAuthor_CourseProviderSpy());
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        suspend = new Suspend(subscriptionProvider, new Found_Published_WithUnknownAuthor_CourseProviderSpy(), chapterProvider);
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> suspend.execute(1, 1))
                 .withMessage("You are not subscribed to the course of id 1");
@@ -28,11 +29,13 @@ class SuspendTest {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         LocalDateTime beforeSuspend = LocalDateTime.now();
-        suspend = new Suspend(subscriptionProvider, courseProvider);
+        ChapterProviderSpy chapterProvider = new ChapterProviderSpy();
+        suspend = new Suspend(subscriptionProvider, courseProvider, chapterProvider);
         LocalDateTime afterSuspendPlus10Sec = LocalDateTime.now().plusSeconds(10);
 
         Subscription deactivatedSubscription = suspend.execute(1, 1);
         assertThat(courseProvider.enrollCalledCount).isTrue();
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
 
         Assertions.assertThat(deactivatedSubscription).isNotNull();
         Assertions.assertThat(deactivatedSubscription.isActive()).isFalse();

@@ -10,10 +10,12 @@ import java.time.*;
 public class Suspend {
     private final SubscriptionProvider subscriptionProvider;
     private final CourseProvider courseProvider;
+    private final ChapterProvider chapterProvider;
 
-    public Suspend(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider) {
+    public Suspend(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
         this.subscriptionProvider = subscriptionProvider;
         this.courseProvider = courseProvider;
+        this.chapterProvider = chapterProvider;
     }
 
     public Subscription execute(long userId, long courseId) throws BlogException {
@@ -24,9 +26,18 @@ public class Suspend {
         Subscription result = subscriptionProvider.save(subscription);
 
         Course resultCourse = result.getCourse();
-        resultCourse.setEnrolledCount(courseProvider.getEnrolledCount(resultCourse.getId()));
+        resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
+        resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         return result;
+    }
+
+    private int getLessonsCount(long courseId) {
+        return chapterProvider.ofCourseId(courseId)
+                .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
+    }
 
 
+    private int getEnrolledCount(long courseId) {
+        return courseProvider.getEnrolledCount(courseId);
     }
 }
