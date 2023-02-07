@@ -20,6 +20,7 @@ public class AlreadyCompletedLessonSubscriptionProvider implements SubscriptionP
     public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
         Subscription subscription1 = new Subscription();
         subscription1.setId(224);
+        subscription1.setCourse(new Course());
         Lesson lesson = new Lesson.LessonBuilder().id(3).build();
         subscription1.getCompletedLessons().add(lesson);
         return Optional.of(subscription1);

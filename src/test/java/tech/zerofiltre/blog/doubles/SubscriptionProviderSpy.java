@@ -71,6 +71,9 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
         value.setLastModifiedAt(value.getSubscribedAt());
         value.setSuspendedAt(LocalDateTime.now().minusDays(1));
         value.setActive(false);
+        value.setSubscriber(ZerofiltreUtils.createMockUser(false));
+        value.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+                Collections.emptyList(), Collections.emptyList()));
         return Optional.of(value);
     }
 }
