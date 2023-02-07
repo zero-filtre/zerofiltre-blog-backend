@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Table(name = "resource")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"lesson"})
 public class ResourceJPA extends BaseEntityJPA {
     private String type;
     private String url;
