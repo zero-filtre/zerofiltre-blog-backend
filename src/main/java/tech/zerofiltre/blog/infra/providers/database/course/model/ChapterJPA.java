@@ -19,7 +19,7 @@ public class ChapterJPA extends BaseEntityJPA {
 
     private String title;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private CourseJPA course;
 
