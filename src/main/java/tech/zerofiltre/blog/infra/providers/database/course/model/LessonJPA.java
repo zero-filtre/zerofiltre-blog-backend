@@ -26,7 +26,7 @@ public class LessonJPA extends BaseEntityJPA {
     private boolean free;
     private String type;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chapter_id")
     private ChapterJPA chapter;
 
