@@ -17,6 +17,7 @@ public class SectionJPA extends BaseEntityJPA {
 
     private int position;
     private String title;
+    @Lob
     private String content;
     private String image;
 
