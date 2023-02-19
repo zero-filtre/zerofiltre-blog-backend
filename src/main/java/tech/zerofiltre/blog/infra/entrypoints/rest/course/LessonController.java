@@ -1,16 +1,19 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
+import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 
 import javax.validation.*;
 import javax.validation.constraints.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/lesson")
 public class LessonController {
@@ -19,13 +22,15 @@ public class LessonController {
     private final ChapterProvider chapterProvider;
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
+    private final SubscriptionProvider subscriptionProvider;
     private final SecurityContextManager securityContextManager;
 
-    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, SecurityContextManager securityContextManager) {
+    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, SubscriptionProvider subscriptionProvider, SecurityContextManager securityContextManager) {
         this.lessonProvider = lessonProvider;
         this.chapterProvider = chapterProvider;
         this.userProvider = userProvider;
         this.courseProvider = courseProvider;
+        this.subscriptionProvider = subscriptionProvider;
         this.securityContextManager = securityContextManager;
     }
 
@@ -53,7 +58,6 @@ public class LessonController {
                 .video(saveLessonVM.getVideo())
                 .free(saveLessonVM.isFree())
                 .summary(saveLessonVM.getSummary())
-                .type(saveLessonVM.getType())
                 .thumbnail(saveLessonVM.getThumbnail())
                 .content(saveLessonVM.getContent())
                 .build();
@@ -61,15 +65,22 @@ public class LessonController {
     }
 
     @GetMapping("/{id}")
-    public Lesson get(@PathVariable long id) throws ResourceNotFoundException {
+    public Lesson get(@PathVariable long id) throws ResourceNotFoundException, ForbiddenActionException {
         Lesson lesson = Lesson.builder()
                 .lessonProvider(lessonProvider)
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
+                .subscriptionProvider(subscriptionProvider)
                 .courseProvider(courseProvider)
                 .id(id)
                 .build();
-        return lesson.get();
+        User user = null;
+        try {
+            user = securityContextManager.getAuthenticatedUser();
+        } catch (BlogException e) {
+            log.debug("We did not find a connected user but we can still return wanted lesson if it's free", e);
+        }
+        return lesson.get(user == null ? 0 : user.getId());
     }
 
     @DeleteMapping("/{id}")
