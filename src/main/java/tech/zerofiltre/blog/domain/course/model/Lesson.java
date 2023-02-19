@@ -12,10 +12,11 @@ import java.util.*;
 import static tech.zerofiltre.blog.domain.Domains.*;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "subscriptionProvider"})
 public class Lesson {
 
     public static final String THE_LESSON_OF_ID = "The lesson of id ";
+    public static final String VIDEO_NOT_AVAILABLE_FOR_FREE = "VIDEO NOT AVAILABLE FOR FREE";
     private long id;
     private String title;
     private String content;
@@ -23,7 +24,6 @@ public class Lesson {
     private String thumbnail;
     private String video;
     private boolean free;
-    private String type;
     private long chapterId;
     private int number;
     private List<Resource> resources;
@@ -32,6 +32,8 @@ public class Lesson {
     private ChapterProvider chapterProvider;
     private UserProvider userProvider;
     private CourseProvider courseProvider;
+    private SubscriptionProvider subscriptionProvider;
+    private boolean unsubscribedAccess;
 
 
     private Lesson(LessonBuilder lessonBuilder) {
@@ -42,13 +44,13 @@ public class Lesson {
         this.thumbnail = lessonBuilder.thumbnail;
         this.video = lessonBuilder.video;
         this.free = lessonBuilder.free;
-        this.type = lessonBuilder.type;
         this.chapterId = lessonBuilder.chapterId;
         this.resources = lessonBuilder.resources;
         this.lessonProvider = lessonBuilder.lessonProvider;
         this.chapterProvider = lessonBuilder.chapterProvider;
         this.userProvider = lessonBuilder.userProvider;
         this.courseProvider = lessonBuilder.courseProvider;
+        this.subscriptionProvider = lessonBuilder.subscriptionProvider;
         this.number = lessonBuilder.number;
     }
 
@@ -64,7 +66,6 @@ public class Lesson {
         this.thumbnail = lesson.thumbnail;
         this.video = lesson.video;
         this.free = lesson.free;
-        this.type = lesson.type;
         this.chapterId = lesson.chapterId;
         this.resources = lesson.resources;
         this.number = lesson.number;
@@ -87,7 +88,7 @@ public class Lesson {
     }
 
     public String getVideo() {
-        return video;
+        return unsubscribedAccess ? VIDEO_NOT_AVAILABLE_FOR_FREE : video;
     }
 
     public boolean isFree() {
@@ -95,7 +96,9 @@ public class Lesson {
     }
 
     public String getType() {
-        return type;
+        if (video != null && !video.isEmpty())
+            return "video";
+        return "text";
     }
 
     public long getChapterId() {
@@ -119,7 +122,7 @@ public class Lesson {
     }
 
     public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
-        checkConditions(currentUserId, chapterId);
+        checkConditions(currentUserId, chapterId, false);
         this.title = title;
         this.chapterId = chapterId;
 
@@ -131,29 +134,27 @@ public class Lesson {
 
         Lesson lesson = lessonProvider.lessonOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
-        checkConditions(currentUserId, chapterId);
+        checkConditions(currentUserId, chapterId, false);
         String titleToSave = this.title;
         String contentToSave = this.content;
         String summaryToSave = this.summary;
         String thumbnailToSave = this.thumbnail;
         String videoToSave = this.video;
         boolean freeToSave = this.free;
-        String typeToSave = this.type;
 
         copyData(lesson);
-        setAttributes(titleToSave, contentToSave, summaryToSave, thumbnailToSave, videoToSave, freeToSave, typeToSave);
+        setAttributes(titleToSave, contentToSave, summaryToSave, thumbnailToSave, videoToSave, freeToSave);
         return setProviders(lessonProvider.save(this));
 
     }
 
-    private void setAttributes(String titleToSave, String contentToSave, String summaryToSave, String thumbnailToSave, String videoToSave, boolean freeToSave, String typeToSave) {
+    private void setAttributes(String titleToSave, String contentToSave, String summaryToSave, String thumbnailToSave, String videoToSave, boolean freeToSave) {
         this.title = titleToSave;
         this.content = contentToSave;
         this.summary = summaryToSave;
         this.thumbnail = thumbnailToSave;
         this.video = videoToSave;
         this.free = freeToSave;
-        this.type = typeToSave;
     }
 
     public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
@@ -161,17 +162,24 @@ public class Lesson {
         if (lesson.isEmpty()) {
             throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
         }
-
-        checkConditions(currentUserId, lesson.get().getChapterId());
+        checkConditions(currentUserId, lesson.get().getChapterId(), false);
         lessonProvider.delete(lesson.get());
     }
 
-    public Lesson get() throws ResourceNotFoundException {
-        if (lessonProvider.lessonOfId(this.id).isEmpty()) {
+    public Lesson get(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
+        if (lesson.isEmpty())
             throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+
+        if (currentUserId == 0 && lesson.get().isFree()) {
+            return setProviders(lesson.get());
+        } else if (currentUserId == 0 && !lesson.get().isFree()) {
+            unsubscribedAccess = true;
+            return setProviders(lesson.get());
         }
-        return setProviders(lessonProvider.lessonOfId(this.id)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson " + this.id + " does not exist", String.valueOf(id), COURSE.name())));
+
+        checkConditions(currentUserId, lesson.get().getChapterId(), true);
+        return setProviders(lesson.get());
     }
 
     public ChapterProvider getChapterProvider() {
@@ -186,8 +194,12 @@ public class Lesson {
         return courseProvider;
     }
 
+    public SubscriptionProvider getSubscriptionProvider() {
+        return subscriptionProvider;
+    }
 
-    private void checkConditions(long currentUserId, long chapterId) throws ResourceNotFoundException, ForbiddenActionException {
+
+    private void checkConditions(long currentUserId, long chapterId, boolean checkSubscription) throws ResourceNotFoundException, ForbiddenActionException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
 
@@ -198,8 +210,15 @@ public class Lesson {
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
 
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !checkSubscription) {
             throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
+        }
+
+        if (checkSubscription) {
+            Optional<Subscription> subscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true);
+            if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && subscription.isEmpty())
+                unsubscribedAccess = true;
         }
     }
 
@@ -209,11 +228,12 @@ public class Lesson {
         lesson.chapterProvider = this.chapterProvider;
         lesson.userProvider = this.userProvider;
         lesson.courseProvider = this.courseProvider;
+        lesson.subscriptionProvider = this.subscriptionProvider;
+        lesson.unsubscribedAccess = this.unsubscribedAccess;
         return lesson;
     }
 
 
-    //generate LessonBuilder class
     public static class LessonBuilder {
         private int number;
         private long id;
@@ -223,13 +243,14 @@ public class Lesson {
         private String thumbnail;
         private String video;
         private boolean free;
-        private String type;
         private long chapterId;
         private List<Resource> resources = new ArrayList<>();
         private LessonProvider lessonProvider;
         private ChapterProvider chapterProvider;
         private UserProvider userProvider;
         private CourseProvider courseProvider;
+        private SubscriptionProvider subscriptionProvider;
+
 
         public LessonBuilder id(long id) {
             this.id = id;
@@ -266,11 +287,6 @@ public class Lesson {
             return this;
         }
 
-        public LessonBuilder type(String type) {
-            this.type = type;
-            return this;
-        }
-
         public LessonBuilder chapterId(long chapterId) {
             this.chapterId = chapterId;
             return this;
@@ -303,6 +319,11 @@ public class Lesson {
 
         public LessonBuilder courseProvider(CourseProvider courseProvider) {
             this.courseProvider = courseProvider;
+            return this;
+        }
+
+        public LessonBuilder subscriptionProvider(SubscriptionProvider subscriptionProvider) {
+            this.subscriptionProvider = subscriptionProvider;
             return this;
         }
 

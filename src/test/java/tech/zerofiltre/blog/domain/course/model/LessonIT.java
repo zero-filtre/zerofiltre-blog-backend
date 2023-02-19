@@ -111,7 +111,6 @@ class LessonIT {
                 .id(lesson.getId())
                 .title(UPDATED_TITLE)
                 .video(VIDEO)
-                .type(UPDATED_TYPE)
                 .content(UPDATED_CONTENT)
                 .summary(UPDATED_SUMMARY)
                 .thumbnail(THUMBNAIL)
@@ -127,7 +126,7 @@ class LessonIT {
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getContent()).isEqualTo(UPDATED_CONTENT);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getSummary()).isEqualTo(UPDATED_SUMMARY);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getThumbnail()).isEqualTo(THUMBNAIL);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getType()).isEqualTo(UPDATED_TYPE);
+        org.assertj.core.api.Assertions.assertThat(updatedLesson.getType()).isEqualTo("video");
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getVideo()).isEqualTo(VIDEO);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.isFree()).isTrue();
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getChapterId()).isEqualTo(chapter.getId());
