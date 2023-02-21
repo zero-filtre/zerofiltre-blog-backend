@@ -2,7 +2,11 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.mockito.*;
+import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.doubles.*;
@@ -10,7 +14,9 @@ import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class ChapterTest {
 
@@ -246,6 +252,33 @@ class ChapterTest {
                 .courseId(1)
                 .build();
         chapter.getLessons().add(Lesson.builder().build());
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.delete(100));
+    }
+
+    @Test
+    void delete_throws_ForbiddenActionException_if_chapter_course_isPublished_andAuthorNotAdmin() {
+
+        User author = ZerofiltreUtils.createMockUser(false);
+        UserProvider userProvider = mock(UserProvider.class);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        Mockito.when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(1).courseId(1).build()));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Mockito.when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        //given
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .build();
 
         //when
         //then
