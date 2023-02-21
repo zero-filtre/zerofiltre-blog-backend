@@ -17,10 +17,11 @@ public class SectionJPA extends BaseEntityJPA {
 
     private int position;
     private String title;
+    @Lob
     private String content;
     private String image;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private CourseJPA course;
 }

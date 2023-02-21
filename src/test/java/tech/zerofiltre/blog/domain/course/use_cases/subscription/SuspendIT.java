@@ -20,8 +20,8 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBSubscriptionProvider.class, DBCourseProvider.class, DBUserProvider.class})
-public class SuspendIT {
+@Import({DBSubscriptionProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class})
+class SuspendIT {
 
     Suspend suspend;
 
@@ -36,14 +36,17 @@ public class SuspendIT {
     @Autowired
     DBCourseProvider dbCourseProvider;
 
+    @Autowired
+    ChapterProvider chapterProvider;
+
     @BeforeEach
     void init() {
-        suspend = new Suspend(subscriptionProvider);
-        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
+        suspend = new Suspend(subscriptionProvider, dbCourseProvider, chapterProvider);
+        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider, chapterProvider);
     }
 
     @Test
-    void suspendSavesSubscriptionProperly() throws ForbiddenActionException, ResourceNotFoundException, InterruptedException {
+    void suspendSavesSubscriptionProperly() throws BlogException, InterruptedException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -52,10 +55,9 @@ public class SuspendIT {
         subscriber.setPseudoName("tester");
         subscriber = dbUserProvider.save(subscriber);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, null, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         subscribe.execute(subscriber.getId(), course.getId());
-        Thread.sleep(100);
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Subscription subscription = suspend.execute(subscriber.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();
@@ -65,6 +67,7 @@ public class SuspendIT {
         assertThat(subscription.getSubscriber().getEmail()).isEqualTo(subscriber.getEmail());
         assertThat(subscription.getSubscriber().getPseudoName()).isEqualTo(subscriber.getPseudoName());
         assertThat(subscription.getCourse().getId()).isEqualTo(course.getId());
+        assertThat(subscription.getCourse().getEnrolledCount()).isZero();
 
         assertThat(subscription.getId()).isNotZero();
 

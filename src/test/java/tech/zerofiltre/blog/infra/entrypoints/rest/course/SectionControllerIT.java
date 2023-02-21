@@ -23,6 +23,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
-        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class})
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
 class SectionControllerIT {
     @Autowired
     private MockMvc mockMvc;
@@ -63,6 +64,9 @@ class SectionControllerIT {
     UserProvider userProvider;
 
     @MockBean
+    ChapterProvider chapterProvider;
+
+    @MockBean
     SectionProvider sectionProvider;
 
     @MockBean
@@ -84,7 +88,7 @@ class SectionControllerIT {
         when(sectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(mockSection));
         when(sectionProvider.save(any())).thenReturn(mockSection);
         User mockUser = ZerofiltreUtils.createMockUser(true);
-        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtils.createMockCourse(false, Status.DRAFT,courseProvider, mockUser,Collections.emptyList(),Collections.emptyList())));
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,Collections.emptyList(),Collections.emptyList())));
         when(securityContextManager.getAuthenticatedUser()).thenReturn(mockUser);
 
         sectionVM.setTitle("title");
@@ -94,6 +98,19 @@ class SectionControllerIT {
         sectionVM.setCourseId(4);
 
 
+    }
+
+    @Test
+    void getSection_whenValidInput_return200OK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/section/1")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.title").value(mockSection.getTitle()));
     }
 
     @Test

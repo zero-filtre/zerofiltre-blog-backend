@@ -6,13 +6,14 @@ import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 
 import javax.persistence.*;
 import java.time.*;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "subscription")
+@Table(name = "subscription", uniqueConstraints = {@UniqueConstraint(name = "UniqueSubscriberPerCourseId", columnNames = {"subscriber_id", "course_id"})})
 @EqualsAndHashCode(callSuper = true)
 public class SubscriptionJPA extends BaseEntityJPA {
 
@@ -27,5 +28,10 @@ public class SubscriptionJPA extends BaseEntityJPA {
     private boolean active;
     private LocalDateTime subscribedAt;
     private LocalDateTime suspendedAt;
+    private LocalDateTime lastModifiedAt;
+
+    @OneToMany(cascade = CascadeType.REFRESH)
+    private Set<LessonJPA> completedLessons;
+
 
 }

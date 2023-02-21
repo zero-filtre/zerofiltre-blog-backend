@@ -1,14 +1,13 @@
-package tech.zerofiltre.blog.domain.course.model;
+package tech.zerofiltre.blog.domain.course.use_cases.course;
 
 import org.junit.jupiter.api.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -19,7 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 
-class CourseTest {
+class CourseServiceTest {
 
     public static final String THIS_IS_MY_TITLE = "This is my title";
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -27,31 +26,35 @@ class CourseTest {
     public static final String UPDATED_SUMMARY = "This is the updated summary";
     public static final String UPDATED_VIDEO = "updated video";
     public static final String UPDATED_THUMBNAIL = "updated thumbnail";
-    private Course course;
-    private CourseProvider courseProvider;
-    private UserProvider userProvider;
-    private TagProvider tagProvider;
 
+    private CourseProvider courseProvider;
+    private TagProvider tagProvider;
     private SectionProvider sectionProvider;
+    private ChapterProvider chapterProvider;
     private LoggerProvider loggerProvider;
+    private Course course;
+    private User editor;
+
+    @BeforeEach
+    void init() {
+        course = new Course();
+        editor = ZerofiltreUtils.createMockUser(false);
+        chapterProvider = new FoundChapterProviderSpy();
+    }
+
 
     @Test
-    void should_init_course_properly() throws UserNotFoundException {
+    void should_init_course_properly() {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         User user = ZerofiltreUtils.createMockUser(false);
         user.setId(1);
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        course.init(THIS_IS_MY_TITLE, user);
+        Course course = courseService.init(THIS_IS_MY_TITLE, user);
 
         //THEN
         assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
@@ -70,16 +73,13 @@ class CourseTest {
     void should_find_the_corresponding_courseBy_Id() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+        chapterProvider = new FoundChapterProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         User user = ZerofiltreUtils.createMockUser(false);
 
         //WHEN
-        Course found = course.findById(1, user);
+        Course found = courseService.findById(1, user);
 
         //THEN
         assertThat(((Found_Published_WithUnknownAuthor_CourseProviderSpy) courseProvider).courseOfIdCalled).isTrue();
@@ -94,125 +94,63 @@ class CourseTest {
     void should_ThrowException_WhenCourseNotFound() {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .build();
-        User user = ZerofiltreUtils.createMockUser(false);
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.findById(1, user));
+                .isThrownBy(() -> courseService.findById(1, editor));
 
         //THEN
         assertThat(((NotFoundCourseProviderSpy) courseProvider).courseOfIdCalled).isTrue();
     }
 
     @Test
-    void init_should_ThrowException_when_UserNotFound() {
-        //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new NotFoundUserProviderSpy();
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-
-                .build();
-        User user = ZerofiltreUtils.createMockUser(true);
-
-        //WHEN
-        assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> course.init(THIS_IS_MY_TITLE, user));
-
-        //THEN
-        assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy) courseProvider).registerCourseCalled).isFalse();
-        assertThat(((NotFoundUserProviderSpy) userProvider).userOfIdCalled).isTrue();
-    }
-
-    @Test
-    void findById_should_ThrowException_when_UserNotFound() {
-        //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new NotFoundUserProviderSpy();
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-
-                .build();
-        User user = ZerofiltreUtils.createMockUser(true);
-
-        //WHEN
-        assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> course.findById(1, user));
-
-        //THEN
-        assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy) courseProvider).registerCourseCalled).isFalse();
-        assertThat(((NotFoundUserProviderSpy) userProvider).userOfIdCalled).isTrue();
-    }
-
-    @Test
     void publishOrSave_should_ThrowForbiddenActionException_when_UserIsNotAuthorNorAdmin() {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .userProvider(userProvider)
-
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> course.save(15));
+                .isThrownBy(() -> courseService.save(new Course(), new User()));
 
         //THEN
         assertThat(((Found_Published_WithUnknownAuthor_CourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
-        assertThat(((FoundNonAdminUserProviderSpy) userProvider).userOfIdCalled).isTrue();
     }
 
     @Test
     void publishOrSave_should_putInReview_ifAuthor_notAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .userProvider(userProvider)
-                .status(PUBLISHED)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(IN_REVIEW);
     }
 
     @Test
-    void publishOrSave_should_publish_ifAuthor_isAdmin() throws ForbiddenActionException, ResourceNotFoundException {
+    void publishOrSave_should_publish_ifIsAuthor_andIsAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .userProvider(userProvider)
-                .status(PUBLISHED)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
+        editor.getRoles().add("ROLE_ADMIN");
+
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(PUBLISHED);
@@ -222,18 +160,15 @@ class CourseTest {
     void publishOrSave_should_publish_ifNotAuthor_ButAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .userProvider(userProvider)
-                .status(PUBLISHED)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
+        editor.getRoles().add("ROLE_ADMIN");
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
 
         //THEN
@@ -241,50 +176,24 @@ class CourseTest {
 
     }
 
-    @Test
-    void publishOrSave_should_set_inReview_ifNotAuthor_ButAdmin() throws ForbiddenActionException, ResourceNotFoundException {
-        //GIVEN
-        courseProvider = new Found_InReview_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
-        tagProvider = new FoundTagProviderSpy();
-
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .userProvider(userProvider)
-                .status(PUBLISHED)
-                .build();
-
-        //WHEN
-        Course result = course.save(15);
-
-
-        //THEN
-        assertThat(result.getStatus()).isEqualTo(PUBLISHED);
-
-    }
 
     @Test
     void publishOrSave_should_ThrowResourceNotFoundException_ifTagsNotFound() {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new NotFoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .tags(Collections.singletonList(new Tag(1, "tag1")))
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
+        course.setTags(List.of(new Tag(1, "tag1"), new Tag(2, "tag2")));
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.save(15));
+                .isThrownBy(() -> courseService.save(course, editor));
 
         //THEN
         assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy) courseProvider).registerCourseCalled).isFalse();
-        assertThat(((FoundAdminUserProviderSpy) userProvider).userOfIdCalled).isTrue();
         assertThat(((NotFoundTagProviderSpy) tagProvider).tagOfIdCalled).isTrue();
     }
 
@@ -292,19 +201,16 @@ class CourseTest {
     void publishOrSave_should_setDatesAndStatusProperly_onSave() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
-                .build();
+
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -319,19 +225,17 @@ class CourseTest {
     void publishOrSave_should_setDatesAndStatusProperly_onPublish_AlreadyPublished() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
 
-                .build();
+
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -346,19 +250,16 @@ class CourseTest {
     void publishOrSave_should_setDatesAndStatusProperly_onReview() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .status(PUBLISHED)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(IN_REVIEW);
+
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -373,18 +274,14 @@ class CourseTest {
     void publishOrSave_should_setStatusToDraft_whenSaving_InReviewCourse() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_InReview_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(DRAFT);
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
 
         //THEN
@@ -395,18 +292,14 @@ class CourseTest {
     void publishOrSave_should_setStatusToPublished_whenSaving_PublishedCourse() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(PUBLISHED);
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
 
         //THEN
@@ -417,20 +310,16 @@ class CourseTest {
     void publishOrSave_shouldKeepInDraft_ifNotPublished() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setStatus(DRAFT);
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, ZerofiltreUtils.createMockUser(false));
 
 
         //THEN
@@ -442,19 +331,14 @@ class CourseTest {
     void publishOrSave_byNonAdmin_shouldKeepInDraft_ifNotPublished() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
-        Course result = course.save(15);
+        Course result = courseService.save(course, editor);
 
 
         //THEN
@@ -466,21 +350,16 @@ class CourseTest {
     void publishOrSave_shouldThrow_ResourceNotFoundException_whenTagNotFound() {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new NotFoundTagProviderSpy();
         sectionProvider = new SectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .tags(Collections.singletonList(new Tag(1, "tag")))
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        course.setTags(List.of(new Tag(15, "tag")));
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.save(15));
+                .isThrownBy(() -> courseService.save(course, editor));
 
 
     }
@@ -489,23 +368,18 @@ class CourseTest {
     void delete_ShouldThrow_ResourceNotFoundException_WhenCourseNotFound() {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         ZerofiltreUtils.createMockUser(true);
 
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> course.delete(15, new User()));
+                .isThrownBy(() -> courseService.delete(15, new User()));
 
     }
 
@@ -513,42 +387,30 @@ class CourseTest {
     void delete_ShouldThrow_ForbiddenActionException_WhenUserIsNotAdmin_NorAuthor() {
         //GIVEN
         courseProvider = new Found_Draft_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
-
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> course.delete(15, new User()));
+                .isThrownBy(() -> courseService.delete(15, new User()));
     }
 
     @Test
     void delete_should_callTheProvider() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        userProvider = new FoundAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
         loggerProvider = new LoggerProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .loggerProvider(loggerProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
-        course.delete(15, new User());
+        courseService.delete(15, editor);
 
         //THEN
         assertThat(((Found_Draft_WithKnownAuthor_CourseProvider_Spy) courseProvider).deleteCalled).isTrue();
@@ -559,40 +421,29 @@ class CourseTest {
     void findByIdOnDraft_ShouldThrow_ForbiddenActionException_ifNotAdmin_NorAuthor() {
         //GIVEN
         courseProvider = new Found_Draft_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> course.findById(15, new User()));
+                .isThrownBy(() -> courseService.findById(15, new User()));
     }
 
     @Test
     void findByIdOnInReview_ShouldThrow_ForbiddenActionException_ifNotAdmin_NorAuthor() {
         //GIVEN
         courseProvider = new Found_InReview_WithUnknownAuthor_CourseProviderSpy();
-        userProvider = new FoundNonAdminUserProviderSpy();
+
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
-
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> course.findById(15, new User()));
+                .isThrownBy(() -> courseService.findById(15, new User()));
     }
 
     @Test
@@ -601,15 +452,12 @@ class CourseTest {
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
+        chapterProvider = new FoundChapterProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN
-        Course result = course.findById(15, null);
+        Course result = courseService.findById(15, null);
         //THEN
         assertThat(result).isNotNull();
     }
@@ -621,15 +469,43 @@ class CourseTest {
         tagProvider = new FoundTagProviderSpy();
         sectionProvider = new FoundSectionProviderSpy();
 
-        course = new Course.CourseBuilder()
-                .courseProvider(courseProvider)
-                .tagProvider(tagProvider)
-                .sectionProvider(sectionProvider)
-                .build();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //WHEN & THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> course.findById(15, null));
+                .isThrownBy(() -> courseService.findById(15, null));
+    }
+
+    @Test
+    void getLessonsCount_returns_theProperNumber(){
+        //GIVEN
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        tagProvider = new FoundTagProviderSpy();
+        sectionProvider = new FoundSectionProviderSpy();
+        chapterProvider = new FoundChapterProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        //WHEN
+        int result = courseService.getLessonsCount(15);
+
+        //THEN
+        assertThat(result).isEqualTo(2);
+    }
+
+    @Test
+    void getEnrolledCount_returns_theProperNumber() {
+        //given
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        //when
+        int result = courseService.getEnrolledCount(15);
+
+        //then
+        assertThat(result).isEqualTo(1);
+
+
     }
 
 }

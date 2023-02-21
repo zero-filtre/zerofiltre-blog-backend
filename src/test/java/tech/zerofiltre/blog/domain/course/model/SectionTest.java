@@ -77,7 +77,23 @@ class SectionTest {
         User user = ZerofiltreUtils.createMockUser(false);
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> section.delete(user));
+    }
 
+    @Test
+    void delete_ThrowsResourceNotFoundException_IfSectionNotFound() {
+        sectionProvider = new SectionProviderSpy();
+        section = Section.builder()
+                .id(45)
+                .sectionProvider(sectionProvider)
+                .chapterProvider(new FoundChapterProviderSpy())
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .loggerProvider(new Slf4jLoggerProvider())
+                .build();
+        User user = ZerofiltreUtils.createMockUser(false);
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> section.delete(user))
+                .withMessage("The section with id: 45 does not exist");
     }
 
     @Test
@@ -89,10 +105,8 @@ class SectionTest {
                 .userProvider(new FoundAdminUserProviderSpy())
                 .loggerProvider(new Slf4jLoggerProvider())
                 .build();
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtils.createMockUser(true);
         section.delete(user);
         assertThat(((FoundSectionProviderSpy) sectionProvider).deleteCalled).isTrue();
-
-
     }
 }

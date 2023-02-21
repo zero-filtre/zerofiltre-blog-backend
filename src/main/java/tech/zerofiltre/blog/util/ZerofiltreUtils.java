@@ -37,13 +37,14 @@ public class ZerofiltreUtils {
     public static final String TEST_SECTION_CONTENT_2 = "Section 2 content";
     public static final String TEST_SECTION_TITLE_3 = "Section 3";
     public static final String TEST_SECTION_CONTENT_3 = "Section 3 content";
+    private static final String TEST_CHAPTER_TITLE = "test chapter title";
 
     private ZerofiltreUtils() {
     }
 
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser(false);
-        List<Reaction> reactions = createMockReactions(true, 1,0, user);
+        List<Reaction> reactions = createMockReactions(true, 1, 0, user);
         List<Tag> tags = createMockTags(withTagIds);
         return createMockArticle(user, tags, reactions);
     }
@@ -128,22 +129,22 @@ public class ZerofiltreUtils {
         return user;
     }
 
-    public static Course createMockCourse(boolean withId, Status status, CourseProvider courseProvider, User author, List<Section> sections, List<Reaction> reactions) {
-        return new Course.CourseBuilder()
-                .id(withId ? 45 : 0)
-                .title(TEST_COURSE_TITLE)
-                .thumbnail(TEST_THUMBNAIL)
-                .courseProvider(courseProvider)
-                .createdAt(LocalDateTime.now().minusDays(50))
-                .status(status)
-                .publishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null)
-                .author(author)
-                .reactions(reactions)
-                .enrolledCount(10)
-                .price(35.99)
-                .sections(sections)
-                .summary(TEST_SUMMARY)
-                .build();
+    public static Course createMockCourse(boolean withId, Status status, User author, List<Section> sections, List<Reaction> reactions) {
+        Course course = new Course();
+        course.setId(withId ? 45 : 0);
+        course.setTitle(TEST_COURSE_TITLE);
+        course.setThumbnail(TEST_THUMBNAIL);
+
+        course.setCreatedAt(LocalDateTime.now().minusDays(50));
+        course.setStatus(status);
+        course.setPublishedAt(status == Status.PUBLISHED ? LocalDateTime.now().minusDays(50) : null);
+        course.setAuthor(author);
+        course.setReactions(reactions);
+        course.setEnrolledCount(10);
+        course.setPrice(35.99);
+        course.setSections(sections);
+        course.setSummary(TEST_SUMMARY);
+        return course;
 
     }
 
@@ -191,7 +192,19 @@ public class ZerofiltreUtils {
         return Arrays.asList(section1, section2, section3);
     }
 
-    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId,long courseId, User author) {
+    public static Section createMockSection(long courseId, SectionProvider sectionProvider, boolean withSectionIds){
+        return new Section.SectionBuilder()
+                .title(TEST_SECTION_TITLE_3)
+                .content(TEST_SECTION_CONTENT_3)
+                .courseId(courseId)
+                .id(withSectionIds ? 3 : 0)
+                .image(TEST_THUMBNAIL)
+                .sectionProvider(sectionProvider)
+                .position(3)
+                .build();
+    }
+
+    public static List<Reaction> createMockReactions(boolean withReactionIds, long articleId, long courseId, User author) {
         Reaction clap = new Reaction();
         clap.setAction(Reaction.Action.CLAP);
         Reaction like = new Reaction();
@@ -245,4 +258,22 @@ public class ZerofiltreUtils {
         return null;
     }
 
+    public static Chapter createMockChapter(boolean withId, ChapterProvider chapterProvider, List<Lesson> lessons, long courseId) {
+        return Chapter.builder()
+                .title(TEST_CHAPTER_TITLE)
+                .courseId(courseId)
+                .lessons(lessons)
+                .id(withId ? 1 : 0)
+                .chapterProvider(chapterProvider)
+                .build();
+    }
+
+    public static Subscription createMockSubscription(boolean withId, User subscriber, Course course) {
+        Subscription subscription = new Subscription();
+        subscription.setId(withId ? 1 : 0);
+        subscription.setSubscriber(subscriber);
+        subscription.setCourse(course);
+        return subscription;
+
+    }
 }

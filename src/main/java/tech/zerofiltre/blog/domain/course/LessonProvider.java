@@ -6,5 +6,6 @@ import java.util.*;
 
 public interface LessonProvider {
     Optional<Lesson> lessonOfId(long id);
-    Lesson registerLesson(Lesson lesson);
+    Lesson save(Lesson lesson);
+    void delete(Lesson lesson);
 }

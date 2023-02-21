@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.doubles;
 
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 
@@ -13,12 +14,12 @@ public class NotSubscribedSubscriptionProvider implements SubscriptionProvider {
     }
 
     @Override
-    public List<Subscription> subscriptionsOf(long userId) {
-        return null;
+    public Page<Subscription> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
+        return new Page<>();
     }
 
     @Override
-    public Optional<Subscription> subscriptionOf(long userId, long courseId) {
+    public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
         return Optional.empty();
     }
 

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.subscription.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.course.*;
@@ -22,11 +21,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSubscriptionProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSubscriptionProvider.class, DBChapterProvider.class})
 class SubscribeIT {
 
 
     Subscribe subscribe;
+    Suspend suspend;
 
     @Autowired
     SubscriptionProvider subscriptionProvider;
@@ -37,13 +37,17 @@ class SubscribeIT {
     @Autowired
     DBCourseProvider dbCourseProvider;
 
+    @Autowired
+    ChapterProvider chapterProvider;
+
     @BeforeEach
     void init() {
-        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider);
+        subscribe = new Subscribe(subscriptionProvider, dbCourseProvider, dbUserProvider, chapterProvider);
+        suspend = new Suspend(subscriptionProvider, dbCourseProvider, chapterProvider);
     }
 
     @Test
-    void subscribeGetsExecutedProperly() throws ForbiddenActionException, ResourceNotFoundException {
+    void subscribeGetsExecutedProperly() throws BlogException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -52,7 +56,7 @@ class SubscribeIT {
         subscriber.setPseudoName("tester");
         subscriber = dbUserProvider.save(subscriber);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, null, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(subscriber.getId(), course.getId());
@@ -63,14 +67,38 @@ class SubscribeIT {
         assertThat(subscription.getSubscriber().getEmail()).isEqualTo(subscriber.getEmail());
         assertThat(subscription.getSubscriber().getPseudoName()).isEqualTo(subscriber.getPseudoName());
         assertThat(subscription.getCourse().getId()).isEqualTo(course.getId());
+        assertThat(subscription.getCourse().getEnrolledCount()).isOne();
 
         assertThat(subscription.getId()).isNotZero();
         assertThat(subscription.isCompleted()).isFalse();
-        assertThat(subscription.getCompletedLessons().isEmpty()).isTrue();
+        Assertions.assertThat(subscription.getCompletedLessons()).isEmpty();
 
         org.assertj.core.api.Assertions.assertThat(subscription.getSubscribedAt()).isNotNull();
         org.assertj.core.api.Assertions.assertThat(subscription.getSubscribedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getSubscribedAt()).isBeforeOrEqualTo(afterSubscribe);
         Assertions.assertThat(subscription.isActive()).isTrue();
+    }
+
+
+    @Test
+    void executeSetSuspendeAt_toNull() throws BlogException {
+        User subscriber = ZerofiltreUtils.createMockUser(false);
+        subscriber.setEmail("test@gmail.grok");
+        subscriber.setPseudoName("tester");
+        subscriber = dbUserProvider.save(subscriber);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, subscriber, Collections.emptyList(), Collections.emptyList());
+        course = dbCourseProvider.save(course);
+
+        subscribe.execute(subscriber.getId(), course.getId());
+
+        Subscription suspendedSubscription = suspend.execute(subscriber.getId(), course.getId());
+        assertThat(suspendedSubscription.getSuspendedAt()).isNotNull();
+
+        Subscription subscription = subscribe.execute(subscriber.getId(), course.getId());
+
+        Assertions.assertThat(subscription.getSuspendedAt()).isNull();
+        Assertions.assertThat(subscription.getId()).isEqualTo(suspendedSubscription.getId());
+
     }
 }

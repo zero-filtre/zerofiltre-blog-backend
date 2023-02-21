@@ -1,22 +1,40 @@
 package tech.zerofiltre.blog.domain.course.model;
 
+import com.fasterxml.jackson.annotation.*;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 
 import java.util.*;
 
+import static tech.zerofiltre.blog.domain.Domains.*;
+import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
+
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "subscriptionProvider"})
 public class Lesson {
 
+    public static final String THE_LESSON_OF_ID = "The lesson of id ";
+    public static final String VIDEO_NOT_AVAILABLE_FOR_FREE = "VIDEO NOT AVAILABLE FOR FREE";
     private long id;
     private String title;
     private String content;
     private String summary;
     private String thumbnail;
-    private String  video;
-    private String  free;
-    private String  type;
+    private String video;
+    private boolean free;
     private long chapterId;
+    private int number;
     private List<Resource> resources;
+
     private LessonProvider lessonProvider;
+    private ChapterProvider chapterProvider;
+    private UserProvider userProvider;
+    private CourseProvider courseProvider;
+    private SubscriptionProvider subscriptionProvider;
+    private boolean unsubscribedAccess;
+
 
     private Lesson(LessonBuilder lessonBuilder) {
         this.id = lessonBuilder.id;
@@ -26,29 +44,213 @@ public class Lesson {
         this.thumbnail = lessonBuilder.thumbnail;
         this.video = lessonBuilder.video;
         this.free = lessonBuilder.free;
-        this.type = lessonBuilder.type;
         this.chapterId = lessonBuilder.chapterId;
         this.resources = lessonBuilder.resources;
         this.lessonProvider = lessonBuilder.lessonProvider;
+        this.chapterProvider = lessonBuilder.chapterProvider;
+        this.userProvider = lessonBuilder.userProvider;
+        this.courseProvider = lessonBuilder.courseProvider;
+        this.subscriptionProvider = lessonBuilder.subscriptionProvider;
+        this.number = lessonBuilder.number;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void copyData(Lesson lesson) {
+        this.id = lesson.id;
+        this.title = lesson.title;
+        this.content = lesson.content;
+        this.summary = lesson.summary;
+        this.thumbnail = lesson.thumbnail;
+        this.video = lesson.video;
+        this.free = lesson.free;
+        this.chapterId = lesson.chapterId;
+        this.resources = lesson.resources;
+        this.number = lesson.number;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public String getVideo() {
+        return unsubscribedAccess ? VIDEO_NOT_AVAILABLE_FOR_FREE : video;
+    }
+
+    public boolean isFree() {
+        return free;
+    }
+
+    public String getType() {
+        if (video != null && !video.isEmpty())
+            return "video";
+        return "text";
+    }
+
+    public long getChapterId() {
+        return chapterId;
+    }
+
+    public List<Resource> getResources() {
+        return resources;
+    }
+
+    public LessonProvider getLessonProvider() {
+        return lessonProvider;
     }
 
     public static LessonBuilder builder() {
         return new LessonBuilder();
     }
 
-    //generate LessonBuilder class
+    public int getNumber() {
+        return number;
+    }
+
+    public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        checkConditions(currentUserId, chapterId, false);
+        this.title = title;
+        this.chapterId = chapterId;
+
+
+        return setProviders(lessonProvider.save(this));
+    }
+
+    public Lesson save(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+
+        Lesson lesson = lessonProvider.lessonOfId(this.id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        checkConditions(currentUserId, chapterId, false);
+        String titleToSave = this.title;
+        String contentToSave = this.content;
+        String summaryToSave = this.summary;
+        String thumbnailToSave = this.thumbnail;
+        String videoToSave = this.video;
+        boolean freeToSave = this.free;
+
+        copyData(lesson);
+        setAttributes(titleToSave, contentToSave, summaryToSave, thumbnailToSave, videoToSave, freeToSave);
+        return setProviders(lessonProvider.save(this));
+
+    }
+
+    private void setAttributes(String titleToSave, String contentToSave, String summaryToSave, String thumbnailToSave, String videoToSave, boolean freeToSave) {
+        this.title = titleToSave;
+        this.content = contentToSave;
+        this.summary = summaryToSave;
+        this.thumbnail = thumbnailToSave;
+        this.video = videoToSave;
+        this.free = freeToSave;
+    }
+
+    public void delete(long currentUserId) throws ForbiddenActionException, ResourceNotFoundException {
+        Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
+        if (lesson.isEmpty()) {
+            throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+        }
+        checkConditions(currentUserId, lesson.get().getChapterId(), false);
+        lessonProvider.delete(lesson.get());
+    }
+
+    public Lesson get(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
+        if (lesson.isEmpty())
+            throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
+
+        if (currentUserId == 0 && lesson.get().isFree()) {
+            return setProviders(lesson.get());
+        } else if (currentUserId == 0 && !lesson.get().isFree()) {
+            unsubscribedAccess = true;
+            return setProviders(lesson.get());
+        }
+
+        checkConditions(currentUserId, lesson.get().getChapterId(), true);
+        return setProviders(lesson.get());
+    }
+
+    public ChapterProvider getChapterProvider() {
+        return chapterProvider;
+    }
+
+    public UserProvider getUserProvider() {
+        return userProvider;
+    }
+
+    public CourseProvider getCourseProvider() {
+        return courseProvider;
+    }
+
+    public SubscriptionProvider getSubscriptionProvider() {
+        return subscriptionProvider;
+    }
+
+
+    private void checkConditions(long currentUserId, long chapterId, boolean checkSubscription) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
+
+        Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + chapterId + DOES_NOT_EXIST, String.valueOf(chapterId), COURSE.name()));
+
+        long courseId = existingChapter.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
+
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !checkSubscription) {
+            throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
+        }
+
+        if (checkSubscription) {
+            Optional<Subscription> subscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true);
+            if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && subscription.isEmpty())
+                unsubscribedAccess = true;
+        }
+    }
+
+
+    private Lesson setProviders(Lesson lesson) {
+        lesson.lessonProvider = this.lessonProvider;
+        lesson.chapterProvider = this.chapterProvider;
+        lesson.userProvider = this.userProvider;
+        lesson.courseProvider = this.courseProvider;
+        lesson.subscriptionProvider = this.subscriptionProvider;
+        lesson.unsubscribedAccess = this.unsubscribedAccess;
+        return lesson;
+    }
+
+
     public static class LessonBuilder {
+        private int number;
         private long id;
         private String title;
         private String content;
         private String summary;
         private String thumbnail;
-        private String  video;
-        private String  free;
-        private String  type;
+        private String video;
+        private boolean free;
         private long chapterId;
         private List<Resource> resources = new ArrayList<>();
         private LessonProvider lessonProvider;
+        private ChapterProvider chapterProvider;
+        private UserProvider userProvider;
+        private CourseProvider courseProvider;
+        private SubscriptionProvider subscriptionProvider;
+
 
         public LessonBuilder id(long id) {
             this.id = id;
@@ -80,18 +282,18 @@ public class Lesson {
             return this;
         }
 
-        public LessonBuilder free(String free) {
+        public LessonBuilder free(boolean free) {
             this.free = free;
-            return this;
-        }
-
-        public LessonBuilder type(String type) {
-            this.type = type;
             return this;
         }
 
         public LessonBuilder chapterId(long chapterId) {
             this.chapterId = chapterId;
+            return this;
+        }
+
+        public LessonBuilder number(int number) {
+            this.number = number;
             return this;
         }
 
@@ -102,6 +304,26 @@ public class Lesson {
 
         public LessonBuilder lessonProvider(LessonProvider lessonProvider) {
             this.lessonProvider = lessonProvider;
+            return this;
+        }
+
+        public LessonBuilder chapterProvider(ChapterProvider chapterProvider) {
+            this.chapterProvider = chapterProvider;
+            return this;
+        }
+
+        public LessonBuilder userProvider(UserProvider userProvider) {
+            this.userProvider = userProvider;
+            return this;
+        }
+
+        public LessonBuilder courseProvider(CourseProvider courseProvider) {
+            this.courseProvider = courseProvider;
+            return this;
+        }
+
+        public LessonBuilder subscriptionProvider(SubscriptionProvider subscriptionProvider) {
+            this.subscriptionProvider = subscriptionProvider;
             return this;
         }
 

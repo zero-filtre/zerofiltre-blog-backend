@@ -20,7 +20,7 @@ public class Found_InReview_WithUnknownAuthor_CourseProviderSpy implements Cours
         User author = new User();
         author.setId(21L);
         author.setEmail("just@weirdemail.com");
-        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.IN_REVIEW, new Found_InReview_WithUnknownAuthor_CourseProviderSpy(), author, Collections.emptyList(),Collections.emptyList()));
+        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.IN_REVIEW, author, Collections.emptyList(),Collections.emptyList()));
     }
 
     @Override
@@ -41,5 +41,10 @@ public class Found_InReview_WithUnknownAuthor_CourseProviderSpy implements Cours
     @Override
     public List<Course> courseOf(User foundUser) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return 0;
     }
 }

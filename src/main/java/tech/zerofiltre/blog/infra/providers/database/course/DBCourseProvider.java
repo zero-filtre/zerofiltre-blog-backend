@@ -5,8 +5,8 @@ import org.mapstruct.factory.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
@@ -72,11 +72,14 @@ public class DBCourseProvider implements CourseProvider {
     }
 
 
-
-
     @Override
     public List<Course> courseOf(User user) {
         return repository.findByAuthorId(user.getId())
                 .stream().map(mapper::fromJPA).collect(Collectors.toList());
+    }
+
+    @Override
+    public int getEnrolledCount(long courseId) {
+        return repository.getEnrolledCount(courseId);
     }
 }

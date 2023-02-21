@@ -10,6 +10,8 @@ import tech.zerofiltre.blog.doubles.*;
 
 import java.time.*;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 class SubscribeTest {
 
     private Subscribe subscribe;
@@ -20,7 +22,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new NotFoundUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -32,7 +35,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -44,7 +48,8 @@ class SubscribeTest {
         SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        ChapterProvider chapterProvider = new ChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> subscribe.execute(1, 1))
@@ -52,16 +57,26 @@ class SubscribeTest {
     }
 
     @Test
-    void executeSavesSubscriptionProperly() throws ResourceNotFoundException, ForbiddenActionException {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+    void executeSavesSubscriptionProperly() throws BlogException {
+        NotFoundSubscriptionProviderDummy subscriptionProvider = new NotFoundSubscriptionProviderDummy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
         LocalDateTime beforeSubscribe = LocalDateTime.now();
         Subscription subscription = subscribe.execute(1, 1);
         LocalDateTime afterSubscribe = LocalDateTime.now();
 
+        Course course = subscription.getCourse();
+        assertThat(course.getEnrolledCount()).isEqualTo(1);
+        assertThat(courseProvider.enrollCalledCount).isTrue();
+
+        assertThat(course.getLessonsCount()).isEqualTo(2);
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
+
+
+        assertThat(courseProvider.enrollCalledCount).isTrue();
         Assertions.assertThat(subscription).isNotNull();
         Assertions.assertThat(subscription.getId()).isNotZero();
         Assertions.assertThat(subscription.getCourse().getId()).isNotZero();
@@ -71,6 +86,36 @@ class SubscribeTest {
         Assertions.assertThat(subscription.getSubscribedAt()).isNotNull();
         Assertions.assertThat(subscription.getSubscribedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getSubscribedAt()).isBeforeOrEqualTo(afterSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isEqualTo(subscription.getSubscribedAt());
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
         Assertions.assertThat(subscription.isActive()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Subscribing after a suspension should set fields properly")
+    void executeSetSuspendeAt_toNull() throws BlogException {
+        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
+
+        LocalDateTime beforeSubscribe = LocalDateTime.now();
+        Subscription subscription = subscribe.execute(1, 1);
+        LocalDateTime afterSubscribe = LocalDateTime.now();
+
+        Course course = subscription.getCourse();
+        assertThat(course.getEnrolledCount()).isEqualTo(1);
+        assertThat(courseProvider.enrollCalledCount).isTrue();
+
+        assertThat(course.getLessonsCount()).isEqualTo(2);
+        assertThat(chapterProvider.ofCourseIdCalled).isTrue();
+
+        Assertions.assertThat(subscription.getSuspendedAt()).isNull();
+        Assertions.assertThat(subscription.isActive()).isTrue();
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfter(subscription.getSubscribedAt());
+        Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
+        Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
     }
 }

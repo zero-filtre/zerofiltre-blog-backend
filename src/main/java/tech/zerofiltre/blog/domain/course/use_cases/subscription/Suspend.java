@@ -9,16 +9,35 @@ import java.time.*;
 
 public class Suspend {
     private final SubscriptionProvider subscriptionProvider;
+    private final CourseProvider courseProvider;
+    private final ChapterProvider chapterProvider;
 
-    public Suspend(SubscriptionProvider subscriptionProvider) {
+    public Suspend(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
         this.subscriptionProvider = subscriptionProvider;
+        this.courseProvider = courseProvider;
+        this.chapterProvider = chapterProvider;
     }
 
-    public Subscription execute(long userId, long courseId) throws ForbiddenActionException {
-        Subscription subscription = subscriptionProvider.subscriptionOf(userId, courseId)
+    public Subscription execute(long userId, long courseId) throws BlogException {
+        Subscription subscription = subscriptionProvider.subscriptionOf(userId, courseId, true)
                 .orElseThrow(() -> new ForbiddenActionException("You are not subscribed to the course of id " + courseId, Domains.COURSE.name()));
         subscription.setActive(false);
         subscription.setSuspendedAt(LocalDateTime.now());
-        return subscriptionProvider.save(subscription);
+        Subscription result = subscriptionProvider.save(subscription);
+
+        Course resultCourse = result.getCourse();
+        resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
+        resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
+        return result;
+    }
+
+    private int getLessonsCount(long courseId) {
+        return chapterProvider.ofCourseId(courseId)
+                .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
+    }
+
+
+    private int getEnrolledCount(long courseId) {
+        return courseProvider.getEnrolledCount(courseId);
     }
 }
