@@ -248,6 +248,42 @@ class LessonTest {
     }
 
     @Test
+    void onlyAdminCanDeleteLesson_ofPublishedCourse() {
+        //given
+        UserProvider userProvider = mock(UserProvider.class);
+        User author = new User();
+        author.setId(999);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(18);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+
+        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
+        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        Lesson lesson = Lesson.builder()
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .subscriptionProvider(subscriptionProvider)
+                .courseProvider(courseProvider)
+                .build();
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.delete(999));
+    }
+
+    @Test
     void get_throws_ResourceNotFound_if_lesson_not_found() {
         //given
         Lesson lesson = Lesson.builder()
