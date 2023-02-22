@@ -27,6 +27,6 @@ public class ChapterJPA extends BaseEntityJPA {
     private ChapterJPANumber number;
 
     @OrderBy("number ASC")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "chapter")
+    @OneToMany(mappedBy = "chapter")
     private Set<LessonJPA> lessons;
 }

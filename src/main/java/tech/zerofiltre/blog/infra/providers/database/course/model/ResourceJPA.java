@@ -19,7 +19,7 @@ public class ResourceJPA extends BaseEntityJPA {
     private String url;
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     private LessonJPA lesson;
 }
