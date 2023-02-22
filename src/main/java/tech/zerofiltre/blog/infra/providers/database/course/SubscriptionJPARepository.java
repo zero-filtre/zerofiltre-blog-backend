@@ -13,5 +13,7 @@ public interface SubscriptionJPARepository extends JpaRepository<SubscriptionJPA
     Page<SubscriptionJPA> findBySubscriberIdAndActiveAndCompleted(Pageable pageable, long subscriberId, boolean isActive, boolean isCompleted);
 
     void deleteBySubscriberIdAndCourseId(long userId, long courseId);
+
+    List<SubscriptionJPA> getAllByCompletedLessonsContains(LessonJPA toJPA);
 }
 
