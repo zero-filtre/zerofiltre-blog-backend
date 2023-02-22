@@ -101,6 +101,12 @@ public class CourseService {
         Course existingCourse = courseProvider.courseOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
 
+        if (existingCourse.getStatus().equals(Status.PUBLISHED))
+            throw new ForbiddenActionException("You are not allowed to delete this course as it is published", Domains.COURSE.name());
+
+        if (getEnrolledCount(existingCourse.getId()) > 0)
+            throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users", Domains.COURSE.name());
+
         if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
             throw new ForbiddenActionException("You are not allowed to delete this course", Domains.COURSE.name());
         courseProvider.delete(existingCourse);
@@ -139,10 +145,6 @@ public class CourseService {
 
     private boolean isNotAuthor(User currentEditor, Course course) {
         return !course.getAuthor().getEmail().equals(currentEditor.getEmail());
-    }
-
-    private boolean isAdmin(User existingUser) {
-        return existingUser.getRoles().contains("ROLE_ADMIN");
     }
 
     private boolean isAlreadyPublished(Status status) {
