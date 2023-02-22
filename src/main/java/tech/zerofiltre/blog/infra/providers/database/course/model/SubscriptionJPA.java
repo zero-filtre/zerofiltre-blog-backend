@@ -30,7 +30,12 @@ public class SubscriptionJPA extends BaseEntityJPA {
     private LocalDateTime suspendedAt;
     private LocalDateTime lastModifiedAt;
 
-    @OneToMany
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    @JoinTable(
+            name = "subscription_completed_lessons",
+            joinColumns = @JoinColumn(name = "subscription_id"),
+            inverseJoinColumns = @JoinColumn(name = "lesson_id")
+    )
     private Set<LessonJPA> completedLessons;
 
 

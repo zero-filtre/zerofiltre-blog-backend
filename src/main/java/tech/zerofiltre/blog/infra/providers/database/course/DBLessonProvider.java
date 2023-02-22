@@ -18,6 +18,7 @@ public class DBLessonProvider implements LessonProvider {
 
     private final LessonJPARepository lessonJPARepository;
     private final LessonJPANumberRepository numberRepository;
+    private final SubscriptionJPARepository subscriptionJPARepository;
     LessonJPAMapper lessonJPAMapper = Mappers.getMapper(LessonJPAMapper.class);
 
     @Override
@@ -36,6 +37,10 @@ public class DBLessonProvider implements LessonProvider {
 
     @Override
     public void delete(Lesson lesson) {
+        subscriptionJPARepository.getAllByCompletedLessonsContains(lessonJPAMapper.toJPA(lesson)).forEach(subscriptionJPA -> {
+            subscriptionJPA.getCompletedLessons().removeIf(lessonJPA -> lessonJPA.getId() == lesson.getId());
+            subscriptionJPARepository.save(subscriptionJPA);
+        });
         lessonJPARepository.delete(lessonJPAMapper.toJPA(lesson));
     }
 }

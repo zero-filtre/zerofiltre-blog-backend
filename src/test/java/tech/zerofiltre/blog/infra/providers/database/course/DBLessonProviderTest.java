@@ -5,6 +5,7 @@ import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.doubles.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.mockito.Mockito.*;
 
 class DBLessonProviderTest {
 
@@ -17,7 +18,8 @@ class DBLessonProviderTest {
         //given
         LessonJPARepository lessonJPARepository = new DummyLessonJPARepository();
         LessonJPANumberRepository lessonJPANumberRepository = new CreatorLessonJPANumberRepository();
-        dbLessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository);
+        SubscriptionJPARepository subscriptionJPARepository = mock(SubscriptionJPARepository.class);
+        dbLessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, subscriptionJPARepository);
         Lesson lesson = Lesson.builder()
                 .title("title")
                 .build();
