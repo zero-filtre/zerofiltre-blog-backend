@@ -21,15 +21,9 @@ import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 class CourseServiceTest {
 
     public static final String THIS_IS_MY_TITLE = "This is my title";
-    public static final String UPDATED_TITLE = "This is the updated title";
-    public static final String UPDATED_SUB_TITLE = "This is the updated sub title";
-    public static final String UPDATED_SUMMARY = "This is the updated summary";
-    public static final String UPDATED_VIDEO = "updated video";
-    public static final String UPDATED_THUMBNAIL = "updated thumbnail";
 
     private CourseProvider courseProvider;
     private TagProvider tagProvider;
-    private SectionProvider sectionProvider;
     private ChapterProvider chapterProvider;
     private LoggerProvider loggerProvider;
     private Course course;
@@ -312,7 +306,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
@@ -333,7 +326,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
@@ -352,7 +344,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
 
         tagProvider = new NotFoundTagProviderSpy();
-        sectionProvider = new SectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         course.setTags(List.of(new Tag(15, "tag")));
@@ -370,7 +361,6 @@ class CourseServiceTest {
         courseProvider = new NotFoundCourseProviderSpy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
@@ -389,7 +379,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithUnknownAuthor_CourseProviderSpy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
@@ -404,7 +393,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
         loggerProvider = new LoggerProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
@@ -423,7 +411,6 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithUnknownAuthor_CourseProviderSpy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
@@ -438,7 +425,6 @@ class CourseServiceTest {
         courseProvider = new Found_InReview_WithUnknownAuthor_CourseProviderSpy();
 
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         //WHEN
@@ -451,7 +437,6 @@ class CourseServiceTest {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
         chapterProvider = new FoundChapterProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
@@ -467,7 +452,6 @@ class CourseServiceTest {
         //GIVEN
         courseProvider = new Found_InReview_WithUnknownAuthor_CourseProviderSpy();
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
@@ -477,11 +461,10 @@ class CourseServiceTest {
     }
 
     @Test
-    void getLessonsCount_returns_theProperNumber(){
+    void getLessonsCount_returns_theProperNumber() {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         tagProvider = new FoundTagProviderSpy();
-        sectionProvider = new FoundSectionProviderSpy();
         chapterProvider = new FoundChapterProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
@@ -508,4 +491,34 @@ class CourseServiceTest {
 
     }
 
+    @Test
+    void deleteThrowsForbiddenActionException_whenEnrolledCount_NotZero_evenForAnAdmin() {
+        //GIVEN
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        loggerProvider = new LoggerProviderSpy();
+        editor.getRoles().add("ROLE_ADMIN");
+
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(15, editor));
+    }
+
+    @Test
+    void deleteThrowsForbiddenActionException_ifCourseIsPublished_evenForAnAdmin() {
+        //GIVEN
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        loggerProvider = new LoggerProviderSpy();
+        editor.getRoles().add("ROLE_ADMIN");
+
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(15, editor))
+                .withMessage("You are not allowed to delete this course as it is published");
+    }
 }
