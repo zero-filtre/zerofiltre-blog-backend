@@ -106,6 +106,9 @@ zerofiltre:
         expiration-seconds: 604800   #7 days
 
     api:
+      vimeo:
+        root-url: https://api.vimeo.com
+        access-token: ${VIMEO_ACCESS_TOKEN}
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa
