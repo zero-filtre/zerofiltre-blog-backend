@@ -6,6 +6,7 @@ import org.springframework.retry.support.*;
 import org.springframework.stereotype.*;
 import org.springframework.util.*;
 import org.springframework.web.client.*;
+import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.infra.*;
 
 @Slf4j
@@ -25,8 +26,10 @@ public class VimeoProvider {
     public String init(long size) {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
-        headers.add("Content-Type", "application/vnd.vimeo.*+json;version=3.4");
+//        headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
+        headers.add("Authorization", "bearer 8c015dfeb7f8d27cfe2edba8e9a8bbea");
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
 
         String initBody = "{\n" +
                 "  \"upload\": {\n" +
@@ -41,9 +44,9 @@ public class VimeoProvider {
                 HttpEntity<String> requestEntity = new HttpEntity<>(initBody, headers);
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
                 String result = response.getBody();
-//                if (result == null || result.isBlank() || result.contains("tus")) {
-//                    throw new BlogException("We couldn't init the video at vimeo", null);
-//                }
+                if (result == null || result.isBlank() || result.contains("\"approach\": \"tus\"")) {
+                    throw new BlogException("We could not init the video at vimeo", null);
+                }
                 return result;
             });
         } catch (Exception e) {
