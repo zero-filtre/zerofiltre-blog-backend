@@ -99,6 +99,9 @@ zerofiltre:
       verification-token:
         expiration-seconds: ${SECURITY_VERIFICATION_TOKEN_EXPIRATION}
     api:
+      vimeo:
+        root-url: https://api.vimeo.com
+        access-token: ${VIMEO_ACCESS_TOKEN}
       github:
         root-url: https://api.github.com/
         client-id: ${GITHUB_CLIENT_ID}

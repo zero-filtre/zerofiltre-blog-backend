@@ -24,6 +24,7 @@ spec:
             export SPRING_DATASOURCE_PASSWORD='{{ .Data.data.spring_datasource_password }}'
             export SECURITY_JWT_SECRET='{{ .Data.data.security_jwt_secret }}'
             export GITHUB_CLIENT_SECRET='{{ .Data.data.github_client_secret }}'
+            export VIMEO_ACCESS_TOKEN='{{ .Data.data.vimeo_access_token }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app

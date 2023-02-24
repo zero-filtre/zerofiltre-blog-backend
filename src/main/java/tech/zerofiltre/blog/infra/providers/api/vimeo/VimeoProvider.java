@@ -26,8 +26,7 @@ public class VimeoProvider {
     public String init(long size) {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-//        headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
-        headers.add("Authorization", "bearer 8c015dfeb7f8d27cfe2edba8e9a8bbea");
+        headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
 
