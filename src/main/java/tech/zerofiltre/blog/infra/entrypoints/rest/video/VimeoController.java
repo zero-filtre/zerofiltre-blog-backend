@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.infra.entrypoints.rest.vimeo;
+package tech.zerofiltre.blog.infra.entrypoints.rest.video;
 
 import lombok.*;
 import lombok.extern.slf4j.*;

@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.course.use_cases.course;
 
-import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
@@ -16,7 +15,6 @@ import java.util.*;
 
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
-@Component
 public class CourseService {
 
     public static final String DOES_NOT_EXIST = " does not exist";
