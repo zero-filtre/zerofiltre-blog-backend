@@ -102,6 +102,9 @@ zerofiltre:
       vimeo:
         root-url: https://api.vimeo.com
         access-token: ${VIMEO_ACCESS_TOKEN}
+      stripe:
+        secret-key: ${STRIPE_SECRET_KEY}
+        webhook-secret: ${STRIPE_WEBHOOK_SECRET}
       github:
         root-url: https://api.github.com/
         client-id: ${GITHUB_CLIENT_ID}
