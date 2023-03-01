@@ -16,6 +16,7 @@ public class Subscription {
     private LocalDateTime lastModifiedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
 
+
     private List<Lesson> completedLessons = new ArrayList<>();
 
     public long getId() {
@@ -89,4 +90,5 @@ public class Subscription {
     public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
         this.lastModifiedAt = lastModifiedAt;
     }
+
 }

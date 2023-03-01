@@ -40,7 +40,7 @@ public class CourseJPA extends BaseEntityJPA {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "author_id")
     private UserJPA author;
-    private double price;
+    private long price;
     private String video;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
     private Set<SectionJPA> sections;
