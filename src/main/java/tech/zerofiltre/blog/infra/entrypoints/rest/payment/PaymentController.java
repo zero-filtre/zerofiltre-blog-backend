@@ -108,21 +108,20 @@ public class PaymentController {
                     .orElseThrow(() -> new IllegalArgumentException(INVALID_PAYLOAD));
             SessionRetrieveParams params = SessionRetrieveParams.builder()
                     .addExpand("line_items")
+                    .addExpand("customer")
+                    .addExpand("payment_intent")
                     .build();
 
             Session session = Session.retrieve(prematureSession.getId(), params, null);
 
             SessionListLineItemsParams listLineItemsParams = SessionListLineItemsParams.builder()
                     .addExpand("data.price.product")
-                    .addExpand("data.customer")
                     .build();
 
             LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
-//            Session.CustomerDetails customerDetails = session.getCustomerDetails();
-//            log.info("Customer email: {}", customerDetails != null ? customerDetails.getEmail() : "no customer details provided");
             Customer customer = session.getCustomerObject();
             log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
-            log.info("User id: {}", customer != null ? customer.getMetadata().get(USER_ID) : "no customer id provided");
+            String userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
 
             for (LineItem lineItem : lineItems.getData()) {
                 log.info("Line item: {}", lineItem.toString().replace("\n", " "));
@@ -137,9 +136,8 @@ public class PaymentController {
                     long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
                     log.info("Product id: {}", productId);
 
-                    long userId = Long.parseLong(productObject.getMetadata().get(USER_ID));
                     log.info("User id: {}", userId);
-                    subscribe.execute(userId, productId);
+                    subscribe.execute(Long.parseLong(userId), productId);
                 }
             }
         }
