@@ -1,5 +1,7 @@
 package tech.zerofiltre.blog.domain.user.model;
 
+import lombok.*;
+
 import java.io.*;
 import java.time.*;
 import java.util.*;
@@ -22,6 +24,7 @@ public class User implements Serializable {
     private boolean isLocked = false;
     private boolean isExpired = false;
     private SocialLink.Platform loginFrom;
+    private Plan plan = Plan.BASIC;
 
 
     public long getId() {
@@ -185,5 +188,22 @@ public class User implements Serializable {
 
     public boolean isAdmin() {
         return roles.contains("ROLE_ADMIN");
+    }
+
+    public Plan getPlan() {
+        return plan;
+    }
+
+    public void setPlan(Plan plan) {
+        this.plan = plan;
+    }
+
+    @AllArgsConstructor
+    public enum Plan {
+        BASIC("basic"),
+        PRO("pro");
+
+        @Getter
+        private final String value;
     }
 }

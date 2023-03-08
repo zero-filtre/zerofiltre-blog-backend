@@ -17,15 +17,9 @@ public class ChargeRequestVM {
 
     @NotNull(message = "The mode must not be null")
     @NotEmpty(message = "The mode must not be empty")
-    @Pattern(regexp = "payment|subscription", message = "The mode must be either payment or subscription")
+    @Pattern(regexp = "payment|subscription", message = "The mode must be either payment, subscription")
     String mode;
 
-    @Pattern(regexp = "month|year", message = "The recurringInterval must be either month or year")
-    String recurringInterval;
-
-    @AssertTrue(message = "The mode must be either payment or subscription (with a recurringInterval = 'month' or 'year')")
-    private boolean isOk() {
-        return mode.equals("payment") || (mode.equals("subscription") && recurringInterval != null);
-    }
+    boolean proPlan;
 
 }
