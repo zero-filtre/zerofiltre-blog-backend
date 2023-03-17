@@ -25,6 +25,7 @@ import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
 
 import javax.validation.*;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -34,10 +35,15 @@ public class PaymentController {
     public static final String INVALID_PAYLOAD = "Invalid payload";
     public static final String PRODUCT_ID = "productId";
     private static final String USER_ID = "userId";
+    public static final String SUBSCRIPTION_CREATE_BILLING_REASON = "subscription_create";
+    public static final String PRO_PLAN_PRICE_ID = "price_1MjU8aFbuS9bqsyPr9G6P45y";
+    public static final String TOTAL_PAID_COUNT = "totalPaidCount";
+    public static final String PRO_PLAN_PRODUCT_ID = "prod_NUT4DYfDGPiLbR";
     private final SecurityContextManager securityContextManager;
     private final CourseProvider courseProvider;
     private final InfraProperties infraProperties;
     private final Subscribe subscribe;
+    private final Suspend suspend;
     private final UserProvider userProvider;
 
 
@@ -47,6 +53,7 @@ public class PaymentController {
         this.infraProperties = infraProperties;
         this.userProvider = userProvider;
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
+        suspend = new Suspend(subscriptionProvider, courseProvider, chapterProvider);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
     }
 
@@ -106,76 +113,152 @@ public class PaymentController {
 
         log.info("Event: {}", event.getType());
 
-        switch (event.getType()) {
-            case "checkout.session.completed":
-                // Payment is successful and the subscription is created.
-                // You should provision the subscription and save the customer ID to your database.
-                Session prematureSession = (Session) event.getDataObjectDeserializer().getObject()
-                        .orElseThrow(() -> new IllegalArgumentException(INVALID_PAYLOAD));
-                SessionRetrieveParams params = SessionRetrieveParams.builder()
-                        .addExpand("line_items")
-                        .addExpand("customer")
-                        .addExpand("payment_intent")
-                        .build();
+        StripeObject stripeObject = event.getDataObjectDeserializer().getObject()
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_PAYLOAD));
 
-                Session session = Session.retrieve(prematureSession.getId(), params, null);
+        Customer customer;
+        String userId;
+        InvoiceRetrieveParams invoiceRetrieveParams;
 
-                SessionListLineItemsParams listLineItemsParams = SessionListLineItemsParams.builder()
-                        .addExpand("data.price.product")
-                        .build();
+        if ("checkout.session.completed".equals(event.getType())) {
+            SessionRetrieveParams params = SessionRetrieveParams.builder()
+                    .addExpand("line_items")
+                    .addExpand("customer")
+                    .addExpand("payment_intent")
+                    .build();
 
-                LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
-                Customer customer = session.getCustomerObject();
-                log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
-                String userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
+            Session session = Session.retrieve(((Session) stripeObject).getId(), params, null);
 
-                for (LineItem lineItem : lineItems.getData()) {
+            SessionListLineItemsParams listLineItemsParams = SessionListLineItemsParams.builder()
+                    .addExpand("data.price.product")
+                    .build();
+
+            LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
+            customer = session.getCustomerObject();
+            log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+            userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
+
+            for (LineItem lineItem : lineItems.getData()) {
+                log.info("Line item: {}", lineItem.toString().replace("\n", " "));
+
+                Price price = lineItem.getPrice();
+                log.info("Price: {}", price.toString().replace("\n", " "));
+
+                com.stripe.model.Product productObject = price.getProductObject();
+
+                act(userId, productObject, true);
+            }
+
+        } else {
+            invoiceRetrieveParams = InvoiceRetrieveParams.builder()
+                    .addExpand("customer")
+                    .addExpand("subscription")
+                    .build();
+            Invoice invoice = Invoice.retrieve(((Invoice) stripeObject).getId(), invoiceRetrieveParams, null);
+            log.info("Invoice {}", invoice.toString().replace("\n", " "));
+
+            customer = invoice.getCustomerObject();
+            log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+            userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
+            log.info("User id: {}", userId);
+
+            InvoiceLineItemCollectionListParams itemListParams = InvoiceLineItemCollectionListParams.builder()
+                    .addExpand("data.price.product")
+                    .build();
+            InvoiceLineItemCollection items = invoice.getLines().list(itemListParams);
+            boolean isProPlan = false;
+
+            Subscription subscription = invoice.getSubscriptionObject();
+            log.info("Subscription: {}", subscription.toString().replace("\n", " "));
+
+            if ("invoice.paid".equals(event.getType())) {
+
+                if (SUBSCRIPTION_CREATE_BILLING_REASON.equals(invoice.getBillingReason())) {
+
+                    subscription.getMetadata().put(TOTAL_PAID_COUNT, String.valueOf(1));
+                    subscription.update(Map.of("metadata", subscription.getMetadata()));
+                    //TODO send the bill to the user
+                    log.info("User {} Invoice " + 1 + " paid for subscription creation {}", userId, subscription.getId());
+                    return "OK";
+                }
+
+                for (InvoiceLineItem lineItem : items.getData()) {
                     log.info("Line item: {}", lineItem.toString().replace("\n", " "));
 
                     Price price = lineItem.getPrice();
                     log.info("Price: {}", price.toString().replace("\n", " "));
 
                     com.stripe.model.Product productObject = price.getProductObject();
-
-                    if (productObject != null) {
-                        log.info("Product object: {}", productObject.toString().replace("\n", " "));
-
-                        long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
-                        log.info("Product id: {}", productId);
-
-                        log.info("User id: {}", userId);
-
-                        if ("prod_NUT4DYfDGPiLbR".equals(productObject.getId())) { //subscription to PRO
-                            User user = userProvider.userOfId(Long.parseLong(userId))
-                                    .orElseThrow(() -> {
-                                        log.error("We couldn't find the user {} to make him PRO", userId);
-                                        return new UserNotFoundException("We couldn't find the user " + userId + " to make him PRO", userId);
-                                    });
-                            user.setPlan(User.Plan.PRO);
-                            userProvider.save(user);
-                        } else {
-                            subscribe.execute(Long.parseLong(userId), productId);
-                        }
+                    if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO plan
+                        isProPlan = true;
                     }
+                    act(userId, productObject, true);
+
                 }
 
-                break;
-            case "invoice.paid":
-                // Continue to provision the subscription as payments continue to be made.
-                // Store the status in your database and check when a user accesses your service.
-                // This approach helps you avoid hitting rate limits.
-                log.info("Invoice paid");
-                break;
-            case "invoice.payment_failed":
-                // The payment failed or the customer does not have a valid payment method.
-                // The subscription becomes past_due. Notify your customer and send them to the
-                // customer portal to update their payment information.
-                log.info("Invoice payment failed");
-                break;
-            default:
+                int totalPaidCount = Integer.parseInt(subscription.getMetadata().get(TOTAL_PAID_COUNT));
+                int count = totalPaidCount + 1;
+                subscription.getMetadata().put(TOTAL_PAID_COUNT, String.valueOf(count));
+                subscription.update(Map.of("metadata", subscription.getMetadata()));
+                log.info("User {} Invoice " + count + " paid for subscription renewal {}", userId, subscription.getId());
+
+                if (!isProPlan && count >= 3) {
+                    subscription.cancel();
+                    log.info("User {} final invoice " + count + " paid and subscription cancelled {}", userId, subscription.getId());
+                }
+
+            } else if ("invoice.payment_failed".equals(event.getType())) {
+
+                if (SUBSCRIPTION_CREATE_BILLING_REASON.equals(invoice.getBillingReason())) {
+                    //TODO notify user the payment failed and invite him to retry
+                    return "OK";
+                }
+                for (InvoiceLineItem lineItem : items.getData()) {
+                    log.info("Line item: {}", lineItem.toString().replace("\n", " "));
+
+                    Price price = lineItem.getPrice();
+                    log.info("Price: {}", price.toString().replace("\n", " "));
+
+                    com.stripe.model.Product productObject = price.getProductObject();
+                    act(userId, productObject, false);
+                    //TODO notify user and send the customer portal to update the payment method
+                }
+                log.info("Invoice payment failed for User {} on subscription {}", userId, subscription.getId());
+            } else {
                 log.info("Unhandled event type: " + event.getType());
+            }
         }
         return "OK";
+    }
+
+
+    private void act(String userId, com.stripe.model.Product productObject, boolean paymentSuccess) throws BlogException {
+        if (productObject != null) {
+            log.info("Product object: {}", productObject.toString().replace("\n", " "));
+
+            log.info("User id: {}", userId);
+
+            if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO
+                User user = userProvider.userOfId(Long.parseLong(userId))
+                        .orElseThrow(() -> {
+                            log.error("We couldn't find the user {} to edit", userId);
+                            return new UserNotFoundException("We couldn't find the user " + userId + " to edit", userId);
+                        });
+                user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
+                //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
+                userProvider.save(user);
+            } else {
+                long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
+                log.info("Product id: {}", productId);
+                if (paymentSuccess) {
+                    subscribe.execute(Long.parseLong(userId), productId);
+                    //TODO send the bill to the user
+                } else {
+                    suspend.execute(Long.parseLong(userId), productId);
+                }
+                //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
+            }
+        }
     }
 
 
@@ -213,7 +296,7 @@ public class PaymentController {
 
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
 
-            lineItemBuilder.setPrice("price_1MjU8aFbuS9bqsyPr9G6P45y");
+            lineItemBuilder.setPrice(PRO_PLAN_PRICE_ID);
         } else {
 
             SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder()
