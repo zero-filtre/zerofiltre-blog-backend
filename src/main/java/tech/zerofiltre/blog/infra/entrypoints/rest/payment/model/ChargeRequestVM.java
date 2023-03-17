@@ -12,6 +12,7 @@ public class ChargeRequestVM {
     long productId;
 
     @NotNull(message = "The product type must not be null")
+    @NotEmpty(message = "The product must not be empty")
     ChargeRequest.ProductType productType;
 
 
