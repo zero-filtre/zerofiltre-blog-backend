@@ -19,7 +19,7 @@ class SubscribeTest {
 
     @Test
     void executeThrowsResourceNotFoundIfUserNotFound() {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new NotFoundUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
@@ -32,7 +32,7 @@ class SubscribeTest {
 
     @Test
     void executeThrowsResourceNotFoundIfCourseNotFound() {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
@@ -45,7 +45,7 @@ class SubscribeTest {
 
     @Test
     void executeThrowsForbiddenActionIfCourseIsNotPublished() {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
@@ -95,7 +95,7 @@ class SubscribeTest {
     @Test
     @DisplayName("Subscribing after a suspension should set fields properly")
     void executeSetSuspendeAt_toNull() throws BlogException {
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundNonAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
@@ -117,5 +117,23 @@ class SubscribeTest {
         Assertions.assertThat(subscription.getLastModifiedAt()).isAfter(subscription.getSubscribedAt());
         Assertions.assertThat(subscription.getLastModifiedAt()).isAfterOrEqualTo(beforeSubscribe);
         Assertions.assertThat(subscription.getLastModifiedAt()).isBeforeOrEqualTo(afterSubscribe);
+    }
+
+    @Test
+    void executeDoesNothingIfUserAlreadySubscribed() throws BlogException {
+        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
+
+        Subscription subscription = subscribe.execute(1, 1);
+
+        assertThat(subscriptionProvider.subscriptionOfCalled).isTrue();
+        assertThat(subscriptionProvider.saveCalled).isFalse();
+
+        Assertions.assertThat(subscription.isActive()).isTrue();
+
+
     }
 }

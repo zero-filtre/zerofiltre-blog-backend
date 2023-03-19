@@ -46,9 +46,12 @@ public class Subscribe {
 
         Subscription subscription = new Subscription();
         LocalDateTime lastModifiedAt = LocalDateTime.now();
-        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
-        if (existingSubscription.isPresent()) {
-            subscription = existingSubscription.get();
+        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, true);
+        if (existingSubscription.isPresent()) return existingSubscription.get();
+
+        Optional<Subscription> cancelledSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
+        if (cancelledSubscription.isPresent()) {
+            subscription = cancelledSubscription.get();
             subscription.setActive(true);
             subscription.setSuspendedAt(null);
         } else {
