@@ -10,7 +10,7 @@ import tech.zerofiltre.blog.util.*;
 import java.time.*;
 import java.util.*;
 
-public class SubscriptionProviderSpy implements SubscriptionProvider {
+public class FoundCancelledOnlySubscriptionProviderSpy implements SubscriptionProvider {
 
     public boolean saveCalled = false;
     public boolean ofCalled = false;
@@ -67,11 +67,15 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
 
     @Override
     public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
+        if(isActive) {
+            subscriptionOfCalled = true;
+            return Optional.empty();
+        }
         Subscription value = new Subscription();
         value.setSubscribedAt(LocalDateTime.now().minusDays(2));
         value.setLastModifiedAt(value.getSubscribedAt());
         value.setSuspendedAt(LocalDateTime.now().minusDays(1));
-        value.setActive(isActive);
+        value.setActive(false);
         value.setSubscriber(ZerofiltreUtils.createMockUser(false));
         value.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
