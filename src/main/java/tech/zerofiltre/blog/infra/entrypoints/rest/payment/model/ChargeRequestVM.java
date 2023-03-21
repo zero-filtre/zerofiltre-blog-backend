@@ -12,7 +12,6 @@ public class ChargeRequestVM {
     long productId;
 
     @NotNull(message = "The product type must not be null")
-    @NotEmpty(message = "The product must not be empty")
     ChargeRequest.ProductType productType;
 
 
@@ -22,5 +21,15 @@ public class ChargeRequestVM {
     String mode;
 
     boolean proPlan;
+
+    @Pattern(regexp = "month|year", message = "The recurringInterval must be either month or year and requires proPlan to be true")
+    String recurringInterval;
+
+    @AssertTrue(message = "The mode must be either payment or subscription (with a recurringInterval = 'month' or 'year'; note that using 'recurringInterval' requires proPlan to be true)")
+    private boolean isOk() {
+        return mode.equals("payment") // one shot payment
+                || (mode.equals("subscription") && !proPlan)  // pay in 3
+                || (mode.equals("subscription") && recurringInterval != null); // pro plan
+    }
 
 }

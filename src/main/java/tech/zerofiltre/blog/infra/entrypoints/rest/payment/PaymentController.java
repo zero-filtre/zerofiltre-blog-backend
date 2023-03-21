@@ -37,6 +37,7 @@ public class PaymentController {
     private static final String USER_ID = "userId";
     public static final String SUBSCRIPTION_CREATE_BILLING_REASON = "subscription_create";
     public static final String PRO_PLAN_PRICE_ID = "price_1MjU8aFbuS9bqsyPr9G6P45y";
+    public static final String PRO_PLAN_YEARLY_PRICE_ID = "price_1MnyeSFbuS9bqsyPZVGSeHgA";
     public static final String TOTAL_PAID_COUNT = "totalPaidCount";
     public static final String PRO_PLAN_PRODUCT_ID = "prod_NUT4DYfDGPiLbR";
     private final SecurityContextManager securityContextManager;
@@ -295,8 +296,8 @@ public class PaymentController {
                 .setQuantity(1L);
 
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
-
-            lineItemBuilder.setPrice(PRO_PLAN_PRICE_ID);
+            if ("month".equals(chargeRequestVM.getRecurringInterval())) lineItemBuilder.setPrice(PRO_PLAN_PRICE_ID);
+            else lineItemBuilder.setPrice(PRO_PLAN_YEARLY_PRICE_ID);
         } else {
 
             SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder()
