@@ -21,6 +21,8 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.payment.model.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
 
@@ -40,19 +42,23 @@ public class PaymentController {
     public static final String PRO_PLAN_YEARLY_PRICE_ID = "price_1MnyeSFbuS9bqsyPZVGSeHgA";
     public static final String TOTAL_PAID_COUNT = "totalPaidCount";
     public static final String PRO_PLAN_PRODUCT_ID = "prod_NUT4DYfDGPiLbR";
+    public static final String VOTRE_PAIEMENT_CHEZ_ZEROFILTRE = "Votre paiement chez Zerofiltre";
+    public static final String SIGNATURE = "\n\n L'équipe Zerofiltre";
     private final SecurityContextManager securityContextManager;
     private final CourseProvider courseProvider;
     private final InfraProperties infraProperties;
     private final Subscribe subscribe;
     private final Suspend suspend;
     private final UserProvider userProvider;
+    private final BlogEmailSender emailSender;
 
 
-    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, ChapterProvider chapterProvider, UserProvider userProvider, SubscriptionProvider subscriptionProvider) {
+    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, ChapterProvider chapterProvider, UserProvider userProvider, SubscriptionProvider subscriptionProvider, BlogEmailSender emailSender) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
         this.infraProperties = infraProperties;
         this.userProvider = userProvider;
+        this.emailSender = emailSender;
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
         suspend = new Suspend(subscriptionProvider, courseProvider, chapterProvider);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
@@ -139,6 +145,7 @@ public class PaymentController {
             log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
             userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
 
+            //lineItems contains on one lineItem
             for (LineItem lineItem : lineItems.getData()) {
                 log.info("Line item: {}", lineItem.toString().replace("\n", " "));
 
@@ -148,7 +155,19 @@ public class PaymentController {
                 com.stripe.model.Product productObject = price.getProductObject();
 
                 act(userId, productObject, true);
+
+                if (customer != null) {
+                    String originURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
+                    long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
+
+                    notifyUser(customer,
+                            VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
+                            "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent débuter votre apprentissage: \n"
+                                    + originURL + "/cours/" + productId
+                                    + SIGNATURE);
+                }
             }
+
 
         } else {
             invoiceRetrieveParams = InvoiceRetrieveParams.builder()
@@ -178,7 +197,13 @@ public class PaymentController {
 
                     subscription.getMetadata().put(TOTAL_PAID_COUNT, String.valueOf(1));
                     subscription.update(Map.of("metadata", subscription.getMetadata()));
-                    //TODO send the bill to the user
+                    if (customer != null)
+                        notifyUser(customer,
+                                VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
+                                "Merci de faire confiance à Zerofiltre.tech, retrouvez votre facture ci-dessous: \n"
+                                        + invoice.getInvoicePdf()
+                                        + SIGNATURE);
+
                     log.info("User {} Invoice " + 1 + " paid for subscription creation {}", userId, subscription.getId());
                     return "OK";
                 }
@@ -201,6 +226,13 @@ public class PaymentController {
                 int count = totalPaidCount + 1;
                 subscription.getMetadata().put(TOTAL_PAID_COUNT, String.valueOf(count));
                 subscription.update(Map.of("metadata", subscription.getMetadata()));
+                if (customer != null)
+                    notifyUser(customer,
+                            VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
+                            "Merci de faire confiance à Zerofiltre.tech, retrouvez votre facture ci-dessous: \n"
+                                    + invoice.getInvoicePdf()
+                                    + SIGNATURE);
+
                 log.info("User {} Invoice " + count + " paid for subscription renewal {}", userId, subscription.getId());
 
                 if (!isProPlan && count >= 3) {
@@ -209,9 +241,17 @@ public class PaymentController {
                 }
 
             } else if ("invoice.payment_failed".equals(event.getType())) {
-
+                String customerPortalLink = "https://billing.stripe.com/p/login/test_28odSt4jj89l8kE6oo";
                 if (SUBSCRIPTION_CREATE_BILLING_REASON.equals(invoice.getBillingReason())) {
-                    //TODO notify user the payment failed and invite him to retry
+                    if (customer != null)
+                        notifyUser(customer,
+                                "[Urgent] Paiement échoué",
+                                "Le paiement de votre facture a échoué, nous n'allons donc pas activer votre abonnement \n"
+                                        + "\n Vous pouvez vous rendre ici "
+                                        + "\n" + customerPortalLink
+                                        + "\n pour essayer de nouveau"
+                                        + SIGNATURE);
+
                     return "OK";
                 }
                 for (InvoiceLineItem lineItem : items.getData()) {
@@ -222,14 +262,35 @@ public class PaymentController {
 
                     com.stripe.model.Product productObject = price.getProductObject();
                     act(userId, productObject, false);
-                    //TODO notify user and send the customer portal to update the payment method
                 }
+                if (customer != null)
+                    notifyUser(customer,
+                            "[Urgent] Paiement échoué",
+                            "Le paiement de votre facture a échoué, nous avons par conséquent suspendu votre abonnement \n"
+                                    + "\n Vous pouvez vous rendre ici "
+                                    + "\n" + customerPortalLink
+                                    + "\n pour mettre à jour votre moyen de paiement et activer votre abonnement"
+                                    + SIGNATURE);
+
                 log.info("Invoice payment failed for User {} on subscription {}", userId, subscription.getId());
             } else {
                 log.info("Unhandled event type: " + event.getType());
             }
         }
         return "OK";
+    }
+
+    private void notifyUser(Customer customer, String subject, String message) {
+        try {
+            Email email = new Email();
+            email.setRecipients(Collections.singletonList(customer.getEmail()));
+            email.setSubject(subject);
+            email.setReplyTo("info@zerofiltre.tech");
+            email.setContent(message);
+            emailSender.send(email);
+        } catch (Exception e) {
+            log.warn("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message);
+        }
     }
 
 
@@ -253,7 +314,6 @@ public class PaymentController {
                 log.info("Product id: {}", productId);
                 if (paymentSuccess) {
                     subscribe.execute(Long.parseLong(userId), productId);
-                    //TODO send the bill to the user
                 } else {
                     suspend.execute(Long.parseLong(userId), productId);
                 }
@@ -272,7 +332,6 @@ public class PaymentController {
             throw new IllegalArgumentException("Product type not supported");
         }
     }
-
 
     private Customer createCustomer(User user) throws StripeException {
 
