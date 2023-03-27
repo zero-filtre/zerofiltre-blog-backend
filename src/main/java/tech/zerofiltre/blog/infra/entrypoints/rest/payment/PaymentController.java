@@ -321,8 +321,10 @@ public class PaymentController {
             log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
             if (paymentSuccess) {
                 subscribe.execute(Long.parseLong(userId), productId);
+                log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(),userId, productId);
             } else {
                 suspend.execute(Long.parseLong(userId), productId);
+                log.info("EventId= {}, EventType={}, User of id={} suspended from Product id: {}", event.getId(), event.getType(),userId, productId);
             }
             //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
         }
