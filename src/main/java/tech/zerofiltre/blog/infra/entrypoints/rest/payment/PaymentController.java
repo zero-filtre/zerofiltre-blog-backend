@@ -106,7 +106,6 @@ public class PaymentController {
             @RequestHeader("Stripe-Signature") String sigHeader) throws StripeException, BlogException {
 
         log.debug("Payload: {}", payload.replace("\n", " "));
-        log.info("Signature: {}", sigHeader);
 
         Event event;
 
@@ -118,7 +117,7 @@ public class PaymentController {
             throw new IllegalArgumentException(INVALID_PAYLOAD, e);
         }
 
-        log.info("Event: {}", event.getType());
+        log.info("Handling Event: id = {},type = {}", event.getId(), event.getType());
 
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject()
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_PAYLOAD));
@@ -142,32 +141,38 @@ public class PaymentController {
 
             LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
             customer = session.getCustomerObject();
-            log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+            log.info("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
             userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
 
-            //lineItems contains on one lineItem
+            //lineItems contains only one lineItem
             for (LineItem lineItem : lineItems.getData()) {
-                log.info("Line item: {}", lineItem.toString().replace("\n", " "));
+                log.info("EventId= {}, EventType={}, Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
                 Price price = lineItem.getPrice();
-                log.info("Price: {}", price.toString().replace("\n", " "));
+                log.info("EventId= {}, EventType={}, Price: {}", event.getId(), event.getType(), price.toString().replace("\n", " "));
 
                 com.stripe.model.Product productObject = price.getProductObject();
 
-                act(userId, productObject, true);
+                act(userId, productObject, true, event);
+                Map<String, String> metadata = productObject != null ? productObject.getMetadata() : new HashMap<>();
 
                 if (customer != null) {
                     String originURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
-                    long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
-
-                    notifyUser(customer,
-                            VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
-                            "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent débuter votre apprentissage: \n"
-                                    + originURL + "/cours/" + productId
-                                    + SIGNATURE);
+                    long productId = 0;
+                    try {
+                        productId = Long.parseLong(metadata.get(PRODUCT_ID));
+                        notifyUser(customer,
+                                VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
+                                "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent débuter votre apprentissage: \n\n"
+                                        + originURL + "/cours/" + productId
+                                        + "\n\n"
+                                        + SIGNATURE);
+                    } catch (NumberFormatException e) {
+                        log.info("EventId = {}, EventType = {}, This is a pro subscription on product {}, this will be handled by invoice.paid handler", event.getId(), event.getType(), productId);
+                        return "OK";
+                    }
                 }
             }
-
 
         } else {
             invoiceRetrieveParams = InvoiceRetrieveParams.builder()
@@ -175,12 +180,12 @@ public class PaymentController {
                     .addExpand("subscription")
                     .build();
             Invoice invoice = Invoice.retrieve(((Invoice) stripeObject).getId(), invoiceRetrieveParams, null);
-            log.info("Invoice {}", invoice.toString().replace("\n", " "));
+            log.info("EventId= {}, EventType={}, Invoice {}", event.getId(), event.getType(), invoice.toString().replace("\n", " "));
 
             customer = invoice.getCustomerObject();
-            log.info("Customer: {}", customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+            log.info("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
             userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
-            log.info("User id: {}", userId);
+            log.info("EventId= {}, EventType={}, User id: {}", event.getId(), event.getType(), userId);
 
             InvoiceLineItemCollectionListParams itemListParams = InvoiceLineItemCollectionListParams.builder()
                     .addExpand("data.price.product")
@@ -189,7 +194,7 @@ public class PaymentController {
             boolean isProPlan = false;
 
             Subscription subscription = invoice.getSubscriptionObject();
-            log.info("Subscription: {}", subscription.toString().replace("\n", " "));
+            log.info("EventId= {}, EventType={}, Subscription: {}", event.getId(), event.getType(), subscription.toString().replace("\n", " "));
 
             if ("invoice.paid".equals(event.getType())) {
 
@@ -204,21 +209,21 @@ public class PaymentController {
                                         + invoice.getInvoicePdf()
                                         + SIGNATURE);
 
-                    log.info("User {} Invoice " + 1 + " paid for subscription creation {}", userId, subscription.getId());
+                    log.info("EventId= {}, EventType={}, User {} Invoice " + 1 + " paid for subscription creation {}", event.getId(), event.getType(), userId, subscription.getId());
                     return "OK";
                 }
 
                 for (InvoiceLineItem lineItem : items.getData()) {
-                    log.info("Line item: {}", lineItem.toString().replace("\n", " "));
+                    log.info("EventId= {}, EventType={},Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
                     Price price = lineItem.getPrice();
-                    log.info("Price: {}", price.toString().replace("\n", " "));
+                    log.info("EventId= {}, EventType={}, Price: {}", event.getId(), event.getType(), price.toString().replace("\n", " "));
 
                     com.stripe.model.Product productObject = price.getProductObject();
                     if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO plan
                         isProPlan = true;
                     }
-                    act(userId, productObject, true);
+                    act(userId, productObject, true, event);
 
                 }
 
@@ -233,11 +238,11 @@ public class PaymentController {
                                     + invoice.getInvoicePdf()
                                     + SIGNATURE);
 
-                log.info("User {} Invoice " + count + " paid for subscription renewal {}", userId, subscription.getId());
+                log.info("EventId= {}, EventType={}, User {} Invoice " + count + " paid for subscription renewal {}", event.getId(), event.getType(), userId, subscription.getId());
 
                 if (!isProPlan && count >= 3) {
                     subscription.cancel();
-                    log.info("User {} final invoice " + count + " paid and subscription cancelled {}", userId, subscription.getId());
+                    log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and subscription cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
                 }
 
             } else if ("invoice.payment_failed".equals(event.getType())) {
@@ -255,13 +260,13 @@ public class PaymentController {
                     return "OK";
                 }
                 for (InvoiceLineItem lineItem : items.getData()) {
-                    log.info("Line item: {}", lineItem.toString().replace("\n", " "));
+                    log.info("EventId= {}, EventType={},Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
                     Price price = lineItem.getPrice();
-                    log.info("Price: {}", price.toString().replace("\n", " "));
+                    log.info("EventId= {}, EventType={}, Price: {}", event.getId(), event.getType(), price.toString().replace("\n", " "));
 
                     com.stripe.model.Product productObject = price.getProductObject();
-                    act(userId, productObject, false);
+                    act(userId, productObject, false, event);
                 }
                 if (customer != null)
                     notifyUser(customer,
@@ -272,7 +277,7 @@ public class PaymentController {
                                     + "\n pour mettre à jour votre moyen de paiement et activer votre abonnement"
                                     + SIGNATURE);
 
-                log.info("Invoice payment failed for User {} on subscription {}", userId, subscription.getId());
+                log.info("EventId= {}, EventType={}, Invoice payment failed for User {} on subscription {}", event.getId(), event.getType(), userId, subscription.getId());
             } else {
                 log.info("Unhandled event type: " + event.getType());
             }
@@ -294,31 +299,32 @@ public class PaymentController {
     }
 
 
-    private void act(String userId, com.stripe.model.Product productObject, boolean paymentSuccess) throws BlogException {
-        if (productObject != null) {
-            log.info("Product object: {}", productObject.toString().replace("\n", " "));
+    private void act(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event) throws BlogException {
+        if (productObject == null) return;
+        log.info("EventId= {}, EventType={}, Product object: {}", event.getId(), event.getType(), productObject.toString().replace("\n", " "));
 
-            log.info("User id: {}", userId);
+        log.info("EventId= {}, EventType={},User id: {}", event.getId(), event.getType(), userId);
 
-            if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO
-                User user = userProvider.userOfId(Long.parseLong(userId))
-                        .orElseThrow(() -> {
-                            log.error("We couldn't find the user {} to edit", userId);
-                            return new UserNotFoundException("We couldn't find the user " + userId + " to edit", userId);
-                        });
-                user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
-                //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
-                userProvider.save(user);
+        if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO
+            log.info("EventId= {}, EventType={}, User {} is subscribing to pro plan", event.getId(), event.getType(), userId);
+            User user = userProvider.userOfId(Long.parseLong(userId))
+                    .orElseThrow(() -> {
+                        log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
+                        return new UserNotFoundException("EventId= " + event.getId() + ",EventType= " + event.getType() + " We couldn't find the user " + userId + " to edit", userId);
+                    });
+            user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
+            //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
+            userProvider.save(user);
+            log.info("EventId= {}, EventType={}, User {} has subscribed to pro plan", event.getId(), event.getType(), userId);
+        } else {
+            long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
+            log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
+            if (paymentSuccess) {
+                subscribe.execute(Long.parseLong(userId), productId);
             } else {
-                long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
-                log.info("Product id: {}", productId);
-                if (paymentSuccess) {
-                    subscribe.execute(Long.parseLong(userId), productId);
-                } else {
-                    suspend.execute(Long.parseLong(userId), productId);
-                }
-                //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
+                suspend.execute(Long.parseLong(userId), productId);
             }
+            //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
         }
     }
 
