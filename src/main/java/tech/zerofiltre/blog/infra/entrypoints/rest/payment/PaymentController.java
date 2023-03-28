@@ -153,7 +153,7 @@ public class PaymentController {
 
                 com.stripe.model.Product productObject = price.getProductObject();
 
-                act(userId, productObject, true, event);
+                fulfill(userId, productObject, true, event, customer);
                 Map<String, String> metadata = productObject != null ? productObject.getMetadata() : new HashMap<>();
 
                 if (customer != null) {
@@ -223,7 +223,7 @@ public class PaymentController {
                     if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO plan
                         isProPlan = true;
                     }
-                    act(userId, productObject, true, event);
+                    fulfill(userId, productObject, true, event, customer);
 
                 }
 
@@ -266,7 +266,7 @@ public class PaymentController {
                     log.info("EventId= {}, EventType={}, Price: {}", event.getId(), event.getType(), price.toString().replace("\n", " "));
 
                     com.stripe.model.Product productObject = price.getProductObject();
-                    act(userId, productObject, false, event);
+                    fulfill(userId, productObject, false, event, customer);
                 }
                 if (customer != null)
                     notifyUser(customer,
@@ -299,7 +299,7 @@ public class PaymentController {
     }
 
 
-    private void act(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event) throws BlogException {
+    private void fulfill(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws BlogException {
         if (productObject == null) return;
         log.info("EventId= {}, EventType={}, Product object: {}", event.getId(), event.getType(), productObject.toString().replace("\n", " "));
 
@@ -307,27 +307,32 @@ public class PaymentController {
 
         if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO
             log.info("EventId= {}, EventType={}, User {} is subscribing to pro plan", event.getId(), event.getType(), userId);
-            User user = userProvider.userOfId(Long.parseLong(userId))
-                    .orElseThrow(() -> {
-                        log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
-                        return new UserNotFoundException("EventId= " + event.getId() + ",EventType= " + event.getType() + " We couldn't find the user " + userId + " to edit", userId);
-                    });
-            user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
-            //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
-            userProvider.save(user);
+            updateUserInfo(userId, paymentSuccess, event, customer, true);
             log.info("EventId= {}, EventType={}, User {} has subscribed to pro plan", event.getId(), event.getType(), userId);
         } else {
             long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
             log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
             if (paymentSuccess) {
                 subscribe.execute(Long.parseLong(userId), productId);
-                log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(),userId, productId);
+                log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(), userId, productId);
             } else {
                 suspend.execute(Long.parseLong(userId), productId);
-                log.info("EventId= {}, EventType={}, User of id={} suspended from Product id: {}", event.getId(), event.getType(),userId, productId);
+                log.info("EventId= {}, EventType={}, User of id={} suspended from Product id: {}", event.getId(), event.getType(), userId, productId);
             }
-            //TODO UPDATE CUSTOMER PAYMENT_EMAIL and save him
+            updateUserInfo(userId, paymentSuccess, event, customer, false);
         }
+    }
+
+    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws UserNotFoundException {
+        User user = userProvider.userOfId(Long.parseLong(userId))
+                .orElseThrow(() -> {
+                    log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
+                    return new UserNotFoundException("EventId= " + event.getId() + ",EventType= " + event.getType() + " We couldn't find the user " + userId + " to edit", userId);
+                });
+        if (isPro) user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
+        String paymentEmail = customer.getEmail();
+        user.setPaymentEmail(paymentEmail);
+        userProvider.save(user);
     }
 
 
