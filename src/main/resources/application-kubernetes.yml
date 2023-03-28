@@ -105,6 +105,7 @@ zerofiltre:
       stripe:
         secret-key: ${STRIPE_SECRET_KEY}
         webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+        customer-portal-link: ${CUSTOMER_PORTAL_LINK}
       github:
         root-url: https://api.github.com/
         client-id: ${GITHUB_CLIENT_ID}

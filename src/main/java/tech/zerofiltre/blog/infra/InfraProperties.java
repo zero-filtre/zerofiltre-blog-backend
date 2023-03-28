@@ -44,6 +44,9 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.stripe.webhook-secret}")
     private String stripeWebhookSecret;
 
+    @Value("${zerofiltre.infra.api.stripe.customer-portal-link:https://billing.stripe.com/p/login/test_28odSt4jj89l8kE6oo}")
+    private String customerPortalLink;
+
     @Value("${zerofiltre.infra.max-attempts}")
     private int maxAttempts;
 
@@ -52,8 +55,6 @@ public class InfraProperties {
 
     @Value("${zerofiltre.contact.email:info@zerofiltre.tech}")
     private String contactEmail;
-
-
 
 
 }
