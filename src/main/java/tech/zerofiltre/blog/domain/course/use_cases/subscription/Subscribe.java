@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.course.use_cases.subscription;
 
+import lombok.extern.slf4j.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
@@ -11,6 +12,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import java.time.*;
 import java.util.*;
 
+@Slf4j
 public class Subscribe {
 
     private final SubscriptionProvider subscriptionProvider;
@@ -44,9 +46,12 @@ public class Subscribe {
 
         Subscription subscription = new Subscription();
         LocalDateTime lastModifiedAt = LocalDateTime.now();
-        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
-        if (existingSubscription.isPresent()) {
-            subscription = existingSubscription.get();
+        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, true);
+        if (existingSubscription.isPresent()) return existingSubscription.get();
+
+        Optional<Subscription> cancelledSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
+        if (cancelledSubscription.isPresent()) {
+            subscription = cancelledSubscription.get();
             subscription.setActive(true);
             subscription.setSuspendedAt(null);
         } else {
@@ -59,6 +64,7 @@ public class Subscribe {
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
+        log.info("User {} subscribed to course {}", userId, courseId);
         return result;
     }
 

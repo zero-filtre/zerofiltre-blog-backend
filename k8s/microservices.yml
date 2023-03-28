@@ -24,6 +24,9 @@ spec:
             export SPRING_DATASOURCE_PASSWORD='{{ .Data.data.spring_datasource_password }}'
             export SECURITY_JWT_SECRET='{{ .Data.data.security_jwt_secret }}'
             export GITHUB_CLIENT_SECRET='{{ .Data.data.github_client_secret }}'
+            export VIMEO_ACCESS_TOKEN='{{ .Data.data.vimeo_access_token }}'
+            export STRIPE_WEBHOOK_SECRET='{{ .Data.data.stripe_webhook_secret }}'
+            export STRIPE_SECRET_KEY='{{ .Data.data.stripe_secret_key }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
@@ -195,7 +198,7 @@ spec:
   selector:
     app: zerofiltretech-blog-${env_name}
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   namespace: zerofiltretech-${env_name}
@@ -210,9 +213,12 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: zerofiltretech-blog-${env_name}
-              servicePort: 80
+              service:
+                name: zerofiltretech-blog-${env_name}
+                port:
+                  number: 80
   tls: # < placing a host in the TLS config will indicate a certificate should be created
     - hosts:
         - ${api_host}

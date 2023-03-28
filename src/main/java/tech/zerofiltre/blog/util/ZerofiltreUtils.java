@@ -141,7 +141,7 @@ public class ZerofiltreUtils {
         course.setAuthor(author);
         course.setReactions(reactions);
         course.setEnrolledCount(10);
-        course.setPrice(35.99);
+        course.setPrice(3599);
         course.setSections(sections);
         course.setSummary(TEST_SUMMARY);
         return course;

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.payment.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import javax.servlet.*;
@@ -97,6 +98,19 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<BlogError> handleException(PaymentException exception, Locale locale) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                "ZBLOG_011",
+                messageSource.getMessage("ZBLOG_011", null, locale),
+                exception.getLocalizedMessage()
+        );
+        log.error(FULL_EXCEPTION, exception);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<BlogError> handleException(ForbiddenActionException exception, Locale locale) {
         final BlogError error = new BlogError(
@@ -123,7 +137,7 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({BlogException.class, ServletException.class, MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
     public ResponseEntity<BlogError> handleException(Exception exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,
@@ -136,7 +150,7 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler({BlogException.class, ServletException.class, Throwable.class})
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
         String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(

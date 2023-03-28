@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.course.use_cases.subscription;
 
+import lombok.extern.slf4j.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
@@ -7,6 +8,7 @@ import tech.zerofiltre.blog.domain.error.*;
 
 import java.time.*;
 
+@Slf4j
 public class Suspend {
     private final SubscriptionProvider subscriptionProvider;
     private final CourseProvider courseProvider;
@@ -28,6 +30,7 @@ public class Suspend {
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
+        log.info("User {} subscription suspended for course {}", userId, courseId);
         return result;
     }
 

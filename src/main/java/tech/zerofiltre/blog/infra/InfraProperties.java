@@ -32,6 +32,18 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.github.client-secret}")
     private String githubAPIClientSecret;
 
+    @Value("${zerofiltre.infra.api.vimeo.access-token}")
+    private String vimeoAccessToken;
+
+    @Value("${zerofiltre.infra.api.vimeo.root-url:https://api.vimeo.com}")
+    private String vimeoRootURL;
+
+    @Value("${zerofiltre.infra.api.stripe.secret-key}")
+    private String stripeSecretKey;
+
+    @Value("${zerofiltre.infra.api.stripe.webhook-secret}")
+    private String stripeWebhookSecret;
+
     @Value("${zerofiltre.infra.max-attempts}")
     private int maxAttempts;
 

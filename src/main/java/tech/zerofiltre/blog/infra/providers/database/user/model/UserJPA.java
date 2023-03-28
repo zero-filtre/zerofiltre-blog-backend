@@ -33,6 +33,7 @@ public class UserJPA extends BaseEntityJPA {
     private boolean isLocked = false;
     private boolean isExpired = false;
     private SocialLink.Platform loginFrom;
+    private String plan;
 
 
     @ElementCollection
