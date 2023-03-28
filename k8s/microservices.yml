@@ -182,6 +182,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: reminder_initial_delay
+            - name: CUSTOMER_PORTAL_LINK
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: customer_portal_link
 
 
 ---
