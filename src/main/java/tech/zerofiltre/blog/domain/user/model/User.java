@@ -10,6 +10,7 @@ public class User implements Serializable {
     private long id;
     private String pseudoName;
     private String email;
+    private String paymentEmail;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn = LocalDateTime.now();
@@ -163,13 +164,23 @@ public class User implements Serializable {
         this.loginFrom = loginFrom;
     }
 
+    public String getPaymentEmail() {
+        return paymentEmail;
+    }
+
+    public void setPaymentEmail(String paymentEmail) {
+        this.paymentEmail = paymentEmail;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", pseudoName='" + pseudoName + '\'' +
                 ", email='" + email + '\'' +
-                ", firstName='" + fullName + '\'' +
+                ", paymentEmail='" + paymentEmail + '\'' +
+                ", fullName='" + fullName + '\'' +
                 ", password='" + password + '\'' +
                 ", registeredOn=" + registeredOn +
                 ", profilePicture='" + profilePicture + '\'' +
@@ -183,6 +194,7 @@ public class User implements Serializable {
                 ", isLocked=" + isLocked +
                 ", isExpired=" + isExpired +
                 ", loginFrom=" + loginFrom +
+                ", plan=" + plan +
                 '}';
     }
 

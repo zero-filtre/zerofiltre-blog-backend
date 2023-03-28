@@ -22,6 +22,7 @@ public class UserJPA extends BaseEntityJPA {
     private String pseudoName;
     @Column(unique = true)
     private String email;
+    private String paymentEmail;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn;
