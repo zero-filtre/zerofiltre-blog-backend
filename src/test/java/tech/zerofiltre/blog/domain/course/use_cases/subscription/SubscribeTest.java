@@ -2,20 +2,25 @@ package tech.zerofiltre.blog.domain.course.use_cases.subscription;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.doubles.*;
+import tech.zerofiltre.blog.util.*;
 
 import java.time.*;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class SubscribeTest {
 
     private Subscribe subscribe;
-
 
     @Test
     void executeThrowsResourceNotFoundIfUserNotFound() {
@@ -31,10 +36,39 @@ class SubscribeTest {
     }
 
     @Test
+    void executeThrowsForbiddenActionIfUserNotAdminNorPRO() throws BlogException {
+        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        Subscription subscription = new Subscription();
+        when(subscriptionProvider.save(any())).thenReturn(subscription);
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        subscription.setCourse(course);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
+        when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
+
+        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> subscribe.execute(user.getId(), course.getId()));
+
+    }
+
+
+    @Test
     void executeThrowsResourceNotFoundIfCourseNotFound() {
         FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
-        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
@@ -47,7 +81,7 @@ class SubscribeTest {
     void executeThrowsForbiddenActionIfCourseIsNotPublished() {
         FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
@@ -60,7 +94,7 @@ class SubscribeTest {
     void executeSavesSubscriptionProperly() throws BlogException {
         NotFoundSubscriptionProviderDummy subscriptionProvider = new NotFoundSubscriptionProviderDummy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
@@ -80,7 +114,6 @@ class SubscribeTest {
         Assertions.assertThat(subscription).isNotNull();
         Assertions.assertThat(subscription.getId()).isNotZero();
         Assertions.assertThat(subscription.getCourse().getId()).isNotZero();
-        Assertions.assertThat(subscription.getSubscriber().getId()).isNotZero();
         Assertions.assertThat(subscription.isCompleted()).isFalse();
         Assertions.assertThat(subscription.getCompletedLessons()).isEmpty();
         Assertions.assertThat(subscription.getSubscribedAt()).isNotNull();
@@ -97,7 +130,7 @@ class SubscribeTest {
     void executeSetSuspendeAt_toNull() throws BlogException {
         FoundCancelledOnlySubscriptionProviderSpy subscriptionProvider = new FoundCancelledOnlySubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
@@ -123,7 +156,7 @@ class SubscribeTest {
     void executeDoesNothingIfUserAlreadySubscribed() throws BlogException {
         SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        UserProvider userProvider = new FoundNonAdminUserProviderSpy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
 
