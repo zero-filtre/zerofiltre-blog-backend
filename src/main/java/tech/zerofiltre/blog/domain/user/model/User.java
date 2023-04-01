@@ -202,6 +202,10 @@ public class User implements Serializable {
         return roles.contains("ROLE_ADMIN");
     }
 
+    public boolean isPro() {
+        return plan.equals(Plan.PRO);
+    }
+
     public Plan getPlan() {
         return plan;
     }

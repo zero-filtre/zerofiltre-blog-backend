@@ -35,6 +35,9 @@ public class Subscribe {
                         String.valueOf(userId),
                         Domains.USER.name()));
 
+        if (!user.isAdmin() && !user.isPro())
+            throw new ForbiddenActionException("You must be a PRO to subscribe to a course this way", Domains.COURSE.name());
+
         Course course = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We couldn't find the course of id " + courseId + " you are trying to subscribe to",
