@@ -47,7 +47,7 @@ public class InvoiceEventHandler {
 
         if (!isProPlan && count >= 3) {
             subscription.cancel();
-            log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and subscription cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
+            log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
         }
     }
 
