@@ -4,11 +4,35 @@ public class ChargeRequest {
 
     private final Currency currency = Currency.EUR;
     private long productId;
-    private String description;
-    private int amount;
-    private String email;
-    private String token;
+    private String mode;
     private ProductType productType;
+    private boolean proPlan;
+    private String recurringInterval;
+
+
+    public String getRecurringInterval() {
+        return recurringInterval;
+    }
+
+    public void setRecurringInterval(String recurringInterval) {
+        this.recurringInterval = recurringInterval;
+    }
+
+    public boolean isProPlan() {
+        return proPlan;
+    }
+
+    public void setProPlan(boolean proPlan) {
+        this.proPlan = proPlan;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 
     public long getProductId() {
         return productId;
@@ -18,41 +42,11 @@ public class ChargeRequest {
         this.productId = productId;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
 
     public Currency getCurrency() {
         return currency;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     public ProductType getProductType() {
         return productType;
