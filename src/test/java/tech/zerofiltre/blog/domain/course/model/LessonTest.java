@@ -266,14 +266,14 @@ class LessonTest {
         LessonProvider lessonProvider = mock(LessonProvider.class);
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
-        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
@@ -308,7 +308,7 @@ class LessonTest {
                 .userProvider(new FoundAdminUserProviderSpy())
                 .chapterProvider(new FoundChapterProviderSpy())
                 .lessonProvider(new FoundLessonProviderSpy())
-                .subscriptionProvider(new SubscriptionProviderSpy())
+                .enrollmentProvider(new EnrollmentProviderSpy())
                 .courseProvider(new Found_Draft_WithKnownAuthor_CourseProvider_Spy())
                 .build();
 
@@ -323,7 +323,7 @@ class LessonTest {
     }
 
     @Test
-    void get_NonFreeLesson_returns_content_exceptVideo_ifNotPartOfSubscription() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_NonFreeLesson_returns_content_exceptVideo_ifNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -345,14 +345,14 @@ class LessonTest {
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
 
-        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
@@ -388,14 +388,14 @@ class LessonTest {
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
 
-        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
@@ -411,7 +411,7 @@ class LessonTest {
     }
 
     @Test
-    void get_freeLesson_returns_fullContent_evenNotPartOfSubscription() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_freeLesson_returns_fullContent_evenNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
 
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
@@ -427,13 +427,13 @@ class LessonTest {
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
-        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
@@ -449,7 +449,7 @@ class LessonTest {
     }
 
     @Test
-    void get_Lesson_returns_fullContent_evenNotPartOfSubscription_andAdmin() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_Lesson_returns_fullContent_evenNotPartOfEnrollment_andAdmin() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         User currentUser = new User();
         currentUser.setId(85);
@@ -470,14 +470,14 @@ class LessonTest {
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
-        SubscriptionProvider subscriptionProvider = mock(SubscriptionProvider.class);
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 

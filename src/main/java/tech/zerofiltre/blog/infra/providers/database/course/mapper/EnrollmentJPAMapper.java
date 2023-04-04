@@ -6,9 +6,9 @@ import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
 
 @Mapper(uses = {CourseJPAMapper.class, UserJPAMapper.class, LessonJPAMapper.class})
-public interface SubscriptionJPAMapper {
+public interface EnrollmentJPAMapper {
 
-    SubscriptionJPA toJPA(Subscription subscription);
+    EnrollmentJPA toJPA(Enrollment enrollment);
 
-    Subscription fromJPA(SubscriptionJPA subscriptionJPA);
+    Enrollment fromJPA(EnrollmentJPA enrollmentJPA);
 }

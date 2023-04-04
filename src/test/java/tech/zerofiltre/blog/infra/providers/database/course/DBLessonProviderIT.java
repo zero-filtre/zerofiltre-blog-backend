@@ -17,7 +17,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBChapterProvider.class, DBCourseProvider.class, DBUserProvider.class, DBSubscriptionProvider.class})
+@Import({DBChapterProvider.class, DBCourseProvider.class, DBUserProvider.class, DBEnrollmentProvider.class})
 class DBLessonProviderIT {
 
     DBLessonProvider lessonProvider;
@@ -29,7 +29,7 @@ class DBLessonProviderIT {
     LessonJPANumberRepository lessonJPANumberRepository;
 
     @Autowired
-    SubscriptionJPARepository subscriptionJPARepository;
+    EnrollmentJPARepository enrollmentJPARepository;
 
     @Autowired
     DBUserProvider dbUserProvider;
@@ -41,11 +41,11 @@ class DBLessonProviderIT {
     DBChapterProvider dbChapterProvider;
 
     @Autowired
-    DBSubscriptionProvider dbSubscriptionProvider;
+    DBEnrollmentProvider dbEnrollmentProvider;
 
     @BeforeEach
     void setUp() {
-        lessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, subscriptionJPARepository);
+        lessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, enrollmentJPARepository);
     }
 
     @Test
@@ -90,7 +90,7 @@ class DBLessonProviderIT {
     }
 
     @Test
-    void delete_lesson_removes_it_from_subscription_completedLessons() throws BlogException {
+    void delete_lesson_removes_it_from_enrollment_completedLessons() throws BlogException {
         //given
 
         User author = ZerofiltreUtils.createMockUser(false);
@@ -111,16 +111,16 @@ class DBLessonProviderIT {
         lesson = lessonProvider.save(lesson);
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isPresent();
 
-        Subscription subscription = ZerofiltreUtils.createMockSubscription(false, author, course);
-        dbSubscriptionProvider.save(subscription);
+        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, author, course);
+        dbEnrollmentProvider.save(enrollment);
 
         //when
         lessonProvider.delete(lesson);
 
         //then
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isEmpty();
-        Optional<Subscription> updatedSubscription = dbSubscriptionProvider.subscriptionOf(author.getId(), course.getId(), true);
-        assertThat(updatedSubscription).isPresent();
-        AssertionsForClassTypes.assertThat(updatedSubscription.get().getCompletedLessons().size()).isEqualTo(0);
+        Optional<Enrollment> updatedEnrollment = dbEnrollmentProvider.enrollmentOf(author.getId(), course.getId(), true);
+        assertThat(updatedEnrollment).isPresent();
+        AssertionsForClassTypes.assertThat(updatedEnrollment.get().getCompletedLessons().size()).isEqualTo(0);
     }
 }

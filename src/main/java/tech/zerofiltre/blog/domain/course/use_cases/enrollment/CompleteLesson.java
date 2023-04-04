@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
@@ -7,29 +7,29 @@ import tech.zerofiltre.blog.domain.error.*;
 
 public class CompleteLesson {
 
-    private final SubscriptionProvider subscriptionProvider;
+    private final EnrollmentProvider enrollmentProvider;
     private final LessonProvider lessonProvider;
     private final ChapterProvider chapterProvider;
     private final CourseProvider courseProvider;
 
-    public CompleteLesson(SubscriptionProvider subscriptionProvider, LessonProvider lessonProvider, ChapterProvider chapterProvider, CourseProvider courseProvider) {
-        this.subscriptionProvider = subscriptionProvider;
+    public CompleteLesson(EnrollmentProvider enrollmentProvider, LessonProvider lessonProvider, ChapterProvider chapterProvider, CourseProvider courseProvider) {
+        this.enrollmentProvider = enrollmentProvider;
         this.lessonProvider = lessonProvider;
         this.chapterProvider = chapterProvider;
         this.courseProvider = courseProvider;
     }
 
-    public Subscription execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws BlogException {
-        Subscription existingSubscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no subscription regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
+    public Enrollment execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws BlogException {
+        Enrollment existingEnrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no enrollment regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 
-        if (existingSubscription.getCompletedLessons().stream().anyMatch(lesson -> lesson.getId() == lessonId) == completeLesson && completeLesson)
-            return computeCounts(existingSubscription);
+        if (existingEnrollment.getCompletedLessons().stream().anyMatch(lesson -> lesson.getId() == lessonId) == completeLesson && completeLesson)
+            return computeCounts(existingEnrollment);
 
         Lesson lesson = lessonProvider.lessonOfId(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson of id " + lessonId + " does not exist", String.valueOf(lessonId), Domains.COURSE.name()));
 
-        ForbiddenActionException forbiddenActionException = new ForbiddenActionException("Lesson not part of this subscription", Domains.COURSE.name());
+        ForbiddenActionException forbiddenActionException = new ForbiddenActionException("Lesson not part of this enrollment", Domains.COURSE.name());
 
         Chapter chapter = chapterProvider.chapterOfId(lesson.getChapterId())
                 .orElseThrow(() -> forbiddenActionException);
@@ -37,16 +37,16 @@ public class CompleteLesson {
         if (chapter.getCourseId() != courseId) throw forbiddenActionException;
 
         if (completeLesson) {
-            existingSubscription.getCompletedLessons().add(lesson);
+            existingEnrollment.getCompletedLessons().add(lesson);
         } else {
-            existingSubscription.getCompletedLessons().removeIf(existingLesson -> existingLesson.getId() == lesson.getId());
+            existingEnrollment.getCompletedLessons().removeIf(existingLesson -> existingLesson.getId() == lesson.getId());
         }
 
-        Subscription result = subscriptionProvider.save(existingSubscription);
+        Enrollment result = enrollmentProvider.save(existingEnrollment);
         return computeCounts(result);
     }
 
-    private Subscription computeCounts(Subscription result) {
+    private Enrollment computeCounts(Enrollment result) {
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));

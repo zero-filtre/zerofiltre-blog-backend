@@ -10,20 +10,20 @@ import tech.zerofiltre.blog.util.*;
 import java.time.*;
 import java.util.*;
 
-public class SubscriptionProviderSpy implements SubscriptionProvider {
+public class EnrollmentProviderSpy implements EnrollmentProvider {
 
     public boolean saveCalled = false;
     public boolean ofCalled = false;
-    public boolean subscriptionOfCalled = false;
+    public boolean enrollmentOfCalled = false;
     public FinderRequest.Filter ofFilter = null;
 
     @Override
-    public Subscription save(Subscription subscription) {
+    public Enrollment save(Enrollment enrollment) {
         saveCalled = true;
-        subscription.setId(1);
-        subscription.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+        enrollment.setId(1);
+        enrollment.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
-        return subscription;
+        return enrollment;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
     }
 
     @Override
-    public Page<Subscription> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
+    public Page<Enrollment> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
         ofFilter = filter;
         User mockUser = ZerofiltreUtils.createMockUser(false);
         Course mockCourse2 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
@@ -40,18 +40,18 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
         Course mockCourse1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
                 Collections.emptyList(), Collections.emptyList());
 
-        Subscription subscription = new Subscription();
-        subscription.setId(1);
-        subscription.setCourse(mockCourse1);
-        subscription.setSubscriber(mockUser);
+        Enrollment enrollment = new Enrollment();
+        enrollment.setId(1);
+        enrollment.setCourse(mockCourse1);
+        enrollment.setUser(mockUser);
 
-        Subscription subscription2 = new Subscription();
-        subscription2.setId(2);
-        subscription2.setCourse(mockCourse2);
-        subscription2.setSubscriber(mockUser);
-        Page<Subscription> result = new Page<>();
+        Enrollment enrollment2 = new Enrollment();
+        enrollment2.setId(2);
+        enrollment2.setCourse(mockCourse2);
+        enrollment2.setUser(mockUser);
+        Page<Enrollment> result = new Page<>();
 
-        result.setContent(Arrays.asList(subscription, subscription2));
+        result.setContent(Arrays.asList(enrollment, enrollment2));
         result.setTotalNumberOfElements(10);
         result.setNumberOfElements(2);
         result.setTotalNumberOfPages(4);
@@ -66,16 +66,16 @@ public class SubscriptionProviderSpy implements SubscriptionProvider {
 
 
     @Override
-    public Optional<Subscription> subscriptionOf(long userId, long courseId, boolean isActive) {
-        Subscription value = new Subscription();
-        value.setSubscribedAt(LocalDateTime.now().minusDays(2));
-        value.setLastModifiedAt(value.getSubscribedAt());
+    public Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive) {
+        Enrollment value = new Enrollment();
+        value.setEnrolledAt(LocalDateTime.now().minusDays(2));
+        value.setLastModifiedAt(value.getEnrolledAt());
         value.setSuspendedAt(LocalDateTime.now().minusDays(1));
         value.setActive(isActive);
-        value.setSubscriber(ZerofiltreUtils.createMockUser(false));
+        value.setUser(ZerofiltreUtils.createMockUser(false));
         value.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
-        subscriptionOfCalled = true;
+        enrollmentOfCalled = true;
         return Optional.of(value);
     }
 }

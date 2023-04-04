@@ -268,12 +268,12 @@ public class ZerofiltreUtils {
                 .build();
     }
 
-    public static Subscription createMockSubscription(boolean withId, User subscriber, Course course) {
-        Subscription subscription = new Subscription();
-        subscription.setId(withId ? 1 : 0);
-        subscription.setSubscriber(subscriber);
-        subscription.setCourse(course);
-        return subscription;
+    public static Enrollment createMockEnrollment(boolean withId, User user, Course course) {
+        Enrollment enrollment = new Enrollment();
+        enrollment.setId(withId ? 1 : 0);
+        enrollment.setUser(user);
+        enrollment.setCourse(course);
+        return enrollment;
 
     }
 }

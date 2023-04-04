@@ -22,15 +22,15 @@ public class LessonController {
     private final ChapterProvider chapterProvider;
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
-    private final SubscriptionProvider subscriptionProvider;
+    private final EnrollmentProvider enrollmentProvider;
     private final SecurityContextManager securityContextManager;
 
-    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, SubscriptionProvider subscriptionProvider, SecurityContextManager securityContextManager) {
+    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, EnrollmentProvider enrollmentProvider, SecurityContextManager securityContextManager) {
         this.lessonProvider = lessonProvider;
         this.chapterProvider = chapterProvider;
         this.userProvider = userProvider;
         this.courseProvider = courseProvider;
-        this.subscriptionProvider = subscriptionProvider;
+        this.enrollmentProvider = enrollmentProvider;
         this.securityContextManager = securityContextManager;
     }
 
@@ -70,7 +70,7 @@ public class LessonController {
                 .lessonProvider(lessonProvider)
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
-                .subscriptionProvider(subscriptionProvider)
+                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .id(id)
                 .build();
