@@ -14,6 +14,8 @@ import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
 import java.util.*;
 
+import static tech.zerofiltre.blog.domain.user.model.User.Plan.*;
+
 @Slf4j
 @Component
 public class StripeCommons {
@@ -66,13 +68,18 @@ public class StripeCommons {
         }
     }
 
-    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws UserNotFoundException {
+    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws BlogException {
         User user = userProvider.userOfId(Long.parseLong(userId))
                 .orElseThrow(() -> {
                     log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
                     return new UserNotFoundException("EventId= " + event.getId() + ",EventType= " + event.getType() + " We couldn't find the user " + userId + " to edit", userId);
                 });
-        if (isPro) user.setPlan(paymentSuccess ? User.Plan.PRO : User.Plan.BASIC);
+        if (isPro && !paymentSuccess) {
+            user.setPlan(BASIC);
+            suspend.all(Long.parseLong(userId), PRO);
+        } else if (paymentSuccess) {
+            user.setPlan(PRO);
+        }
         String paymentEmail = customer.getEmail();
         user.setPaymentEmail(paymentEmail);
         userProvider.save(user);

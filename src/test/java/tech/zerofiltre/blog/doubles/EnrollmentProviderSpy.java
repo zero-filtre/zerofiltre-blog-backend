@@ -32,7 +32,7 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     }
 
     @Override
-    public Page<Enrollment> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
+    public Page<Enrollment> of(int pageNumber, int pageSize, long userId, FinderRequest.Filter filter, String tag) {
         ofFilter = filter;
         User mockUser = ZerofiltreUtils.createMockUser(false);
         Course mockCourse2 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
