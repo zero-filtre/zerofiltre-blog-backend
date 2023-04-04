@@ -5,16 +5,17 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import java.time.*;
 import java.util.*;
 
-public class Subscription {
+public class Enrollment {
 
     private long id;
-    private User subscriber;
+    private User user;
     private Course course;
     private boolean completed;
     private boolean active = true;
-    private LocalDateTime subscribedAt = LocalDateTime.now();
+    private LocalDateTime enrolledAt = LocalDateTime.now();
     private LocalDateTime lastModifiedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
+    private User.Plan plan = User.Plan.BASIC;
 
 
     private List<Lesson> completedLessons = new ArrayList<>();
@@ -27,12 +28,12 @@ public class Subscription {
         this.id = id;
     }
 
-    public User getSubscriber() {
-        return subscriber;
+    public User getUser() {
+        return user;
     }
 
-    public void setSubscriber(User subscriber) {
-        this.subscriber = subscriber;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Course getCourse() {
@@ -59,12 +60,12 @@ public class Subscription {
         this.completedLessons = completedLessons;
     }
 
-    public LocalDateTime getSubscribedAt() {
-        return subscribedAt;
+    public LocalDateTime getEnrolledAt() {
+        return enrolledAt;
     }
 
-    public void setSubscribedAt(LocalDateTime subscribedAt) {
-        this.subscribedAt = subscribedAt;
+    public void setEnrolledAt(LocalDateTime enrolledAt) {
+        this.enrolledAt = enrolledAt;
     }
 
     public LocalDateTime getSuspendedAt() {
@@ -91,4 +92,11 @@ public class Subscription {
         this.lastModifiedAt = lastModifiedAt;
     }
 
+    public User.Plan getPlan() {
+        return plan;
+    }
+
+    public void setPlan(User.Plan plan) {
+        this.plan = plan;
+    }
 }

@@ -13,27 +13,28 @@ import java.util.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "subscription", uniqueConstraints = {@UniqueConstraint(name = "UniqueSubscriberPerCourseId", columnNames = {"subscriber_id", "course_id"})})
+@Table(name = "enrollment", uniqueConstraints = {@UniqueConstraint(name = "UniqueUserPerCourseId", columnNames = {"user_id", "course_id"})})
 @EqualsAndHashCode(callSuper = true)
-public class SubscriptionJPA extends BaseEntityJPA {
+public class EnrollmentJPA extends BaseEntityJPA {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "subscriber_id")
-    private UserJPA subscriber;
+    @JoinColumn(name = "user_id")
+    private UserJPA user;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "course_id")
     private CourseJPA course;
     private boolean completed;
     private boolean active;
-    private LocalDateTime subscribedAt;
+    private LocalDateTime enrolledAt;
     private LocalDateTime suspendedAt;
     private LocalDateTime lastModifiedAt;
+    private String plan;
 
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(
-            name = "subscription_completed_lessons",
-            joinColumns = @JoinColumn(name = "subscription_id"),
+            name = "enrollment_completed_lessons",
+            joinColumns = @JoinColumn(name = "enrollment_id"),
             inverseJoinColumns = @JoinColumn(name = "lesson_id")
     )
     private Set<LessonJPA> completedLessons;

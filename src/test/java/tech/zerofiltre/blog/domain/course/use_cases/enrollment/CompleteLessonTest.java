@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.junit.jupiter.api.*;
 import tech.zerofiltre.blog.domain.course.*;
@@ -17,13 +17,13 @@ class CompleteLessonTest {
 
 
     @Test
-    void completeLesson_ThrowsResourceNotFoundException_IfSubscriptionNotFound() {
+    void completeLesson_ThrowsResourceNotFoundException_IfEnrollmentNotFound() {
         //given
-        SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
+        EnrollmentProvider enrollmentProvider = new NotEnrolledEnrollmentProvider();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -35,11 +35,11 @@ class CompleteLessonTest {
     @Test
     void completeLesson_ThrowsResourceNotFoundException_IfLessonNotFound() {
         //given
-        SubscriptionProvider subscriptionProvider = new NotSubscribedSubscriptionProvider();
+        EnrollmentProvider enrollmentProvider = new NotEnrolledEnrollmentProvider();
         LessonProvider lessonProvider = new NotFoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -49,20 +49,20 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_returns_existingSubscription_ifLessonAlreadyCompleted() throws BlogException {
+    void completeLesson_returns_existingEnrollment_ifLessonAlreadyCompleted() throws BlogException {
         //given
-        AlreadyCompletedLessonSubscriptionProvider subscriptionProvider = new AlreadyCompletedLessonSubscriptionProvider();
+        AlreadyCompletedLessonEnrollmentProvider enrollmentProvider = new AlreadyCompletedLessonEnrollmentProvider();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
-        Subscription subscription = completeLesson.execute(1, 3, 1, true);
+        Enrollment enrollment = completeLesson.execute(1, 3, 1, true);
 
 
         //then
-        assertThat(subscription.getId()).isEqualTo(224);
+        assertThat(enrollment.getId()).isEqualTo(224);
         assertThat(chapterProvider.ofCourseIdCalled).isTrue();
         assertThat(courseProvider.enrollCalledCount).isTrue();
     }
@@ -70,57 +70,57 @@ class CompleteLessonTest {
     @Test
     void completeLesson_addLessonId_toCompletedLessons() throws BlogException {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
-        Subscription subscription = completeLesson.execute(1, 3, 1, true);
+        Enrollment enrollment = completeLesson.execute(1, 3, 1, true);
 
         //then
-        List<Lesson> completedLessons = subscription.getCompletedLessons();
+        List<Lesson> completedLessons = enrollment.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
         assertThat(lessonProvider.calledLessonId).isEqualTo(3);
         assertThat(chapterProvider.calledChapterId).isEqualTo(lessonProvider.lessonOfId(3).get().getChapterId());
         completedLessons.forEach(lesson -> assertThat(lesson.getId()).isEqualTo(1));
-        assertThat(subscriptionProvider.saveCalled).isTrue();
+        assertThat(enrollmentProviderSpy.saveCalled).isTrue();
     }
 
     @Test
     void unCompleteLesson_removesLessonId_fromCompletedLessons() throws BlogException {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
-        Subscription subscription = completeLesson.execute(1, 3, 1, true);
-        List<Lesson> completedLessons = subscription.getCompletedLessons();
+        Enrollment enrollment = completeLesson.execute(1, 3, 1, true);
+        List<Lesson> completedLessons = enrollment.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
 
 
-        subscription = completeLesson.execute(1, 3, 1, false);
-        completedLessons = subscription.getCompletedLessons();
+        enrollment = completeLesson.execute(1, 3, 1, false);
+        completedLessons = enrollment.getCompletedLessons();
         assertThat(completedLessons).isEmpty();
 
         //then
-        assertThat(subscriptionProvider.saveCalled).isTrue();
+        assertThat(enrollmentProviderSpy.saveCalled).isTrue();
     }
 
     @Test
     @DisplayName("CompleteLesson throws ForbiddenActionException when chapter " +
-            "related to the lesson is not found, meaning the lesson is not part of the subscription")
+            "related to the lesson is not found, meaning the lesson is not part of the enrollment")
     void completeLesson_throws_ForbiddenActionException_when_chapterNotFound() {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then
@@ -131,14 +131,14 @@ class CompleteLessonTest {
 
     @Test
     @DisplayName("CompleteLesson throws ForbiddenActionException when the found chapter " +
-            "does not belong to the considered course, meaning the lesson is not part of the subscription")
-    void completeLesson_throws_ForbiddenActionException_when_lesson_NotPart_of_Subscription() {
+            "does not belong to the considered course, meaning the lesson is not part of the enrollment")
+    void completeLesson_throws_ForbiddenActionException_when_lesson_NotPart_of_Enrollment() {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterWithUnknownCourseProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
         //then

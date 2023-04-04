@@ -17,11 +17,11 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBUserProvider.class, DBCourseProvider.class, DBSubscriptionProvider.class})
-class DBSubscriptionProviderIT {
+@Import({DBUserProvider.class, DBCourseProvider.class, DBEnrollmentProvider.class})
+class DBEnrollmentProviderIT {
 
     @Autowired
-    private DBSubscriptionProvider subscriptionProvider;
+    private DBEnrollmentProvider dbEnrollmentProvider;
     @Autowired
     private DBUserProvider userProvider;
     @Autowired
@@ -29,7 +29,7 @@ class DBSubscriptionProviderIT {
 
 
     @Test
-    void of_returns_ProperPageOfSubscription() throws BlogException {
+    void of_returns_ProperPageOfEnrollment() throws BlogException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
@@ -40,19 +40,19 @@ class DBSubscriptionProviderIT {
         Course course1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course1 = courseProvider.save(course1);
 
-        Subscription subscription = new Subscription();
-        subscription.setCourse(course);
-        subscription.setSubscriber(user);
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCourse(course);
+        enrollment.setUser(user);
 
-        Subscription subscription1 = new Subscription();
-        subscription1.setCourse(course1);
-        subscription1.setSubscriber(user);
+        Enrollment enrollment1 = new Enrollment();
+        enrollment1.setCourse(course1);
+        enrollment1.setUser(user);
 
-        subscriptionProvider.save(subscription);
-        subscriptionProvider.save(subscription1);
+        dbEnrollmentProvider.save(enrollment);
+        dbEnrollmentProvider.save(enrollment1);
 
         //when
-        Page<Subscription> result = subscriptionProvider.of(0, 2, user.getId(), null, null);
+        Page<Enrollment> result = dbEnrollmentProvider.of(0, 2, user.getId(), null, null);
 
 
         //then
@@ -68,7 +68,7 @@ class DBSubscriptionProviderIT {
     }
 
     @Test
-    void of_does_not_return_inactive_subscriptions() throws BlogException {
+    void of_does_not_return_inactive_enrollments() throws BlogException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
@@ -79,21 +79,21 @@ class DBSubscriptionProviderIT {
         Course course1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course1 = courseProvider.save(course1);
 
-        Subscription subscription = new Subscription();
-        subscription.setCourse(course);
-        subscription.setSubscriber(user);
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCourse(course);
+        enrollment.setUser(user);
 
-        Subscription subscription1 = new Subscription();
-        subscription1.setCourse(course1);
-        subscription1.setSubscriber(user);
+        Enrollment enrollment1 = new Enrollment();
+        enrollment1.setCourse(course1);
+        enrollment1.setUser(user);
 
-        subscriptionProvider.save(subscription);
-        subscription1 = subscriptionProvider.save(subscription1);
-        subscription1.setActive(false);
-        subscriptionProvider.save(subscription1);
+        dbEnrollmentProvider.save(enrollment);
+        enrollment1 = dbEnrollmentProvider.save(enrollment1);
+        enrollment1.setActive(false);
+        dbEnrollmentProvider.save(enrollment1);
 
         //when
-        Page<Subscription> result = subscriptionProvider.of(0, 2, user.getId(), null, null);
+        Page<Enrollment> result = dbEnrollmentProvider.of(0, 2, user.getId(), null, null);
 
 
         //then

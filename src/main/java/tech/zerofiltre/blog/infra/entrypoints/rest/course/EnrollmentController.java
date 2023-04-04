@@ -5,7 +5,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.subscription.*;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -13,61 +13,61 @@ import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 
 @RestController
-@RequestMapping("/subscription")
-public class SubscriptionController {
+@RequestMapping("/enrollment")
+public class EnrollmentController {
 
     private final SecurityContextManager securityContextManager;
-    private final Subscribe subscribe;
+    private final Enroll enroll;
     private final Suspend suspend;
     private final CompleteLesson completeLesson;
-    private final FindSubscription findSubscription;
+    private final FindEnrollment findEnrollment;
 
 
-    public SubscriptionController(
-            SubscriptionProvider subscriptionProvider,
+    public EnrollmentController(
+            EnrollmentProvider enrollmentProvider,
             CourseProvider courseProvider,
             UserProvider userProvider,
             SecurityContextManager securityContextManager,
             LessonProvider lessonProvider,
             ChapterProvider chapterProvider) {
         this.securityContextManager = securityContextManager;
-        subscribe = new Subscribe(subscriptionProvider, courseProvider, userProvider, chapterProvider);
-        suspend = new Suspend(subscriptionProvider, courseProvider, chapterProvider);
-        completeLesson = new CompleteLesson(subscriptionProvider, lessonProvider, chapterProvider, courseProvider);
-        findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
+        completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
+        findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
     }
 
 
     @PostMapping
-    public Subscription subscribe(@RequestParam long courseId) throws BlogException {
-        return subscribe.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
+    public Enrollment enroll(@RequestParam long courseId) throws BlogException {
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
 
     }
 
     @DeleteMapping
-    public void unsubscribe(@RequestParam long courseId) throws BlogException {
+    public void unEnroll(@RequestParam long courseId) throws BlogException {
         suspend.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
     }
 
     @PatchMapping("/complete")
-    public Subscription completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
+    public Enrollment completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), true);
     }
 
     @PatchMapping("/uncomplete")
-    public Subscription unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
+    public Enrollment unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), false);
     }
 
 
     @GetMapping
-    public Subscription getSubscription(@RequestParam long courseId, @RequestParam long userId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Enrollment getEnrollment(@RequestParam long courseId, @RequestParam long userId) throws ResourceNotFoundException, ForbiddenActionException {
         User executor = securityContextManager.getAuthenticatedUser();
-        return findSubscription.of(courseId, userId, executor);
+        return findEnrollment.of(courseId, userId, executor);
     }
 
     @GetMapping("/user")
-    Page<Course> coursesOfSubscriptions(
+    Page<Course> coursesOfEnrollment(
             @RequestParam int pageNumber,
             @RequestParam int pageSize,
             @RequestParam(required = false) String status,
@@ -86,6 +86,6 @@ public class SubscriptionController {
             status = status.toUpperCase();
             request.setStatus(Status.valueOf(status));
         }
-        return findSubscription.of(request);
+        return findEnrollment.of(request);
     }
 }
