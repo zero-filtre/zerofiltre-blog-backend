@@ -18,8 +18,8 @@ class DBLessonProviderTest {
         //given
         LessonJPARepository lessonJPARepository = new DummyLessonJPARepository();
         LessonJPANumberRepository lessonJPANumberRepository = new CreatorLessonJPANumberRepository();
-        SubscriptionJPARepository subscriptionJPARepository = mock(SubscriptionJPARepository.class);
-        dbLessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, subscriptionJPARepository);
+        EnrollmentJPARepository enrollmentJPARepository = mock(EnrollmentJPARepository.class);
+        dbLessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, enrollmentJPARepository);
         Lesson lesson = Lesson.builder()
                 .title("title")
                 .build();

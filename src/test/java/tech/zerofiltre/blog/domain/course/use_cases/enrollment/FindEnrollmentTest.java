@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.junit.jupiter.api.*;
 import tech.zerofiltre.blog.domain.*;
@@ -14,21 +14,21 @@ import static tech.zerofiltre.blog.domain.FinderRequest.Filter.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 
-class FindSubscriptionTest {
+class FindEnrollmentTest {
 
     @Test
-    void findSubscription_returns_theProperPage() {
+    void findEnrollment_returns_theProperPage() {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProviderSpy, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
-        Page<Course> courses = findSubscription.of(request);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
-        assertThat(subscriptionProvider.ofCalled).isTrue();
+        assertThat(enrollmentProviderSpy.ofCalled).isTrue();
         assertThat(courses).isNotNull();
         assertThat(courses.getContent()).isNotNull();
         assertThat(courses.getContent().size()).isEqualTo(2);
@@ -46,86 +46,86 @@ class FindSubscriptionTest {
     }
 
     @Test
-    void findSubscription_calls_SubscriptionProvider_withTheInactiveParam() {
+    void findEnrollment_calls_EnrollmentProvider_withTheInactiveParam() {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         request.setFilter(INACTIVE);
-        findSubscription.of(request);
+        findEnrollment.of(request);
 
         //then
-        assertThat(subscriptionProvider.ofCalled).isTrue();
-        assertThat(subscriptionProvider.ofFilter).isNotNull();
-        assertThat(subscriptionProvider.ofFilter).isEqualTo(INACTIVE);
+        assertThat(enrollmentProvider.ofCalled).isTrue();
+        assertThat(enrollmentProvider.ofFilter).isNotNull();
+        assertThat(enrollmentProvider.ofFilter).isEqualTo(INACTIVE);
     }
 
     @Test
-    void findSubscription_calls_SubscriptionProvider_withTheCompletedParam() {
+    void findEnrollment_calls_EnrollmentProvider_withTheCompletedParam() {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         //when
         FinderRequest request = new FinderRequest(0, 3, DRAFT, new User());
         request.setFilter(COMPLETED);
-        findSubscription.of(request);
+        findEnrollment.of(request);
 
         //then
-        assertThat(subscriptionProvider.ofCalled).isTrue();
-        assertThat(subscriptionProvider.ofFilter).isNotNull();
-        assertThat(subscriptionProvider.ofFilter).isEqualTo(COMPLETED);
+        assertThat(enrollmentProvider.ofCalled).isTrue();
+        assertThat(enrollmentProvider.ofFilter).isNotNull();
+        assertThat(enrollmentProvider.ofFilter).isEqualTo(COMPLETED);
     }
 
     @Test
-    void findASubscription_returns_theProperOne() throws ResourceNotFoundException, ForbiddenActionException {
+    void findAEnrollment_returns_theProperOne() throws ResourceNotFoundException, ForbiddenActionException {
         //given
-        SubscriptionProviderSpy subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(true);
         //when
-        Subscription subscription = findSubscription.of(0, 1, executor);
+        Enrollment enrollment = findEnrollment.of(0, 1, executor);
         //then
-        assertThat(subscription).isNotNull();
+        assertThat(enrollment).isNotNull();
 
     }
 
     @Test
-    void findASubscription_throwsResourceNotFoundException() {
+    void findAnEnrollment_throwsResourceNotFoundException() {
         //given
-        SubscriptionProvider subscriptionProvider = new NotFoundSubscriptionProviderDummy();
+        EnrollmentProvider enrollmentProvider = new NotFoundEnrollmentProviderDummy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(true);
 
         //when
         //then
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> findSubscription.of(1, 1, executor))
-                .withMessage("Subscription not found");
+                .isThrownBy(() -> findEnrollment.of(1, 1, executor))
+                .withMessage("Enrollment not found");
     }
 
     @Test
-    void findASubscription_throwsForbiddenActionException_ifExecutor_isNotAdmin_NorInvolved() {
+    void findAnEnrollment_throwsForbiddenActionException_ifExecutor_isNotAdmin_NorInvolved() {
         //given
-        SubscriptionProvider subscriptionProvider = new SubscriptionProviderSpy();
+        EnrollmentProvider enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindSubscription findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         User executor = ZerofiltreUtils.createMockUser(false);
 
         //when
         //then
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> findSubscription.of(1, 1, executor))
-                .withMessage("You are only allow to look for your subscriptions");
+                .isThrownBy(() -> findEnrollment.of(1, 1, executor))
+                .withMessage("You are only allow to look for your enrollments");
     }
 
 }

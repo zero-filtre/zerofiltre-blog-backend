@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import lombok.extern.slf4j.*;
 import tech.zerofiltre.blog.domain.*;
@@ -13,21 +13,21 @@ import java.time.*;
 import java.util.*;
 
 @Slf4j
-public class Subscribe {
+public class Enroll {
 
-    private final SubscriptionProvider subscriptionProvider;
+    private final EnrollmentProvider enrollmentProvider;
     private final CourseProvider courseProvider;
     private final UserProvider userProvider;
     private final ChapterProvider chapterProvider;
 
-    public Subscribe(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider) {
-        this.subscriptionProvider = subscriptionProvider;
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider) {
+        this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
         this.chapterProvider = chapterProvider;
     }
 
-    public Subscription execute(long userId, long courseId) throws BlogException {
+    public Enrollment execute(long userId, long courseId) throws BlogException {
 
         User user = userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -36,38 +36,39 @@ public class Subscribe {
                         Domains.USER.name()));
 
         if (!user.isAdmin() && !user.isPro())
-            throw new ForbiddenActionException("You must be a PRO to subscribe to a course this way", Domains.COURSE.name());
+            throw new ForbiddenActionException("You must be a PRO to enroll to a course this way", Domains.COURSE.name());
 
         Course course = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "We couldn't find the course of id " + courseId + " you are trying to subscribe to",
+                        "We couldn't find the course of id " + courseId + " you are trying to enroll to",
                         String.valueOf(courseId),
                         Domains.COURSE.name()));
 
         if (course.getStatus().compareTo(Status.PUBLISHED) < 0)
-            throw new ForbiddenActionException("You can not subscribe to an unpublished course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You can not get enrolled into an unpublished course", Domains.COURSE.name());
 
-        Subscription subscription = new Subscription();
+        Enrollment enrollment = new Enrollment();
         LocalDateTime lastModifiedAt = LocalDateTime.now();
-        Optional<Subscription> existingSubscription = subscriptionProvider.subscriptionOf(userId, courseId, true);
-        if (existingSubscription.isPresent()) return existingSubscription.get();
+        Optional<Enrollment> existingEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, true);
+        if (existingEnrollment.isPresent()) return existingEnrollment.get();
 
-        Optional<Subscription> cancelledSubscription = subscriptionProvider.subscriptionOf(userId, courseId, false);
-        if (cancelledSubscription.isPresent()) {
-            subscription = cancelledSubscription.get();
-            subscription.setActive(true);
-            subscription.setSuspendedAt(null);
+        Optional<Enrollment> cancelledEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, false);
+        if (cancelledEnrollment.isPresent()) {
+            enrollment = cancelledEnrollment.get();
+            enrollment.setActive(true);
+            enrollment.setSuspendedAt(null);
         } else {
-            subscription.setCourse(course);
-            subscription.setSubscriber(user);
-            lastModifiedAt = subscription.getSubscribedAt();
+            enrollment.setCourse(course);
+            enrollment.setUser(user);
+            lastModifiedAt = enrollment.getEnrolledAt();
         }
-        subscription.setLastModifiedAt(lastModifiedAt);
-        Subscription result = subscriptionProvider.save(subscription);
+        enrollment.setLastModifiedAt(lastModifiedAt);
+        if(user.isPro()) enrollment.setPlan(User.Plan.PRO);
+        Enrollment result = enrollmentProvider.save(enrollment);
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
-        log.info("User {} subscribed to course {}", userId, courseId);
+        log.info("User {} enrolled to course {}", userId, courseId);
         return result;
     }
 

@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -19,12 +19,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
 @DataJpaTest
-class FindSubscriptionIT {
+class FindEnrollmentIT {
 
-    private FindSubscription findSubscription;
+    private FindEnrollment findEnrollment;
 
     @Autowired
-    private SubscriptionJPARepository subscriptionJPARepository;
+    private EnrollmentJPARepository enrollmentJPARepository;
 
     @Autowired
     private UserJPARepository userJPARepository;
@@ -39,15 +39,15 @@ class FindSubscriptionIT {
     private ChapterJPANumberRepository chapterJPANumberRepository;
 
     @Test
-    void findSubscription_returns_properPage_forInActiveSubscriptions() throws BlogException {
+    void findEnrollment_returns_properPage_forInActiveEnrollments() throws BlogException {
         //given
-        User subscriber = init2Subscriptions(true, false);
+        User user = init2Enrollments(true, false);
 
 
         //when
-        FinderRequest request = new FinderRequest(0, 2, null, subscriber);
+        FinderRequest request = new FinderRequest(0, 2, null, user);
         request.setFilter(FinderRequest.Filter.INACTIVE);
-        Page<Course> courses = findSubscription.of(request);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
         assertThat(courses).isNotNull();
@@ -63,14 +63,14 @@ class FindSubscriptionIT {
     }
 
     @Test
-    void findSubscription_returns_properPage_forActiveSubscriptions() throws BlogException {
+    void findEnrollment_returns_properPage_forActiveEnrollments() throws BlogException {
         //given
-        User subscriber = init2Subscriptions(false, false);
+        User user = init2Enrollments(false, false);
 
 
         //when
-        FinderRequest request = new FinderRequest(0, 2, null, subscriber);
-        Page<Course> courses = findSubscription.of(request);
+        FinderRequest request = new FinderRequest(0, 2, null, user);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
         assertThat(courses).isNotNull();
@@ -89,15 +89,15 @@ class FindSubscriptionIT {
     }
 
     @Test
-    void findSubscription_returns_completedAndActiveSubscription() throws BlogException {
+    void findEnrollment_returns_completedAndActiveEnrollments() throws BlogException {
         //given
-        User subscriber = init2Subscriptions(false, true);
+        User user = init2Enrollments(false, true);
 
 
         //when
-        FinderRequest request = new FinderRequest(0, 2, null, subscriber);
+        FinderRequest request = new FinderRequest(0, 2, null, user);
         request.setFilter(FinderRequest.Filter.COMPLETED);
-        Page<Course> courses = findSubscription.of(request);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
         assertThat(courses).isNotNull();
@@ -113,15 +113,15 @@ class FindSubscriptionIT {
     }
 
     @Test
-    void findSubscription_returns_nothingOnNotMatch() throws BlogException {
+    void findEnrollment_returns_nothingOnNotMatch() throws BlogException {
         //given
-        User subscriber = init2Subscriptions(false, false);
+        User user = init2Enrollments(false, false);
 
 
         //when
-        FinderRequest request = new FinderRequest(0, 2, null, subscriber);
+        FinderRequest request = new FinderRequest(0, 2, null, user);
         request.setFilter(FinderRequest.Filter.COMPLETED);
-        Page<Course> courses = findSubscription.of(request);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
         assertThat(courses).isNotNull();
@@ -137,14 +137,14 @@ class FindSubscriptionIT {
     }
 
     @Test
-    void findSubscription_returns_uncompletedAndActiveSubscription() throws BlogException {
+    void findEnrollment_returns_uncompletedAndActiveEnrollment() throws BlogException {
         //given
-        User subscriber = init2Subscriptions(false, false);
+        User user = init2Enrollments(false, false);
 
 
         //when
-        FinderRequest request = new FinderRequest(0, 2, null, subscriber);
-        Page<Course> courses = findSubscription.of(request);
+        FinderRequest request = new FinderRequest(0, 2, null, user);
+        Page<Course> courses = findEnrollment.of(request);
 
         //then
         assertThat(courses).isNotNull();
@@ -159,37 +159,37 @@ class FindSubscriptionIT {
         assertThat(courses.getTotalNumberOfPages()).isEqualTo(1);
     }
 
-    private User init2Subscriptions(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws BlogException {
-        SubscriptionProvider subscriptionProvider = new DBSubscriptionProvider(subscriptionJPARepository);
+    private User init2Enrollments(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws BlogException {
+        EnrollmentProvider enrollmentProvider = new DBEnrollmentProvider(enrollmentJPARepository);
         UserProvider userProvider = new DBUserProvider(userJPARepository);
         CourseProvider courseProvider = new DBCourseProvider(courseJPARepository);
         ChapterProvider chapterProvider = new DBChapterProvider(chapterJPARepository, chapterJPANumberRepository);
-        findSubscription = new FindSubscription(subscriptionProvider, courseProvider, chapterProvider);
+        findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
 
 
         User author = ZerofiltreUtils.createMockUser(false);
         author.setPseudoName("author");
         author.setEmail("author@gmail.fr");
-        User subscriber = ZerofiltreUtils.createMockUser(false);
-        subscriber.setPseudoName("subscriber");
-        subscriber.setEmail("susbscriber@gamil.fr");
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPseudoName("enrolled");
+        user.setEmail("susbscriber@gamil.fr");
 
 
         author = userProvider.save(author);
-        subscriber = userProvider.save(subscriber);
+        user = userProvider.save(user);
 
         Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         Course susPendedCourse = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         susPendedCourse = courseProvider.save(susPendedCourse);
 
-        Subscription subscription = ZerofiltreUtils.createMockSubscription(false, subscriber, course);
-        subscriptionProvider.save(subscription);
+        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, user, course);
+        enrollmentProvider.save(enrollment);
 
-        Subscription sencondSubscription = ZerofiltreUtils.createMockSubscription(false, subscriber, susPendedCourse);
-        sencondSubscription.setActive(!withThe2ndOneInactive);
-        sencondSubscription.setCompleted(withThe2ndOneCompleted);
-        subscriptionProvider.save(sencondSubscription);
-        return subscriber;
+        Enrollment sencondEnrollment = ZerofiltreUtils.createMockEnrollment(false, user, susPendedCourse);
+        sencondEnrollment.setActive(!withThe2ndOneInactive);
+        sencondEnrollment.setCompleted(withThe2ndOneCompleted);
+        enrollmentProvider.save(sencondEnrollment);
+        return user;
     }
 }

@@ -25,7 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class,
-        Slf4jLoggerProvider.class, DBSubscriptionProvider.class})
+        Slf4jLoggerProvider.class, DBEnrollmentProvider.class})
 class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -41,7 +41,7 @@ class CourseServiceIT {
     private SectionProvider sectionProvider;
 
     @Autowired
-    SubscriptionProvider subscriptionProvider;
+    EnrollmentProvider enrollmentProvider;
 
     @Autowired
     private UserProvider userProvider;
@@ -145,7 +145,7 @@ class CourseServiceIT {
     }
 
     @Test
-    void subscribeOrSuspend_increasesOrDecreases_EnrolledCount() throws BlogException {
+    void enrollOrSuspend_increasesOrDecreases_EnrolledCount() throws BlogException {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
@@ -170,28 +170,28 @@ class CourseServiceIT {
         course = courseService.save(course, author);
 
 
-        Subscription subscription1 = new Subscription();
-        subscription1.setCourse(course);
-        subscription1.setSubscriber(student1);
-        subscriptionProvider.save(subscription1);
+        Enrollment enrollment1 = new Enrollment();
+        enrollment1.setCourse(course);
+        enrollment1.setUser(student1);
+        enrollmentProvider.save(enrollment1);
 
-        Subscription subscription2 = new Subscription();
-        subscription2.setCourse(course);
-        subscription2.setSubscriber(student2);
-        subscriptionProvider.save(subscription2);
+        Enrollment enrollment2 = new Enrollment();
+        enrollment2.setCourse(course);
+        enrollment2.setUser(student2);
+        enrollmentProvider.save(enrollment2);
 
 
-        Subscription suspendedSubscription = new Subscription();
-        suspendedSubscription.setCourse(course);
-        suspendedSubscription.setSubscriber(student3);
-        suspendedSubscription = subscriptionProvider.save(suspendedSubscription);
+        Enrollment suspendedEnrollment = new Enrollment();
+        suspendedEnrollment.setCourse(course);
+        suspendedEnrollment.setUser(student3);
+        suspendedEnrollment = enrollmentProvider.save(suspendedEnrollment);
 
         int enrolledCount = courseService.getEnrolledCount(course.getId());
 
         assertThat(enrolledCount).isEqualTo(3);
 
-        suspendedSubscription.setActive(false);
-        subscriptionProvider.save(suspendedSubscription);
+        suspendedEnrollment.setActive(false);
+        enrollmentProvider.save(suspendedEnrollment);
 
         enrolledCount = courseService.getEnrolledCount(course.getId());
 

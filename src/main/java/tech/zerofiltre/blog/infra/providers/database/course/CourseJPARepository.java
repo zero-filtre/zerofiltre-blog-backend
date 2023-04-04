@@ -31,7 +31,7 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
     @Query("select a from CourseJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY enrolledCount desc ")
     Page<CourseJPA> findByEnrolledAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
 
-    @Query("select count(a) from CourseJPA a JOIN SubscriptionJPA s ON a.id=s.course.id WHERE a.id=?1 AND s.active=true")
+    @Query("select count(a) from CourseJPA a JOIN EnrollmentJPA s ON a.id=s.course.id WHERE a.id=?1 AND s.active=true")
     int getEnrolledCount(long courseId);
 }
 

@@ -1,4 +1,4 @@
-package tech.zerofiltre.blog.domain.course.use_cases.subscription;
+package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import lombok.extern.slf4j.*;
 import tech.zerofiltre.blog.domain.*;
@@ -10,27 +10,27 @@ import java.time.*;
 
 @Slf4j
 public class Suspend {
-    private final SubscriptionProvider subscriptionProvider;
+    private final EnrollmentProvider enrollmentProvider;
     private final CourseProvider courseProvider;
     private final ChapterProvider chapterProvider;
 
-    public Suspend(SubscriptionProvider subscriptionProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
-        this.subscriptionProvider = subscriptionProvider;
+    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
+        this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.chapterProvider = chapterProvider;
     }
 
-    public Subscription execute(long userId, long courseId) throws BlogException {
-        Subscription subscription = subscriptionProvider.subscriptionOf(userId, courseId, true)
-                .orElseThrow(() -> new ForbiddenActionException("You are not subscribed to the course of id " + courseId, Domains.COURSE.name()));
-        subscription.setActive(false);
-        subscription.setSuspendedAt(LocalDateTime.now());
-        Subscription result = subscriptionProvider.save(subscription);
+    public Enrollment execute(long userId, long courseId) throws BlogException {
+        Enrollment enrollment = enrollmentProvider.enrollmentOf(userId, courseId, true)
+                .orElseThrow(() -> new ForbiddenActionException("You are not enrolled in the course of id " + courseId, Domains.COURSE.name()));
+        enrollment.setActive(false);
+        enrollment.setSuspendedAt(LocalDateTime.now());
+        Enrollment result = enrollmentProvider.save(enrollment);
 
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
-        log.info("User {} subscription suspended for course {}", userId, courseId);
+        log.info("User {} enrollment suspended for course {}", userId, courseId);
         return result;
     }
 

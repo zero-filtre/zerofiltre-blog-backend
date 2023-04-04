@@ -36,12 +36,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = SubscriptionController.class)
+@WebMvcTest(controllers = EnrollmentController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
         APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
-class SubscriptionControllerIT {
+class EnrollmentControllerIT {
     @MockBean
     SecurityContextManager securityContextManager;
     @MockBean
@@ -55,7 +55,7 @@ class SubscriptionControllerIT {
     @MockBean
     LoggerProvider loggerProvider;
     @MockBean
-    SubscriptionProvider subscriptionProvider;
+    EnrollmentProvider enrollmentProvider;
     @MockBean
     UserJPARepository userJPARepository;
     @MockBean
@@ -68,7 +68,7 @@ class SubscriptionControllerIT {
     JwtTokenProvider jwtTokenProvider;
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
-    User author = ZerofiltreUtils.createMockUser(false);
+    User author = ZerofiltreUtils.createMockUser(true);
     Course mockCourse = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
     @Autowired
     private MockMvc mockMvc;
@@ -81,11 +81,11 @@ class SubscriptionControllerIT {
         when(securityContextManager.getAuthenticatedUser()).thenReturn((author));
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(Chapter.builder().courseId(mockCourse.getId()).build()));
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(Lesson.builder().build()));
-        when(subscriptionProvider.subscriptionOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new Subscription()));
-        when(subscriptionProvider.save(any())).thenAnswer(i -> {
-            Subscription subscription = (Subscription) i.getArguments()[0];
-            subscription.setCourse(mockCourse);
-            return subscription;
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new Enrollment()));
+        when(enrollmentProvider.save(any())).thenAnswer(i -> {
+            Enrollment enrollment = (Enrollment) i.getArguments()[0];
+            enrollment.setCourse(mockCourse);
+            return enrollment;
         });
         doNothing().when(loggerProvider).log(any());
     }
@@ -93,10 +93,10 @@ class SubscriptionControllerIT {
 
     @Test
     @WithMockUser
-    void onSubscribe_whenValidInput_thenReturns200() throws Exception {
+    void onEnroll_whenValidInput_thenReturns200() throws Exception {
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.post("/subscription?courseId=1")
+        mockMvc.perform(MockMvcRequestBuilders.post("/enrollment?courseId=1")
                         .contentType(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk());
@@ -107,7 +107,7 @@ class SubscriptionControllerIT {
     void onCompleted_whenValidInput_thenReturns200() throws Exception {
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.patch("/subscription/complete?courseId=45&lessonId=1")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/enrollment/complete?courseId=45&lessonId=1")
                         .contentType(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk());
@@ -118,7 +118,7 @@ class SubscriptionControllerIT {
     void onUnCompleted_whenValidInput_thenReturns200() throws Exception {
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.patch("/subscription/uncomplete?courseId=45&lessonId=1")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/enrollment/uncomplete?courseId=45&lessonId=1")
                         .contentType(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk());
@@ -126,10 +126,10 @@ class SubscriptionControllerIT {
 
     @Test
     @WithMockUser
-    void onUnsubscribe_whenValidInput_thenReturns200() throws Exception {
+    void onUnenroll_whenValidInput_thenReturns200() throws Exception {
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.delete("/subscription?courseId=1")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/enrollment?courseId=1")
                         .contentType(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk());
