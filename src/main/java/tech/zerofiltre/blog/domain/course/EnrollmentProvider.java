@@ -10,7 +10,7 @@ public interface EnrollmentProvider {
 
     void delete(long userId, long courseId);
 
-    Page<Enrollment> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag);
+    Page<Enrollment> of(int pageNumber, int pageSize, long userId, FinderRequest.Filter filter, String tag);
 
     Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive);
 

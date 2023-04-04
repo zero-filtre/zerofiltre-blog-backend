@@ -13,7 +13,7 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
 
     }
 
-    public Page<Enrollment> of(int pageNumber, int pageSize, long authorId, FinderRequest.Filter filter, String tag) {
+    public Page<Enrollment> of(int pageNumber, int pageSize, long userId, FinderRequest.Filter filter, String tag) {
         return null;
     }
 
