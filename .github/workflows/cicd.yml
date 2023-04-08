@@ -24,7 +24,7 @@ jobs:
       requests_cpu : ${{startsWith(github.ref, 'refs/heads/main') && 0.1 || 0.1 }}
       requests_memory : ${{startsWith(github.ref, 'refs/heads/main') && '0.5Gi' || '0.5Gi' }}
       limits_cpu : ${{startsWith(github.ref, 'refs/heads/main') && 0.5 || 0.5 }}
-      limits_memory : ${{startsWith(github.ref, 'refs/heads/main') && '1.5Gi' || '1Gi' }}
+      limits_memory : ${{startsWith(github.ref, 'refs/heads/main') && '1.5Gi' || '1.5Gi' }}
       
 
 
