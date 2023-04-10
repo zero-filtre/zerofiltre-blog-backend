@@ -193,6 +193,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: ovh_username
+            - name: OVH_AUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: ovh_auth_url
+            - name: VIMEO_ROOT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: vimeo_root_url
 
 
 ---

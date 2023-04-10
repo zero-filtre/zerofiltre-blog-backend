@@ -35,10 +35,10 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.vimeo.access-token}")
     private String vimeoAccessToken;
 
-    @Value("${zerofiltre.infra.api.vimeo.root-url:https://api.vimeo.com}")
+    @Value("${zerofiltre.infra.api.vimeo.root-url}")
     private String vimeoRootURL;
 
-    @Value("${zerofiltre.infra.api.ovh.auth-url:https://auth.cloud.ovh.net/v3/auth/tokens?nocatalog}")
+    @Value("${zerofiltre.infra.api.ovh.auth-url}")
     private String ovhAuthUrl;
 
     @Value("${zerofiltre.infra.api.ovh.username}")
@@ -53,7 +53,7 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.stripe.webhook-secret}")
     private String stripeWebhookSecret;
 
-    @Value("${zerofiltre.infra.api.stripe.customer-portal-link:https://billing.stripe.com/p/login/test_28odSt4jj89l8kE6oo}")
+    @Value("${zerofiltre.infra.api.stripe.customer-portal-link}")
     private String customerPortalLink;
 
     @Value("${zerofiltre.infra.max-attempts}")
