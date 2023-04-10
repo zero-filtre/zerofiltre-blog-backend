@@ -27,6 +27,7 @@ spec:
             export VIMEO_ACCESS_TOKEN='{{ .Data.data.vimeo_access_token }}'
             export STRIPE_WEBHOOK_SECRET='{{ .Data.data.stripe_webhook_secret }}'
             export STRIPE_SECRET_KEY='{{ .Data.data.stripe_secret_key }}'
+            export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
@@ -187,6 +188,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: customer_portal_link
+            - name: OVH_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: ovh_username
 
 
 ---

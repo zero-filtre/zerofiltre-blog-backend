@@ -38,6 +38,15 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.vimeo.root-url:https://api.vimeo.com}")
     private String vimeoRootURL;
 
+    @Value("${zerofiltre.infra.api.ovh.auth-url:https://auth.cloud.ovh.net/v3/auth/tokens?nocatalog}")
+    private String ovhAuthUrl;
+
+    @Value("${zerofiltre.infra.api.ovh.username}")
+    private String ovhUsername;
+
+    @Value("${zerofiltre.infra.api.ovh.password}")
+    private String ovhPassword;
+
     @Value("${zerofiltre.infra.api.stripe.secret-key}")
     private String stripeSecretKey;
 
