@@ -38,7 +38,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: zerofiltretech-blog-${env_name}
-          image: imzerofiltre/zerofiltretech-blog:0.0.1
+          image: imzerofiltre/zerofiltretech-blog:${tag_number}_${docker_tag_suffix}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
