@@ -11,6 +11,7 @@ import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.payment.*;
 import tech.zerofiltre.blog.domain.payment.model.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -21,8 +22,6 @@ import tech.zerofiltre.blog.util.*;
 public class StripeProvider implements PaymentProvider {
 
     private static final String USER_ID = "userId";
-    public static final String PRO_PLAN_PRICE_ID = "price_1MjU8aFbuS9bqsyPr9G6P45y";
-    public static final String PRO_PLAN_YEARLY_PRICE_ID = "price_1MnyeSFbuS9bqsyPZVGSeHgA";
     public static final String PRODUCT_ID = "productId";
     public static final String INVALID_PAYLOAD = "Invalid payload";
 
@@ -30,13 +29,14 @@ public class StripeProvider implements PaymentProvider {
     private final InfraProperties infraProperties;
     private final SessionEventHandler sessionEventHandler;
     private final InvoiceEventHandler invoiceEventHandler;
+    private final UserProvider userProvider;
 
-
-    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler) {
+    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider) {
         this.infraProperties = infraProperties;
 
         this.sessionEventHandler = sessionEventHandler;
         this.invoiceEventHandler = invoiceEventHandler;
+        this.userProvider = userProvider;
     }
 
 
@@ -118,6 +118,44 @@ public class StripeProvider implements PaymentProvider {
         }
     }
 
+    private static void cancelForPrice(String paymentCustomerId, String priceId) throws StripeException {
+        if (paymentCustomerId == null || paymentCustomerId.isBlank()) {
+            log.info("No customer id provided, skipping");
+            return;
+        }
+        SubscriptionListParams subscriptionListParams = SubscriptionListParams.builder()
+                .setCustomer(paymentCustomerId)
+                .setPlan(priceId)
+                .build();
+
+        SubscriptionCollection subscriptions = Subscription.list(subscriptionListParams);
+
+        if (subscriptions.getData().isEmpty()) {
+            log.info("No subscription found for customer id: {}", paymentCustomerId);
+            return;
+        }
+        for (Subscription subscription : subscriptions.getData()) {
+            if (subscription.getStatus().equals("active")) {
+                log.info("Subscription id  {} found for customer id: {}, cancelling it", subscription.getId(), paymentCustomerId);
+                SubscriptionUpdateParams params = SubscriptionUpdateParams.builder()
+                        .setCancelAtPeriodEnd(true)
+                        .build();
+                subscription.update(params);
+            }
+        }
+    }
+
+    @Override
+    public void cancelSubscription(String paymentCustomerId) throws PaymentException {
+        try {
+            cancelForPrice(paymentCustomerId, infraProperties.getProPlanPriceId());
+            cancelForPrice(paymentCustomerId, infraProperties.getProPlanYearlyPriceId());
+        } catch (StripeException e) {
+            log.error("Error while cancelling the subscription: " + e.getLocalizedMessage(), e);
+            throw new PaymentException("Error while cancelling the subscription", e, "");
+        }
+    }
+
 
     private Event checkSignature(String payload, String sigHeader) {
         Event event;
@@ -142,6 +180,8 @@ public class StripeProvider implements PaymentProvider {
         customerParamsBuilder.putMetadata(USER_ID, String.valueOf(user.getId()));
         Customer customer = Customer.create(customerParamsBuilder.build());
         log.info("Customer created on stripe, he will be used to create the session: {}", customer.toString().replace("\n", " "));
+        user.setPaymentCustomerId(customer.getId());
+        userProvider.save(user);
         return customer;
     }
 
@@ -153,8 +193,9 @@ public class StripeProvider implements PaymentProvider {
                 .setQuantity(1L);
 
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
-            if ("month".equals(chargeRequestVM.getRecurringInterval())) lineItemBuilder.setPrice(PRO_PLAN_PRICE_ID);
-            else lineItemBuilder.setPrice(PRO_PLAN_YEARLY_PRICE_ID);
+            if ("month".equals(chargeRequestVM.getRecurringInterval()))
+                lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
+            else lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
         } else {
 
             SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder()

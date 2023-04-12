@@ -23,6 +23,7 @@ public class UserJPA extends BaseEntityJPA {
     @Column(unique = true)
     private String email;
     private String paymentEmail;
+    private String paymentCustomerId;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn;

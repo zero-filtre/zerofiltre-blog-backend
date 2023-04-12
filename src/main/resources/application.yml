@@ -113,6 +113,9 @@ zerofiltre:
         secret-key: ${STRIPE_SECRET_KEY}
         webhook-secret: ${STRIPE_WEBHOOK_SECRET}
         customer-portal-link: ${CUSTOMER_PORTAL_LINK}
+        pro-plan-product-id: ${PRO_PLAN_PRODUCT_ID}
+        pro-plan-price-id: ${PRO_PLAN_PRICE_ID}
+        pro-plan-yearly-price-id: ${PRO_PLAN_YEARLY_PRICE_ID}
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa

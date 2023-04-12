@@ -36,7 +36,7 @@ public class InvoiceEventHandler {
         log.info(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
-        if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO plan
+        if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO plan
             isProPlan = true;
         }
         stripeCommons.fulfillOrder(userId, productObject, true, event, customer);
