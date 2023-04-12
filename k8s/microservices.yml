@@ -27,6 +27,9 @@ spec:
             export VIMEO_ACCESS_TOKEN='{{ .Data.data.vimeo_access_token }}'
             export STRIPE_WEBHOOK_SECRET='{{ .Data.data.stripe_webhook_secret }}'
             export STRIPE_SECRET_KEY='{{ .Data.data.stripe_secret_key }}'
+            export PRO_PLAN_PRODUCT_ID='{{ .Data.data.pro_plan_product_id }}'
+            export PRO_PLAN_PRICE_ID='{{ .Data.data.pro_plan_price_id }}'
+            export PRO_PLAN_YEARLY_PRICE_ID='{{ .Data.data.pro_plan_yearly_price_id }}'
             export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
           {{- end -}}
     spec:

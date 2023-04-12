@@ -9,4 +9,6 @@ public interface PaymentProvider {
     String createSession(User user, Product product, ChargeRequest chargeRequest) throws PaymentException;
 
     String handleWebhook(String payload, String signature) throws PaymentException;
+
+    void cancelSubscription(String paymentCustomerId) throws PaymentException;
 }

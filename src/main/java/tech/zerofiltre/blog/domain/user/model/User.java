@@ -11,6 +11,7 @@ public class User implements Serializable {
     private String pseudoName;
     private String email;
     private String paymentEmail;
+    private String paymentCustomerId;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn = LocalDateTime.now();
@@ -172,6 +173,14 @@ public class User implements Serializable {
         this.paymentEmail = paymentEmail;
     }
 
+    public String getPaymentCustomerId() {
+        return paymentCustomerId;
+    }
+
+    public void setPaymentCustomerId(String paymentCustomerId) {
+        this.paymentCustomerId = paymentCustomerId;
+    }
+
 
     @Override
     public String toString() {
@@ -180,6 +189,7 @@ public class User implements Serializable {
                 ", pseudoName='" + pseudoName + '\'' +
                 ", email='" + email + '\'' +
                 ", paymentEmail='" + paymentEmail + '\'' +
+                ", paymentCustomerId='" + paymentCustomerId + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", password='" + password + '\'' +
                 ", registeredOn=" + registeredOn +

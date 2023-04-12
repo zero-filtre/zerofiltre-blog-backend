@@ -9,6 +9,7 @@ import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
@@ -21,11 +22,7 @@ import static tech.zerofiltre.blog.domain.user.model.User.Plan.*;
 public class StripeCommons {
 
     public static final String USER_ID = "userId";
-    public static final String PRO_PLAN_PRICE_ID = "price_1MjU8aFbuS9bqsyPr9G6P45y";
-    public static final String PRO_PLAN_YEARLY_PRICE_ID = "price_1MnyeSFbuS9bqsyPZVGSeHgA";
     public static final String PRODUCT_ID = "productId";
-    public static final String INVALID_PAYLOAD = "Invalid payload";
-    public static final String PRO_PLAN_PRODUCT_ID = "prod_NUT4DYfDGPiLbR";
     public static final String VOTRE_PAIEMENT_CHEZ_ZEROFILTRE = "Votre paiement chez Zerofiltre";
     public static final String SIGNATURE = "\n\n L'équipe Zerofiltre";
     public static final String SUBSCRIPTION_CREATE_BILLING_REASON = "subscription_create";
@@ -36,10 +33,12 @@ public class StripeCommons {
     private final Enroll enroll;
     private final Suspend suspend;
     private final BlogEmailSender emailSender;
+    private final InfraProperties infraProperties;
 
-    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, BlogEmailSender emailSender) {
+    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, BlogEmailSender emailSender, InfraProperties infraProperties) {
         this.userProvider = userProvider;
         this.emailSender = emailSender;
+        this.infraProperties = infraProperties;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
     }
@@ -50,7 +49,7 @@ public class StripeCommons {
 
         log.info("EventId= {}, EventType={},User id: {}", event.getId(), event.getType(), userId);
 
-        if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO
+        if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO
             log.info("EventId= {}, EventType={}, Handling User {} pro plan subscription", event.getId(), event.getType(), userId);
             updateUserInfo(userId, paymentSuccess, event, customer, true);
             log.info("EventId= {}, EventType={}, Handled User {} pro plan subscription", event.getId(), event.getType(), userId);

@@ -56,6 +56,15 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.stripe.customer-portal-link}")
     private String customerPortalLink;
 
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-product-id}")
+    private String proPlanProductId;
+
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-price-id}")
+    private String proPlanPriceId;
+
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-yearly-price-id}")
+    private String proPlanYearlyPriceId;
+
     @Value("${zerofiltre.infra.max-attempts}")
     private int maxAttempts;
 
