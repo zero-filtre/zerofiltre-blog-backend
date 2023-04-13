@@ -27,6 +27,10 @@ spec:
             export VIMEO_ACCESS_TOKEN='{{ .Data.data.vimeo_access_token }}'
             export STRIPE_WEBHOOK_SECRET='{{ .Data.data.stripe_webhook_secret }}'
             export STRIPE_SECRET_KEY='{{ .Data.data.stripe_secret_key }}'
+            export PRO_PLAN_PRODUCT_ID='{{ .Data.data.pro_plan_product_id }}'
+            export PRO_PLAN_PRICE_ID='{{ .Data.data.pro_plan_price_id }}'
+            export PRO_PLAN_YEARLY_PRICE_ID='{{ .Data.data.pro_plan_yearly_price_id }}'
+            export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
@@ -37,7 +41,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: zerofiltretech-blog-${env_name}
-          image: imzerofiltre/zerofiltretech-blog:0.0.1
+          image: imzerofiltre/zerofiltretech-blog:${tag_number}_${docker_tag_suffix}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -187,6 +191,21 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: customer_portal_link
+            - name: OVH_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: ovh_username
+            - name: OVH_AUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: ovh_auth_url
+            - name: VIMEO_ROOT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: vimeo_root_url
 
 
 ---

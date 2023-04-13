@@ -18,7 +18,7 @@ public class DBLessonProvider implements LessonProvider {
 
     private final LessonJPARepository lessonJPARepository;
     private final LessonJPANumberRepository numberRepository;
-    private final SubscriptionJPARepository subscriptionJPARepository;
+    private final EnrollmentJPARepository enrollmentJPARepository;
     LessonJPAMapper lessonJPAMapper = Mappers.getMapper(LessonJPAMapper.class);
 
     @Override
@@ -37,9 +37,9 @@ public class DBLessonProvider implements LessonProvider {
 
     @Override
     public void delete(Lesson lesson) {
-        subscriptionJPARepository.getAllByCompletedLessonsContains(lessonJPAMapper.toJPA(lesson)).forEach(subscriptionJPA -> {
-            subscriptionJPA.getCompletedLessons().removeIf(lessonJPA -> lessonJPA.getId() == lesson.getId());
-            subscriptionJPARepository.save(subscriptionJPA);
+        enrollmentJPARepository.getAllByCompletedLessonsContains(lessonJPAMapper.toJPA(lesson)).forEach(enrollmentJPA -> {
+            enrollmentJPA.getCompletedLessons().removeIf(lessonJPA -> lessonJPA.getId() == lesson.getId());
+            enrollmentJPARepository.save(enrollmentJPA);
         });
         lessonJPARepository.delete(lessonJPAMapper.toJPA(lesson));
     }

@@ -36,7 +36,7 @@ public class InvoiceEventHandler {
         log.info(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
-        if (PRO_PLAN_PRODUCT_ID.equals(productObject.getId())) { //subscription to PRO plan
+        if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO plan
             isProPlan = true;
         }
         stripeCommons.fulfillOrder(userId, productObject, true, event, customer);
@@ -74,8 +74,8 @@ public class InvoiceEventHandler {
             stripeCommons.notifyUser(customer,
                     "[Urgent] Paiement échoué",
                     "Le paiement de votre facture a échoué, votre abonnement ne sera pas (re)activé. "
-                            + "\n Vous pouvez vous suivre le lien ci-dessous pour mettre à jour vos moyens de paiement et essayer de nouveau."
-                            + " \n Servez-vous de l'adresse e-mail utilisée lors du paiement."
+                            + "\n Vous pouvez utiliser le lien ci-dessous pour mettre à jour vos moyens de paiement et essayer de nouveau."
+                            + " \n Servez-vous de l'adresse e-mail utilisée lors du dernier paiement."
                             + "\n Vous pouvez copier et coller le lien dans votre navigateur internet si jamais cliquer dessus ne fonctionne pas."
                             + "\n" + customerPortalLink
                             + SIGNATURE);

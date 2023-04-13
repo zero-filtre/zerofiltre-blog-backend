@@ -5,9 +5,11 @@ import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.payment.*;
 import tech.zerofiltre.blog.domain.payment.model.*;
+import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -25,21 +27,20 @@ public class PaymentController {
     private final PaymentService paymentService;
 
 
-    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, PaymentProvider paymentProvider) {
+    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, PaymentProvider paymentProvider, UserProvider userProvider, EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
-        this.paymentService = new PaymentService(paymentProvider);
+        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
+        this.paymentService = new PaymentService(paymentProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
     }
 
-    @GetMapping("/success")
-    public String success() {
-        return "Payment successful";
-    }
+    @PostMapping("/cancelPlan")
+    public String cancel() throws BlogException {
+        User user = securityContextManager.getAuthenticatedUser();
+        paymentService.cancelSubscription(user);
+        return "Plan cancelled";
 
-    @GetMapping("/cancel")
-    public String cancel() {
-        return "Payment canceled";
     }
 
     @PostMapping("/checkout")

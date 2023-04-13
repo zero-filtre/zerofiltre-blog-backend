@@ -100,12 +100,15 @@ zerofiltre:
         expiration-seconds: ${SECURITY_VERIFICATION_TOKEN_EXPIRATION}
     api:
       vimeo:
-        root-url: https://api.vimeo.com
+        root-url: ${VIMEO_ROOT_URL}
         access-token: ${VIMEO_ACCESS_TOKEN}
       stripe:
         secret-key: ${STRIPE_SECRET_KEY}
         webhook-secret: ${STRIPE_WEBHOOK_SECRET}
         customer-portal-link: ${CUSTOMER_PORTAL_LINK}
+        pro-plan-product-id: ${PRO_PLAN_PRODUCT_ID}
+        pro-plan-price-id: ${PRO_PLAN_PRICE_ID}
+        pro-plan-yearly-price-id: ${PRO_PLAN_YEARLY_PRICE_ID}
       github:
         root-url: https://api.github.com/
         client-id: ${GITHUB_CLIENT_ID}
@@ -114,6 +117,10 @@ zerofiltre:
         version: 2.3
         root-url: https://api.stackexchange.com/
         key: ${STACKOVERFLOW_KEY}
+      ovh:
+        username: ${OVH_USERNAME}
+        password: ${OVH_PASSWORD}
+        auth-url: ${OVH_AUTH_URL}
     entrypoints:
       rest:
         api-version: 1.0

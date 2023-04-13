@@ -13,7 +13,7 @@ import java.util.*;
 import static tech.zerofiltre.blog.domain.Domains.*;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "subscriptionProvider"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "enrollmentProvider"})
 public class Lesson {
 
     public static final String THE_LESSON_OF_ID = "The lesson of id ";
@@ -33,8 +33,8 @@ public class Lesson {
     private ChapterProvider chapterProvider;
     private UserProvider userProvider;
     private CourseProvider courseProvider;
-    private SubscriptionProvider subscriptionProvider;
-    private boolean unsubscribedAccess;
+    private EnrollmentProvider enrollmentProvider;
+    private boolean notEnrolledAccess;
 
 
     private Lesson(LessonBuilder lessonBuilder) {
@@ -51,7 +51,7 @@ public class Lesson {
         this.chapterProvider = lessonBuilder.chapterProvider;
         this.userProvider = lessonBuilder.userProvider;
         this.courseProvider = lessonBuilder.courseProvider;
-        this.subscriptionProvider = lessonBuilder.subscriptionProvider;
+        this.enrollmentProvider = lessonBuilder.enrollmentProvider;
         this.number = lessonBuilder.number;
     }
 
@@ -89,7 +89,7 @@ public class Lesson {
     }
 
     public String getVideo() {
-        return unsubscribedAccess ? VIDEO_NOT_AVAILABLE_FOR_FREE : video;
+        return notEnrolledAccess ? VIDEO_NOT_AVAILABLE_FOR_FREE : video;
     }
 
     public boolean isFree() {
@@ -171,7 +171,7 @@ public class Lesson {
         if (currentUserId == 0 && lesson.get().isFree()) {
             return setProviders(lesson.get());
         } else if (currentUserId == 0 && !lesson.get().isFree()) {
-            unsubscribedAccess = true;
+            notEnrolledAccess = true;
             return setProviders(lesson.get());
         }
 
@@ -191,12 +191,12 @@ public class Lesson {
         return courseProvider;
     }
 
-    public SubscriptionProvider getSubscriptionProvider() {
-        return subscriptionProvider;
+    public EnrollmentProvider getEnrollmentProvider() {
+        return enrollmentProvider;
     }
 
 
-    private void checkConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkSubscription) throws ResourceNotFoundException, ForbiddenActionException {
+    private void checkConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
 
@@ -210,14 +210,14 @@ public class Lesson {
         if (isDeletion && existingCourse.getStatus().equals(Status.PUBLISHED) && !existingUser.isAdmin())
             throw new ForbiddenActionException("You can not delete a lesson that is already published", Domains.COURSE.name());
 
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !checkSubscription) {
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !checkEnrollments) {
             throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
         }
 
-        if (checkSubscription) {
-            Optional<Subscription> subscription = subscriptionProvider.subscriptionOf(currentUserId, courseId, true);
-            if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && subscription.isEmpty())
-                unsubscribedAccess = true;
+        if (checkEnrollments) {
+            Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true);
+            if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && enrollment.isEmpty())
+                notEnrolledAccess = true;
         }
     }
 
@@ -227,8 +227,8 @@ public class Lesson {
         lesson.chapterProvider = this.chapterProvider;
         lesson.userProvider = this.userProvider;
         lesson.courseProvider = this.courseProvider;
-        lesson.subscriptionProvider = this.subscriptionProvider;
-        lesson.unsubscribedAccess = this.unsubscribedAccess;
+        lesson.enrollmentProvider = this.enrollmentProvider;
+        lesson.notEnrolledAccess = this.notEnrolledAccess;
         return lesson;
     }
 
@@ -248,7 +248,7 @@ public class Lesson {
         private ChapterProvider chapterProvider;
         private UserProvider userProvider;
         private CourseProvider courseProvider;
-        private SubscriptionProvider subscriptionProvider;
+        private EnrollmentProvider enrollmentProvider;
 
 
         public LessonBuilder id(long id) {
@@ -321,8 +321,8 @@ public class Lesson {
             return this;
         }
 
-        public LessonBuilder subscriptionProvider(SubscriptionProvider subscriptionProvider) {
-            this.subscriptionProvider = subscriptionProvider;
+        public LessonBuilder enrollmentProvider(EnrollmentProvider enrollmentProvider) {
+            this.enrollmentProvider = enrollmentProvider;
             return this;
         }
 
