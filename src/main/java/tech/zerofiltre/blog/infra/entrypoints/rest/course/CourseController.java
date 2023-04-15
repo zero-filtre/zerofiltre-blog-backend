@@ -88,7 +88,6 @@ public class CourseController {
         return courseService.of(request);
     }
 
-
     @PostMapping
     public Course init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
@@ -99,7 +98,7 @@ public class CourseController {
     public String deleteCourse(@PathVariable("id") long courseId, HttpServletRequest request) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
         courseService.delete(courseId, user);
-        return sources.getMessage("message.delete.article.success", null, request.getLocale());
+        return sources.getMessage("message.delete.course.success", null, request.getLocale());
     }
 
     private Course saveCourse(PublishOrSaveCourseVM publishOrSaveCourseVM, Status published) throws ResourceNotFoundException, ForbiddenActionException {

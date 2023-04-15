@@ -4,7 +4,7 @@ import org.mapstruct.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.infra.providers.database.course.model.*;
 
-@Mapper
+@Mapper(uses = ResourceJPAMapper.class)
 public interface LessonJPAMapper {
 
     @Mapping(target = "chapter", source = "chapterId", qualifiedByName = "chapterFromId")

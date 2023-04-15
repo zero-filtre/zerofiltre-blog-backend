@@ -6,5 +6,8 @@ import java.util.*;
 
 public interface ResourceProvider {
     Optional<Resource> resourceOfId(long id);
-    Resource registerResource(Resource resource);
+
+    Resource save(Resource resource);
+
+    void delete(long resourceId);
 }
