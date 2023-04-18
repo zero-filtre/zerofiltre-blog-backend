@@ -35,6 +35,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
@@ -155,6 +159,23 @@
             <artifactId>logback-json-classic</artifactId>
             <version>0.1.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>22.10.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>gson</artifactId>
+                    <groupId>com.google.code.gson</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>gson</artifactId>
+            <groupId>com.google.code.gson</groupId>
+            <version>2.10.1</version>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback.contrib</groupId>
@@ -233,10 +254,10 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <configuration>
                     <propertyFile>src/main/resources/liquibase/liquibase.properties</propertyFile>
-                    <outputChangeLogFile>src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yml
+                    <outputChangeLogFile>src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yaml
                     </outputChangeLogFile>
                     <changeLogFile>
-                        src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yml
+                        src/main/resources/liquibase/db/changelog/db.changelog-${activeProfile}.yaml
                     </changeLogFile>
                     <diffChangeLogFile>
                         src/main/resources/liquibase/db/changelog/changes/${activeProfile}/${timestamp}_changelog.yaml
@@ -268,9 +289,13 @@
                 <version>0.8.2</version>
                 <configuration>
                     <excludes>
-                        <exclude>/tech/zerofiltre/**/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/article/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/logging/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/user/model/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/mapper/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/*JPA.*</exclude>
+                        <exclude>/tech/zerofiltre/**/*VM.*</exclude>
+                        <exclude>/tech/zerofiltre/**/entrypoints/rest/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/ZerofiltreBlogApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/util/*</exclude>

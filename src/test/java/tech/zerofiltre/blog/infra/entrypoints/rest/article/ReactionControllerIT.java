@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -22,6 +23,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 
@@ -36,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class,StackOverflowAuthenticationTokenProperties.class,
-        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class})
+        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, DBCourseProvider.class})
 class ReactionControllerIT {
 
     @Autowired
@@ -56,6 +58,9 @@ class ReactionControllerIT {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    CourseProvider courseProvider;
 
     @MockBean
     SecurityContextManager securityContextManager;

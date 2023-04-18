@@ -59,7 +59,7 @@ class DeleteArticleIT {
         Article article = ZerofiltreUtils.createMockArticle(currentUser, tags, Collections.emptyList());
         article = articleProvider.save(article);
 
-        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(false, article.getId(), currentUser);
+        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(false, article.getId(),0, currentUser);
         reactions.forEach(reactionProvider::save);
 
         deleteArticle.execute(currentUser, article.getId());

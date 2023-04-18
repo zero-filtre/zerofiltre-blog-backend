@@ -28,7 +28,7 @@ public class PublishOrSaveArticle {
                 .orElseThrow(() -> new PublishOrSaveArticleException("We can not publish/save an unknown article. Could not find an article with id: " + articleId, articleId));
 
         User author = existingArticle.getAuthor();
-        if (!isAuthor(currentEditor, author) && !isAdmin(currentEditor))
+        if (!isAuthor(currentEditor, author) && !currentEditor.isAdmin())
             throw new ForbiddenActionException("You are not allowed to edit this article", Domains.ARTICLE.name());
 
         checkTags(tags);
@@ -39,10 +39,10 @@ public class PublishOrSaveArticle {
         existingArticle.setSummary(summary);
         existingArticle.setLastSavedAt(now);
 
-        if (!isAlreadyPublished(existingArticle) && isTryingToPublish(status) && !isAdmin(currentEditor))
+        if (!isAlreadyPublished(existingArticle) && isTryingToPublish(status) && !currentEditor.isAdmin())
             existingArticle.setStatus(Status.IN_REVIEW);
 
-        if (!isAlreadyPublished(existingArticle) && (!isTryingToPublish(status) || isAdmin(currentEditor)))
+        if (!isAlreadyPublished(existingArticle) && (!isTryingToPublish(status) || currentEditor.isAdmin()))
             existingArticle.setStatus(status);
 
 
@@ -63,10 +63,6 @@ public class PublishOrSaveArticle {
 
     private boolean isTryingToPublish(Status status) {
         return status.equals(Status.PUBLISHED) || status.equals(Status.IN_REVIEW);
-    }
-
-    private boolean isAdmin(User currentEditor) {
-        return currentEditor.getRoles().contains("ROLE_ADMIN");
     }
 
     private boolean isAuthor(User currentEditor, User author) {

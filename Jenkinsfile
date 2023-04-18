@@ -3,7 +3,7 @@ def label = "worker-${UUID.randomUUID().toString()}"
 
 podTemplate(label: label, containers: [
         containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
-        containerTemplate(name: 'kubectl', image: 'roffe/kubectl', command: 'cat', ttyEnabled: true),
+        containerTemplate(name: 'kubectl', image: 'uselagoon/kubectl', command: 'cat', ttyEnabled: true),
         containerTemplate(name: 'maven', image: 'maven:3.8.4-openjdk-11', command: 'cat', ttyEnabled: true)
 ],
         volumes: [
@@ -153,7 +153,7 @@ String getLimitsCPU(String branchName) {
     if (branchName == 'main') {
         return '1'
     } else {
-        return '0.5'
+        return '1'
     }
 }
 
@@ -161,7 +161,7 @@ String getLimitsMemory(String branchName) {
     if (branchName == 'main') {
         return '2Gi'
     } else {
-        return '1.2Gi'
+        return '2Gi'
     }
 }
 

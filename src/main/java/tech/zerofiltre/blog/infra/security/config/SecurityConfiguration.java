@@ -113,9 +113,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/savePasswordReset",
                         "/user/initPasswordReset",
                         "/notification/help",
+                        "/payment/checkout",
+                        "/payment/webhook",
                         "/user/github/**").permitAll()
                 .antMatchers(HttpMethod.GET,
-                        "/article/**",
+                        "/article/**", "/course/**", "/chapter/**", "/section/**", "/checkout", "/lesson/*",
                         "/user/registrationConfirm",
                         "/user/resendRegistrationConfirm",
                         "/user/initPasswordReset",
@@ -123,6 +125,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/tag/**",
                         "/user/profile/*",
                         "/user/jwt/refreshToken",
+                        "/payment/success",
+                        "/payment/cancel",
                         "/user/github/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()

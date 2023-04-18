@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -25,6 +26,8 @@ import tech.zerofiltre.blog.infra.providers.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
+import tech.zerofiltre.blog.infra.providers.database.article.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
@@ -42,7 +45,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
-        UserMailNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class})
+        UserMailNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class,
+        DBTagProvider.class, DBChapterProvider.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -65,6 +69,9 @@ class UserControllerIT {
     ReactionProvider reactionProvider;
 
     @MockBean
+    CourseProvider courseProvider;
+
+    @MockBean
     GithubLoginProvider githubLoginProvider;
 
     @MockBean
@@ -84,6 +91,12 @@ class UserControllerIT {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    TagProvider tagProvider;
+
+    @MockBean
+    ChapterProvider chapterProvider;
 
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 

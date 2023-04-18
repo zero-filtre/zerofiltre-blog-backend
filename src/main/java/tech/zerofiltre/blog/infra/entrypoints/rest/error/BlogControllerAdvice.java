@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.payment.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import javax.servlet.*;
@@ -20,7 +21,6 @@ import java.util.*;
 @RestControllerAdvice
 public class BlogControllerAdvice {
 
-    public static final String NO_DOMAIN_AVAILABLE = "No domain available";
     public static final String ZBLOG_000 = "ZBLOG_000";
     public static final String FULL_EXCEPTION = "Full exception";
     @Value("${zerofiltre.infra.entrypoints.rest.api-version}")
@@ -36,7 +36,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
                 "ZBLOG_003",
                 messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceId()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -50,7 +49,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_001",
                 messageSource.getMessage("ZBLOG_001", new Object[]{exception.getItemId()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -68,7 +66,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_004",
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
-                NO_DOMAIN_AVAILABLE,
                 errorMessage
         );
         log.error(FULL_EXCEPTION, exception);
@@ -82,7 +79,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 "ZBLOG_005",
                 messageSource.getMessage("ZBLOG_005", new Object[]{exception.getUniqueIdentifier()}, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -96,7 +92,19 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 "ZBLOG_006",
                 messageSource.getMessage("ZBLOG_006", null, locale),
-                exception.getDomain(),
+                exception.getLocalizedMessage()
+        );
+        log.error(FULL_EXCEPTION, exception);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<BlogError> handleException(PaymentException exception, Locale locale) {
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                "ZBLOG_011",
+                messageSource.getMessage("ZBLOG_011", null, locale),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -110,7 +118,6 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 "ZBLOG_008",
                 messageSource.getMessage("ZBLOG_008", null, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
@@ -124,38 +131,36 @@ public class BlogControllerAdvice {
                 Integer.toString(HttpStatus.UNAUTHORIZED.value()),
                 "ZBLOG_007",
                 messageSource.getMessage("ZBLOG_007", null, locale),
-                exception.getDomain(),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({ServletException.class, MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
     public ResponseEntity<BlogError> handleException(Exception exception, Locale locale) {
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 ZBLOG_000,
                 messageSource.getMessage(ZBLOG_000, null, locale),
-                NO_DOMAIN_AVAILABLE,
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION, exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler({BlogException.class, ServletException.class, Throwable.class})
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                ZBLOG_000,
+                errorCode,
                 messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
-                NO_DOMAIN_AVAILABLE,
-                throwable.getLocalizedMessage()
+                "Unknown error, get help by providing the code: " + errorCode + " to the support team"
         );
-        log.error(FULL_EXCEPTION, throwable);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

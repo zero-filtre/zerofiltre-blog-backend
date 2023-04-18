@@ -32,6 +32,39 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.github.client-secret}")
     private String githubAPIClientSecret;
 
+    @Value("${zerofiltre.infra.api.vimeo.access-token}")
+    private String vimeoAccessToken;
+
+    @Value("${zerofiltre.infra.api.vimeo.root-url}")
+    private String vimeoRootURL;
+
+    @Value("${zerofiltre.infra.api.ovh.auth-url}")
+    private String ovhAuthUrl;
+
+    @Value("${zerofiltre.infra.api.ovh.username}")
+    private String ovhUsername;
+
+    @Value("${zerofiltre.infra.api.ovh.password}")
+    private String ovhPassword;
+
+    @Value("${zerofiltre.infra.api.stripe.secret-key}")
+    private String stripeSecretKey;
+
+    @Value("${zerofiltre.infra.api.stripe.webhook-secret}")
+    private String stripeWebhookSecret;
+
+    @Value("${zerofiltre.infra.api.stripe.customer-portal-link}")
+    private String customerPortalLink;
+
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-product-id}")
+    private String proPlanProductId;
+
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-price-id}")
+    private String proPlanPriceId;
+
+    @Value("${zerofiltre.infra.api.stripe.pro-plan-yearly-price-id}")
+    private String proPlanYearlyPriceId;
+
     @Value("${zerofiltre.infra.max-attempts}")
     private int maxAttempts;
 
@@ -40,8 +73,6 @@ public class InfraProperties {
 
     @Value("${zerofiltre.contact.email:info@zerofiltre.tech}")
     private String contactEmail;
-
-
 
 
 }

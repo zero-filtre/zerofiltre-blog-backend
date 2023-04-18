@@ -46,7 +46,7 @@ public class ArticleController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (BlogException e) {
-            log.trace("We did not find a connected user but we can still return the wanted article", e);
+            log.debug("We did not find a connected user but we can still return the wanted article", e);
         }
         return findArticle.byId(articleId,user);
     }
@@ -63,18 +63,18 @@ public class ArticleController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (BlogException e) {
-            log.trace("We did not find a connected user but we can still return published articles", e);
+            log.debug("We did not find a connected user but we can still return published articles", e);
         }
 
 
-        FindArticleRequest request = new FindArticleRequest();
+        FinderRequest request = new FinderRequest();
         request.setPageNumber(pageNumber);
         request.setPageSize(pageSize);
         request.setUser(user);
         request.setTag(tag);
         if (filter != null){
             filter = filter.toUpperCase();
-            request.setFilter(FindArticleRequest.Filter.valueOf(filter));
+            request.setFilter(FinderRequest.Filter.valueOf(filter));
         }
         if (status != null){
             status = status.toUpperCase();
@@ -105,7 +105,7 @@ public class ArticleController {
     public String deleteArticle(@PathVariable("id") long articleId, HttpServletRequest request) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
         deleteArticle.execute(user, articleId);
-        return sources.getMessage("message.delete.article.success", null, request.getLocale());
+        return sources.getMessage("message.delete.course.success", null, request.getLocale());
     }
 
 

@@ -4,10 +4,10 @@ name: Java CI/CD with Maven and k8s
 
 on:
   push:
-    branches:
+    branches: 
       - '*'
   pull_request:
-    branches:
+    branches: 
       - main
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       limits_cpu : ${{startsWith(github.ref, 'refs/heads/main') && 0.5 || 0.5 }}
       limits_memory : ${{startsWith(github.ref, 'refs/heads/main') && '1.5Gi' || '1.5Gi' }}
       tag_number : ${{ github.run_number }}
-
+      
 
 
     steps:
@@ -42,13 +42,13 @@ jobs:
 
     - name: Build and run unit tests with Maven
       run: mvn -B package --file pom.xml
-
-#     - name: Run Integration tests if releasing
-#       if: github.ref == 'refs/heads/main'
-#       run: mvn failsafe:integration-test
-#
-#     - name: SonarCloud Scan
-#       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      
+    - name: Run Integration tests if releasing
+      if: github.ref == 'refs/heads/main'
+      run: mvn failsafe:integration-test 
+ 
+    - name: SonarCloud Scan
+      run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -80,12 +80,12 @@ jobs:
       uses: tale/kubectl-action@v1
       with:
         base64-kube-config: ${{ secrets.KUBE_CONFIG }}
-
+        
     - name: Set up k8s manifest
       run: |
         envsubst < k8s/microservices.yml > k8s.yml
         cat k8s.yml
-
+        
     - name: Deploy to k8s
       run: |
         kubectl apply -f k8s.yml
@@ -95,13 +95,13 @@ jobs:
               kubectl rollout status deployment/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}
               exit 1
         fi
-
+        
     - name: Get commit author email
       if: ${{ failure() }}
       run: |
         COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
         echo "COMMIT_AUTHOR_EMAIL=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_ENV
-
+      
     - name: Send email on failure
       uses: dawidd6/action-send-mail@v2.5.0
       with:
@@ -115,7 +115,7 @@ jobs:
           from: "GitHub Actions <${{ vars.EMAIL_FROM }}>"
           to: ${{ env.COMMIT_AUTHOR_EMAIL }}
       if: ${{ failure() }}
-
+ 
     - name: Move cache
       run: |
         rm -rf /tmp/.buildx-cache
