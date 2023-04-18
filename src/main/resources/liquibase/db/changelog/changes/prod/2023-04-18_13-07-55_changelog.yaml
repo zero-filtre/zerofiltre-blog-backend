@@ -1,0 +1,2426 @@
+databaseChangeLog:
+- changeSet:
+    id: 1681823283464-1
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: course_id
+            type: BIGINT
+        - column:
+            name: number_number
+            type: INT
+        tableName: chapter
+- changeSet:
+    id: 1681823283464-2
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: number
+            type: INT
+        tableName: chapterjpanumber
+- changeSet:
+    id: 1681823283464-3
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            constraints:
+              nullable: false
+            name: enrolled_count
+            type: BIGINT
+        - column:
+            name: last_published_at
+            type: datetime
+        - column:
+            name: last_saved_at
+            type: datetime
+        - column:
+            constraints:
+              nullable: false
+            name: price
+            type: DOUBLE
+        - column:
+            name: published_at
+            type: datetime
+        - column:
+            name: status
+            type: INT
+        - column:
+            name: sub_title
+            type: VARCHAR(255)
+        - column:
+            name: summary
+            type: VARCHAR(255)
+        - column:
+            name: thumbnail
+            type: VARCHAR(255)
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: video
+            type: VARCHAR(255)
+        - column:
+            name: author_id
+            type: BIGINT
+        tableName: course
+- changeSet:
+    id: 1681823283464-4
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: course_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: tag_id
+            type: BIGINT
+        tableName: course_tag
+- changeSet:
+    id: 1681823283464-5
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BIT(1)
+        - column:
+            constraints:
+              nullable: false
+            name: completed
+            type: BIT(1)
+        - column:
+            name: enrolled_at
+            type: datetime
+        - column:
+            name: last_modified_at
+            type: datetime
+        - column:
+            name: plan
+            type: VARCHAR(255)
+        - column:
+            name: suspended_at
+            type: datetime
+        - column:
+            name: course_id
+            type: BIGINT
+        - column:
+            name: user_id
+            type: BIGINT
+        tableName: enrollment
+- changeSet:
+    id: 1681823283464-6
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: enrollment_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: lesson_id
+            type: BIGINT
+        tableName: enrollment_completed_lessons
+- changeSet:
+    id: 1681823283464-7
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: content
+            type: LONGTEXT
+        - column:
+            constraints:
+              nullable: false
+            name: free
+            type: BIT(1)
+        - column:
+            name: summary
+            type: VARCHAR(255)
+        - column:
+            name: thumbnail
+            type: VARCHAR(255)
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: video
+            type: VARCHAR(255)
+        - column:
+            name: chapter_id
+            type: BIGINT
+        - column:
+            name: number_number
+            type: INT
+        tableName: lesson
+- changeSet:
+    id: 1681823283464-8
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: number
+            type: INT
+        tableName: lessonjpanumber
+- changeSet:
+    id: 1681823283464-9
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: action
+            type: INT
+        - column:
+            name: article_id
+            type: BIGINT
+        - column:
+            name: author_id
+            type: BIGINT
+        tableName: reaction_article
+- changeSet:
+    id: 1681823283464-10
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: action
+            type: INT
+        - column:
+            name: author_id
+            type: BIGINT
+        - column:
+            name: course_id
+            type: BIGINT
+        tableName: reaction_course
+- changeSet:
+    id: 1681823283464-11
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: url
+            type: VARCHAR(255)
+        - column:
+            name: lesson_id
+            type: BIGINT
+        tableName: resource
+- changeSet:
+    id: 1681823283464-12
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: content
+            type: LONGBLOB
+        - column:
+            name: image
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: position
+            type: INT
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: course_id
+            type: BIGINT
+        tableName: section
+- changeSet:
+    id: 1681823283464-13
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BIT(1)
+        - column:
+            constraints:
+              nullable: false
+            name: completed
+            type: BIT(1)
+        - column:
+            name: last_modified_at
+            type: datetime
+        - column:
+            name: subscribed_at
+            type: datetime
+        - column:
+            name: suspended_at
+            type: datetime
+        - column:
+            name: course_id
+            type: BIGINT
+        - column:
+            name: subscriber_id
+            type: BIGINT
+        - column:
+            name: plan
+            type: VARCHAR(255)
+        tableName: subscription
+- changeSet:
+    id: 1681823283464-14
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: subscription_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: lesson_id
+            type: BIGINT
+        tableName: subscription_completed_lessons
+- changeSet:
+    id: 1681823283464-15
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: plan
+            type: VARCHAR(255 BYTE)
+        tableName: user
+- changeSet:
+    id: 1681823283464-16
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: payment_email
+            type: VARCHAR(255 BYTE)
+        tableName: user
+- changeSet:
+    id: 1681823283464-17
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: payment_customer_id
+            type: VARCHAR(255 BYTE)
+        tableName: user
+- changeSet:
+    id: 1681823283464-18
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 1
+        - column:
+            name: title
+            value: 'Un autre Test modif sur nombre '
+        - column:
+            name: course_id
+            valueNumeric: 1
+        - column:
+            name: number_number
+            valueNumeric: 1
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 3
+        - column:
+            name: title
+            value: 'Bien démarrer avec le Domain-Driven Design (DDD) '
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: number_number
+            valueNumeric: 3
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 5
+        - column:
+            name: title
+            value: Pocketbase Setup
+        - column:
+            name: course_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 5
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 6
+        - column:
+            name: title
+            value: Les Value Objects
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: number_number
+            valueNumeric: 6
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 7
+        - column:
+            name: title
+            value: Préparer son apprentissage
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: number_number
+            valueNumeric: 7
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 8
+        - column:
+            name: title
+            value: chap 1
+        - column:
+            name: course_id
+            valueNumeric: 4
+        - column:
+            name: number_number
+            valueNumeric: 8
+        tableName: chapter
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 9
+        - column:
+            name: title
+            value: 'Un autre Test modif sur nombre '
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: number_number
+            valueNumeric: 9
+        tableName: chapter
+- changeSet:
+    id: 1681823283464-19
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 1
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 3
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 5
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 6
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 7
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 8
+        tableName: chapterjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 9
+        tableName: chapterjpanumber
+- changeSet:
+    id: 1681823283464-20
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 1
+        - column:
+            name: created_at
+            value: 2023-02-15T07:40:00.757076
+        - column:
+            name: enrolled_count
+            valueNumeric: 0
+        - column:
+            name: last_published_at
+        - column:
+            name: last_saved_at
+            value: 2023-02-15T07:40:00.757076
+        - column:
+            name: price
+            valueNumeric: 0.0
+        - column:
+            name: published_at
+        - column:
+            name: status
+            valueNumeric: 0
+        - column:
+            name: sub_title
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Mastering Test doubles
+        - column:
+            name: video
+        - column:
+            name: author_id
+            valueNumeric: 1
+        tableName: course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 2
+        - column:
+            name: created_at
+            value: 2023-02-15T07:10:10.977163
+        - column:
+            name: enrolled_count
+            valueNumeric: 0
+        - column:
+            name: last_published_at
+            value: 2023-03-06T13:35:47.636447
+        - column:
+            name: last_saved_at
+            value: 2023-03-06T13:35:47.636447
+        - column:
+            name: price
+            valueNumeric: 5000.0
+        - column:
+            name: published_at
+            value: 2023-02-15T07:54:27.369038
+        - column:
+            name: status
+            valueNumeric: 1
+        - column:
+            name: sub_title
+            value: Apprenez le DDD par la pratique
+        - column:
+            name: summary
+            value: |-
+              Apprenez et implémentez des modèles de conception simples
+              pour satisfaire des
+              besoins logiciels toujours plus complexes.
+        - column:
+            name: thumbnail
+            value: https://storage.gra.cloud.ovh.net/v1/AUTH_5159edadfde2413fb43128c1fef06fbf/zerofiltre-object-container/kubernetes_free.png
+        - column:
+            name: title
+            value: Mettez (enfin) en place le DDD
+        - column:
+            name: video
+            value: https://www.youtube.com/embed/4awWlKVZ1Hk
+        - column:
+            name: author_id
+            valueNumeric: 1
+        tableName: course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 3
+        - column:
+            name: created_at
+            value: 2023-02-16T08:44:17.975581
+        - column:
+            name: enrolled_count
+            valueNumeric: 0
+        - column:
+            name: last_published_at
+        - column:
+            name: last_saved_at
+            value: 2023-02-28T07:26:48.044317
+        - column:
+            name: price
+            valueNumeric: 0.0
+        - column:
+            name: published_at
+        - column:
+            name: status
+            valueNumeric: 3
+        - column:
+            name: sub_title
+            value: Une app de chat en temps réel
+        - column:
+            name: summary
+            value: Un petit resIn the following tutorial we will build a chat app
+              with Pocketbase and Svelte. Pocketbase is a backend (inspired by Firebase)
+              structured as a single executable file. It provides a realtime DB based
+              on SQLite and user autheume du cours ici
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Pocketbase Chat App
+        - column:
+            name: video
+            value: https://www.youtube.com/watch?v=Uo3cL4nrGOk
+        - column:
+            name: author_id
+            valueNumeric: 2
+        tableName: course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 4
+        - column:
+            name: created_at
+            value: 2023-03-01T18:42:07.050462
+        - column:
+            name: enrolled_count
+            valueNumeric: 0
+        - column:
+            name: last_published_at
+        - column:
+            name: last_saved_at
+            value: 2023-04-15T12:26:02.452662
+        - column:
+            name: price
+            valueNumeric: 0.0
+        - column:
+            name: published_at
+        - column:
+            name: status
+            valueNumeric: 0
+        - column:
+            name: sub_title
+            value: Construire son app mobile de soi meme
+        - column:
+            name: summary
+            value: Un petit resume du cours ici
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: React native
+        - column:
+            name: video
+            value: https://www.youtube.com/watch?v=ue_RmtKCLLA
+        - column:
+            name: author_id
+            valueNumeric: 2
+        tableName: course
+- changeSet:
+    id: 1681823283464-21
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: course_id
+            valueNumeric: 3
+        - column:
+            name: tag_id
+            valueNumeric: 1
+        tableName: course_tag
+- changeSet:
+    id: 1681823283464-22
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 1
+        - column:
+            name: content
+            value: The standard chunk of Lorem Ipsum used since the 1500s is reproduced
+              below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus
+              Bonorum et Maloru" by Cicero are also reproduced in their exact original
+              form, accompanied by English versions from the 1914 translation by H.
+              Rackham.
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+            value: des petites bonnes actions que chacun posera.
+        - column:
+            name: thumbnail
+            value: nini
+        - column:
+            name: title
+            value: Différence en CI et CD
+        - column:
+            name: type
+            value: video
+        - column:
+            name: video
+            value: https://www.youtube.com/watch?v=5Ti0yJkfbiA&t=30s
+        - column:
+            name: chapter_id
+            valueNumeric: 1
+        - column:
+            name: number_number
+            valueNumeric: 1
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 2
+        - column:
+            name: content
+            value: "\n      ## Introduction\n\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n\n      Ex: Nous allons voir comment dé\
+              ployer un serveur de messagerie en 2 mins, puis le déployer.\n\n   \
+              \   ## 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n\n      Votre second paragraphe\n\n      ## 3/ Contenu 3\n\n  \
+              \    Votre troisieme paragraphe\n\n      etc...\n\n      ...\n     \
+              \ N'hésitez pas à rajouter des sous-titres au besoin \U0001f917\n\n\
+              \      ### 3-1/ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez\
+              \ ce que vous avez fait !\n      \n\n\n      ## Introduction\n     \
+              \ Ici vous dites ce que vous allez faire de façon objective.\n\n   \
+              \   Ex: Nous allons voir comment déployer un serveur de messagerie en\
+              \ 2 mins, puis le déployer.\n\n      ## 1/ Contenu 1\n      Votre premier\
+              \ paragraphe\n      ## 2/ Contenu 2\n\n      Votre second paragraphe\n\
+              \n      ## 3/ Contenu 3\n\n      Votre troisieme paragraphe\n\n    \
+              \  etc...\n\n      ...\n      N'hésitez pas à rajouter des sous-titres\
+              \ au besoin \U0001f917\n\n      ### 3-1/ Sous-contenu 3\n\n\n      ##\
+              \ Conclusion\n      Ici rappelez ce que vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: A stub is not a mock, nor a fake.
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 2
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 6
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon  très objective.\n\n      Ex: Nous allons voir comment\
+              \ déployer un serveur de messagerie en 2 mins, puis le déployer.\n\n\
+              \      ## 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/\
+              \ Contenu 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n\
+              \      Votre troisieme paragraphe\n      ...\n      N'hésitez pas à\
+              \ rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/ Sous-contenu\
+              \ 3\n\n\n      ## Conclusion\n      Ici rappelez ce que vous avez fait\
+              \ !\n      "
+        - column:
+            name: free
+            valueBoolean: true
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Leçon 14
+        - column:
+            name: type
+            value: video
+        - column:
+            name: video
+            value: https://vimeo.com/804564267
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 6
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 7
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n      Votre\
+              \ troisieme paragraphe\n\n      etc...\n\n      ...\n      N'hésitez\
+              \ pas à rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/\
+              \ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez ce que\
+              \ vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Leçon 15
+        - column:
+            name: type
+            value: video
+        - column:
+            name: video
+            value: https://vimeo.com/804933075
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 7
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 9
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ Conclusion\n      Ici rappelez ce que vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: true
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Lesson 1
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 5
+        - column:
+            name: number_number
+            valueNumeric: 9
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 11
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n      Votre\
+              \ troisieme paragraphe\n\n      etc...\n\n      ...\n      N'hésitez\
+              \ pas à rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/\
+              \ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez ce que\
+              \ vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Comment les reconnaître ?
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 6
+        - column:
+            name: number_number
+            valueNumeric: 11
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 12
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Leçon 1
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 6
+        - column:
+            name: number_number
+            valueNumeric: 12
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 13
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Leçon 2
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 6
+        - column:
+            name: number_number
+            valueNumeric: 13
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 14
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Leçon 25
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 6
+        - column:
+            name: number_number
+            valueNumeric: 14
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 15
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Episode 4
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 15
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 16
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Episode 45
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 16
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 17
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Episode 85
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 3
+        - column:
+            name: number_number
+            valueNumeric: 17
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 18
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n      Votre\
+              \ troisieme paragraphe\n\n      etc...\n\n      ...\n      N'hésitez\
+              \ pas à rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/\
+              \ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez ce que\
+              \ vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: true
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Lesson 2
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 5
+        - column:
+            name: number_number
+            valueNumeric: 18
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 19
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n      Votre\
+              \ troisieme paragraphe\n\n      etc...\n\n      ...\n      N'hésitez\
+              \ pas à rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/\
+              \ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez ce que\
+              \ vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: true
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: lesson 3
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 5
+        - column:
+            name: number_number
+            valueNumeric: 19
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 20
+        - column:
+            name: content
+            value: "\n      ## Introduction\n      Ici vous dites ce que vous allez\
+              \ faire de façon objective.\n      Ex: Nous allons voir comment déployer\
+              \ un serveur de messagerie en 2 mins, puis le déployer.\n\n      ##\
+              \ 1/ Contenu 1\n      Votre premier paragraphe\n      ## 2/ Contenu\
+              \ 2\n      Votre second paragraphe\n      ## 3/ Contenu 3\n      Votre\
+              \ troisieme paragraphe\n\n      etc...\n\n      ...\n      N'hésitez\
+              \ pas à rajouter des sous-titres au besoin \U0001f917\n      ### 3-1/\
+              \ Sous-contenu 3\n\n\n      ## Conclusion\n      Ici rappelez ce que\
+              \ vous avez fait !\n      "
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+            value: des petites bonnes actions.
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: lesson 1
+        - column:
+            name: type
+            value: video
+        - column:
+            name: video
+            value: https://vimeo.com/807025758
+        - column:
+            name: chapter_id
+            valueNumeric: 8
+        - column:
+            name: number_number
+            valueNumeric: 20
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 21
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: Lesson 2
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 8
+        - column:
+            name: number_number
+            valueNumeric: 21
+        tableName: lesson
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 22
+        - column:
+            name: content
+        - column:
+            name: free
+            valueBoolean: false
+        - column:
+            name: summary
+        - column:
+            name: thumbnail
+        - column:
+            name: title
+            value: A stub is not a mock, nor a fake.
+        - column:
+            name: type
+            value: text
+        - column:
+            name: video
+        - column:
+            name: chapter_id
+            valueNumeric: 9
+        - column:
+            name: number_number
+            valueNumeric: 22
+        tableName: lesson
+- changeSet:
+    id: 1681823283464-23
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 1
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 2
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 6
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 7
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 9
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 11
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 12
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 13
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 14
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 15
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 16
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 17
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 18
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 19
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 20
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 21
+        tableName: lessonjpanumber
+    - insert:
+        columns:
+        - column:
+            name: number
+            valueNumeric: 22
+        tableName: lessonjpanumber
+- changeSet:
+    id: 1681823283464-24
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 1
+        - column:
+            name: action
+            valueNumeric: 3
+        - column:
+            name: author_id
+            valueNumeric: 1
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: reaction_course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 2
+        - column:
+            name: action
+            valueNumeric: 0
+        - column:
+            name: author_id
+            valueNumeric: 1
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: reaction_course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 3
+        - column:
+            name: action
+            valueNumeric: 2
+        - column:
+            name: author_id
+            valueNumeric: 1
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: reaction_course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 4
+        - column:
+            name: action
+            valueNumeric: 2
+        - column:
+            name: author_id
+            valueNumeric: 1
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: reaction_course
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 5
+        - column:
+            name: action
+            valueNumeric: 2
+        - column:
+            name: author_id
+            valueNumeric: 1
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: reaction_course
+- changeSet:
+    id: 1681823283464-25
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 3
+        - column:
+            name: content
+            valueComputed: 'UNSUPPORTED FOR DIFF: BINARY DATA'
+        - column:
+            name: image
+            value: https://storage.gra.cloud.ovh.net/v1/AUTH_5159edadfde2413fb43128c1fef06fbf/zerofiltre-object-container/googling2.jpg
+        - column:
+            name: position
+            valueNumeric: 1
+        - column:
+            name: title
+            value: Le but d’un logiciel est de satisfaire au le besoin du client.
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: section
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 4
+        - column:
+            name: content
+        - column:
+            name: image
+            value: string 2
+        - column:
+            name: position
+            valueNumeric: 1
+        - column:
+            name: title
+            value: title 2
+        - column:
+            name: course_id
+            valueNumeric: 1
+        tableName: section
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 5
+        - column:
+            name: content
+            valueComputed: 'UNSUPPORTED FOR DIFF: BINARY DATA'
+        - column:
+            name: image
+            value: https://storage.gra.cloud.ovh.net/v1/AUTH_5159edadfde2413fb43128c1fef06fbf/zerofiltre-object-container/0102_04_REST-Security-using-Java-and-Spring_Dan_illustration-dc6cfd3e7760ea9a8d75a8f9d0b93a77.png
+        - column:
+            name: position
+            valueNumeric: 2
+        - column:
+            name: title
+            value: Pourquoi acheter ce cours ?
+        - column:
+            name: course_id
+            valueNumeric: 2
+        tableName: section
+- changeSet:
+    id: 1681823283464-26
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 1
+        - column:
+            name: active
+            valueBoolean: false
+        - column:
+            name: completed
+            valueBoolean: false
+        - column:
+            name: last_modified_at
+            value: 2023-03-19T17:50:30.636622
+        - column:
+            name: subscribed_at
+            value: 2023-02-22T01:24:07.234595
+        - column:
+            name: suspended_at
+            value: 2023-04-01T16:53:09.054922
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: subscriber_id
+            valueNumeric: 4
+        - column:
+            name: plan
+        tableName: subscription
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 2
+        - column:
+            name: active
+            valueBoolean: true
+        - column:
+            name: completed
+            valueBoolean: false
+        - column:
+            name: last_modified_at
+            value: 2023-03-25T10:01:32.303140
+        - column:
+            name: subscribed_at
+            value: 2023-03-01T12:46:13.624258
+        - column:
+            name: suspended_at
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: subscriber_id
+            valueNumeric: 2
+        - column:
+            name: plan
+        tableName: subscription
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 3
+        - column:
+            name: active
+            valueBoolean: true
+        - column:
+            name: completed
+            valueBoolean: false
+        - column:
+            name: last_modified_at
+            value: 2023-03-01T18:38:50.671800
+        - column:
+            name: subscribed_at
+            value: 2023-03-01T18:38:50.671800
+        - column:
+            name: suspended_at
+        - column:
+            name: course_id
+            valueNumeric: 3
+        - column:
+            name: subscriber_id
+            valueNumeric: 2
+        - column:
+            name: plan
+        tableName: subscription
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 4
+        - column:
+            name: active
+            valueBoolean: false
+        - column:
+            name: completed
+            valueBoolean: false
+        - column:
+            name: last_modified_at
+            value: 2023-03-30T18:22:31.926435
+        - column:
+            name: subscribed_at
+            value: 2023-03-04T08:25:29.962107
+        - column:
+            name: suspended_at
+            value: 2023-04-01T15:02:12.188143
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: subscriber_id
+            valueNumeric: 3
+        - column:
+            name: plan
+        tableName: subscription
+    - insert:
+        columns:
+        - column:
+            name: id
+            valueNumeric: 5
+        - column:
+            name: active
+            valueBoolean: true
+        - column:
+            name: completed
+            valueBoolean: false
+        - column:
+            name: last_modified_at
+            value: 2023-04-03T23:04:42.423040
+        - column:
+            name: subscribed_at
+            value: 2023-03-05T17:12:03.180311
+        - column:
+            name: suspended_at
+        - column:
+            name: course_id
+            valueNumeric: 2
+        - column:
+            name: subscriber_id
+            valueNumeric: 1
+        - column:
+            name: plan
+            value: PRO
+        tableName: subscription
+- changeSet:
+    id: 1681823283464-27
+    author: philippe SIMO (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 2
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 6
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 5
+        - column:
+            name: lesson_id
+            valueNumeric: 6
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 7
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 5
+        - column:
+            name: lesson_id
+            valueNumeric: 7
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 11
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 13
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 5
+        - column:
+            name: lesson_id
+            valueNumeric: 13
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 14
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 15
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 5
+        - column:
+            name: lesson_id
+            valueNumeric: 15
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 16
+        tableName: subscription_completed_lessons
+    - insert:
+        columns:
+        - column:
+            name: subscription_id
+            valueNumeric: 2
+        - column:
+            name: lesson_id
+            valueNumeric: 17
+        tableName: subscription_completed_lessons
+- changeSet:
+    id: 1681823283464-28
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: name
+        constraintName: UK_1wdpsed5kna2y38hnbgrnhi5b
+        tableName: tag
+- changeSet:
+    id: 1681823283464-29
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: email
+        constraintName: UK_ob8kqyqqgmefl0aco34akdtpe
+        tableName: user
+- changeSet:
+    id: 1681823283464-30
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: pseudo_name
+        constraintName: UK_rklkth2j85u8vxyljdkva1xjv
+        tableName: user
+- changeSet:
+    id: 1681823283464-31
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: position, course_id
+        constraintName: UniquePositionPerCourseId
+        tableName: section
+- changeSet:
+    id: 1681823283464-32
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: subscriber_id, course_id
+        constraintName: UniqueSubscriberPerCourseId
+        tableName: subscription
+- changeSet:
+    id: 1681823283464-33
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: user_id, course_id
+        constraintName: UniqueUserPerCourseId
+        tableName: enrollment
+- changeSet:
+    id: 1681823283464-34
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: author_id
+        indexName: FK20f05wjhfn8mw84lppyuv76cd
+        tableName: reaction_article
+- changeSet:
+    id: 1681823283464-35
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: lesson_id
+        indexName: FK47v31cq3tj28gufhqvvy6rsme
+        tableName: subscription_completed_lessons
+- changeSet:
+    id: 1681823283464-36
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: course_id
+        indexName: FK7msnhf5r913cfq7uk3omclquw
+        tableName: subscription
+- changeSet:
+    id: 1681823283464-37
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: course_id
+        indexName: FKal1m2vblvouiri6njtc595hx0
+        tableName: reaction_course
+- changeSet:
+    id: 1681823283464-38
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: course_id
+        indexName: FKbhhcqkw1px6yljqg92m0sh2gt
+        tableName: enrollment
+- changeSet:
+    id: 1681823283464-39
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: lesson_id
+        indexName: FKblc7p66mc5wg1m6g4ml51yflr
+        tableName: enrollment_completed_lessons
+- changeSet:
+    id: 1681823283464-40
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: author_id
+        indexName: FKes9wte4pme81f959jcwmfy3vk
+        tableName: reaction_course
+- changeSet:
+    id: 1681823283464-41
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: lesson_id
+        indexName: FKgpi9gjtubx2nwit2971txbqrm
+        tableName: resource
+- changeSet:
+    id: 1681823283464-42
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: number_number
+        indexName: FKgqif7x6a3xy28w3l5o40jnius
+        tableName: chapter
+- changeSet:
+    id: 1681823283464-43
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: course_id
+        indexName: FKhhaina8rg7bpmg1qesiluu8vu
+        tableName: chapter
+- changeSet:
+    id: 1681823283464-44
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: tag_id
+        indexName: FKj7piuv0dh0v01l3aolwwd1jwh
+        tableName: course_tag
+- changeSet:
+    id: 1681823283464-45
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: article_id
+        indexName: FKl7b483ooi8hv3g0otjekqjhlr
+        tableName: reaction_article
+- changeSet:
+    id: 1681823283464-46
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: author_id
+        indexName: FKmaatvkqyrdpwoiq3opi1obk7b
+        tableName: course
+- changeSet:
+    id: 1681823283464-47
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: course_id
+        indexName: FKoy8uc0ftpivwopwf5ptwdtar0
+        tableName: section
+- changeSet:
+    id: 1681823283464-48
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: number_number
+        indexName: FKqnk3h8k65bcrloqpneihd8qi4
+        tableName: lesson
+- changeSet:
+    id: 1681823283464-49
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: chapter_id
+        indexName: FKyd2sg2b1awfx3br81o66mrwl
+        tableName: lesson
+- changeSet:
+    id: 1681823283464-50
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: author_id
+        baseTableName: reaction_article
+        constraintName: FK20f05wjhfn8mw84lppyuv76cd
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1681823283464-51
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: course_tag
+        constraintName: FK3tta6lkm8fr0rgfyr4y3xrr3u
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-52
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: lesson_id
+        baseTableName: subscription_completed_lessons
+        constraintName: FK47v31cq3tj28gufhqvvy6rsme
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: lesson
+        validate: true
+- changeSet:
+    id: 1681823283464-53
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: subscription
+        constraintName: FK7msnhf5r913cfq7uk3omclquw
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-54
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: reaction_course
+        constraintName: FKal1m2vblvouiri6njtc595hx0
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-55
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: enrollment
+        constraintName: FKbhhcqkw1px6yljqg92m0sh2gt
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-56
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: lesson_id
+        baseTableName: enrollment_completed_lessons
+        constraintName: FKblc7p66mc5wg1m6g4ml51yflr
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: lesson
+        validate: true
+- changeSet:
+    id: 1681823283464-57
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: author_id
+        baseTableName: reaction_course
+        constraintName: FKes9wte4pme81f959jcwmfy3vk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1681823283464-58
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: lesson_id
+        baseTableName: resource
+        constraintName: FKgpi9gjtubx2nwit2971txbqrm
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: lesson
+        validate: true
+- changeSet:
+    id: 1681823283464-59
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: enrollment
+        constraintName: FKgpuyid9pbfpxghv9vyhb0ictd
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1681823283464-60
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: number_number
+        baseTableName: chapter
+        constraintName: FKgqif7x6a3xy28w3l5o40jnius
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: number
+        referencedTableName: chapterjpanumber
+        validate: true
+- changeSet:
+    id: 1681823283464-61
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: chapter
+        constraintName: FKhhaina8rg7bpmg1qesiluu8vu
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-62
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: tag_id
+        baseTableName: course_tag
+        constraintName: FKj7piuv0dh0v01l3aolwwd1jwh
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: tag
+        validate: true
+- changeSet:
+    id: 1681823283464-63
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: article_id
+        baseTableName: reaction_article
+        constraintName: FKl7b483ooi8hv3g0otjekqjhlr
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: article
+        validate: true
+- changeSet:
+    id: 1681823283464-64
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: author_id
+        baseTableName: course
+        constraintName: FKmaatvkqyrdpwoiq3opi1obk7b
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1681823283464-65
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: enrollment_id
+        baseTableName: enrollment_completed_lessons
+        constraintName: FKmovwpr92c2368hr5lkus1kjge
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: enrollment
+        validate: true
+- changeSet:
+    id: 1681823283464-66
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: subscriber_id
+        baseTableName: subscription
+        constraintName: FKnn302p4fooakovy234tms0hrq
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1681823283464-67
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: course_id
+        baseTableName: section
+        constraintName: FKoy8uc0ftpivwopwf5ptwdtar0
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: course
+        validate: true
+- changeSet:
+    id: 1681823283464-68
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: subscription_id
+        baseTableName: subscription_completed_lessons
+        constraintName: FKp5djc27yl30rbaw3qh0rtewa1
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: subscription
+        validate: true
+- changeSet:
+    id: 1681823283464-69
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: number_number
+        baseTableName: lesson
+        constraintName: FKqnk3h8k65bcrloqpneihd8qi4
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: number
+        referencedTableName: lessonjpanumber
+        validate: true
+- changeSet:
+    id: 1681823283464-70
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: chapter_id
+        baseTableName: lesson
+        constraintName: FKyd2sg2b1awfx3br81o66mrwl
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: chapter
+        validate: true
+- changeSet:
+    id: 1681823283464-71
+    author: philippe SIMO (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: reaction
+        constraintName: FK59wroowslb3nidkpd1gqa2smu
+- changeSet:
+    id: 1681823283464-72
+    author: philippe SIMO (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: reaction
+        constraintName: FK9oyd6r2tf90uhlvrsd61d2ksc
+- changeSet:
+    id: 1681823283464-73
+    author: philippe SIMO (generated)
+    changes:
+    - dropTable:
+        tableName: reaction
+
