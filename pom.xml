@@ -262,6 +262,7 @@
                     <diffChangeLogFile>
                         src/main/resources/liquibase/db/changelog/changes/${activeProfile}/${timestamp}_changelog.yaml
                     </diffChangeLogFile>
+                    <diffExcludeObjects>data</diffExcludeObjects>
                     <logging>info</logging>
                 </configuration>
             </plugin>
