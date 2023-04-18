@@ -1,30 +1,317 @@
 databaseChangeLog:
 - changeSet:
-    id: 1681824854610-1
+    id: 1681835085094-1
     author: philippe SIMO (generated)
     changes:
-    - addUniqueConstraint:
-        columnNames: name
-        constraintName: UK_1wdpsed5kna2y38hnbgrnhi5b
-        tableName: tag
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: course_id
+            type: BIGINT
+        - column:
+            name: number_number
+            type: INT
+        tableName: chapter
 - changeSet:
-    id: 1681824854610-2
+    id: 1681835085094-2
     author: philippe SIMO (generated)
     changes:
-    - addUniqueConstraint:
-        columnNames: email
-        constraintName: UK_ob8kqyqqgmefl0aco34akdtpe
-        tableName: user
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: number
+            type: INT
+        tableName: chapterjpanumber
 - changeSet:
-    id: 1681824854610-3
+    id: 1681835085094-3
     author: philippe SIMO (generated)
     changes:
-    - addUniqueConstraint:
-        columnNames: pseudo_name
-        constraintName: UK_rklkth2j85u8vxyljdkva1xjv
-        tableName: user
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            constraints:
+              nullable: false
+            name: enrolled_count
+            type: BIGINT
+        - column:
+            name: last_published_at
+            type: datetime
+        - column:
+            name: last_saved_at
+            type: datetime
+        - column:
+            constraints:
+              nullable: false
+            name: price
+            type: DOUBLE
+        - column:
+            name: published_at
+            type: datetime
+        - column:
+            name: status
+            type: INT
+        - column:
+            name: sub_title
+            type: VARCHAR(255)
+        - column:
+            name: summary
+            type: VARCHAR(255)
+        - column:
+            name: thumbnail
+            type: VARCHAR(255)
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: video
+            type: VARCHAR(255)
+        - column:
+            name: author_id
+            type: BIGINT
+        tableName: course
 - changeSet:
-    id: 1681824854610-4
+    id: 1681835085094-4
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: course_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: tag_id
+            type: BIGINT
+        tableName: course_tag
+- changeSet:
+    id: 1681835085094-5
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BIT(1)
+        - column:
+            constraints:
+              nullable: false
+            name: completed
+            type: BIT(1)
+        - column:
+            name: enrolled_at
+            type: datetime
+        - column:
+            name: last_modified_at
+            type: datetime
+        - column:
+            name: plan
+            type: VARCHAR(255)
+        - column:
+            name: suspended_at
+            type: datetime
+        - column:
+            name: course_id
+            type: BIGINT
+        - column:
+            name: user_id
+            type: BIGINT
+        tableName: enrollment
+- changeSet:
+    id: 1681835085094-6
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: enrollment_id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: lesson_id
+            type: BIGINT
+        tableName: enrollment_completed_lessons
+- changeSet:
+    id: 1681835085094-7
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: content
+            type: LONGTEXT
+        - column:
+            constraints:
+              nullable: false
+            name: free
+            type: BIT(1)
+        - column:
+            name: summary
+            type: VARCHAR(255)
+        - column:
+            name: thumbnail
+            type: VARCHAR(255)
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: video
+            type: VARCHAR(255)
+        - column:
+            name: chapter_id
+            type: BIGINT
+        - column:
+            name: number_number
+            type: INT
+        tableName: lesson
+- changeSet:
+    id: 1681835085094-8
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: number
+            type: INT
+        tableName: lessonjpanumber
+- changeSet:
+    id: 1681835085094-9
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: action
+            type: INT
+        - column:
+            name: author_id
+            type: BIGINT
+        - column:
+            name: course_id
+            type: BIGINT
+        tableName: reaction_course
+- changeSet:
+    id: 1681835085094-10
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: url
+            type: VARCHAR(255)
+        - column:
+            name: lesson_id
+            type: BIGINT
+        tableName: resource
+- changeSet:
+    id: 1681835085094-11
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: content
+            type: LONGBLOB
+        - column:
+            name: image
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: position
+            type: INT
+        - column:
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: course_id
+            type: BIGINT
+        tableName: section
+- changeSet:
+    id: 1681835085094-12
     author: philippe SIMO (generated)
     changes:
     - addUniqueConstraint:
@@ -32,15 +319,7 @@ databaseChangeLog:
         constraintName: UniquePositionPerCourseId
         tableName: section
 - changeSet:
-    id: 1681824854610-5
-    author: philippe SIMO (generated)
-    changes:
-    - addUniqueConstraint:
-        columnNames: subscriber_id, course_id
-        constraintName: UniqueSubscriberPerCourseId
-        tableName: subscription
-- changeSet:
-    id: 1681824854610-6
+    id: 1681835085094-13
     author: philippe SIMO (generated)
     changes:
     - addUniqueConstraint:
@@ -48,37 +327,7 @@ databaseChangeLog:
         constraintName: UniqueUserPerCourseId
         tableName: enrollment
 - changeSet:
-    id: 1681824854610-7
-    author: philippe SIMO (generated)
-    changes:
-    - createIndex:
-        columns:
-        - column:
-            name: author_id
-        indexName: FK20f05wjhfn8mw84lppyuv76cd
-        tableName: reaction_article
-- changeSet:
-    id: 1681824854610-8
-    author: philippe SIMO (generated)
-    changes:
-    - createIndex:
-        columns:
-        - column:
-            name: lesson_id
-        indexName: FK47v31cq3tj28gufhqvvy6rsme
-        tableName: subscription_completed_lessons
-- changeSet:
-    id: 1681824854610-9
-    author: philippe SIMO (generated)
-    changes:
-    - createIndex:
-        columns:
-        - column:
-            name: course_id
-        indexName: FK7msnhf5r913cfq7uk3omclquw
-        tableName: subscription
-- changeSet:
-    id: 1681824854610-10
+    id: 1681835085094-14
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -88,7 +337,7 @@ databaseChangeLog:
         indexName: FKal1m2vblvouiri6njtc595hx0
         tableName: reaction_course
 - changeSet:
-    id: 1681824854610-11
+    id: 1681835085094-15
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -98,7 +347,7 @@ databaseChangeLog:
         indexName: FKbhhcqkw1px6yljqg92m0sh2gt
         tableName: enrollment
 - changeSet:
-    id: 1681824854610-12
+    id: 1681835085094-16
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -108,7 +357,7 @@ databaseChangeLog:
         indexName: FKblc7p66mc5wg1m6g4ml51yflr
         tableName: enrollment_completed_lessons
 - changeSet:
-    id: 1681824854610-13
+    id: 1681835085094-17
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -118,7 +367,7 @@ databaseChangeLog:
         indexName: FKes9wte4pme81f959jcwmfy3vk
         tableName: reaction_course
 - changeSet:
-    id: 1681824854610-14
+    id: 1681835085094-18
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -128,7 +377,7 @@ databaseChangeLog:
         indexName: FKgpi9gjtubx2nwit2971txbqrm
         tableName: resource
 - changeSet:
-    id: 1681824854610-15
+    id: 1681835085094-19
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -138,7 +387,7 @@ databaseChangeLog:
         indexName: FKgqif7x6a3xy28w3l5o40jnius
         tableName: chapter
 - changeSet:
-    id: 1681824854610-16
+    id: 1681835085094-20
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -148,7 +397,7 @@ databaseChangeLog:
         indexName: FKhhaina8rg7bpmg1qesiluu8vu
         tableName: chapter
 - changeSet:
-    id: 1681824854610-17
+    id: 1681835085094-21
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -158,17 +407,7 @@ databaseChangeLog:
         indexName: FKj7piuv0dh0v01l3aolwwd1jwh
         tableName: course_tag
 - changeSet:
-    id: 1681824854610-18
-    author: philippe SIMO (generated)
-    changes:
-    - createIndex:
-        columns:
-        - column:
-            name: article_id
-        indexName: FKl7b483ooi8hv3g0otjekqjhlr
-        tableName: reaction_article
-- changeSet:
-    id: 1681824854610-19
+    id: 1681835085094-22
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -178,7 +417,7 @@ databaseChangeLog:
         indexName: FKmaatvkqyrdpwoiq3opi1obk7b
         tableName: course
 - changeSet:
-    id: 1681824854610-20
+    id: 1681835085094-23
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -188,7 +427,7 @@ databaseChangeLog:
         indexName: FKoy8uc0ftpivwopwf5ptwdtar0
         tableName: section
 - changeSet:
-    id: 1681824854610-21
+    id: 1681835085094-24
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -198,7 +437,7 @@ databaseChangeLog:
         indexName: FKqnk3h8k65bcrloqpneihd8qi4
         tableName: lesson
 - changeSet:
-    id: 1681824854610-22
+    id: 1681835085094-25
     author: philippe SIMO (generated)
     changes:
     - createIndex:
@@ -208,22 +447,7 @@ databaseChangeLog:
         indexName: FKyd2sg2b1awfx3br81o66mrwl
         tableName: lesson
 - changeSet:
-    id: 1681824854610-23
-    author: philippe SIMO (generated)
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: author_id
-        baseTableName: reaction_article
-        constraintName: FK20f05wjhfn8mw84lppyuv76cd
-        deferrable: false
-        initiallyDeferred: false
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        referencedColumnNames: id
-        referencedTableName: user
-        validate: true
-- changeSet:
-    id: 1681824854610-24
+    id: 1681835085094-26
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -238,37 +462,7 @@ databaseChangeLog:
         referencedTableName: course
         validate: true
 - changeSet:
-    id: 1681824854610-25
-    author: philippe SIMO (generated)
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: lesson_id
-        baseTableName: subscription_completed_lessons
-        constraintName: FK47v31cq3tj28gufhqvvy6rsme
-        deferrable: false
-        initiallyDeferred: false
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        referencedColumnNames: id
-        referencedTableName: lesson
-        validate: true
-- changeSet:
-    id: 1681824854610-26
-    author: philippe SIMO (generated)
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: course_id
-        baseTableName: subscription
-        constraintName: FK7msnhf5r913cfq7uk3omclquw
-        deferrable: false
-        initiallyDeferred: false
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        referencedColumnNames: id
-        referencedTableName: course
-        validate: true
-- changeSet:
-    id: 1681824854610-27
+    id: 1681835085094-27
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -283,7 +477,7 @@ databaseChangeLog:
         referencedTableName: course
         validate: true
 - changeSet:
-    id: 1681824854610-28
+    id: 1681835085094-28
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -298,7 +492,7 @@ databaseChangeLog:
         referencedTableName: course
         validate: true
 - changeSet:
-    id: 1681824854610-29
+    id: 1681835085094-29
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -313,7 +507,7 @@ databaseChangeLog:
         referencedTableName: lesson
         validate: true
 - changeSet:
-    id: 1681824854610-30
+    id: 1681835085094-30
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -328,7 +522,7 @@ databaseChangeLog:
         referencedTableName: user
         validate: true
 - changeSet:
-    id: 1681824854610-31
+    id: 1681835085094-31
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -343,7 +537,7 @@ databaseChangeLog:
         referencedTableName: lesson
         validate: true
 - changeSet:
-    id: 1681824854610-32
+    id: 1681835085094-32
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -358,7 +552,7 @@ databaseChangeLog:
         referencedTableName: user
         validate: true
 - changeSet:
-    id: 1681824854610-33
+    id: 1681835085094-33
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -373,7 +567,7 @@ databaseChangeLog:
         referencedTableName: chapterjpanumber
         validate: true
 - changeSet:
-    id: 1681824854610-34
+    id: 1681835085094-34
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -388,7 +582,7 @@ databaseChangeLog:
         referencedTableName: course
         validate: true
 - changeSet:
-    id: 1681824854610-35
+    id: 1681835085094-35
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -403,7 +597,7 @@ databaseChangeLog:
         referencedTableName: tag
         validate: true
 - changeSet:
-    id: 1681824854610-36
+    id: 1681835085094-36
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -418,7 +612,7 @@ databaseChangeLog:
         referencedTableName: article
         validate: true
 - changeSet:
-    id: 1681824854610-37
+    id: 1681835085094-37
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -433,7 +627,7 @@ databaseChangeLog:
         referencedTableName: user
         validate: true
 - changeSet:
-    id: 1681824854610-38
+    id: 1681835085094-38
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -448,22 +642,7 @@ databaseChangeLog:
         referencedTableName: enrollment
         validate: true
 - changeSet:
-    id: 1681824854610-39
-    author: philippe SIMO (generated)
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: subscriber_id
-        baseTableName: subscription
-        constraintName: FKnn302p4fooakovy234tms0hrq
-        deferrable: false
-        initiallyDeferred: false
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        referencedColumnNames: id
-        referencedTableName: user
-        validate: true
-- changeSet:
-    id: 1681824854610-40
+    id: 1681835085094-39
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -478,22 +657,7 @@ databaseChangeLog:
         referencedTableName: course
         validate: true
 - changeSet:
-    id: 1681824854610-41
-    author: philippe SIMO (generated)
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: subscription_id
-        baseTableName: subscription_completed_lessons
-        constraintName: FKp5djc27yl30rbaw3qh0rtewa1
-        deferrable: false
-        initiallyDeferred: false
-        onDelete: RESTRICT
-        onUpdate: RESTRICT
-        referencedColumnNames: id
-        referencedTableName: subscription
-        validate: true
-- changeSet:
-    id: 1681824854610-42
+    id: 1681835085094-40
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -508,7 +672,7 @@ databaseChangeLog:
         referencedTableName: lessonjpanumber
         validate: true
 - changeSet:
-    id: 1681824854610-43
+    id: 1681835085094-41
     author: philippe SIMO (generated)
     changes:
     - addForeignKeyConstraint:
@@ -523,21 +687,21 @@ databaseChangeLog:
         referencedTableName: chapter
         validate: true
 - changeSet:
-    id: 1681824854610-44
+    id: 1681835085094-42
     author: philippe SIMO (generated)
     changes:
     - dropForeignKeyConstraint:
         baseTableName: reaction
         constraintName: FK59wroowslb3nidkpd1gqa2smu
 - changeSet:
-    id: 1681824854610-45
+    id: 1681835085094-43
     author: philippe SIMO (generated)
     changes:
     - dropForeignKeyConstraint:
         baseTableName: reaction
         constraintName: FK9oyd6r2tf90uhlvrsd61d2ksc
 - changeSet:
-    id: 1681824854610-46
+    id: 1681835085094-44
     author: philippe SIMO (generated)
     changes:
     - dropTable:
