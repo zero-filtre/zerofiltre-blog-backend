@@ -3,6 +3,8 @@ package tech.zerofiltre.blog.domain.user.use_cases;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
 import tech.zerofiltre.blog.domain.logging.model.*;
@@ -17,13 +19,15 @@ public class DeleteUser {
     private final ArticleProvider articleProvider;
     private final VerificationTokenProvider tokenProvider;
     private final ReactionProvider reactionProvider;
+    private final CourseProvider courseProvider;
     private final LoggerProvider loggerProvider;
 
-    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, LoggerProvider loggerProvider) {
+    public DeleteUser(UserProvider userProvider, ArticleProvider articleProvider, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, CourseProvider courseProvider, LoggerProvider loggerProvider) {
         this.userProvider = userProvider;
         this.articleProvider = articleProvider;
         this.tokenProvider = tokenProvider;
         this.reactionProvider = reactionProvider;
+        this.courseProvider = courseProvider;
         this.loggerProvider = loggerProvider;
     }
 
@@ -36,7 +40,8 @@ public class DeleteUser {
             throw new ForbiddenActionException("You can only delete your own account", Domains.USER.name());
 
         List<Article> userArticles = articleProvider.articlesOf(foundUser);
-        if (userArticles.isEmpty()) {
+        List<Course> userCourses = courseProvider.courseOf(foundUser);
+        if (userArticles.isEmpty() && userCourses.isEmpty()) {
             tokenProvider.ofUser(foundUser).ifPresent(tokenProvider::delete);
             reactionProvider.ofUser(foundUser).forEach(reactionProvider::delete);
             userProvider.deleteUser(foundUser);
@@ -45,7 +50,7 @@ public class DeleteUser {
         } else {
             foundUser.setExpired(true);
             userProvider.save(foundUser);
-            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deactivating the user as it has articles", null, DeleteUser.class);
+            LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deactivating the user as it has articles or owns courses", null, DeleteUser.class);
             loggerProvider.log(logEntry);
 
         }

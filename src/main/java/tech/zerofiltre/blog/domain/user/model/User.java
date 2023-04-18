@@ -1,5 +1,7 @@
 package tech.zerofiltre.blog.domain.user.model;
 
+import lombok.*;
+
 import java.io.*;
 import java.time.*;
 import java.util.*;
@@ -8,6 +10,8 @@ public class User implements Serializable {
     private long id;
     private String pseudoName;
     private String email;
+    private String paymentEmail;
+    private String paymentCustomerId;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn = LocalDateTime.now();
@@ -22,6 +26,7 @@ public class User implements Serializable {
     private boolean isLocked = false;
     private boolean isExpired = false;
     private SocialLink.Platform loginFrom;
+    private Plan plan = Plan.BASIC;
 
 
     public long getId() {
@@ -160,13 +165,32 @@ public class User implements Serializable {
         this.loginFrom = loginFrom;
     }
 
+    public String getPaymentEmail() {
+        return paymentEmail;
+    }
+
+    public void setPaymentEmail(String paymentEmail) {
+        this.paymentEmail = paymentEmail;
+    }
+
+    public String getPaymentCustomerId() {
+        return paymentCustomerId;
+    }
+
+    public void setPaymentCustomerId(String paymentCustomerId) {
+        this.paymentCustomerId = paymentCustomerId;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", pseudoName='" + pseudoName + '\'' +
                 ", email='" + email + '\'' +
-                ", firstName='" + fullName + '\'' +
+                ", paymentEmail='" + paymentEmail + '\'' +
+                ", paymentCustomerId='" + paymentCustomerId + '\'' +
+                ", fullName='" + fullName + '\'' +
                 ", password='" + password + '\'' +
                 ", registeredOn=" + registeredOn +
                 ", profilePicture='" + profilePicture + '\'' +
@@ -180,6 +204,32 @@ public class User implements Serializable {
                 ", isLocked=" + isLocked +
                 ", isExpired=" + isExpired +
                 ", loginFrom=" + loginFrom +
+                ", plan=" + plan +
                 '}';
+    }
+
+    public boolean isAdmin() {
+        return roles.contains("ROLE_ADMIN");
+    }
+
+    public boolean isPro() {
+        return plan.equals(Plan.PRO);
+    }
+
+    public Plan getPlan() {
+        return plan;
+    }
+
+    public void setPlan(Plan plan) {
+        this.plan = plan;
+    }
+
+    @AllArgsConstructor
+    public enum Plan {
+        BASIC("basic"),
+        PRO("pro");
+
+        @Getter
+        private final String value;
     }
 }

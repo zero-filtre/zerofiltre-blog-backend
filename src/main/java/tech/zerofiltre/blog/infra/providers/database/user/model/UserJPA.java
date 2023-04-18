@@ -22,6 +22,8 @@ public class UserJPA extends BaseEntityJPA {
     private String pseudoName;
     @Column(unique = true)
     private String email;
+    private String paymentEmail;
+    private String paymentCustomerId;
     private String fullName;
     private String password;
     private LocalDateTime registeredOn;
@@ -33,6 +35,7 @@ public class UserJPA extends BaseEntityJPA {
     private boolean isLocked = false;
     private boolean isExpired = false;
     private SocialLink.Platform loginFrom;
+    private String plan;
 
 
     @ElementCollection

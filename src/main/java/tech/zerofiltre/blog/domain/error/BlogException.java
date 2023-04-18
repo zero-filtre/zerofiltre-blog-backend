@@ -9,6 +9,11 @@ public class BlogException extends Exception {
         this.domain = domain;
     }
 
+    public BlogException(String message, Throwable cause, String domain) {
+        super(message, cause);
+        this.domain = domain;
+    }
+
     public String getDomain() {
         return domain;
     }

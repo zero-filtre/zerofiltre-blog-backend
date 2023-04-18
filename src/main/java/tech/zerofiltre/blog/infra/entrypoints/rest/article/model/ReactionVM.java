@@ -9,4 +9,5 @@ public class ReactionVM {
     private Reaction.Action action;
     private long authorId;
     private long articleId;
+    private long courseId;
 }

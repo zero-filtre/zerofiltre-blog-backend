@@ -8,10 +8,10 @@ public class BlogError {
     private final String apiVersion;
     private final ErrorBlock error;
 
-    public BlogError(final String apiVersion, final String status, final String code, final String message, final String domain,
+    public BlogError(final String apiVersion, final String status, final String code, final String message,
                      final String reason) {
         this.apiVersion = apiVersion;
-        this.error = new ErrorBlock(status, code, message, domain, reason);
+        this.error = new ErrorBlock(status, code, message, reason);
     }
 
     @Getter
@@ -21,7 +21,6 @@ public class BlogError {
         private final String status;
         private final String code;
         private final String message;
-        private final String domain;
         private final String reason;
 
     }
