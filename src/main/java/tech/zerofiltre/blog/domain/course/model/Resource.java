@@ -9,6 +9,7 @@ public class Resource {
     private String type;
     private String url;
     private String name;
+    private long lessonId;
     private ResourceProvider resourceProvider;
 
     private Resource(ResourceBuilder resourceBuilder) {
@@ -16,6 +17,7 @@ public class Resource {
         this.type = resourceBuilder.type;
         this.url = resourceBuilder.url;
         this.name = resourceBuilder.name;
+        this.lessonId = resourceBuilder.lessonId;
         this.resourceProvider = resourceBuilder.resourceProvider;
     }
 
@@ -35,6 +37,10 @@ public class Resource {
         return name;
     }
 
+    public long getLessonId() {
+        return lessonId;
+    }
+
     public ResourceProvider getResourceProvider() {
         return resourceProvider;
     }
@@ -48,6 +54,7 @@ public class Resource {
         private String type;
         private String url;
         private String name;
+        private long lessonId;
         private ResourceProvider resourceProvider;
 
         public ResourceBuilder id(long id) {
@@ -72,6 +79,11 @@ public class Resource {
 
         public ResourceBuilder resourceProvider(ResourceProvider resourceProvider) {
             this.resourceProvider = resourceProvider;
+            return this;
+        }
+
+        public ResourceBuilder lessonId(long lessonId) {
+            this.lessonId = lessonId;
             return this;
         }
 
