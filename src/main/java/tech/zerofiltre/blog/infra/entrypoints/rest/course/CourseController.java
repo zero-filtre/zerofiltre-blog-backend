@@ -88,6 +88,7 @@ public class CourseController {
         return courseService.of(request);
     }
 
+
     @PostMapping
     public Course init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
         User user = securityContextManager.getAuthenticatedUser();
