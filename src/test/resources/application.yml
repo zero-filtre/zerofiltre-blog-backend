@@ -56,6 +56,16 @@ zerofiltre:
       verification-token:
         expiration-seconds: 604800   #7 days
     api:
+      vimeo:
+        root-url: xx
+        access-token: yy
+      stripe:
+        secret-key: dd
+        webhook-secret: gg
+        customer-portal-link: hh
+        pro-plan-product-id: io
+        pro-plan-price-id: oi
+        pro-plan-yearly-price-id: bo
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa
@@ -64,6 +74,10 @@ zerofiltre:
         version: 2.3
         root-url: https://api.stackexchange.com/
         key: ZAeo5W0MnZPxiEBgb99MvA((
+      ovh:
+        username: ff
+        password: ff
+        auth-url: ff
     entrypoints:
       rest:
         api-version: 1.0
