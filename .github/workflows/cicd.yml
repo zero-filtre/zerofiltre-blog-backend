@@ -17,14 +17,14 @@ jobs:
 
     env:
       KUBE_CONFIG : ${{ secrets.KUBE_CONFIG }}
-      env_name: ${{startsWith(github.ref, 'refs/heads/main') && 'prod' || 'dev'}}
-      api_host : ${{startsWith(github.ref, 'refs/heads/main') && 'blog-api.zerofiltre.tech' || 'blog-api-dev.zerofiltre.tech'}}
-      docker_tag_suffix: ${{startsWith(github.ref, 'refs/heads/main') && 'stable' || 'unstable'}}
-      replicas : ${{startsWith(github.ref, 'refs/heads/main') && 1 || 1 }}
-      requests_cpu : ${{startsWith(github.ref, 'refs/heads/main') && 0.1 || 0.1 }}
-      requests_memory : ${{startsWith(github.ref, 'refs/heads/main') && '0.5Gi' || '0.5Gi' }}
-      limits_cpu : ${{startsWith(github.ref, 'refs/heads/main') && 0.5 || 0.5 }}
-      limits_memory : ${{startsWith(github.ref, 'refs/heads/main') && '1.5Gi' || '1.5Gi' }}
+      env_name: ${{startsWith(github.ref, 'refs/heads/release-') && 'prod' || 'dev'}}
+      api_host : ${{startsWith(github.ref, 'refs/heads/release-') && 'blog-api.zerofiltre.tech' || 'blog-api-dev.zerofiltre.tech'}}
+      docker_tag_suffix: ${{startsWith(github.ref, 'refs/heads/release-') && 'stable' || 'unstable'}}
+      replicas : ${{startsWith(github.ref, 'refs/heads/release-') && 1 || 1 }}
+      requests_cpu : ${{startsWith(github.ref, 'refs/heads/release-') && 0.1 || 0.1 }}
+      requests_memory : ${{startsWith(github.ref, 'refs/heads/release-') && '0.5Gi' || '0.5Gi' }}
+      limits_cpu : ${{startsWith(github.ref, 'refs/heads/release-') && 0.5 || 0.5 }}
+      limits_memory : ${{startsWith(github.ref, 'refs/heads/release-') && '2Gi' || '2.5Gi' }}
       tag_number : ${{ github.run_number }}
       
 
@@ -44,11 +44,11 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Run Integration tests if releasing
-      if: github.ref == 'refs/heads/main'
-      run: mvn failsafe:integration-test 
+      if: github.ref == 'refs/heads/release-'
+      run: mvn failsafe:integration-test || exit 1
  
     - name: SonarCloud Scan
-      run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }} || exit 1
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
