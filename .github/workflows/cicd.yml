@@ -44,7 +44,7 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Run Integration tests if releasing
-      if: github.ref == 'refs/heads/release-'
+      if: github.ref == 'refs/heads/main'
       run: mvn failsafe:integration-test || exit 1
  
     - name: SonarCloud Scan
