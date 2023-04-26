@@ -292,6 +292,8 @@
                         <exclude>/tech/zerofiltre/**/article/model/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/logging/model/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/user/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/ovh/model/**/*</exclude>
+                        <exclude>/tech/zerofiltre/**/course/model/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/mapper/**/*</exclude>
                         <exclude>/tech/zerofiltre/**/*JPA.*</exclude>
                         <exclude>/tech/zerofiltre/**/*VM.*</exclude>
