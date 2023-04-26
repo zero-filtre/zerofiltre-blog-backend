@@ -52,27 +52,27 @@ spec:
             limits:
                 cpu: ${limits_cpu}
                 memory: ${limits_memory}
-#           livenessProbe:
-#               httpGet:
-#                 path: /actuator/health
-#                 port: 80
-#               periodSeconds: 300
-#               timeoutSeconds: 5
-#
-#           readinessProbe:
-#               httpGet:
-#                 path: /actuator/health
-#                 port: 80
-#               periodSeconds: 30
-#               timeoutSeconds: 5
-#
-#           startupProbe:
-#               httpGet:
-#                 path: /actuator/health
-#                 port: 80
-#               initialDelaySeconds: 60
-#               timeoutSeconds: 5
-#               failureThreshold: 10
+          livenessProbe:
+              httpGet:
+                path: /actuator/health
+                port: 80
+              periodSeconds: 300
+              timeoutSeconds: 5
+
+          readinessProbe:
+              httpGet:
+                path: /actuator/health
+                port: 80
+              periodSeconds: 30
+              timeoutSeconds: 5
+
+          startupProbe:
+              httpGet:
+                path: /actuator/health
+                port: 80
+              initialDelaySeconds: 60
+              timeoutSeconds: 5
+              failureThreshold: 10
 
           env:
 
