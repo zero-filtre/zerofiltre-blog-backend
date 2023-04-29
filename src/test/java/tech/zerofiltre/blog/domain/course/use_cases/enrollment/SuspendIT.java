@@ -51,7 +51,7 @@ class SuspendIT {
     }
 
     @Test
-    void suspendSavesEnrollmentProperly() throws BlogException, InterruptedException {
+    void suspendSavesEnrollmentProperly() throws BlogException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -62,7 +62,7 @@ class SuspendIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
-        enroll.execute(user.getId(), course.getId());
+        enroll.execute(user.getId(), course.getId(), true);
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Enrollment enrollment = suspend.execute(user.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();

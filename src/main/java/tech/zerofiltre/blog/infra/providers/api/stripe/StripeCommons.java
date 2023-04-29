@@ -57,7 +57,7 @@ public class StripeCommons {
             long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
             log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
             if (paymentSuccess) {
-                enroll.execute(Long.parseLong(userId), productId);
+                enroll.execute(Long.parseLong(userId), productId, false);
                 log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(), userId, productId);
             } else {
                 suspend.execute(Long.parseLong(userId), productId);
@@ -76,7 +76,7 @@ public class StripeCommons {
         if (isPro && !paymentSuccess) {
             user.setPlan(BASIC);
             suspend.all(Long.parseLong(userId), PRO);
-        } else if (paymentSuccess) {
+        } else if (isPro) {
             user.setPlan(PRO);
         }
         String paymentEmail = customer.getEmail();

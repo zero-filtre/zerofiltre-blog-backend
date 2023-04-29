@@ -40,7 +40,7 @@ public class EnrollmentController {
 
     @PostMapping
     public Enrollment enroll(@RequestParam long courseId) throws BlogException {
-        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, true);
 
     }
 

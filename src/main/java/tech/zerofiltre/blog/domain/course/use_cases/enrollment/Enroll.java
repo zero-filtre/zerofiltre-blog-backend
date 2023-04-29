@@ -27,7 +27,7 @@ public class Enroll {
         this.chapterProvider = chapterProvider;
     }
 
-    public Enrollment execute(long userId, long courseId) throws BlogException {
+    public Enrollment execute(long userId, long courseId, boolean fromEndUser) throws BlogException {
 
         User user = userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -35,7 +35,7 @@ public class Enroll {
                         String.valueOf(userId),
                         Domains.USER.name()));
 
-        if (!user.isAdmin() && !user.isPro())
+        if (!user.isAdmin() && !user.isPro() && fromEndUser)
             throw new ForbiddenActionException("You must be a PRO to enroll to a course this way", Domains.COURSE.name());
 
         Course course = courseProvider.courseOfId(courseId)

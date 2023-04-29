@@ -31,7 +31,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> enroll.execute(1, 1))
+                .isThrownBy(() -> enroll.execute(1, 1, true))
                 .withMessage("We could not find the user with id 1");
     }
 
@@ -59,7 +59,7 @@ class EnrollTest {
 
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> enroll.execute(user.getId(), course.getId()));
+                .isThrownBy(() -> enroll.execute(user.getId(), course.getId(), true));
 
     }
 
@@ -85,8 +85,37 @@ class EnrollTest {
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
-        Enrollment result = enroll.execute(user.getId(), course.getId());
+        Enrollment result = enroll.execute(user.getId(), course.getId(), true);
         Assertions.assertThat(result.getPlan()).isEqualTo(User.Plan.PRO);
+
+    }
+
+    @Test
+    void executeAsNonPRO_SetsEnrollmentPlanToBasic_ifNotFromEndUser() throws BlogException {
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(856);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
+        when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        Enrollment result = enroll.execute(user.getId(), course.getId(), false);
+        Assertions.assertThat(result.getPlan()).isEqualTo(User.Plan.BASIC);
+        Assertions.assertThat(result.getUser().getId()).isEqualTo(856);
+
 
     }
 
@@ -100,7 +129,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> enroll.execute(1, 1))
+                .isThrownBy(() -> enroll.execute(1, 1, true))
                 .withMessage("We couldn't find the course of id 1 you are trying to enroll to");
     }
 
@@ -113,7 +142,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider);
 
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> enroll.execute(1, 1))
+                .isThrownBy(() -> enroll.execute(1, 1, true))
                 .withMessage("You can not get enrolled into an unpublished course");
     }
 
@@ -126,7 +155,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(1, 1);
+        Enrollment enrollment = enroll.execute(1, 1, true);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         Course course = enrollment.getCourse();
@@ -163,7 +192,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(1, 1);
+        Enrollment enrollment = enroll.execute(1, 1, true);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         Course course = enrollment.getCourse();
@@ -188,7 +217,7 @@ class EnrollTest {
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
 
-        Enrollment enrollment = enroll.execute(1, 1);
+        Enrollment enrollment = enroll.execute(1, 1, true);
 
         assertThat(enrollmentProvider.enrollmentOfCalled).isTrue();
         assertThat(enrollmentProvider.saveCalled).isFalse();

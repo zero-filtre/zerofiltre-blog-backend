@@ -60,7 +60,7 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId());
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
@@ -93,12 +93,12 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        enroll.execute(user.getId(), course.getId());
+        enroll.execute(user.getId(), course.getId(), true);
 
         Enrollment suspendedEnrollment = suspend.execute(user.getId(), course.getId());
         assertThat(suspendedEnrollment.getSuspendedAt()).isNotNull();
 
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId());
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
 
         Assertions.assertThat(enrollment.getSuspendedAt()).isNull();
         Assertions.assertThat(enrollment.getId()).isEqualTo(suspendedEnrollment.getId());

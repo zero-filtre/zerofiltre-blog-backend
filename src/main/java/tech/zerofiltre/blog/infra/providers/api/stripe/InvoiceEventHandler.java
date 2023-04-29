@@ -91,7 +91,7 @@ public class InvoiceEventHandler {
             stripeCommons.notifyUser(customer,
                     VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
                     "Merci de faire confiance à Zerofiltre.tech, retrouvez votre facture ci-dessous: "
-                            + "\n" + invoice.getInvoicePdf()
+                            + "\n\n" + invoice.getInvoicePdf()
                             + SIGNATURE);
 
         log.info("EventId= {}, EventType={}, User {} Invoice #{} paid for subscription {}: {}", event.getId(), event.getType(), userId, billCount, billCount > 1 ? "renewal " : "creation ", subscription.getId());
