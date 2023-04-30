@@ -13,7 +13,7 @@ import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static tech.zerofiltre.blog.domain.course.model.Lesson.*;
+import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
 
 class LessonTest {
 
@@ -284,6 +284,94 @@ class LessonTest {
     }
 
     @Test
+    void get_throws_ForbiddenActionException_if_not_admin_nor_author_and_course_not_published() {
+        //given
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = new User();
+        user.setId(999);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(18);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+
+        Lesson lesson = Lesson.builder()
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(lessonProvider)
+                .build();
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.get(999))
+                .withMessage(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
+    }
+
+    @Test
+    void get_Throws_ResourceNotFound_if_chapter_not_found_for_not_connected_user() {
+        //given
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(10)).thenReturn(Optional.empty());
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        Lesson built = Lesson.builder()
+                .chapterId(10)
+                .build();
+
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(built));
+
+        Optional<Lesson> lessonOptional = Optional.ofNullable(
+                Lesson.builder()
+                        .lessonProvider(lessonProvider)
+                        .chapterProvider(chapterProvider)
+                        .build()
+        );
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> lessonOptional.get().get(0))
+                .withMessageContaining("The chapter with id: " + 10 + DOES_NOT_EXIST);
+    }
+
+
+    @Test
+    void get_throws_ForbiddenActionException_if_not_connected_and_course_not_published() {
+        //given
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(18);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+
+        Lesson lesson = Lesson.builder()
+                .chapterProvider(chapterProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(lessonProvider)
+                .build();
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.get(0))
+                .withMessage(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
+    }
+
+    @Test
     void get_throws_ResourceNotFound_if_lesson_not_found() {
         //given
         Lesson lesson = Lesson.builder()
@@ -339,7 +427,7 @@ class LessonTest {
 
         CourseProvider courseProvider = mock(CourseProvider.class);
         User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -382,7 +470,7 @@ class LessonTest {
 
         CourseProvider courseProvider = mock(CourseProvider.class);
         User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -422,7 +510,7 @@ class LessonTest {
 
         CourseProvider courseProvider = mock(CourseProvider.class);
         User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));

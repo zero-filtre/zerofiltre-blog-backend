@@ -11,13 +11,15 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import java.util.*;
 
 import static tech.zerofiltre.blog.domain.Domains.*;
+import static tech.zerofiltre.blog.domain.course.model.Chapter.DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
+import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
 
 @JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "enrollmentProvider"})
 public class Lesson {
 
     public static final String THE_LESSON_OF_ID = "The lesson of id ";
-    public static final String VIDEO_NOT_AVAILABLE_FOR_FREE = "VIDEO NOT AVAILABLE FOR FREE";
+
     private long id;
     private String title;
     private String content;
@@ -119,7 +121,7 @@ public class Lesson {
     }
 
     public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
-        checkConditions(currentUserId, chapterId, false, false);
+        checkLessonAccessConditions(currentUserId, chapterId, false, false);
         this.title = title;
         this.chapterId = chapterId;
 
@@ -131,7 +133,7 @@ public class Lesson {
 
         Lesson lesson = lessonProvider.lessonOfId(this.id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
-        checkConditions(currentUserId, chapterId, false, false);
+        checkLessonAccessConditions(currentUserId, chapterId, false, false);
         String titleToSave = this.title;
         String contentToSave = this.content;
         String summaryToSave = this.summary;
@@ -159,23 +161,38 @@ public class Lesson {
         if (lesson.isEmpty()) {
             throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
         }
-        checkConditions(currentUserId, lesson.get().getChapterId(), true, false);
+        checkLessonAccessConditions(currentUserId, lesson.get().getChapterId(), true, false);
         lessonProvider.delete(lesson.get());
     }
 
     public Lesson get(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
         Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
+
         if (lesson.isEmpty())
             throw new ResourceNotFoundException(THE_LESSON_OF_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name());
 
-        if (currentUserId == 0 && lesson.get().isFree()) {
-            return setProviders(lesson.get());
-        } else if (currentUserId == 0 && !lesson.get().isFree()) {
-            notEnrolledAccess = true;
+        // THE USER IS CONNECTED
+
+        if (currentUserId != 0) {
+            checkLessonAccessConditions(currentUserId, lesson.get().getChapterId(), false, true);
             return setProviders(lesson.get());
         }
 
-        checkConditions(currentUserId, lesson.get().getChapterId(), false, true);
+        // THE USER IS NOT CONNECTED
+
+        Chapter existingChapter = chapterProvider.chapterOfId(lesson.get().getChapterId())
+                .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + lesson.get().getChapterId() + DOES_NOT_EXIST, String.valueOf(lesson.get().getChapterId()), COURSE.name()));
+
+        long courseId = existingChapter.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
+
+        if (!existingCourse.getStatus().equals(Status.PUBLISHED)) {
+            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED, Domains.COURSE.name());
+        }
+
+        if (!lesson.get().isFree()) notEnrolledAccess = true;
+
         return setProviders(lesson.get());
     }
 
@@ -196,7 +213,7 @@ public class Lesson {
     }
 
 
-    private void checkConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
+    private void checkLessonAccessConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
 
@@ -206,6 +223,10 @@ public class Lesson {
         long courseId = existingChapter.getCourseId();
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !existingCourse.getStatus().equals(Status.PUBLISHED)) {
+            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED, Domains.COURSE.name());
+        }
 
         if (isDeletion && existingCourse.getStatus().equals(Status.PUBLISHED) && !existingUser.isAdmin())
             throw new ForbiddenActionException("You can not delete a lesson that is already published", Domains.COURSE.name());
