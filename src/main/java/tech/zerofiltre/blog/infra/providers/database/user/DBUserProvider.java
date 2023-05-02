@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.user;
 
 import lombok.*;
 import org.mapstruct.factory.*;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -39,7 +40,7 @@ public class DBUserProvider implements UserProvider {
     }
 
     @Override
-    //@Cacheable(value = "connected-user", key = "#email")
+    @Cacheable(value = "connected-user", key = "#email")
     public Optional<User> userOfEmail(String email) {
         return repository.findByEmail(email)
                 .map(mapper::fromJPA);

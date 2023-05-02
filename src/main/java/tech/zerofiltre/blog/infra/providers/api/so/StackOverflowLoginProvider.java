@@ -37,7 +37,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
         this.retryTemplate = retryTemplate;
     }
 
-    @Cacheable(value = "so-token-validity", key ="#token")
+    @Cacheable(value = "so-token-validity", key = "#token")
     public boolean isValid(String token) {
         Map<String, String> uriVariables = Collections.singletonMap("key", infraProperties.getStackOverflowAPIKey());
         String urlTemplate = buildURITemplate(apiUrl + "/access-tokens/" + token, uriVariables.keySet());
@@ -79,7 +79,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
 
     }
 
-    //@Cacheable(value = "so-user", key = "#token")
+    @Cacheable(value = "so-user", key = "#token")
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {

@@ -56,7 +56,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
     }
 
     @Override
-    //@Cacheable(value = "github-user", key = "#token")
+    @Cacheable(value = "github-user", key = "#token")
     public Optional<User> userOfToken(String token) {
         try {
             return retryTemplate.execute(retryContext -> {
