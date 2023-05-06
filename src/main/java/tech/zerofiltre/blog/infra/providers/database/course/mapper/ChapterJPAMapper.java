@@ -17,6 +17,8 @@ public interface ChapterJPAMapper {
 
     List<Chapter> toChapters(List<ChapterJPA> chapterJPAList);
 
+    List<ChapterJPA> toChaptersJPA(List<Chapter> chapterList);
+
     @Named("courseFromId")
     default CourseJPA courseFromId(long courseId) {
         CourseJPA courseJPA = new CourseJPA();

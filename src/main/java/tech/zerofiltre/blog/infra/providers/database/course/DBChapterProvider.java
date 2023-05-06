@@ -40,4 +40,10 @@ public class DBChapterProvider implements ChapterProvider {
     public List<Chapter> ofCourseId(long courseId) {
         return chapterJPAMapper.toChapters(chapterJPARepository.findAllByCourseIdOrderByNumberAsc(courseId));
     }
+
+    @Override
+    public List<Chapter> saveAll(List<Chapter> chapters) {
+        List<ChapterJPA> chapterJPA = chapterJPAMapper.toChaptersJPA(chapters);
+        return chapterJPAMapper.toChapters(chapterJPARepository.saveAll(chapterJPA));
+    }
 }

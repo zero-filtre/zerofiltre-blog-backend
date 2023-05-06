@@ -70,8 +70,8 @@ public class ChapterController {
         return chapter.get();
     }
 
-    @PatchMapping("/{id}")
-    public Chapter moveLesson(@PathVariable long id, @RequestParam long lessonId, @RequestParam int toNumber) throws ResourceNotFoundException, ForbiddenActionException {
+    @PatchMapping("/{id}/lesson/{lessonId}")
+    public Chapter moveLesson(@PathVariable long id, @PathVariable long lessonId, @RequestParam int toNumber) throws ResourceNotFoundException, ForbiddenActionException {
         Chapter chapter = Chapter.builder()
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
@@ -81,6 +81,20 @@ public class ChapterController {
                 .build();
         User user = securityContextManager.getAuthenticatedUser();
         return chapter.moveLesson(user.getId(), lessonId, toNumber);
+
+    }
+
+    @PatchMapping("/{id}")
+    public Chapter moveChapter(@PathVariable long id, @RequestParam int toNumber) throws BlogException {
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(lessonProvider)
+                .id(id)
+                .build();
+        User user = securityContextManager.getAuthenticatedUser();
+        return chapter.move(user.getId(), toNumber);
 
     }
 

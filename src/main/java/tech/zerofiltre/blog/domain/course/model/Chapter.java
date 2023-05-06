@@ -20,6 +20,7 @@ public class Chapter {
     public static final String DOES_NOT_EXIST = " does not exist";
     public static final String THE_COURSE_WITH_ID = "The course with id: ";
     public static final String THE_CHAPTER_WITH_ID = "The chapter with id: ";
+    public static final String YOU_ARE_NOT_ALLOWED_TO_EDIT_A_CHAPTER_FOR_THIS_COURSE = "You are not allowed to edit a chapter for this course";
 
     private long id;
     private String title;
@@ -66,6 +67,10 @@ public class Chapter {
         this.lessons = lessons;
     }
 
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
     public int getNumber() {
         return number;
     }
@@ -108,7 +113,7 @@ public class Chapter {
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
 
         if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", COURSE.name());
+            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_EDIT_A_CHAPTER_FOR_THIS_COURSE, COURSE.name());
         }
 
         Chapter existingChapter = chapterProvider.chapterOfId(id)
@@ -172,7 +177,7 @@ public class Chapter {
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + theCourseId + DOES_NOT_EXIST, String.valueOf(theCourseId), ""));
 
         if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", COURSE.name());
+            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_EDIT_A_CHAPTER_FOR_THIS_COURSE, COURSE.name());
         }
         List<Lesson> lessonList = chapter.getLessons();
         Lesson lessonToMove = null;
@@ -209,6 +214,48 @@ public class Chapter {
         return setProviders(chapter);
     }
 
+
+    public Chapter move(long currentUserId, int toNumber) throws BlogException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Chapter chapterToMove = chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        long theCourseId = chapterToMove.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(theCourseId)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + theCourseId + DOES_NOT_EXIST, String.valueOf(theCourseId), ""));
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_EDIT_A_CHAPTER_FOR_THIS_COURSE, COURSE.name());
+        }
+
+        List<Chapter> chapterList = chapterProvider.ofCourseId(theCourseId);
+        int currentNumber = chapterToMove.getNumber();
+
+        for (Chapter aChapter : chapterList) {
+            if (aChapter.getId() == chapterToMove.getId()) {
+                // Move the chapter to the new position
+                aChapter.setNumber(toNumber);
+            } else {
+                int aChapterNumber = aChapter.getNumber();
+                if (currentNumber < toNumber) {
+                    // Shift chapters down
+                    if (aChapterNumber > currentNumber && aChapterNumber <= toNumber) {
+                        aChapter.setNumber(aChapterNumber - 1);
+                    }
+                } else {
+                    // Shift chapters up
+                    if (aChapterNumber < currentNumber && aChapterNumber >= toNumber) {
+                        aChapter.setNumber(aChapterNumber + 1);
+                    }
+                }
+            }
+        }
+        chapterList = chapterProvider.saveAll(chapterList);
+        Chapter result = chapterList.stream().filter(chapter -> chapter.getId() == chapterToMove.getId()).findFirst().orElseThrow(() -> new BlogException("An error occurred when moving the chapter, try again", ""));
+        return setProviders(result);
+    }
 
     private boolean isNotAdmin(User existingUser) {
         return !existingUser.getRoles().contains("ROLE_ADMIN");
