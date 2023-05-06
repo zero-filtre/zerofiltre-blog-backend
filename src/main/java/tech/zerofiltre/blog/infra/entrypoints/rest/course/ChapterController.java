@@ -22,6 +22,7 @@ import java.util.*;
 public class ChapterController {
 
     private final ChapterProvider chapterProvider;
+    private final LessonProvider lessonProvider;
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
     private final SecurityContextManager securityContextManager;
@@ -67,6 +68,20 @@ public class ChapterController {
             log.debug("We did not find a connected user but we can still return the wanted chapter", e);
         }
         return chapter.get();
+    }
+
+    @PatchMapping("/{id}")
+    public Chapter moveLesson(@PathVariable long id, @RequestParam long lessonId, @RequestParam int toNumber) throws ResourceNotFoundException, ForbiddenActionException {
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(lessonProvider)
+                .id(id)
+                .build();
+        User user = securityContextManager.getAuthenticatedUser();
+        return chapter.moveLesson(user.getId(), lessonId, toNumber);
+
     }
 
     @GetMapping("/course/{id}")

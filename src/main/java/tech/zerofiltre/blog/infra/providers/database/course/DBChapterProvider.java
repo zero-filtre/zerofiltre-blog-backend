@@ -17,7 +17,6 @@ import java.util.*;
 public class DBChapterProvider implements ChapterProvider {
 
     private final ChapterJPARepository chapterJPARepository;
-    private final ChapterJPANumberRepository chapterJPANumberRepository;
     private final ChapterJPAMapper chapterJPAMapper = Mappers.getMapper(ChapterJPAMapper.class);
 
 
@@ -29,10 +28,6 @@ public class DBChapterProvider implements ChapterProvider {
     @Override
     public Chapter save(Chapter chapter) {
         ChapterJPA chapterJPA = chapterJPAMapper.toChapterJPA(chapter);
-        if (chapter.getNumber() == 0) {
-            ChapterJPANumber number = chapterJPANumberRepository.save(new ChapterJPANumber());
-            chapterJPA.setNumber(number);
-        }
         return chapterJPAMapper.toChapter(chapterJPARepository.save(chapterJPA));
     }
 

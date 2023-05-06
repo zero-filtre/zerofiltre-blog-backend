@@ -23,8 +23,7 @@ public class ChapterJPA extends BaseEntityJPA {
     @JoinColumn(name = "course_id")
     private CourseJPA course;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private ChapterJPANumber number;
+    private int number;
 
     @OrderBy("number ASC")
     @OneToMany(mappedBy = "chapter")

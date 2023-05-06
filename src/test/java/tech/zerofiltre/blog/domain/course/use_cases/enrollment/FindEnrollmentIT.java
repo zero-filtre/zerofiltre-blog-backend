@@ -32,11 +32,7 @@ class FindEnrollmentIT {
     @Autowired
     private CourseJPARepository courseJPARepository;
     @Autowired
-    private ChapterJPANumberRepository cJPANumberRepository;
-    @Autowired
     private ChapterJPARepository chapterJPARepository;
-    @Autowired
-    private ChapterJPANumberRepository chapterJPANumberRepository;
 
     @Test
     void findEnrollment_returns_properPage_forInActiveEnrollments() throws BlogException {
@@ -163,7 +159,7 @@ class FindEnrollmentIT {
         EnrollmentProvider enrollmentProvider = new DBEnrollmentProvider(enrollmentJPARepository);
         UserProvider userProvider = new DBUserProvider(userJPARepository);
         CourseProvider courseProvider = new DBCourseProvider(courseJPARepository);
-        ChapterProvider chapterProvider = new DBChapterProvider(chapterJPARepository, chapterJPANumberRepository);
+        ChapterProvider chapterProvider = new DBChapterProvider(chapterJPARepository);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
 
 

@@ -26,9 +26,6 @@ class DBLessonProviderIT {
     LessonJPARepository lessonJPARepository;
 
     @Autowired
-    LessonJPANumberRepository lessonJPANumberRepository;
-
-    @Autowired
     EnrollmentJPARepository enrollmentJPARepository;
 
     @Autowired
@@ -45,22 +42,7 @@ class DBLessonProviderIT {
 
     @BeforeEach
     void setUp() {
-        lessonProvider = new DBLessonProvider(lessonJPARepository, lessonJPANumberRepository, enrollmentJPARepository);
-    }
-
-    @Test
-    void save_creates_number_if_zero() {
-        //given
-        Lesson lesson = Lesson.builder()
-                .title("title")
-                .build();
-
-        //when
-        Lesson result = lessonProvider.save(lesson);
-
-        //then
-        assertThat(result.getNumber()).isNotZero();
-
+        lessonProvider = new DBLessonProvider(lessonJPARepository, enrollmentJPARepository);
     }
 
     @Test

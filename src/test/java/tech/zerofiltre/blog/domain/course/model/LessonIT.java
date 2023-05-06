@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
+import org.springframework.transaction.annotation.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.use_cases.course.*;
@@ -49,6 +50,7 @@ class LessonIT {
     @Autowired
     private TagProvider tagProvider;
 
+
     private Chapter chapter;
     private User author;
     private Course course;
@@ -78,8 +80,8 @@ class LessonIT {
         org.assertj.core.api.Assertions.assertThat(lesson).isNotNull();
         org.assertj.core.api.Assertions.assertThat(lesson.getId()).isNotZero();
         org.assertj.core.api.Assertions.assertThat(lesson.getTitle()).isEqualTo(TITLE);
-        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(course.getId());
-        Assertions.assertThat(chapter.getLessons()).isEmpty();
+        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(chapter.getId());
+        org.assertj.core.api.Assertions.assertThat(lesson.getNumber()).isEqualTo(1);
 
     }
 
@@ -103,6 +105,8 @@ class LessonIT {
                 .build()
                 .init(TITLE, chapter.getId(), author.getId());
 
+        org.assertj.core.api.Assertions.assertThat(lesson.getNumber()).isEqualTo(1);
+
         Lesson updatedLesson = Lesson.builder()
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
@@ -114,6 +118,7 @@ class LessonIT {
                 .content(UPDATED_CONTENT)
                 .summary(UPDATED_SUMMARY)
                 .thumbnail(THUMBNAIL)
+                .number(40)
                 .resources(Collections.singletonList(Resource.builder().name("name").build()))
                 .free(true)
                 .chapterId(chapter.getId())
@@ -126,6 +131,7 @@ class LessonIT {
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getContent()).isEqualTo(UPDATED_CONTENT);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getSummary()).isEqualTo(UPDATED_SUMMARY);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getThumbnail()).isEqualTo(THUMBNAIL);
+        org.assertj.core.api.Assertions.assertThat(updatedLesson.getNumber()).isEqualTo(1);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getType()).isEqualTo("video");
         org.assertj.core.api.Assertions.assertThat(updatedLesson.getVideo()).isEqualTo(VIDEO);
         org.assertj.core.api.Assertions.assertThat(updatedLesson.isFree()).isTrue();
@@ -163,10 +169,13 @@ class LessonIT {
     }
 
     @Test
-    @Disabled("Not working yet")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void save_Lesson_increases_course_lessonsCount() throws ForbiddenActionException, ResourceNotFoundException {
         author = ZerofiltreUtils.createMockUser(false);
+        author.setEmail("test@mail.uk");
+        author.setPseudoName("pseudo");
         author = userProvider.save(author);
+
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
         Course course = courseService.init("A course", author);

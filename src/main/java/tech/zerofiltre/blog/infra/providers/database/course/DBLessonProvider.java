@@ -17,7 +17,6 @@ import java.util.*;
 public class DBLessonProvider implements LessonProvider {
 
     private final LessonJPARepository lessonJPARepository;
-    private final LessonJPANumberRepository numberRepository;
     private final EnrollmentJPARepository enrollmentJPARepository;
     LessonJPAMapper lessonJPAMapper = Mappers.getMapper(LessonJPAMapper.class);
 
@@ -29,10 +28,8 @@ public class DBLessonProvider implements LessonProvider {
     @Override
     public Lesson save(Lesson lesson) {
         LessonJPA lessonJPA = lessonJPAMapper.toJPA(lesson);
-        if (lesson.getNumber() == 0) {
-            lessonJPA.setNumber(numberRepository.save(new LessonJPANumber()));
-        }
-        return lessonJPAMapper.fromJPA(lessonJPARepository.save(lessonJPA));
+        LessonJPA saved = lessonJPARepository.save(lessonJPA);
+        return lessonJPAMapper.fromJPA(saved);
     }
 
     @Override
@@ -43,4 +40,13 @@ public class DBLessonProvider implements LessonProvider {
         });
         lessonJPARepository.delete(lessonJPAMapper.toJPA(lesson));
     }
+
+    @Override
+    public List<Lesson> saveAll(List<Lesson> lessons) {
+        List<LessonJPA> lessonsJPA = lessonJPAMapper.toJPAs(lessons);
+        List<LessonJPA> savedLessonsJPA = lessonJPARepository.saveAll(lessonsJPA);
+        return lessonJPAMapper.fromJPAs(savedLessonsJPA);
+
+    }
+
 }

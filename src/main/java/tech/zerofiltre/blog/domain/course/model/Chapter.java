@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.*;
-import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -10,6 +9,9 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 
 import java.util.*;
+
+import static tech.zerofiltre.blog.domain.Domains.*;
+import static tech.zerofiltre.blog.domain.course.model.Lesson.*;
 
 @JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider"})
 public class Chapter {
@@ -28,6 +30,7 @@ public class Chapter {
     private ChapterProvider chapterProvider;
     private UserProvider userProvider;
     private CourseProvider courseProvider;
+    private LessonProvider lessonProvider;
 
     private Chapter(ChapterBuilder chapterBuilder) {
         this.id = chapterBuilder.id;
@@ -38,7 +41,10 @@ public class Chapter {
         this.chapterProvider = chapterBuilder.chapterProvider;
         this.userProvider = chapterBuilder.userProvider;
         this.courseProvider = chapterBuilder.courseProvider;
+        this.lessonProvider = chapterBuilder.lessonProvider;
     }
+
+    //DATA
 
     public long getId() {
         return id;
@@ -56,6 +62,10 @@ public class Chapter {
         return lessons;
     }
 
+    public void setLessons(List<Lesson> lessons) {
+        this.lessons = lessons;
+    }
+
     public int getNumber() {
         return number;
     }
@@ -68,33 +78,26 @@ public class Chapter {
         return new ChapterBuilder();
     }
 
+    //LOGIC
+
     public Chapter init(String title, long courseId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
 
         if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to create a chapter for this course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to create a chapter for this course", COURSE.name());
         }
 
         this.title = title;
         this.courseId = courseId;
 
+        Chapter lastChapter = chapterProvider.ofCourseId(courseId).stream().reduce((first, second) -> second).orElse(null);
+        this.number = (lastChapter != null) ? lastChapter.getNumber() + 1 : 1;
+
         return setProviders(chapterProvider.save(this));
-    }
-
-
-    private boolean isNotAdmin(User existingUser) {
-        return !existingUser.getRoles().contains("ROLE_ADMIN");
-    }
-
-    private Chapter setProviders(Chapter chapter) {
-        chapter.chapterProvider = chapterProvider;
-        chapter.userProvider = userProvider;
-        chapter.courseProvider = courseProvider;
-        return chapter;
     }
 
     public Chapter save(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
@@ -102,20 +105,113 @@ public class Chapter {
                 .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
 
         if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", COURSE.name());
         }
 
         Chapter existingChapter = chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
 
         String titleToSave = title;
 
         setAttributes(existingChapter);
         this.title = titleToSave;
         return setProviders(chapterProvider.save(this));
+    }
+
+    public void delete(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Chapter existingChapter = chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+        if (!existingChapter.getLessons().isEmpty())
+            throw new ForbiddenActionException("You are not allowed to delete a chapter with lessons", COURSE.name());
+
+        Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        if (existingCourse.getStatus() == Status.PUBLISHED && !existingUser.isAdmin())
+            throw new ForbiddenActionException("You are not allowed to delete a chapter for a published course, please get in touch with an admin", COURSE.name());
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to delete a chapter for this course", COURSE.name());
+        }
+
+        chapterProvider.delete(existingChapter);
+    }
+
+    public Chapter get() throws ResourceNotFoundException {
+        return setProviders(chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name())));
+    }
+
+    public List<Chapter> getByCourseId(User user) throws ResourceNotFoundException, ForbiddenActionException {
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        if (
+                (user == null && Status.PUBLISHED != existingCourse.getStatus())
+                        || (user != null && isNotAdmin(user) && existingCourse.getAuthor().getId() != user.getId() && Status.PUBLISHED != existingCourse.getStatus())
+        )
+            throw new ForbiddenActionException("You are not allowed to get chapters for this course", COURSE.name());
+        return chapterProvider.ofCourseId(courseId);
+    }
+
+    public Chapter moveLesson(long currentUserId, long lessonId, int toNumber) throws ResourceNotFoundException, ForbiddenActionException {
+        User existingUser = userProvider.userOfId(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
+
+        Chapter chapter = chapterProvider.chapterOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), COURSE.name()));
+
+        long theCourseId = chapter.getCourseId();
+        Course existingCourse = courseProvider.courseOfId(theCourseId)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + theCourseId + DOES_NOT_EXIST, String.valueOf(theCourseId), ""));
+
+        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException("You are not allowed to edit a chapter for this course", COURSE.name());
+        }
+        List<Lesson> lessonList = chapter.getLessons();
+        Lesson lessonToMove = null;
+        for (Lesson lesson : lessonList) {
+            if (lesson.getId() == lessonId)
+                lessonToMove = lesson;
+        }
+        if (lessonToMove == null)
+            throw new ResourceNotFoundException(THE_LESSON_OF_ID + lessonId + DOES_NOT_EXIST, String.valueOf(lessonId), COURSE.name());
+
+        int currentPosition = lessonToMove.getNumber();
+
+        // Move the lesson to the new position
+        lessonToMove.setNumber(toNumber);
+
+        // Update the positions of the other lessons
+        for (Lesson lesson : lessonList) {
+            if (lesson.getId() != lessonToMove.getId()) {
+                int lPosition = lesson.getNumber();
+                if (currentPosition < toNumber) {
+                    // Shift lessons down
+                    if (lPosition > currentPosition && lPosition <= toNumber) {
+                        lesson.setNumber(lPosition - 1);
+                    }
+                } else {
+                    // Shift lessons up
+                    if (lPosition < currentPosition && lPosition >= toNumber) {
+                        lesson.setNumber(lPosition + 1);
+                    }
+                }
+            }
+        }
+        chapter.setLessons(lessonProvider.saveAll(lessonList));
+        return setProviders(chapter);
+    }
+
+
+    private boolean isNotAdmin(User existingUser) {
+        return !existingUser.getRoles().contains("ROLE_ADMIN");
     }
 
     private void setAttributes(Chapter existingChapter) {
@@ -126,43 +222,12 @@ public class Chapter {
         this.number = existingChapter.getNumber();
     }
 
-    public void delete(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
-        User existingUser = userProvider.userOfId(currentUserId)
-                .orElseThrow(() -> new UserNotFoundException(AUTHOR_DOES_NOT_EXIST, String.valueOf(currentUserId)));
-
-        Chapter existingChapter = chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
-        if (!existingChapter.getLessons().isEmpty())
-            throw new ForbiddenActionException("You are not allowed to delete a chapter with lessons", Domains.COURSE.name());
-
-        Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
-
-        if (existingCourse.getStatus() == Status.PUBLISHED && !existingUser.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to delete a chapter for a published course, please get in touch with an admin", Domains.COURSE.name());
-
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId()) {
-            throw new ForbiddenActionException("You are not allowed to delete a chapter for this course", Domains.COURSE.name());
-        }
-
-        chapterProvider.delete(existingChapter);
-    }
-
-    public Chapter get() throws ResourceNotFoundException {
-        return setProviders(chapterProvider.chapterOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name())));
-    }
-
-    public List<Chapter> getByCourseId(User user) throws ResourceNotFoundException, ForbiddenActionException {
-        Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
-
-        if (
-                (user == null && Status.PUBLISHED != existingCourse.getStatus())
-                        || (user != null && isNotAdmin(user) && existingCourse.getAuthor().getId() != user.getId() && Status.PUBLISHED != existingCourse.getStatus())
-        )
-            throw new ForbiddenActionException("You are not allowed to get chapters for this course", Domains.COURSE.name());
-        return chapterProvider.ofCourseId(courseId);
+    private Chapter setProviders(Chapter chapter) {
+        chapter.chapterProvider = chapterProvider;
+        chapter.userProvider = userProvider;
+        chapter.courseProvider = courseProvider;
+        chapter.lessonProvider = lessonProvider;
+        return chapter;
     }
 
 
@@ -175,6 +240,8 @@ public class Chapter {
         private long courseId;
         private List<Lesson> lessons = new ArrayList<>();
         private ChapterProvider chapterProvider;
+        public LessonProvider lessonProvider;
+
 
         public ChapterBuilder id(long id) {
             this.id = id;
@@ -208,6 +275,11 @@ public class Chapter {
 
         public ChapterBuilder courseProvider(CourseProvider courseProvider) {
             this.courseProvider = courseProvider;
+            return this;
+        }
+
+        public ChapterBuilder lessonProvider(LessonProvider lessonProvider) {
+            this.lessonProvider = lessonProvider;
             return this;
         }
 

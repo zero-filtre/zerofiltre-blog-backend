@@ -39,6 +39,11 @@ public class Lesson {
     private boolean notEnrolledAccess;
 
 
+    private User currentUser;
+    private Chapter chapter;
+    private Course course;
+
+
     private Lesson(LessonBuilder lessonBuilder) {
         this.id = lessonBuilder.id;
         this.title = lessonBuilder.title;
@@ -120,11 +125,19 @@ public class Lesson {
         return number;
     }
 
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
     public Lesson init(String title, long chapterId, long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
         checkLessonAccessConditions(currentUserId, chapterId, false, false);
         this.title = title;
         this.chapterId = chapterId;
 
+        Lesson lastLesson = chapter.getLessons().stream().reduce((first, second) -> second).orElse(null);
+
+        int newPosition = (lastLesson != null) ? lastLesson.getNumber() + 1 : 1;
+        this.setNumber(newPosition);
 
         return setProviders(lessonProvider.save(this));
     }
@@ -180,10 +193,10 @@ public class Lesson {
 
         // THE USER IS NOT CONNECTED
 
-        Chapter existingChapter = chapterProvider.chapterOfId(lesson.get().getChapterId())
+        chapter = chapterProvider.chapterOfId(lesson.get().getChapterId())
                 .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + lesson.get().getChapterId() + DOES_NOT_EXIST, String.valueOf(lesson.get().getChapterId()), COURSE.name()));
 
-        long courseId = existingChapter.getCourseId();
+        long courseId = chapter.getCourseId();
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
 
@@ -214,30 +227,30 @@ public class Lesson {
 
 
     private void checkLessonAccessConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
-        User existingUser = userProvider.userOfId(currentUserId)
+        currentUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId), COURSE.name()));
 
-        Chapter existingChapter = chapterProvider.chapterOfId(chapterId)
+        chapter = chapterProvider.chapterOfId(chapterId)
                 .orElseThrow(() -> new ResourceNotFoundException("The chapter with id: " + chapterId + DOES_NOT_EXIST, String.valueOf(chapterId), COURSE.name()));
 
-        long courseId = existingChapter.getCourseId();
-        Course existingCourse = courseProvider.courseOfId(courseId)
+        long courseId = chapter.getCourseId();
+        course = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId), COURSE.name()));
 
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !existingCourse.getStatus().equals(Status.PUBLISHED)) {
+        if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && !course.getStatus().equals(Status.PUBLISHED)) {
             throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED, Domains.COURSE.name());
         }
 
-        if (isDeletion && existingCourse.getStatus().equals(Status.PUBLISHED) && !existingUser.isAdmin())
+        if (isDeletion && course.getStatus().equals(Status.PUBLISHED) && !currentUser.isAdmin())
             throw new ForbiddenActionException("You can not delete a lesson that is already published", Domains.COURSE.name());
 
-        if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && !checkEnrollments) {
+        if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && !checkEnrollments) {
             throw new ForbiddenActionException("You are not allowed to do this action on this course", Domains.COURSE.name());
         }
 
         if (checkEnrollments) {
             Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true);
-            if (!existingUser.isAdmin() && existingCourse.getAuthor().getId() != existingUser.getId() && enrollment.isEmpty())
+            if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && enrollment.isEmpty())
                 notEnrolledAccess = true;
         }
     }

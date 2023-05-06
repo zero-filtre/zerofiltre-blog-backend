@@ -39,6 +39,102 @@ class LessonTest {
     }
 
     @Test
+    void init_throws_ResourceNotFoundException_if_chapter_not_found() {
+        //given
+        Lesson lesson = Lesson.builder()
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .chapterProvider(new NotFoundChapterProviderSpy())
+                .build();
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> lesson.init("Lesson 1", 1, 100));
+    }
+
+    @Test
+    void init_throws_ForbiddenActionException_if_user_is_not_admin_nor_course_author() {
+        //given
+        Lesson lesson = Lesson.builder()
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .courseProvider(new Found_Draft_WithKnownAuthor_CourseProvider_Spy())
+                .lessonProvider(new FoundLessonProviderSpy())
+                .build();
+
+        //when
+        //then
+        org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.init("Lesson 1", 1, 100));
+
+    }
+
+    @Test
+    void init_worksProperly_if_user_is_admin_and_not_author() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        Found_Draft_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
+        Lesson lesson = Lesson.builder()
+                .title("Lesson 1")
+                .chapterId(1)
+                .userProvider(new FoundAdminUserProviderSpy())
+                .chapterProvider(chapterProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .build();
+
+        //when
+        lesson.init("Lesson 1", 1, 100);
+
+        //then
+        org.assertj.core.api.Assertions.assertThat(lesson.getTitle()).isEqualTo("Lesson 1");
+        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(lesson.getType()).isEqualTo("text");
+        org.assertj.core.api.Assertions.assertThat(chapterProvider.chapterOfIdCalled).isTrue();
+        org.assertj.core.api.Assertions.assertThat(courseProvider.courseOfIdCalled).isTrue();
+    }
+
+    @Test
+    void init_defines_lesson_number() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
+        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
+        Chapter chapter = Chapter.builder()
+                .lessons(List.of(firstLesson, secondLesson))
+                .build();
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(chapter));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        when(lessonProvider.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Lesson lesson = Lesson.builder()
+                .title("Lesson 1")
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .courseProvider(courseProvider)
+                .lessonProvider(lessonProvider)
+                .build();
+
+        //when
+        lesson = lesson.init("Git basis", 1, 100);
+
+        //then
+        org.assertj.core.api.Assertions.assertThat(lesson.getNumber()).isEqualTo(3);
+        verify(chapterProvider, times(1)).chapterOfId(anyLong());
+        verify(courseProvider, times(1)).courseOfId(anyLong());
+    }
+
+    @Test
     void save_throws_ResourceNotFoundException_if_author_not_found() {
         //given
         Lesson lesson = Lesson.builder()
@@ -72,37 +168,6 @@ class LessonTest {
     }
 
     @Test
-    void init_throws_ResourceNotFoundException_if_chapter_not_found() {
-        //given
-        Lesson lesson = Lesson.builder()
-                .userProvider(new FoundNonAdminUserProviderSpy())
-                .chapterProvider(new NotFoundChapterProviderSpy())
-                .build();
-
-        //when
-        //then
-        org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> lesson.init("Lesson 1", 1, 100));
-    }
-
-    @Test
-    void init_throws_ForbiddenActionException_if_user_is_not_admin_nor_course_author() {
-        //given
-        Lesson lesson = Lesson.builder()
-                .userProvider(new FoundNonAdminUserProviderSpy())
-                .chapterProvider(new FoundChapterProviderSpy())
-                .courseProvider(new Found_Draft_WithKnownAuthor_CourseProvider_Spy())
-                .lessonProvider(new FoundLessonProviderSpy())
-                .build();
-
-        //when
-        //then
-        org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> lesson.init("Lesson 1", 1, 100));
-
-    }
-
-    @Test
     void save_throws_ForbiddenActionException_if_user_is_not_admin_nor_course_author() {
         //given
         Lesson lesson = Lesson.builder()
@@ -116,31 +181,6 @@ class LessonTest {
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> lesson.save(100));
-    }
-
-    @Test
-    void init_worksProperly_if_user_is_admin_and_not_author() throws ForbiddenActionException, ResourceNotFoundException {
-        //given
-        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        Found_Draft_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
-        Lesson lesson = Lesson.builder()
-                .title("Lesson 1")
-                .chapterId(1)
-                .userProvider(new FoundAdminUserProviderSpy())
-                .chapterProvider(chapterProvider)
-                .courseProvider(courseProvider)
-                .lessonProvider(new FoundLessonProviderSpy())
-                .build();
-
-        //when
-        lesson.init("Lesson 1", 1, 100);
-
-        //then
-        org.assertj.core.api.Assertions.assertThat(lesson.getTitle()).isEqualTo("Lesson 1");
-        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(1);
-        org.assertj.core.api.Assertions.assertThat(lesson.getType()).isEqualTo("text");
-        org.assertj.core.api.Assertions.assertThat(chapterProvider.chapterOfIdCalled).isTrue();
-        org.assertj.core.api.Assertions.assertThat(courseProvider.courseOfIdCalled).isTrue();
     }
 
     @Test

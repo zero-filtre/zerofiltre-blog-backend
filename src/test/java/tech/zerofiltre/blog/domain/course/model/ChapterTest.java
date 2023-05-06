@@ -17,6 +17,8 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
+import static tech.zerofiltre.blog.domain.course.model.Lesson.*;
 
 class ChapterTest {
 
@@ -34,39 +36,6 @@ class ChapterTest {
         //then
         Assertions.assertThatExceptionOfType(UserNotFoundException.class)
                 .isThrownBy(() -> chapter.init("Chapter 1", 1, 100));
-    }
-
-    @Test
-    void save_throws_UserNotFoundException_if_author_not_found() {
-        //given
-        Chapter chapter = Chapter.builder()
-                .id(1)
-                .userProvider(new NotFoundUserProviderSpy())
-                .title("Chapter 1")
-                .courseId(1)
-                .build();
-
-        //when
-        //then
-        Assertions.assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> chapter.save(100));
-    }
-
-    @Test
-    void save_throws_ResourceNotFoundException_if_course_not_found() {
-        //given
-        Chapter chapter = Chapter.builder()
-                .id(1)
-                .userProvider(new FoundNonAdminUserProviderSpy())
-                .courseProvider(new NotFoundCourseProviderSpy())
-                .title("Chapter 1")
-                .courseId(1)
-                .build();
-
-        //when
-        //then
-        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> chapter.save(100));
     }
 
     @Test
@@ -104,23 +73,6 @@ class ChapterTest {
     }
 
     @Test
-    void save_throws_ForbiddenActionException_if_user_is_not_admin() {
-        //given
-        Chapter chapter = Chapter.builder()
-                .id(1)
-                .userProvider(new FoundNonAdminUserProviderSpy())
-                .courseProvider(new Found_Draft_WithUnknownAuthor_CourseProviderSpy())
-                .title("Chapter 1")
-                .courseId(1)
-                .build();
-
-        //when
-        //then
-        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> chapter.save(100));
-    }
-
-    @Test
     void init_worksProperly_if_user_is_admin() throws ForbiddenActionException, ResourceNotFoundException {
         //given
         Chapter chapter = Chapter.builder()
@@ -140,6 +92,87 @@ class ChapterTest {
         Assertions.assertThat(chapter.getCourseId()).isEqualTo(1);
         Assertions.assertThat(chapter.getLessons()).isNotNull();
         Assertions.assertThat(chapter.getLessons()).isEmpty();
+    }
+
+    @Test
+    void init_defines_chapter_number() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Chapter firstChapter = Chapter.builder().id(1).number(1).build();
+        Chapter secondChapter = Chapter.builder().id(2).number(2).build();
+        when(chapterProvider.ofCourseId(anyLong())).thenReturn(Arrays.asList(firstChapter, secondChapter));
+
+
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .title("Chapter 1")
+                .build()
+                .init("Chapter 1", 1, 100);
+
+        assertThat(chapter.getNumber()).isEqualTo(3);
+    }
+
+    @Test
+    void save_throws_UserNotFoundException_if_author_not_found() {
+        //given
+        Chapter chapter = Chapter.builder()
+                .id(1)
+                .userProvider(new NotFoundUserProviderSpy())
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(UserNotFoundException.class)
+                .isThrownBy(() -> chapter.save(100));
+    }
+
+    @Test
+    void save_throws_ResourceNotFoundException_if_course_not_found() {
+        //given
+        Chapter chapter = Chapter.builder()
+                .id(1)
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(new NotFoundCourseProviderSpy())
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> chapter.save(100));
+    }
+
+    @Test
+    void save_throws_ForbiddenActionException_if_user_is_not_admin() {
+        //given
+        Chapter chapter = Chapter.builder()
+                .id(1)
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(new Found_Draft_WithUnknownAuthor_CourseProviderSpy())
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.save(100));
     }
 
     @Test
@@ -426,4 +459,196 @@ class ChapterTest {
         Assertions.assertThat(result).isNotEmpty();
         assertThat(result.size()).isEqualTo(2);
     }
+
+    @Test
+    void testMoveLessonDown() throws ResourceNotFoundException, ForbiddenActionException {
+        LessonProvider lessonProvider = Mockito.mock(LessonProvider.class);
+        when(lessonProvider.saveAll(anyList())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
+
+        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
+        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
+        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Chapter chapter = Chapter.builder()
+                .lessons(List.of(firstLesson, secondLesson, thirdLesson))
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .build();
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(chapter));
+
+
+        Chapter result = chapter.moveLesson(5, 1, 2);
+        List<Lesson> reorderedLessons = result.getLessons();
+
+        // Check that the moved lesson is now in position 2
+        reorderedLessons.forEach(lesson -> {
+            if (lesson.getId() == 1) assertThat(lesson.getNumber()).isEqualTo(2);
+            if (lesson.getId() == 2) assertThat(lesson.getNumber()).isEqualTo(1);
+            if (lesson.getId() == 3) assertThat(lesson.getNumber()).isEqualTo(3);
+        });
+    }
+
+    @Test
+    void testMoveLessonUp() throws ResourceNotFoundException, ForbiddenActionException {
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
+
+        LessonProvider lessonProvider = Mockito.mock(LessonProvider.class);
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
+        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
+        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+
+        Chapter chapter = Chapter.builder()
+                .lessons(List.of(firstLesson, secondLesson, thirdLesson))
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .build();
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(chapter));
+        when(lessonProvider.saveAll(anyList())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+
+        Chapter result = chapter.moveLesson(5, 3, 2);
+        List<Lesson> reorderedLessons = result.getLessons();
+
+        // Check that the moved lesson is now in position 2
+        reorderedLessons.forEach(lesson -> {
+            if (lesson.getId() == 1) assertThat(lesson.getNumber()).isEqualTo(1);
+            if (lesson.getId() == 2) assertThat(lesson.getNumber()).isEqualTo(3);
+            if (lesson.getId() == 3) assertThat(lesson.getNumber()).isEqualTo(2);
+        });
+    }
+
+    @Test
+    void testMoveLessonToTheSamePosition() throws ResourceNotFoundException, ForbiddenActionException {
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
+
+        LessonProvider lessonProvider = Mockito.mock(LessonProvider.class);
+        when(lessonProvider.saveAll(anyList())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
+        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
+        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+
+        Chapter chapter = Chapter.builder()
+                .lessons(List.of(firstLesson, secondLesson, thirdLesson))
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .build();
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(chapter));
+
+
+        Chapter result = chapter.moveLesson(5, 2, 2);
+        List<Lesson> reorderedLessons = result.getLessons();
+
+        // Check that the moved lesson is now in position 2
+        reorderedLessons.forEach(lesson -> {
+            if (lesson.getId() == 1) assertThat(lesson.getNumber()).isEqualTo(1);
+            if (lesson.getId() == 2) assertThat(lesson.getNumber()).isEqualTo(2);
+            if (lesson.getId() == 3) assertThat(lesson.getNumber()).isEqualTo(3);
+        });
+    }
+
+
+    @Test
+    void testMoveLessonDown_throws_ResourceNotFoundException_if_chapter_not_found() {
+
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
+
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.empty());
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .build();
+
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> chapter.moveLesson(5, 1, 2))
+                .withMessageContaining(THE_CHAPTER_WITH_ID);
+    }
+
+    @Test
+    void testMoveLessonDown_throws_ResourceNotFoundException_if_lesson_not_found() {
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .lessons(Collections.emptyList())
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .build();
+
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(chapter));
+
+
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> chapter.moveLesson(5, 1, 2))
+                .withMessageContaining(THE_LESSON_OF_ID);
+    }
+
+
+    @Test
+    void moveLesson_throws_ForbiddenActionException_if_user_is_not_admin_norAuthor() {
+        ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        UserProvider userProvider = Mockito.mock(UserProvider.class);
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(999);
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Chapter chapter = Chapter.builder()
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .build();
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(chapter));
+
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.moveLesson(5, 1, 2));
+    }
+
+
 }
