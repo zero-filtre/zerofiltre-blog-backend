@@ -11,7 +11,12 @@ import tech.zerofiltre.blog.domain.logging.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider","courseService"})
+import java.util.*;
+
+import static tech.zerofiltre.blog.domain.Domains.*;
+import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
+
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "courseService"})
 public class Section {
 
     private long id;
@@ -74,20 +79,33 @@ public class Section {
         return sectionProvider;
     }
 
-    public Section save() {
-        return setProviders(sectionProvider.save(this));
+    private static void shiftPositions(int newPosition, Section sectionToMove, List<Section> sections) {
+        int currentPosition = sectionToMove.getPosition();
+        for (Section aSection : sections) {
+            if (aSection.getId() == sectionToMove.getId()) {
+                // Move the section to the new position
+                aSection.position = newPosition;
+            } else {
+                int aSectionPosition = aSection.getPosition();
+                if (currentPosition < newPosition) {
+                    // Shift sections down
+                    if (aSectionPosition > currentPosition && aSectionPosition <= newPosition) {
+                        aSection.position = aSectionPosition - 1;
+                    }
+                } else {
+                    // Shift sections up
+                    if (aSectionPosition < currentPosition && aSectionPosition >= newPosition) {
+                        aSection.position = aSectionPosition + 1;
+                    }
+                }
+            }
+        }
     }
 
-    public Section update(long id, String title, String content, String image) throws ResourceNotFoundException {
-        setAttributes(findById(id));
-        return setAttributes(title, content, image).save();
-    }
-
-    private Section setAttributes(String title, String content, String image) {
-        this.title = title;
-        this.content = content;
-        this.image = image;
-        return this;
+    private static void checkRoles(User currentUser, Course existingCourse) throws ForbiddenActionException {
+        if (currentUser == null || (!currentUser.isAdmin() && existingCourse.getAuthor().getId() != currentUser.getId())) {
+            throw new ForbiddenActionException("You are not allowed to edit a section for this course", COURSE.name());
+        }
     }
 
     public Section findById(long id) throws ResourceNotFoundException {
@@ -111,6 +129,54 @@ public class Section {
                 throw e;
             }
         }
+    }
+
+    public Section init(User currentUser) throws ResourceNotFoundException, ForbiddenActionException {
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + courseId + DOES_NOT_EXIST, String.valueOf(courseId), Domains.COURSE.name()));
+
+        checkRoles(currentUser, existingCourse);
+
+        Section lastSection = existingCourse.getSections().stream().reduce((first, second) -> second).orElse(null);
+        this.position = (lastSection != null) ? lastSection.getPosition() + 1 : 1;
+        return setProviders(sectionProvider.save(this));
+    }
+
+    public Section update(long id, String title, String content, String image, int position, User currentUser) throws ZerofiltreException {
+        Section existingSection = findById(id);
+
+        Course existingCourse = courseProvider.courseOfId(existingSection.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + existingSection.getCourseId() + DOES_NOT_EXIST, String.valueOf(existingSection.getCourseId()), Domains.COURSE.name()));
+
+        checkRoles(currentUser, existingCourse);
+
+        setAttributes(existingSection);
+        int currentPosition = existingSection.getPosition();
+        if (currentPosition == position) return setAttributes(title, content, image, position).save();
+
+
+        List<Section> sections = existingCourse.getSections();
+        shiftPositions(position, existingSection, sections);
+        sections.forEach(section -> {
+            if (section.getId() == id) {
+                setAttributes(title, content, image, position).save();
+            } else {
+                sectionProvider.save(section);
+            }
+        });
+        return this;
+    }
+
+    private Section save() {
+        return setProviders(sectionProvider.save(this));
+    }
+
+    private Section setAttributes(String title, String content, String image, int position) {
+        this.title = title;
+        this.content = content;
+        this.image = image;
+        this.position = position;
+        return this;
     }
 
     private void setAttributes(Section section) {

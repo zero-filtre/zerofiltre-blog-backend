@@ -81,8 +81,8 @@ class CourseServiceIT {
 
         course = courseService.init("some title", author);
 
-        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, false);
-        section1.save();
+        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, courseProvider, false);
+        section1.init(author);
 
         course.setTags(tags);
         course.setSections(List.of(section1));
@@ -130,7 +130,7 @@ class CourseServiceIT {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockSections(sectionProvider, false)
+        ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false)
                 .forEach(section -> sections.add(sectionProvider.save(section)));
 
         ZerofiltreUtils.createMockTags(false)

@@ -84,7 +84,7 @@ class SectionControllerIT {
 
     @BeforeEach
     void setUp() throws UserNotFoundException {
-        mockSection = ZerofiltreUtils.createMockSections(sectionProvider, true).get(0);
+        mockSection = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
         when(sectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(mockSection));
         when(sectionProvider.save(any())).thenReturn(mockSection);
         User mockUser = ZerofiltreUtils.createMockUser(true);

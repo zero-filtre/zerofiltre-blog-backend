@@ -38,24 +38,28 @@ public class SectionController {
     }
 
     @PostMapping
-    public Section createSection(@RequestBody @Valid SectionVM sectionVM) {
+    public Section createSection(@RequestBody @Valid SectionVM sectionVM) throws ResourceNotFoundException, ForbiddenActionException {
+        User user = securityContextManager.getAuthenticatedUser();
         return Section.builder()
                 .sectionProvider(sectionProvider)
+                .courseProvider(courseProvider)
                 .courseId(sectionVM.getCourseId())
                 .content(sectionVM.getContent())
                 .image(sectionVM.getImage())
                 .position(sectionVM.getPosition())
                 .title(sectionVM.getTitle())
                 .build()
-                .save();
+                .init(user);
     }
 
     @PatchMapping
-    public Section updateSection(@RequestBody @Valid SectionVM sectionVM) throws ResourceNotFoundException {
+    public Section updateSection(@RequestBody @Valid SectionVM sectionVM) throws ZerofiltreException {
+        User user = securityContextManager.getAuthenticatedUser();
         return Section.builder()
                 .sectionProvider(sectionProvider)
+                .courseProvider(courseProvider)
                 .build()
-                .update(sectionVM.getId(), sectionVM.getTitle(), sectionVM.getContent(), sectionVM.getImage());
+                .update(sectionVM.getId(), sectionVM.getTitle(), sectionVM.getContent(), sectionVM.getImage(), sectionVM.getPosition(), user);
     }
 
     @DeleteMapping("{id}")

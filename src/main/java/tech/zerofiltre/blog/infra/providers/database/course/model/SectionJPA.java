@@ -10,8 +10,7 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "section",
-        uniqueConstraints = {@UniqueConstraint(name = "UniquePositionPerCourseId", columnNames = {"position", "course_id"})})
+@Table(name = "section")
 @EqualsAndHashCode(callSuper = true, exclude = {"course"})
 public class SectionJPA extends BaseEntityJPA {
 

@@ -14,17 +14,21 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 class DBSectionProviderIT {
 
     private DBSectionProvider sectionProvider;
+    private DBCourseProvider courseProvider;
     @Autowired
     private SectionJPARepository sectionJPARepository;
+    @Autowired
+    private CourseJPARepository courseJPARepository;
 
     @BeforeEach
     void init() {
         sectionProvider = new DBSectionProvider(sectionJPARepository);
+        courseProvider = new DBCourseProvider(courseJPARepository);
     }
 
     @Test
     void savingASection_isOK() {
-        Section section = ZerofiltreUtils.createMockSections(sectionProvider, false).get(0);
+        Section section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false).get(0);
         section = sectionProvider.save(section);
 
         assertThat(section.getId()).isNotZero();
@@ -32,7 +36,7 @@ class DBSectionProviderIT {
 
     @Test
     void getASectionByItsId_isOk() {
-        Section section = ZerofiltreUtils.createMockSections(sectionProvider, false).get(0);
+        Section section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false).get(0);
         section = sectionProvider.save(section);
 
         Optional<Section> sectionOptional = sectionProvider.findById(section.getId());

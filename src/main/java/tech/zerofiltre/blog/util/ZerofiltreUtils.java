@@ -164,13 +164,14 @@ public class ZerofiltreUtils {
         return Arrays.asList(java, angular, springBoot);
     }
 
-    public static List<Section> createMockSections(SectionProvider sectionProvider, boolean withSectionIds) {
+    public static List<Section> createMockSections(SectionProvider sectionProvider, CourseProvider courseProvider, boolean withSectionIds) {
         Section section1 = new Section.SectionBuilder()
                 .title(TEST_SECTION_TITLE_1)
                 .content(TEST_SECTION_CONTENT_1)
                 .id(withSectionIds ? 1 : 0)
                 .image(TEST_THUMBNAIL)
                 .sectionProvider(sectionProvider)
+                .courseProvider(courseProvider)
                 .position(1)
                 .build();
         Section section2 = new Section.SectionBuilder()
@@ -178,6 +179,7 @@ public class ZerofiltreUtils {
                 .content(TEST_SECTION_CONTENT_2)
                 .id(withSectionIds ? 2 : 0)
                 .image(TEST_THUMBNAIL)
+                .courseProvider(courseProvider)
                 .sectionProvider(sectionProvider)
                 .position(2)
                 .build();
@@ -186,19 +188,21 @@ public class ZerofiltreUtils {
                 .content(TEST_SECTION_CONTENT_3)
                 .id(withSectionIds ? 3 : 0)
                 .image(TEST_THUMBNAIL)
+                .courseProvider(courseProvider)
                 .sectionProvider(sectionProvider)
                 .position(3)
                 .build();
         return Arrays.asList(section1, section2, section3);
     }
 
-    public static Section createMockSection(long courseId, SectionProvider sectionProvider, boolean withSectionIds){
+    public static Section createMockSection(long courseId, SectionProvider sectionProvider, CourseProvider courseProvider, boolean withSectionIds) {
         return new Section.SectionBuilder()
                 .title(TEST_SECTION_TITLE_3)
                 .content(TEST_SECTION_CONTENT_3)
                 .courseId(courseId)
                 .id(withSectionIds ? 3 : 0)
                 .image(TEST_THUMBNAIL)
+                .courseProvider(courseProvider)
                 .sectionProvider(sectionProvider)
                 .position(3)
                 .build();
