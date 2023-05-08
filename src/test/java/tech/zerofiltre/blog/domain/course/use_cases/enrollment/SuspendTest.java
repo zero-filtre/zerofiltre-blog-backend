@@ -25,7 +25,7 @@ class SuspendTest {
     }
 
     @Test
-    void suspendDeactivatesTheEnrollment() throws BlogException {
+    void suspendDeactivatesTheEnrollment() throws ZerofiltreException {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         LocalDateTime beforeSuspend = LocalDateTime.now();

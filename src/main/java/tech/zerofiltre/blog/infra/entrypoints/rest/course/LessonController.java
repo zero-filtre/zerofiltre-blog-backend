@@ -46,7 +46,7 @@ public class LessonController {
     }
 
     @PatchMapping
-    public Lesson save(@RequestBody @Valid SaveLessonVM saveLessonVM) throws BlogException {
+    public Lesson save(@RequestBody @Valid SaveLessonVM saveLessonVM) throws ZerofiltreException {
         Lesson lesson = Lesson.builder()
                 .lessonProvider(lessonProvider)
                 .chapterProvider(chapterProvider)
@@ -77,7 +77,7 @@ public class LessonController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return wanted lesson if it's free", e);
         }
         return lesson.get(user == null ? 0 : user.getId());

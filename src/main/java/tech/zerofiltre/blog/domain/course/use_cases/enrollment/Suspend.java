@@ -22,7 +22,7 @@ public class Suspend {
         this.chapterProvider = chapterProvider;
     }
 
-    public Enrollment execute(long userId, long courseId) throws BlogException {
+    public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
         Enrollment enrollment = enrollmentProvider.enrollmentOf(userId, courseId, true)
                 .orElseThrow(() -> new ForbiddenActionException("You are not enrolled in the course of id " + courseId, Domains.COURSE.name()));
         return doSuspend(userId, enrollment);
@@ -38,7 +38,7 @@ public class Suspend {
         return courseProvider.getEnrolledCount(courseId);
     }
 
-    public void all(long userId, User.Plan relatedPlan) throws BlogException {
+    public void all(long userId, User.Plan relatedPlan) throws ZerofiltreException {
         List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
         for (Enrollment enrollment : enrollments) {
             if (enrollment.isActive() && enrollment.getPlan().equals(relatedPlan)) {
@@ -47,7 +47,7 @@ public class Suspend {
         }
     }
 
-    private Enrollment doSuspend(long userId, Enrollment enrollment) throws BlogException {
+    private Enrollment doSuspend(long userId, Enrollment enrollment) throws ZerofiltreException {
         enrollment.setActive(false);
         enrollment.setSuspendedAt(LocalDateTime.now());
         Enrollment result = enrollmentProvider.save(enrollment);

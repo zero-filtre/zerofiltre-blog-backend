@@ -146,7 +146,7 @@ class CourseServiceIT {
     }
 
     @Test
-    void enrollOrSuspend_increasesOrDecreases_EnrolledCount() throws BlogException {
+    void enrollOrSuspend_increasesOrDecreases_EnrolledCount() throws ZerofiltreException {
         author = ZerofiltreUtils.createMockUser(false);
         author = userProvider.save(author);
 

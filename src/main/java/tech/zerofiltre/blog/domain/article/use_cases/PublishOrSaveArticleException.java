@@ -3,7 +3,7 @@ package tech.zerofiltre.blog.domain.article.use_cases;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.error.*;
 
-public class PublishOrSaveArticleException extends BlogException {
+public class PublishOrSaveArticleException extends ZerofiltreException {
 
     private final long itemId;
 

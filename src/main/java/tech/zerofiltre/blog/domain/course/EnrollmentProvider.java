@@ -14,6 +14,6 @@ public interface EnrollmentProvider {
 
     Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive);
 
-    Enrollment save(Enrollment enrollment) throws BlogException;
+    Enrollment save(Enrollment enrollment) throws ZerofiltreException;
 
 }

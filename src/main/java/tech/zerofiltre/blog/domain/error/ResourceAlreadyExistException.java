@@ -1,6 +1,6 @@
 package tech.zerofiltre.blog.domain.error;
 
-public class ResourceAlreadyExistException extends BlogException {
+public class ResourceAlreadyExistException extends ZerofiltreException {
 
     private final String uniqueIdentifier;
 

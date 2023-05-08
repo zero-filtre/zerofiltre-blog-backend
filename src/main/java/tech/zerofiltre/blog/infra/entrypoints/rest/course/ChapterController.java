@@ -40,7 +40,7 @@ public class ChapterController {
     }
 
     @PatchMapping
-    public Chapter save(@RequestBody @Valid SaveChapterVM saveChapterVM) throws BlogException {
+    public Chapter save(@RequestBody @Valid SaveChapterVM saveChapterVM) throws ZerofiltreException {
         Chapter chapter = Chapter.builder()
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
@@ -64,7 +64,7 @@ public class ChapterController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return the wanted chapter", e);
         }
         return chapter.get();
@@ -85,7 +85,7 @@ public class ChapterController {
     }
 
     @PatchMapping("/{id}")
-    public Chapter moveChapter(@PathVariable long id, @RequestParam int toNumber) throws BlogException {
+    public Chapter moveChapter(@PathVariable long id, @RequestParam int toNumber) throws ZerofiltreException {
         Chapter chapter = Chapter.builder()
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
@@ -109,7 +109,7 @@ public class ChapterController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return the wanted chapters", e);
         }
         return chapter.getByCourseId(user);

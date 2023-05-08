@@ -46,7 +46,7 @@ public class VimeoProvider {
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
                 String result = response.getBody();
                 if (result == null || result.isBlank() || result.contains("\"approach\": \"tus\"")) {
-                    throw new BlogException("We could not init the video at vimeo", null);
+                    throw new ZerofiltreException("We could not init the video at vimeo", null);
                 }
                 return result;
             });

@@ -2,7 +2,7 @@ package tech.zerofiltre.blog.domain.payment;
 
 import tech.zerofiltre.blog.domain.error.*;
 
-public class PaymentException extends BlogException {
+public class PaymentException extends ZerofiltreException {
 
     public PaymentException(String message, String domain) {
         super(message, domain);

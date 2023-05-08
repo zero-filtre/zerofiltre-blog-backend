@@ -733,7 +733,7 @@ class ChapterTest {
     }
 
     @Test
-    void moveChapterUpIsOK() throws BlogException {
+    void moveChapterUpIsOK() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
         User user = ZerofiltreUtils.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
@@ -773,7 +773,7 @@ class ChapterTest {
     }
 
     @Test
-    void moveChapterToTheSamePosition_isOK() throws BlogException {
+    void moveChapterToTheSamePosition_isOK() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
         User user = ZerofiltreUtils.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
@@ -813,7 +813,7 @@ class ChapterTest {
     }
 
     @Test
-    void moveChapterDown_isOk() throws BlogException {
+    void moveChapterDown_isOk() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
         User user = ZerofiltreUtils.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));

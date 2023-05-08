@@ -43,7 +43,7 @@ public class StripeCommons {
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
     }
 
-    public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws BlogException {
+    public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws ZerofiltreException {
         if (productObject == null) return;
         log.info("EventId= {}, EventType={}, Product object: {}", event.getId(), event.getType(), productObject.toString().replace("\n", " "));
 
@@ -67,7 +67,7 @@ public class StripeCommons {
         }
     }
 
-    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws BlogException {
+    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws ZerofiltreException {
         User user = userProvider.userOfId(Long.parseLong(userId))
                 .orElseThrow(() -> {
                     log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);

@@ -215,7 +215,7 @@ public class Chapter {
     }
 
 
-    public Chapter move(long currentUserId, int toNumber) throws BlogException {
+    public Chapter move(long currentUserId, int toNumber) throws ZerofiltreException {
         User existingUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new UserNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
@@ -253,7 +253,7 @@ public class Chapter {
             }
         }
         chapterList = chapterProvider.saveAll(chapterList);
-        Chapter result = chapterList.stream().filter(chapter -> chapter.getId() == chapterToMove.getId()).findFirst().orElseThrow(() -> new BlogException("An error occurred when moving the chapter, try again", ""));
+        Chapter result = chapterList.stream().filter(chapter -> chapter.getId() == chapterToMove.getId()).findFirst().orElseThrow(() -> new ZerofiltreException("An error occurred when moving the chapter, try again", ""));
         return setProviders(result);
     }
 

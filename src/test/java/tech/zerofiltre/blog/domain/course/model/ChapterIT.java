@@ -69,7 +69,7 @@ class ChapterIT {
     }
 
     @Test
-    void save_chapter_is_OK() throws BlogException {
+    void save_chapter_is_OK() throws ZerofiltreException {
         author = ZerofiltreUtils.createMockUser(false);
         author.setEmail("save_chapter_is_OK@mail.uk");
         author.setPseudoName("save_chapter_is_OK");
@@ -106,7 +106,7 @@ class ChapterIT {
     }
 
     @Test
-    void delete_chapter_is_OK() throws BlogException {
+    void delete_chapter_is_OK() throws ZerofiltreException {
         author = ZerofiltreUtils.createMockUser(false);
         author.setEmail("delete_chapter_is_OK@mail.uk");
         author.setPseudoName("delete_chapter_is_OK");
@@ -381,7 +381,7 @@ class ChapterIT {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void moveChapterAtTheSamePositionIsOk() throws BlogException {
+    void moveChapterAtTheSamePositionIsOk() throws ZerofiltreException {
         //given
         author = ZerofiltreUtils.createMockUser(false);
         author.setEmail("moveChapterAtTheSamePositionIsOk@mail.fr");
@@ -445,7 +445,7 @@ class ChapterIT {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void moveChapterUpIsOk() throws BlogException {
+    void moveChapterUpIsOk() throws ZerofiltreException {
         //given
         author = ZerofiltreUtils.createMockUser(false);
         author.setEmail("moveChapterUpIsOk@mail.fr");
@@ -507,7 +507,7 @@ class ChapterIT {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void moveChapterDownIsOk() throws BlogException {
+    void moveChapterDownIsOk() throws ZerofiltreException {
         //given
         author = ZerofiltreUtils.createMockUser(false);
         author.setEmail("moveChapterDownIsOk@mail.fr");

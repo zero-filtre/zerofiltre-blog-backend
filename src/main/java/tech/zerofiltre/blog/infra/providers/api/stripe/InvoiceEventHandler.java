@@ -23,7 +23,7 @@ public class InvoiceEventHandler {
         this.infraProperties = infraProperties;
     }
 
-    public void handleInvoicePaid(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, boolean isProPlan, Subscription subscription) throws StripeException, BlogException {
+    public void handleInvoicePaid(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, boolean isProPlan, Subscription subscription) throws StripeException, ZerofiltreException {
         if (SUBSCRIPTION_CREATE_BILLING_REASON.equals(invoice.getBillingReason())) {
             notifyUser(event, customer, userId, invoice, subscription, 1);
             return;
@@ -52,7 +52,7 @@ public class InvoiceEventHandler {
     }
 
 
-    public void handleInvoicePaymentFailed(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, Subscription subscription) throws BlogException {
+    public void handleInvoicePaymentFailed(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, Subscription subscription) throws ZerofiltreException {
         String customerPortalLink = infraProperties.getCustomerPortalLink();
         if (SUBSCRIPTION_CREATE_BILLING_REASON.equals(invoice.getBillingReason())) {
             notifyFailure(event, customer, userId, subscription, customerPortalLink);

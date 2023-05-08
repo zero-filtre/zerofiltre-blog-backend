@@ -19,7 +19,7 @@ import java.util.*;
 
 @Slf4j
 @RestControllerAdvice
-public class BlogControllerAdvice {
+public class ZerofiltreControllerAdvice {
 
     public static final String ZBLOG_000 = "ZBLOG_000";
     public static final String FULL_EXCEPTION = "Full exception";
@@ -31,27 +31,29 @@ public class BlogControllerAdvice {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<BlogError> handleResourceNotFoundException(ResourceNotFoundException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
-                "ZBLOG_003",
+                errorCode,
                 messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceId()}, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PublishOrSaveArticleException.class)
     public ResponseEntity<BlogError> handlePublishOrSaveException(PublishOrSaveArticleException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                "ZBLOG_001",
+                errorCode,
                 messageSource.getMessage("ZBLOG_001", new Object[]{exception.getItemId()}, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -61,53 +63,58 @@ public class BlogControllerAdvice {
                 .stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .reduce("", (prev, next) -> prev = prev + next + "; ");
 
+        String errorCode = UUID.randomUUID().toString();
+
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                "ZBLOG_004",
+                errorCode,
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
                 errorMessage
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceAlreadyExistException.class)
     public ResponseEntity<BlogError> handleException(ResourceAlreadyExistException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
-                "ZBLOG_005",
+                errorCode,
                 messageSource.getMessage("ZBLOG_005", new Object[]{exception.getUniqueIdentifier()}, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<BlogError> handleException(InvalidTokenException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                "ZBLOG_006",
+                errorCode,
                 messageSource.getMessage("ZBLOG_006", null, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PaymentException.class)
     public ResponseEntity<BlogError> handleException(PaymentException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                "ZBLOG_011",
+                errorCode,
                 messageSource.getMessage("ZBLOG_011", null, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -127,44 +134,47 @@ public class BlogControllerAdvice {
 
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<BlogError> handleException(ForbiddenActionException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
-                "ZBLOG_008",
+                errorCode,
                 messageSource.getMessage("ZBLOG_008", null, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(UnAuthenticatedActionException.class)
     public ResponseEntity<BlogError> handleException(UnAuthenticatedActionException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.UNAUTHORIZED.value()),
-                "ZBLOG_007",
+                errorCode,
                 messageSource.getMessage("ZBLOG_007", null, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageConversionException.class})
     public ResponseEntity<BlogError> handleException(Exception exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
                 currentApiVersion,
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
-                ZBLOG_000,
+                errorCode,
                 messageSource.getMessage(ZBLOG_000, null, locale),
                 exception.getLocalizedMessage()
         );
-        log.error(FULL_EXCEPTION, exception);
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({BlogException.class, ServletException.class, Throwable.class})
+    @ExceptionHandler({ZerofiltreException.class, ServletException.class, Throwable.class})
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
         String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(

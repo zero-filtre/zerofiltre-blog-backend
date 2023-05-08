@@ -51,7 +51,7 @@ class SuspendIT {
     }
 
     @Test
-    void suspendSavesEnrollmentProperly() throws BlogException {
+    void suspendSavesEnrollmentProperly() throws ZerofiltreException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -84,7 +84,7 @@ class SuspendIT {
     }
 
     @Test
-    void suspendAllDeactivatesTheProperEnrollments() throws BlogException {
+    void suspendAllDeactivatesTheProperEnrollments() throws ZerofiltreException {
         User user = ZerofiltreUtils.createMockUser(false);
         User author = ZerofiltreUtils.createMockUser(false);
         user.setPlan(User.Plan.PRO);

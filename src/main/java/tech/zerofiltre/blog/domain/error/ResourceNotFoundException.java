@@ -1,6 +1,6 @@
 package tech.zerofiltre.blog.domain.error;
 
-public class ResourceNotFoundException extends BlogException {
+public class ResourceNotFoundException extends ZerofiltreException {
 
     private final String resourceId;
 

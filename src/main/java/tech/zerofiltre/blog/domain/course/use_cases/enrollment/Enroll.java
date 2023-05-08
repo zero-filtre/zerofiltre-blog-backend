@@ -27,7 +27,7 @@ public class Enroll {
         this.chapterProvider = chapterProvider;
     }
 
-    public Enrollment execute(long userId, long courseId, boolean fromEndUser) throws BlogException {
+    public Enrollment execute(long userId, long courseId, boolean fromEndUser) throws ZerofiltreException {
 
         User user = userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(

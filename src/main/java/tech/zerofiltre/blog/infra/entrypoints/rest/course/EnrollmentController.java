@@ -39,23 +39,23 @@ public class EnrollmentController {
 
 
     @PostMapping
-    public Enrollment enroll(@RequestParam long courseId) throws BlogException {
+    public Enrollment enroll(@RequestParam long courseId) throws ZerofiltreException {
         return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, true);
 
     }
 
     @DeleteMapping
-    public void unEnroll(@RequestParam long courseId) throws BlogException {
+    public void unEnroll(@RequestParam long courseId) throws ZerofiltreException {
         suspend.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
     }
 
     @PatchMapping("/complete")
-    public Enrollment completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
+    public Enrollment completeLesson(@RequestParam long lessonId, @RequestParam long courseId) throws ZerofiltreException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), true);
     }
 
     @PatchMapping("/uncomplete")
-    public Enrollment unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws BlogException {
+    public Enrollment unCompleteLesson(@RequestParam long lessonId, @RequestParam long courseId) throws ZerofiltreException {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), false);
     }
 

@@ -27,7 +27,7 @@ public class PaymentService {
         return paymentProvider.handleWebhook(payload, signature);
     }
 
-    public void cancelSubscription(User user) throws BlogException {
+    public void cancelSubscription(User user) throws ZerofiltreException {
         paymentProvider.cancelSubscription(user.getPaymentCustomerId());
         user.setPlan(User.Plan.BASIC);
         userProvider.save(user);

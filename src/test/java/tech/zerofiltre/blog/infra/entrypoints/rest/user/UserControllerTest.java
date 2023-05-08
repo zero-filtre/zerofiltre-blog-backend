@@ -202,7 +202,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updatePassword_mustCheckUserAndPassword_thenSave() throws BlogException {
+    void updatePassword_mustCheckUserAndPassword_thenSave() throws ZerofiltreException {
         //ARRANGE
         User user = new User();
         user.setEmail(EMAIL);

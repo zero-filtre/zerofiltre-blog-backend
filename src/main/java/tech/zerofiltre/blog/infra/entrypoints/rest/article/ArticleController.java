@@ -45,7 +45,7 @@ public class ArticleController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return the wanted article", e);
         }
         return findArticle.byId(articleId,user);
@@ -62,7 +62,7 @@ public class ArticleController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return published articles", e);
         }
 
@@ -84,25 +84,25 @@ public class ArticleController {
     }
 
     @PatchMapping
-    public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws BlogException {
+    public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
     }
 
     @PatchMapping("/publish")
-    public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws BlogException {
+    public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
     }
 
     @PostMapping
-    public Article init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
+    public Article init(@RequestParam @NotNull @NotEmpty String title) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         return initArticle.execute(title, user);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteArticle(@PathVariable("id") long articleId, HttpServletRequest request) throws BlogException {
+    public String deleteArticle(@PathVariable("id") long articleId, HttpServletRequest request) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         deleteArticle.execute(user, articleId);
         return sources.getMessage("message.delete.course.success", null, request.getLocale());

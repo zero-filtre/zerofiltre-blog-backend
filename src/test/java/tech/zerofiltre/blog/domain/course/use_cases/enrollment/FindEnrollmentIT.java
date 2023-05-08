@@ -35,7 +35,7 @@ class FindEnrollmentIT {
     private ChapterJPARepository chapterJPARepository;
 
     @Test
-    void findEnrollment_returns_properPage_forInActiveEnrollments() throws BlogException {
+    void findEnrollment_returns_properPage_forInActiveEnrollments() throws ZerofiltreException {
         //given
         User user = init2Enrollments(true, false);
 
@@ -59,7 +59,7 @@ class FindEnrollmentIT {
     }
 
     @Test
-    void findEnrollment_returns_properPage_forActiveEnrollments() throws BlogException {
+    void findEnrollment_returns_properPage_forActiveEnrollments() throws ZerofiltreException {
         //given
         User user = init2Enrollments(false, false);
 
@@ -85,7 +85,7 @@ class FindEnrollmentIT {
     }
 
     @Test
-    void findEnrollment_returns_completedAndActiveEnrollments() throws BlogException {
+    void findEnrollment_returns_completedAndActiveEnrollments() throws ZerofiltreException {
         //given
         User user = init2Enrollments(false, true);
 
@@ -109,7 +109,7 @@ class FindEnrollmentIT {
     }
 
     @Test
-    void findEnrollment_returns_nothingOnNotMatch() throws BlogException {
+    void findEnrollment_returns_nothingOnNotMatch() throws ZerofiltreException {
         //given
         User user = init2Enrollments(false, false);
 
@@ -133,7 +133,7 @@ class FindEnrollmentIT {
     }
 
     @Test
-    void findEnrollment_returns_uncompletedAndActiveEnrollment() throws BlogException {
+    void findEnrollment_returns_uncompletedAndActiveEnrollment() throws ZerofiltreException {
         //given
         User user = init2Enrollments(false, false);
 
@@ -155,7 +155,7 @@ class FindEnrollmentIT {
         assertThat(courses.getTotalNumberOfPages()).isEqualTo(1);
     }
 
-    private User init2Enrollments(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws BlogException {
+    private User init2Enrollments(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = new DBEnrollmentProvider(enrollmentJPARepository);
         UserProvider userProvider = new DBUserProvider(userJPARepository);
         CourseProvider courseProvider = new DBCourseProvider(courseJPARepository);

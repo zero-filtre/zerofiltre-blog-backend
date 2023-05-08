@@ -26,7 +26,7 @@ public class SessionEventHandler {
         this.infraProperties = infraProperties;
     }
 
-    public void handleSessionCompleted(Event event, Session stripeObject) throws StripeException, BlogException {
+    public void handleSessionCompleted(Event event, Session stripeObject) throws StripeException, ZerofiltreException {
         String userId;
         Customer customer;
         SessionRetrieveParams params = SessionRetrieveParams.builder()

@@ -36,7 +36,7 @@ public class PaymentController {
     }
 
     @PostMapping("/cancelPlan")
-    public String cancel() throws BlogException {
+    public String cancel() throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         paymentService.cancelSubscription(user);
         return "Plan cancelled";

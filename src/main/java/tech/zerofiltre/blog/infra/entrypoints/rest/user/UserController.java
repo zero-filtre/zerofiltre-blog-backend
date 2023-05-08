@@ -156,7 +156,7 @@ public class UserController {
     }
 
     @PatchMapping("/user")
-    public User updateUser(@RequestBody @Valid UpdateUserVM updateUserVM) throws BlogException {
+    public User updateUser(@RequestBody @Valid UpdateUserVM updateUserVM) throws ZerofiltreException {
         User user = updateUserVMMapper.fromVM(updateUserVM);
         User currentUser = securityContextManager.getAuthenticatedUser();
         return updateUser.patch(currentUser, user);
@@ -164,7 +164,7 @@ public class UserController {
 
 
     @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable("id") long userId, HttpServletRequest request) throws BlogException {
+    public String deleteUser(@PathVariable("id") long userId, HttpServletRequest request) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         deleteUser.execute(user, userId);
         return sources.getMessage("message.delete.user.success", null, request.getLocale());
@@ -213,7 +213,7 @@ public class UserController {
     }
 
     @PostMapping("/user/updatePassword")
-    public String updatePassword(@RequestBody @Valid UpdatePasswordVM passwordVM, HttpServletRequest request) throws BlogException {
+    public String updatePassword(@RequestBody @Valid UpdatePasswordVM passwordVM, HttpServletRequest request) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         String newEncodedPassword = passwordEncoder.encode(passwordVM.getPassword());
         updatePassword.execute(user.getEmail(), passwordVM.getOldPassword(), newEncodedPassword);

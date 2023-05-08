@@ -19,7 +19,7 @@ public class CompleteLesson {
         this.courseProvider = courseProvider;
     }
 
-    public Enrollment execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws BlogException {
+    public Enrollment execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws ZerofiltreException {
         Enrollment existingEnrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no enrollment regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 

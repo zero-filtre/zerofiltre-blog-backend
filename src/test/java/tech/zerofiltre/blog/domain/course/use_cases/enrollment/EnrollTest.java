@@ -36,7 +36,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeThrowsForbiddenActionIfUserNotAdminNorPRO() throws BlogException {
+    void executeThrowsForbiddenActionIfUserNotAdminNorPRO() throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
         UserProvider userProvider = mock(UserProvider.class);
@@ -64,7 +64,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeAsPRO_SetsEnrollmentPlanToPro() throws BlogException {
+    void executeAsPRO_SetsEnrollmentPlanToPro() throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
         UserProvider userProvider = mock(UserProvider.class);
@@ -91,7 +91,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeAsNonPRO_SetsEnrollmentPlanToBasic_ifNotFromEndUser() throws BlogException {
+    void executeAsNonPRO_SetsEnrollmentPlanToBasic_ifNotFromEndUser() throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
         UserProvider userProvider = mock(UserProvider.class);
@@ -147,7 +147,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeSavesEnrollmentProperly() throws BlogException {
+    void executeSavesEnrollmentProperly() throws ZerofiltreException {
         NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
@@ -184,7 +184,7 @@ class EnrollTest {
 
     @Test
     @DisplayName("Enrolling after a suspension should set fields properly")
-    void executeSetSuspendeAt_toNull() throws BlogException {
+    void executeSetSuspendeAt_toNull() throws ZerofiltreException {
         FoundCancelledOnlyEnrollmentProviderSpy enrollmentProvider = new FoundCancelledOnlyEnrollmentProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
@@ -210,7 +210,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeDoesNothingIfUserAlreadyEnrolled() throws BlogException {
+    void executeDoesNothingIfUserAlreadyEnrolled() throws ZerofiltreException {
         EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();

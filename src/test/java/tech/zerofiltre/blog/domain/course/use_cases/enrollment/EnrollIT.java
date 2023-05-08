@@ -47,7 +47,7 @@ class EnrollIT {
     }
 
     @Test
-    void enrollGetsExecutedProperly() throws BlogException {
+    void enrollGetsExecutedProperly() throws ZerofiltreException {
         User author = ZerofiltreUtils.createMockUser(false);
         author = dbUserProvider.save(author);
 
@@ -83,7 +83,7 @@ class EnrollIT {
 
 
     @Test
-    void executeSetSuspendeAt_toNull() throws BlogException {
+    void executeSetSuspendeAt_toNull() throws ZerofiltreException {
         User user = ZerofiltreUtils.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user.setEmail("test@gmail.grok");

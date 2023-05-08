@@ -40,20 +40,20 @@ public class CourseController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return the wanted course", e);
         }
         return courseService.findById(courseId, user);
     }
 
     @PatchMapping
-    public Course save(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws BlogException {
+    public Course save(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws ZerofiltreException {
         return saveCourse(publishOrSaveCourseVM, Status.DRAFT);
     }
 
 
     @PatchMapping("/publish")
-    public Course publish(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws BlogException {
+    public Course publish(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws ZerofiltreException {
         return saveCourse(publishOrSaveCourseVM, Status.PUBLISHED);
     }
 
@@ -68,7 +68,7 @@ public class CourseController {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
-        } catch (BlogException e) {
+        } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return published courses", e);
         }
 
@@ -90,13 +90,13 @@ public class CourseController {
 
 
     @PostMapping
-    public Course init(@RequestParam @NotNull @NotEmpty String title) throws BlogException {
+    public Course init(@RequestParam @NotNull @NotEmpty String title) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         return courseService.init(title, user);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteCourse(@PathVariable("id") long courseId, HttpServletRequest request) throws BlogException {
+    public String deleteCourse(@PathVariable("id") long courseId, HttpServletRequest request) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         courseService.delete(courseId, user);
         return sources.getMessage("message.delete.course.success", null, request.getLocale());

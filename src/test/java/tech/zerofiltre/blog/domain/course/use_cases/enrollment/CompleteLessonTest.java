@@ -49,7 +49,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_returns_existingEnrollment_ifLessonAlreadyCompleted() throws BlogException {
+    void completeLesson_returns_existingEnrollment_ifLessonAlreadyCompleted() throws ZerofiltreException {
         //given
         AlreadyCompletedLessonEnrollmentProvider enrollmentProvider = new AlreadyCompletedLessonEnrollmentProvider();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
@@ -68,7 +68,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_addLessonId_toCompletedLessons() throws BlogException {
+    void completeLesson_addLessonId_toCompletedLessons() throws ZerofiltreException {
         //given
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
@@ -89,7 +89,7 @@ class CompleteLessonTest {
     }
 
     @Test
-    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws BlogException {
+    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws ZerofiltreException {
         //given
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();

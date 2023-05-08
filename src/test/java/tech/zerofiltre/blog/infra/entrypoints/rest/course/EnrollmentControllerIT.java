@@ -74,7 +74,7 @@ class EnrollmentControllerIT {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() throws BlogException {
+    void setUp() throws ZerofiltreException {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(author));
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));

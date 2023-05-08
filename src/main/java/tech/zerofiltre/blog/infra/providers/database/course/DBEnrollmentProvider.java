@@ -51,11 +51,11 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     }
 
     @Override
-    public Enrollment save(Enrollment enrollment) throws BlogException {
+    public Enrollment save(Enrollment enrollment) throws ZerofiltreException {
         try {
             return mapper.fromJPA(repository.save(mapper.toJPA(enrollment)));
         } catch (DataIntegrityViolationException e) {
-            throw new BlogException("You are already enrolled", e, "");
+            throw new ZerofiltreException("You are already enrolled", e, "");
         }
     }
 

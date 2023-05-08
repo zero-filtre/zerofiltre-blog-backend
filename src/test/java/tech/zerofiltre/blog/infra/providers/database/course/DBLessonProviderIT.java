@@ -72,7 +72,7 @@ class DBLessonProviderIT {
     }
 
     @Test
-    void delete_lesson_removes_it_from_enrollment_completedLessons() throws BlogException {
+    void delete_lesson_removes_it_from_enrollment_completedLessons() throws ZerofiltreException {
         //given
 
         User author = ZerofiltreUtils.createMockUser(false);

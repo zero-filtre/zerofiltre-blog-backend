@@ -29,7 +29,7 @@ class DBEnrollmentProviderIT {
 
 
     @Test
-    void of_returns_ProperPageOfEnrollment() throws BlogException {
+    void of_returns_ProperPageOfEnrollment() throws ZerofiltreException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
@@ -68,7 +68,7 @@ class DBEnrollmentProviderIT {
     }
 
     @Test
-    void of_does_not_return_inactive_enrollments() throws BlogException {
+    void of_does_not_return_inactive_enrollments() throws ZerofiltreException {
         //given
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);

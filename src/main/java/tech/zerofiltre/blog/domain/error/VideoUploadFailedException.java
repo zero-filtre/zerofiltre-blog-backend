@@ -1,6 +1,6 @@
 package tech.zerofiltre.blog.domain.error;
 
-public class VideoUploadFailedException extends BlogException {
+public class VideoUploadFailedException extends ZerofiltreException {
 
     public VideoUploadFailedException(String message, String domain) {
         super(message, domain);
