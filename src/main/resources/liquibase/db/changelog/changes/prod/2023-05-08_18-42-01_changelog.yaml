@@ -1,0 +1,73 @@
+databaseChangeLog:
+    - changeSet:
+          id: 1683571330936-1
+          author: philippe SIMO (generated)
+          changes:
+              - addColumn:
+                    columns:
+                        - column:
+                              constraints:
+                                  nullable: false
+                              name: number
+                              type: INT(10)
+                    tableName: chapter
+    - changeSet:
+          id: 1683571330936-2
+          author: philippe SIMO (generated)
+          changes:
+              - addColumn:
+                    columns:
+                        - column:
+                              constraints:
+                                  nullable: false
+                              name: number
+                              type: INT(10)
+                    tableName: lesson
+    - changeSet:
+          id: 1683571330936-3
+          author: philippe SIMO (generated)
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: chapter
+                    constraintName: FKgqif7x6a3xy28w3l5o40jnius
+    - changeSet:
+          id: 1683571330936-4
+          author: philippe SIMO (generated)
+          changes:
+              - dropForeignKeyConstraint:
+                    baseTableName: lesson
+                    constraintName: FKqnk3h8k65bcrloqpneihd8qi4
+    - changeSet:
+          id: 1683571330936-5
+          author: philippe SIMO (generated)
+          changes:
+              - dropUniqueConstraint:
+                    constraintName: UniquePositionPerCourseId
+                    tableName: section
+    - changeSet:
+          id: 1683571330936-6
+          author: philippe SIMO (generated)
+          changes:
+              - dropTable:
+                    tableName: chapterjpanumber
+    - changeSet:
+          id: 1683571330936-7
+          author: philippe SIMO (generated)
+          changes:
+              - dropTable:
+                    tableName: lessonjpanumber
+    - changeSet:
+          id: 1683571330936-8
+          author: philippe SIMO (generated)
+          changes:
+              - dropColumn:
+                    columnName: number_number
+                    tableName: chapter
+    - changeSet:
+          id: 1683571330936-9
+          author: philippe SIMO (generated)
+          changes:
+              - dropColumn:
+                    columnName: number_number
+                    tableName: lesson
+
