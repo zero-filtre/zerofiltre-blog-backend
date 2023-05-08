@@ -23,7 +23,7 @@ public class VimeoProvider {
         this.retryTemplate = retryTemplate;
     }
 
-    public String init(long size) {
+    public String init(long size, String name) throws VideoUploadFailedException {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
@@ -34,10 +34,12 @@ public class VimeoProvider {
                 "  \"upload\": {\n" +
                 "    \"approach\": \"tus\",\n" +
                 "    \"size\": " + size + "\n" +
-                "  }\n" +
+                "  },\n" +
+                "  \"name\": \"" + name + "\"\n" +
                 "}";
 
         try {
+            log.info("Initializing vimeo video of size {} and name {} with request body: \n {}", size, name, initBody);
             return retryTemplate.execute(retryContext -> {
                 String url = infraProperties.getVimeoRootURL() + "/me/videos";
                 HttpEntity<String> requestEntity = new HttpEntity<>(initBody, headers);
@@ -50,7 +52,7 @@ public class VimeoProvider {
             });
         } catch (Exception e) {
             log.error("We couldn't init the video at vimeo", e);
-            return "";
+            throw new VideoUploadFailedException("We couldn't init the video at vimeo: " + e.getMessage(), e, "");
         }
     }
 }

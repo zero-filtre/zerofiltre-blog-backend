@@ -111,6 +111,20 @@ public class BlogControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(VideoUploadFailedException.class)
+    public ResponseEntity<BlogError> handleException(VideoUploadFailedException exception, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                errorCode,
+                messageSource.getMessage("ZBLOG_012", null, locale),
+                exception.getLocalizedMessage()
+        );
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<BlogError> handleException(ForbiddenActionException exception, Locale locale) {
         final BlogError error = new BlogError(
