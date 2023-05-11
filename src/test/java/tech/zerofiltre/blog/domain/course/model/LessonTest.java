@@ -541,6 +541,9 @@ class LessonTest {
     @Test
     void get_freeLesson_returns_fullContent_evenNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = ZerofiltreUtils.createMockUser(false);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
@@ -559,9 +562,43 @@ class LessonTest {
         when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         Lesson lesson = Lesson.builder()
+                .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
                 .enrollmentProvider(enrollmentProvider)
+                .courseProvider(courseProvider)
+                .build();
+
+        //when
+        Lesson result = lesson.get(5);
+
+        //then
+        org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
+        org.assertj.core.api.Assertions.assertThat(result.getType()).isEqualTo("video");
+        org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
+        org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO);
+
+    }
+    @Test
+    void get_freeLesson_returns_fullContent_evenNotConnected() throws ResourceNotFoundException, ForbiddenActionException {
+        //given
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).free(true).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        User author = ZerofiltreUtils.createMockUser(false);
+        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(18);
+
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        Lesson lesson = Lesson.builder()
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
                 .courseProvider(courseProvider)
                 .build();
 
