@@ -543,6 +543,7 @@ class LessonTest {
         //given
         UserProvider userProvider = mock(UserProvider.class);
         User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(999);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         ChapterProvider chapterProvider = mock(ChapterProvider.class);

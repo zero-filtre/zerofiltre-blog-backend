@@ -187,6 +187,7 @@ public class Lesson {
         // THE USER IS CONNECTED
 
         if (currentUserId != 0) {
+            this.free = lesson.get().isFree();
             checkLessonAccessConditions(currentUserId, lesson.get().getChapterId(), false, true);
             return setProviders(lesson.get());
         }
@@ -250,7 +251,7 @@ public class Lesson {
 
         if (checkEnrollments) {
             Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true);
-            if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && enrollment.isEmpty())
+            if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && enrollment.isEmpty() && !free)
                 notEnrolledAccess = true;
         }
     }
