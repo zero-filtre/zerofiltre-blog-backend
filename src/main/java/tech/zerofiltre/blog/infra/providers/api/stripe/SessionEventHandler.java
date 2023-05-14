@@ -72,8 +72,7 @@ public class SessionEventHandler {
                         VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
                         "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent débuter votre apprentissage: \n\n"
                                 + originURL + "/cours/" + productId
-                                + "\n\n"
-                                + SIGNATURE);
+                                + "\n\n");
             } catch (NumberFormatException e) {
                 log.info("EventId = {}, EventType = {},This is a pro subscription on product {}, the notification be handled by invoice.paid handler", event.getId(), event.getType(), PRODUCT_ID);
             }

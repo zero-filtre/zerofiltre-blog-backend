@@ -3,8 +3,9 @@ package tech.zerofiltre.blog.infra.providers.notification.user;
 import lombok.*;
 import org.springframework.context.*;
 import org.springframework.stereotype.*;
-import org.springframework.util.*;
-import tech.zerofiltre.blog.domain.user.*;
+import org.thymeleaf.*;
+import org.thymeleaf.context.*;
+import org.thymeleaf.spring5.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 
@@ -15,8 +16,8 @@ import java.util.*;
 public class UserActionEventListener implements ApplicationListener<UserActionApplicationEvent> {
 
     private final MessageSource messages;
-    private final BlogEmailSender emailSender;
-    private final VerificationTokenProvider tokenProvider;
+    private final ZerofiltreEmailSender emailSender;
+    private final ITemplateEngine emailTemplateEngine;
 
 
     @Override
@@ -35,17 +36,19 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
         String pageUri = isPasswordResetAction ?
                 "/user/passwordReset?token=" : "/user/accountConfirmation?token=";
 
-        String messageCode = isPasswordResetAction ?
-                "message.reset.content" : "message.registration.success.content";
+        String template = isPasswordResetAction ?
+                "password_reset_confirmation.html" : "account_confirmation.html";
 
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("fullName", user.getFullName());
+        templateModel.put("validationLink", event.getAppUrl() + pageUri + token);
 
         String recipientAddress = user.getEmail();
         String subject = messages.getMessage(subjectCode, null, event.getLocale());
-        String url = event.getAppUrl() + pageUri + token;
-        String firstName = StringUtils.capitalize(user.getFullName());
-        String message = messages.getMessage(messageCode, new Object[]{firstName}, event.getLocale());
-        String greetings = messages.getMessage("message.greetings", null, event.getLocale());
-        String emailContent = message + "\r\n" + url + "\r\n" + greetings;
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariables(templateModel);
+        thymeleafContext.setLocale(event.getLocale());
+        String emailContent = emailTemplateEngine.process(template, thymeleafContext);
 
         Email email = new Email();
         email.setSubject(subject);

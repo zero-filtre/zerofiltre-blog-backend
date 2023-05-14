@@ -5,7 +5,9 @@ import lombok.extern.slf4j.*;
 import org.springframework.context.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.stereotype.*;
-import org.springframework.util.*;
+import org.thymeleaf.*;
+import org.thymeleaf.context.*;
+import org.thymeleaf.spring5.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -22,10 +24,12 @@ import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 public class ConfirmRegistrationReminder {
 
     private final UserProvider userProvider;
-    private final BlogEmailSender emailSender;
+    private final ZerofiltreEmailSender emailSender;
     private final MessageSource messages;
     private final VerificationTokenProvider tokenProvider;
     private final InfraProperties infraProperties;
+    private final ITemplateEngine emailTemplateEngine;
+
 
     @Scheduled(fixedRateString = "${zerofiltre.infra.reminder-rate}", initialDelayString = "${zerofiltre.infra.reminder-initial-delay}")
     public void remindConfirmRegistration() {
@@ -47,21 +51,15 @@ public class ConfirmRegistrationReminder {
 
                         String token = tokenProvider.generate(user).getToken();
 
-                        String firstName = user.getFullName() != null ? StringUtils.capitalize(user.getFullName()) : "";
-
-                        String message = messages.getMessage(
-                                "message.registration.success.remind.content",
-                                new Object[]{firstName},
-                                locale
-                        );
-
                         String pageUri = "/user/accountConfirmation?token=";
 
-                        String greetings = messages.getMessage("message.greetings", null, locale);
-
-                        String url = getOriginUrl(infraProperties.getEnv()) + pageUri + token;
-
-                        String emailContent = message + "\r\n" + url + "\r\n" + greetings;
+                        Map<String, Object> templateModel = new HashMap<>();
+                        templateModel.put("fullName", user.getFullName());
+                        templateModel.put("validationLink",getOriginUrl(infraProperties.getEnv()) + pageUri + token);
+                        Context thymeleafContext = new Context();
+                        thymeleafContext.setVariables(templateModel);
+                        thymeleafContext.setLocale(locale);
+                        String emailContent = emailTemplateEngine.process("account_confirmation_reminder.html", thymeleafContext);
                         Email email = new Email();
                         email.setSubject(subject);
                         email.setContent(emailContent);

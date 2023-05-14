@@ -7,6 +7,9 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.context.*;
 import org.springframework.test.context.*;
 import org.springframework.test.context.junit.jupiter.*;
+import org.thymeleaf.*;
+import org.thymeleaf.context.*;
+import org.thymeleaf.spring5.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -32,13 +35,16 @@ class ConfirmRegistrationReminderTest {
     @MockBean
     UserProvider userProvider;
     @MockBean
-    BlogEmailSender blogEmailSender;
+    ZerofiltreEmailSender zerofiltreEmailSender;
     @MockBean
     MessageSource messageSource;
     @MockBean
     InfraProperties infraProperties;
     @MockBean
     VerificationTokenProvider tokenProvider;
+    @Mock
+    ITemplateEngine emailTemplateEngine;
+
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
     private ConfirmRegistrationReminder confirmRegistrationReminder;
 
@@ -46,13 +52,15 @@ class ConfirmRegistrationReminderTest {
     void setUp() {
         confirmRegistrationReminder = new ConfirmRegistrationReminder(
                 userProvider,
-                blogEmailSender,
+                zerofiltreEmailSender,
                 messageSource,
                 tokenProvider,
-                infraProperties
+                infraProperties,
+                emailTemplateEngine
         );
         when(infraProperties.getEnv()).thenReturn("dev");
         when(tokenProvider.generate(any())).thenReturn(new VerificationToken(new User(), "TOKEN", expiryDate));
+        when(emailTemplateEngine.process(any(String.class),any(IContext.class))).thenReturn("<a href=zerofiltre.tech>Home</a>");
     }
 
     @Test
@@ -115,15 +123,13 @@ class ConfirmRegistrationReminderTest {
         ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
         Email email = new Email();
-        verify(blogEmailSender, times(3)).send(emailCaptor.capture());
+        verify(zerofiltreEmailSender, times(3)).send(emailCaptor.capture());
         List<String> capturedEmailList = new ArrayList<>();
         List<String> capturedSubjectList = new ArrayList<>();
-        List<String> capturedContentList = new ArrayList<>();
 
         emailCaptor.getAllValues().forEach(value -> {
             capturedEmailList.addAll(value.getRecipients());
             capturedSubjectList.add(value.getSubject());
-            capturedContentList.add(value.getContent());
         });
 
         assertThat(capturedEmailList.stream().anyMatch(
@@ -134,11 +140,6 @@ class ConfirmRegistrationReminderTest {
                 s -> s.equals(SUBJECT)
         )).isTrue();
 
-        assertThat(capturedContentList.stream().anyMatch(
-                s -> s.contains(CONTENT) &&
-                        s.contains("/accountConfirmation?token=") &&
-                        s.contains(frontAppURL)
-        )).isTrue();
     }
 
     @Test
@@ -170,7 +171,7 @@ class ConfirmRegistrationReminderTest {
         //ASSERT
         ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
-        verify(blogEmailSender, times(2)).send(emailCaptor.capture());
+        verify(zerofiltreEmailSender, times(2)).send(emailCaptor.capture());
         List<String> capturedEmailList = new ArrayList<>();
         emailCaptor.getAllValues().forEach(value -> {
             capturedEmailList.addAll(value.getRecipients());

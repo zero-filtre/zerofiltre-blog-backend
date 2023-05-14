@@ -77,8 +77,7 @@ public class InvoiceEventHandler {
                             + "\n Vous pouvez utiliser le lien ci-dessous pour mettre à jour vos moyens de paiement et essayer de nouveau."
                             + " \n Servez-vous de l'adresse e-mail utilisée lors du dernier paiement."
                             + "\n Vous pouvez copier et coller le lien dans votre navigateur internet si jamais cliquer dessus ne fonctionne pas."
-                            + "\n" + customerPortalLink
-                            + SIGNATURE);
+                            + "\n" + customerPortalLink);
         }
         log.info("EventId= {}, EventType={}, Invoice payment failed for User {} on subscription {}", event.getId(), event.getType(), userId, subscription.getId());
     }
@@ -91,8 +90,7 @@ public class InvoiceEventHandler {
             stripeCommons.notifyUser(customer,
                     VOTRE_PAIEMENT_CHEZ_ZEROFILTRE,
                     "Merci de faire confiance à Zerofiltre.tech, retrouvez votre facture ci-dessous: "
-                            + "\n\n" + invoice.getInvoicePdf()
-                            + SIGNATURE);
+                            + "\n\n" + invoice.getInvoicePdf());
 
         log.info("EventId= {}, EventType={}, User {} Invoice #{} paid for subscription {}: {}", event.getId(), event.getType(), userId, billCount, billCount > 1 ? "renewal " : "creation ", subscription.getId());
     }

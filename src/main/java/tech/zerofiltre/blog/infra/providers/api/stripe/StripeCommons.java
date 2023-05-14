@@ -3,6 +3,8 @@ package tech.zerofiltre.blog.infra.providers.api.stripe;
 import com.stripe.model.*;
 import lombok.extern.slf4j.*;
 import org.springframework.stereotype.*;
+import org.thymeleaf.*;
+import org.thymeleaf.context.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
 import tech.zerofiltre.blog.domain.error.*;
@@ -32,13 +34,16 @@ public class StripeCommons {
     private final UserProvider userProvider;
     private final Enroll enroll;
     private final Suspend suspend;
-    private final BlogEmailSender emailSender;
+    private final ZerofiltreEmailSender emailSender;
     private final InfraProperties infraProperties;
+    private final ITemplateEngine emailTemplateEngine;
 
-    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, BlogEmailSender emailSender, InfraProperties infraProperties) {
+
+    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, ZerofiltreEmailSender emailSender, InfraProperties infraProperties, ITemplateEngine emailTemplateEngine) {
         this.userProvider = userProvider;
         this.emailSender = emailSender;
         this.infraProperties = infraProperties;
+        this.emailTemplateEngine = emailTemplateEngine;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
     }
@@ -90,7 +95,16 @@ public class StripeCommons {
             email.setRecipients(Collections.singletonList(customer.getEmail()));
             email.setSubject(subject);
             email.setReplyTo("info@zerofiltre.tech");
-            email.setContent(message);
+
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("content", message);
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(Locale.FRENCH);
+
+            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
+            email.setContent(emailContent);
+
             emailSender.send(email);
         } catch (Exception e) {
             log.warn("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message);

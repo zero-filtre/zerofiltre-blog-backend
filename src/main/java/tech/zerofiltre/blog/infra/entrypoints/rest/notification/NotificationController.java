@@ -3,6 +3,9 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.notification;
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.*;
+import org.thymeleaf.context.*;
+import org.thymeleaf.spring5.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -23,9 +26,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final BlogEmailSender emailSender;
+    private final ZerofiltreEmailSender emailSender;
     private final SecurityContextManager securityContextManager;
     private final InfraProperties infraProPerties;
+    private final ITemplateEngine emailTemplateEngine;
 
 
     @PostMapping
@@ -33,6 +37,16 @@ public class NotificationController {
         User user = securityContextManager.getAuthenticatedUser();
         if (!user.getRoles().contains("ROLE_ADMIN"))
             throw new ForbiddenActionException("You are not allowed to send emails", Domains.NONE.name());
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("content", email.getContent());
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariables(templateModel);
+        thymeleafContext.setLocale(Locale.FRENCH);
+
+        String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
+        email.setContent(emailContent);
+
         emailSender.send(email);
         return "Email(s) sent";
     }
