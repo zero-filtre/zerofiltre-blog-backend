@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
+import com.fasterxml.jackson.databind.*;
 import com.stripe.exception.*;
 import com.stripe.model.*;
 import com.stripe.model.checkout.*;
@@ -16,6 +17,8 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.util.*;
+
+import java.util.*;
 
 @Slf4j
 @Component
@@ -69,6 +72,8 @@ public class StripeProvider implements PaymentProvider {
             log.debug("Payload: {}", payload.replace("\n", " "));
 
             Event event = checkSignature(payload, sigHeader);
+            if (isEventNotForUs(event)) return "NOT FOR US!";
+
 
             log.info("Handling Event: id = {},type = {}", event.getId(), event.getType());
 
@@ -116,6 +121,14 @@ public class StripeProvider implements PaymentProvider {
         } catch (Exception e) {
             throw new PaymentException("An error occurred during payment fulfillment", e, "");
         }
+    }
+
+    boolean isEventNotForUs(Event event) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> eventContent = objectMapper.convertValue(event.getData(), Map.class);
+        Map<String, Object> data = (Map<String, Object>) eventContent.get("object");
+        String successURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv()) + "/payment/success";
+        return "checkout.session.completed".equals(event.getType()) && !successURL.equals(data.get("successUrl")) && !successURL.equals(data.get("success_url"));
     }
 
     private static void cancelForPrice(String paymentCustomerId, String priceId) throws StripeException {
