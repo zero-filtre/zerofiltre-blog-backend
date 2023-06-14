@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -21,7 +22,6 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
 import tech.zerofiltre.blog.infra.providers.api.config.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
@@ -40,6 +40,7 @@ class TagControllerIT {
 
     public static final String COLOR_CODE = "#fffff";
     public static final String NAME = "name";
+
     @MockBean
     TagProvider tagProvider;
 
@@ -58,11 +59,19 @@ class TagControllerIT {
 
     @MockBean
     UserProvider userProvider;
+
+    @MockBean
+    MetricsProvider metricsProvider;
+
+
     List<Tag> tags = ZerofiltreUtils.createMockTags(true);
+
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
+
     @Autowired
     private MockMvc mockMvc;
+
 
     @BeforeEach
     void init() {

@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -72,6 +73,9 @@ class EnrollmentControllerIT {
     Course mockCourse = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    MetricsProvider metricsProvider;
 
     @BeforeEach
     void setUp() throws ZerofiltreException {

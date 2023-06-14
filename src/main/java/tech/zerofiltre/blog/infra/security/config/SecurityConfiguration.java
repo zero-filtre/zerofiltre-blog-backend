@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.util.matcher.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.providers.api.github.*;
 import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.security.filter.*;
@@ -36,6 +38,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final VerificationTokenProvider verificationTokenProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final Jackson2ObjectMapperBuilder objectMapperBuilder;
+    private final MetricsProvider metricsProvider;
+    private final SecurityContextManager securityContextManager;
 
     public SecurityConfiguration(
             UserDetailsService userDetailsService,
@@ -45,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             PasswordEncoder passwordEncoder,
             StackOverflowAuthenticationTokenProperties stackOverflowTokenConfiguration,
             GithubAuthenticationTokenProperties githubTokenConfiguration, StackOverflowLoginProvider stackOverflowLoginProvider,
-            GithubLoginProvider githubLoginProvider, UserProvider userProvider, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder) {
+            GithubLoginProvider githubLoginProvider, UserProvider userProvider, VerificationTokenProvider verificationTokenProvider, JwtTokenProvider jwtTokenProvider, Jackson2ObjectMapperBuilder objectMapperBuilder, MetricsProvider metricsProvider, SecurityContextManager securityContextManager) {
 
         this.userDetailsService = userDetailsService;
         this.jwTokenConfiguration = jwTokenConfiguration;
@@ -60,6 +64,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.verificationTokenProvider = verificationTokenProvider;
         this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapperBuilder = objectMapperBuilder;
+        this.metricsProvider = metricsProvider;
+        this.securityContextManager = securityContextManager;
     }
 
     @Override
@@ -102,8 +108,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 )
                 // Add a filter to validate the tokens with every request
                 .addFilterAfter(new JwtTokenAuthenticationCheckerFilter(jwTokenConfiguration), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, new SocialTokenValidatorAndAuthenticator(stackOverflowLoginProvider, userProvider)), JwtTokenAuthenticationCheckerFilter.class)
-                .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, new SocialTokenValidatorAndAuthenticator(githubLoginProvider, userProvider)), StackOverflowAuthenticationCheckerFilter.class)
+                .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, new SocialTokenValidatorAndAuthenticator(stackOverflowLoginProvider, userProvider, metricsProvider, securityContextManager)), JwtTokenAuthenticationCheckerFilter.class)
+                .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, new SocialTokenValidatorAndAuthenticator(githubLoginProvider, userProvider, metricsProvider, securityContextManager)), StackOverflowAuthenticationCheckerFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST,

@@ -17,9 +17,11 @@ import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.use_cases.course.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
@@ -104,10 +106,13 @@ class UserControllerTest {
     @Mock
     private CourseService courseService;
 
+    private MetricsProvider metricsProvider;
+
     @BeforeEach
     void setUp() {
+        metricsProvider = new DummyMetricsProvider();
         userController = new UserController(
-                userProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
+                userProvider, metricsProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
                 infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, chapterProvider);
 

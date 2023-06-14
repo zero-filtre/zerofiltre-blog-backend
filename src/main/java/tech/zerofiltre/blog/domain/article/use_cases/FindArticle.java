@@ -4,6 +4,8 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.metrics.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
@@ -11,14 +13,21 @@ import static tech.zerofiltre.blog.domain.article.model.Status.*;
 public class FindArticle {
 
     private final ArticleProvider articleProvider;
+    private final MetricsProvider metricsProvider;
 
-    public FindArticle(ArticleProvider articleProvider) {
+    public FindArticle(ArticleProvider articleProvider, MetricsProvider metricsProvider) {
         this.articleProvider = articleProvider;
+        this.metricsProvider = metricsProvider;
     }
 
     public Article byId(long id, User viewer) throws ResourceNotFoundException {
         Article result = articleProvider.articleOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id), Domains.ARTICLE.name()));
+
+        CounterSpecs counterSpecs = new CounterSpecs();
+        counterSpecs.setName(CounterSpecs.ZEROFILTRE_ARTICLE_VIEWS);
+        counterSpecs.setTags("status", result.getStatus().toString(), "title", result.getTitle(), "user", viewer != null ? viewer.getFullName() : "");
+        metricsProvider.incrementCounter(counterSpecs);
 
         if (PUBLISHED.equals(result.getStatus()) && (viewer == null || result.getAuthor().getId() != viewer.getId()))
             result.incrementViewsCount();

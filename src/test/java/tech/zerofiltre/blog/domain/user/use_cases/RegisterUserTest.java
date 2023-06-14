@@ -5,8 +5,10 @@ import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.doubles.*;
 
 import java.time.*;
 import java.util.*;
@@ -27,13 +29,16 @@ class RegisterUserTest {
     @MockBean
     AvatarProvider profilePictureGenerator;
 
+    private final MetricsProvider metricsProvider = new DummyMetricsProvider();
+
+
     LocalDateTime beforeRegistration = LocalDateTime.now();
     User toRegister = new User();
 
 
     @BeforeEach
     void init() {
-        registerUser = new RegisterUser(userProvider, profilePictureGenerator);
+        registerUser = new RegisterUser(userProvider, profilePictureGenerator, metricsProvider);
         toRegister.setPassword("pass");
         toRegister.setFullName("first");
         toRegister.setEmail("email");

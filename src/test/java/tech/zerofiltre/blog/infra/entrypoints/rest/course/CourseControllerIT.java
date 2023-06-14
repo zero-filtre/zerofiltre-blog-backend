@@ -17,6 +17,7 @@ import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.logging.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
@@ -80,6 +81,9 @@ class CourseControllerIT {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    MetricsProvider metricsProvider;
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;

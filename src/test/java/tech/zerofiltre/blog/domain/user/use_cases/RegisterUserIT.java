@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.infra.providers.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 
@@ -25,12 +27,14 @@ class RegisterUserIT {
     @Autowired
     AvatarProvider profilePictureGenerator;
 
+    private final MetricsProvider metricsProvider = new DummyMetricsProvider();
+
 
     User toRegister = new User();
 
     @BeforeEach
     void init() {
-        registerUser = new RegisterUser(userProvider, profilePictureGenerator);
+        registerUser = new RegisterUser(userProvider, profilePictureGenerator, metricsProvider);
         toRegister.setPassword("pass");
         toRegister.setFullName("first");
 
