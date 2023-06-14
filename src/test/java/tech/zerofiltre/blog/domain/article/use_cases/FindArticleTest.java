@@ -8,7 +8,9 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.*;
 
 import java.util.*;
@@ -25,10 +27,12 @@ class FindArticleTest {
     FindArticle findArticle;
     @MockBean
     private ArticleProvider articleProvider;
+    private MetricsProvider metricsProvider;
 
     @BeforeEach
     void setUp() {
-        findArticle = new FindArticle(articleProvider);
+        metricsProvider = new DummyMetricsProvider();
+        findArticle = new FindArticle(articleProvider, metricsProvider);
     }
 
 

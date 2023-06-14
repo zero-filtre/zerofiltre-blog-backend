@@ -1,5 +1,7 @@
 package tech.zerofiltre.blog.domain.user.use_cases;
 
+import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.metrics.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -7,10 +9,12 @@ public class UpdatePassword {
 
     private final UserProvider userProvider;
     private final PasswordVerifierProvider passwordVerifierProvider;
+    private final MetricsProvider metricsProvider;
 
-    public UpdatePassword(UserProvider userProvider, PasswordVerifierProvider passwordVerifierProvider) {
+    public UpdatePassword(UserProvider userProvider, PasswordVerifierProvider passwordVerifierProvider, MetricsProvider metricsProvider) {
         this.userProvider = userProvider;
         this.passwordVerifierProvider = passwordVerifierProvider;
+        this.metricsProvider = metricsProvider;
     }
 
     public void execute(String email, String oldPassword, String newEncodedPassword) throws UserNotFoundException, InvalidPasswordException {
@@ -22,6 +26,11 @@ public class UpdatePassword {
         }
         userFromEmail.setPassword(newEncodedPassword);
         userProvider.save(userFromEmail);
+
+        CounterSpecs counterSpecs = new CounterSpecs();
+        counterSpecs.setName(CounterSpecs.ZEROFILTRE_PASSWORD_RESETS);
+        counterSpecs.setTags("email", email);
+        metricsProvider.incrementCounter(counterSpecs);
 
 
     }

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -61,6 +62,8 @@ class ArticleControllerIT {
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
 
+    @MockBean
+    MetricsProvider metricsProvider;
 
     @MockBean
     StackOverflowLoginProvider loginProvider;
@@ -90,6 +93,7 @@ class ArticleControllerIT {
     void init() {
         //ARRANGE
         mockArticle.setStatus(Status.PUBLISHED);
+        doNothing().when(metricsProvider).incrementCounter(any());
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(mockArticle.getAuthor()));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(mockArticle.getTags().get(0)));

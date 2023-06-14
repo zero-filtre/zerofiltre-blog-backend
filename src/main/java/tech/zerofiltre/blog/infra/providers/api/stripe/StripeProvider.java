@@ -10,6 +10,8 @@ import com.stripe.param.checkout.*;
 import lombok.extern.slf4j.*;
 import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.metrics.model.*;
 import tech.zerofiltre.blog.domain.payment.*;
 import tech.zerofiltre.blog.domain.payment.model.*;
 import tech.zerofiltre.blog.domain.user.*;
@@ -33,18 +35,22 @@ public class StripeProvider implements PaymentProvider {
     private final SessionEventHandler sessionEventHandler;
     private final InvoiceEventHandler invoiceEventHandler;
     private final UserProvider userProvider;
+    private MetricsProvider metricsProvider;
 
-    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider) {
+    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider, MetricsProvider metricsProvider) {
         this.infraProperties = infraProperties;
 
         this.sessionEventHandler = sessionEventHandler;
         this.invoiceEventHandler = invoiceEventHandler;
         this.userProvider = userProvider;
+        this.metricsProvider = metricsProvider;
     }
 
 
     @Override
     public String createSession(User user, Product product, ChargeRequest chargeRequest) throws PaymentException {
+        CounterSpecs counterSpecs = new CounterSpecs();
+        counterSpecs.setName(CounterSpecs.ZEROFILTRE_CHECKOUT_CREATIONS);
 
         try {
 
@@ -53,12 +59,19 @@ public class StripeProvider implements PaymentProvider {
                     .build();
 
             CustomerSearchResult result = Customer.search(customerSearchParams);
+            String session;
             if (!result.getData().isEmpty()) {
                 Customer customer = result.getData().get(0);
                 log.info("Customer for user {} found on stripe, using him to create checkout session.: {}", user.getEmail(), customer.toString().replace("\n", " "));
-                return createSession(chargeRequest, product, customer);
+                session = createSession(chargeRequest, product, customer);
+                counterSpecs.setTags("foundCustomer", "true", "success", "true");
+                return session;
+
             }
-            return createSession(chargeRequest, product, createCustomer(user));
+            session = createSession(chargeRequest, product, createCustomer(user));
+            counterSpecs.setTags("foundCustomer", "false", "success", "true");
+            metricsProvider.incrementCounter(counterSpecs);
+            return session;
         } catch (StripeException e) {
             log.error("Error while initializing the checkout session: " + e.getLocalizedMessage(), e);
             throw new PaymentException("Error while initializing the checkout session" + e.getLocalizedMessage(), "");

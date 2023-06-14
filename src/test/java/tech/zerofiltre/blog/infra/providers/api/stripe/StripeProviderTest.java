@@ -6,7 +6,9 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.mockito.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.infra.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -215,12 +217,15 @@ class StripeProviderTest {
     InvoiceEventHandler invoiceEventHandler;
     @Mock
     UserProvider userProvider;
+    @Mock
+    MetricsProvider metricsProvider;
+
 
     StripeProvider stripeProvider;
 
     @BeforeEach
     void init() {
-        stripeProvider = new StripeProvider(infraProperties, sessionEventHandler, invoiceEventHandler, userProvider);
+        stripeProvider = new StripeProvider(infraProperties, sessionEventHandler, invoiceEventHandler, userProvider, metricsProvider);
     }
 
 

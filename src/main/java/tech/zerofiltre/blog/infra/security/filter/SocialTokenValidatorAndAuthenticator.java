@@ -6,6 +6,8 @@ import org.springframework.security.core.authority.*;
 import org.springframework.security.core.context.*;
 import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.metrics.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -17,14 +19,18 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
 
     final L socialLoginProvider;
     final UserProvider userProvider;
+    private MetricsProvider metricsProvider;
 
-    public SocialTokenValidatorAndAuthenticator(L socialLoginProvider, UserProvider userProvider) {
+    public SocialTokenValidatorAndAuthenticator(L socialLoginProvider, UserProvider userProvider, MetricsProvider metricsProvider) {
         this.socialLoginProvider = socialLoginProvider;
         this.userProvider = userProvider;
+        this.metricsProvider = metricsProvider;
     }
 
     public void validateAndAuthenticate(String token) {
         try {    // exceptions might be thrown in validating the token: if for example the token is expired
+
+            CounterSpecs counterSpecs = new CounterSpecs();
 
             // 4. Validate the token
             if (socialLoginProvider.isValid(token)) {
@@ -36,11 +42,22 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                     Optional<User> foundUser = userProvider.userOfEmail(user.getEmail());
                     if (foundUser.isEmpty()) {
                         userProvider.save(user);
+
+                        counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CREATIONS);
+                        counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "true");
+                        metricsProvider.incrementCounter(counterSpecs);
+
                     } else {
-                        if (foundUser.get().isExpired())
+                        if (foundUser.get().isExpired()) {
+
+                            counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
+                            counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "false");
+                            metricsProvider.incrementCounter(counterSpecs);
+
                             throw new UnAuthenticatedActionException(
                                     String.format("The user %s has been deactivated, not allowing connection until activation", user.getFullName()),
                                     Domains.NONE.name());
+                        }
                     }
                     // 8. Create auth object
                     // UsernamePasswordAuthenticationToken: A built-in object, used by spring to represent the current authenticated / being authenticated user.
@@ -51,6 +68,10 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                     // 9. Authenticate the user
                     // Now, user is authenticated
                     SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
+                    counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "true");
+                    metricsProvider.incrementCounter(counterSpecs);
                 }
             }
 

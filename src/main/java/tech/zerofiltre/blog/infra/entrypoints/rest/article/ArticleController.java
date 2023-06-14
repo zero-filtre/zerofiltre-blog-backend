@@ -9,6 +9,7 @@ import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.article.use_cases.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.*;
@@ -30,12 +31,12 @@ public class ArticleController {
     private final DeleteArticle deleteArticle;
     private final MessageSource sources;
 
-    public ArticleController(ArticleProvider articleProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources) {
+    public ArticleController(ArticleProvider articleProvider, MetricsProvider metricsProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources) {
         this.securityContextManager = securityContextManager;
         this.sources = sources;
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
         initArticle = new InitArticle(articleProvider);
-        findArticle = new FindArticle(articleProvider);
+        findArticle = new FindArticle(articleProvider, metricsProvider);
         deleteArticle = new DeleteArticle(articleProvider, loggerProvider);
     }
 
@@ -48,7 +49,7 @@ public class ArticleController {
         } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return the wanted article", e);
         }
-        return findArticle.byId(articleId,user);
+        return findArticle.byId(articleId, user);
     }
 
     @GetMapping
@@ -72,11 +73,11 @@ public class ArticleController {
         request.setPageSize(pageSize);
         request.setUser(user);
         request.setTag(tag);
-        if (filter != null){
+        if (filter != null) {
             filter = filter.toUpperCase();
             request.setFilter(FinderRequest.Filter.valueOf(filter));
         }
-        if (status != null){
+        if (status != null) {
             status = status.toUpperCase();
             request.setStatus(Status.valueOf(status));
         }

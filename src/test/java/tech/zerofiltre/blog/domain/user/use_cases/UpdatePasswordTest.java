@@ -4,8 +4,10 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.doubles.*;
 
 import java.util.*;
 
@@ -24,10 +26,13 @@ class UpdatePasswordTest {
     @MockBean
     private PasswordVerifierProvider passwordVerifierProvider;
 
+    private final MetricsProvider metricsProvider = new DummyMetricsProvider();
+
 
     @BeforeEach
     void setUp() {
-        updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider);
+
+        updatePassword = new UpdatePassword(userProvider, passwordVerifierProvider, metricsProvider);
     }
 
     @Test

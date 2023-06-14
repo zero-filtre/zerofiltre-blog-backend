@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
@@ -90,6 +91,9 @@ class UserControllerIT {
     ArticleProvider articleProvider;
 
     @MockBean
+    MetricsProvider metricsProvider;
+
+    @MockBean
     JwtTokenProvider jwtTokenProvider;
 
     @MockBean
@@ -109,6 +113,7 @@ class UserControllerIT {
     @BeforeEach
     void init() throws UserNotFoundException, InvalidTokenException {
         when(userProvider.userOfEmail(any())).thenReturn(Optional.empty());
+        doNothing().when(metricsProvider).incrementCounter(any());
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         doNothing().when(notifyRegistrationComplete).execute(any(), any(), any(), any());
         doNothing().when(resendRegistrationConfirmation).execute(any(), any(), any());
