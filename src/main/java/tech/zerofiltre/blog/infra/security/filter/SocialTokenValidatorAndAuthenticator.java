@@ -10,6 +10,8 @@ import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.metrics.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.infra.entrypoints.rest.*;
 
 import java.util.*;
 import java.util.stream.*;
@@ -19,12 +21,14 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
 
     final L socialLoginProvider;
     final UserProvider userProvider;
-    private MetricsProvider metricsProvider;
+    private final MetricsProvider metricsProvider;
+    private final SecurityContextManager securityContextManager;
 
-    public SocialTokenValidatorAndAuthenticator(L socialLoginProvider, UserProvider userProvider, MetricsProvider metricsProvider) {
+    public SocialTokenValidatorAndAuthenticator(L socialLoginProvider, UserProvider userProvider, MetricsProvider metricsProvider, SecurityContextManager securityContextManager) {
         this.socialLoginProvider = socialLoginProvider;
         this.userProvider = userProvider;
         this.metricsProvider = metricsProvider;
+        this.securityContextManager = securityContextManager;
     }
 
     public void validateAndAuthenticate(String token) {
@@ -42,22 +46,12 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                     Optional<User> foundUser = userProvider.userOfEmail(user.getEmail());
                     if (foundUser.isEmpty()) {
                         userProvider.save(user);
-
                         counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CREATIONS);
                         counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "true");
                         metricsProvider.incrementCounter(counterSpecs);
 
                     } else {
-                        if (foundUser.get().isExpired()) {
-
-                            counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
-                            counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "false");
-                            metricsProvider.incrementCounter(counterSpecs);
-
-                            throw new UnAuthenticatedActionException(
-                                    String.format("The user %s has been deactivated, not allowing connection until activation", user.getFullName()),
-                                    Domains.NONE.name());
-                        }
+                        recordConnectionMetrics(counterSpecs, user.getLoginFrom().toString(), foundUser.get());
                     }
                     // 8. Create auth object
                     // UsernamePasswordAuthenticationToken: A built-in object, used by spring to represent the current authenticated / being authenticated user.
@@ -69,9 +63,6 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                     // Now, user is authenticated
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
-                    counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
-                    counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "true");
-                    metricsProvider.incrementCounter(counterSpecs);
                 }
             }
 
@@ -79,6 +70,27 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
             log.error("Error when checking token ", e);
             // In case of failure. Make sure it's clear; so guarantee user won't be authenticated
             SecurityContextHolder.clearContext();
+        }
+    }
+
+    private void recordConnectionMetrics(CounterSpecs counterSpecs, String loginFrom, User foundUser) throws UnAuthenticatedActionException {
+        try {
+            securityContextManager.getAuthenticatedUser();
+        } catch (UserNotFoundException une) {
+            counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
+            counterSpecs.setTags("from", loginFrom, "success", "true");
+            metricsProvider.incrementCounter(counterSpecs);
+        }
+
+        if (foundUser.isExpired()) {
+
+            counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
+            counterSpecs.setTags("from", loginFrom, "success", "false");
+            metricsProvider.incrementCounter(counterSpecs);
+
+            throw new UnAuthenticatedActionException(
+                    String.format("The user %s has been deactivated, not allowing connection until activation", foundUser.getFullName()),
+                    Domains.NONE.name());
         }
     }
 }
