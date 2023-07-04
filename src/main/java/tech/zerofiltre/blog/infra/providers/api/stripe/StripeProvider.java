@@ -35,15 +35,17 @@ public class StripeProvider implements PaymentProvider {
     private final SessionEventHandler sessionEventHandler;
     private final InvoiceEventHandler invoiceEventHandler;
     private final UserProvider userProvider;
-    private MetricsProvider metricsProvider;
+    private final MetricsProvider metricsProvider;
+    private final UserNotificationProvider userNotificationProvider;
 
-    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider, MetricsProvider metricsProvider) {
+    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider) {
         this.infraProperties = infraProperties;
 
         this.sessionEventHandler = sessionEventHandler;
         this.invoiceEventHandler = invoiceEventHandler;
         this.userProvider = userProvider;
         this.metricsProvider = metricsProvider;
+        this.userNotificationProvider = userNotificationProvider;
     }
 
 
@@ -51,6 +53,8 @@ public class StripeProvider implements PaymentProvider {
     public String createSession(User user, Product product, ChargeRequest chargeRequest) throws PaymentException {
         CounterSpecs counterSpecs = new CounterSpecs();
         counterSpecs.setName(CounterSpecs.ZEROFILTRE_CHECKOUT_CREATIONS);
+        String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
+
 
         try {
 
@@ -64,12 +68,14 @@ public class StripeProvider implements PaymentProvider {
                 Customer customer = result.getData().get(0);
                 log.info("Customer for user {} found on stripe, using him to create checkout session.: {}", user.getEmail(), customer.toString().replace("\n", " "));
                 session = createSession(chargeRequest, product, customer);
+                userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, Action.CHECKOUT_STARTED));
                 counterSpecs.setTags("foundCustomer", "true", "success", "true");
                 return session;
 
             }
             session = createSession(chargeRequest, product, createCustomer(user));
             counterSpecs.setTags("foundCustomer", "false", "success", "true");
+            userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, Action.CHECKOUT_STARTED));
             metricsProvider.incrementCounter(counterSpecs);
             return session;
         } catch (StripeException e) {

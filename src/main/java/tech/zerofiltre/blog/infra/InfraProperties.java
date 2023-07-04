@@ -74,5 +74,11 @@ public class InfraProperties {
     @Value("${zerofiltre.contact.email:info@zerofiltre.tech}")
     private String contactEmail;
 
+    @Value("${zerofiltre.infra.checkout-reminder-delay-ms:86400000}")
+    private long checkoutReminderDelayMs;
+
+    @Value("${zerofiltre.infra.checkout-reminder-check-frequency-ms:3600000}")
+    private long checkoutReminderCheckFrequencyMs;
+
 
 }

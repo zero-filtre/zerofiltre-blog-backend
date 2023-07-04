@@ -128,3 +128,6 @@ zerofiltre:
     reminder-rate: ${REMINDER_RATE}
     reminder-initial-delay: ${REMINDER_INITIAL_DELAY}
     max-attempts: 3
+    checkout-reminder-delay-ms: ${CHECKOUT_REMINDER_DELAY_MS}
+    checkout-reminder-check-frequency-ms: ${CHECKOUT_REMINDER_CHECK_FREQUENCY_MS}
+

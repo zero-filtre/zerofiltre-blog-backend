@@ -10,6 +10,7 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.security.*;
 import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 @Slf4j
@@ -279,5 +280,18 @@ public class ZerofiltreUtils {
         enrollment.setCourse(course);
         return enrollment;
 
+    }
+
+    public static String toHumanReadable(long timestamp) {
+        // Convert the timestamp to LocalDateTime
+        LocalDateTime dateTime = Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        // Define the desired date and time format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        // Format the LocalDateTime to the desired format
+        return dateTime.format(formatter);
     }
 }

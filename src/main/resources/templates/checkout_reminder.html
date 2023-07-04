@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="#{message.checkout.reminder.subject}"></title>
+    <style>
+        body {
+            font-family: 'Aria', sans-serif;
+        }
+
+        .parent{
+            background-color: #f6f9fc;
+            height: 100%;
+            width: 100%;
+            padding: 50px;
+
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 50px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            word-break: break-all;
+            font-size: 16px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .primary-color {
+            color: #1c2e5c;
+        }
+
+        .secondary-color {
+            color: #15b2bc;
+        }
+
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #15b2bc;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 20px;
+            font-weight: bold;
+        }
+
+        .button-wrapper {
+           text-align: center;
+        }
+
+        .linkedin-button {
+          display: inline-block;
+          padding: 3px 5px;
+          background-color: #0a66c2;
+          color: #ffffff !important;
+          text-decoration: none;
+          border-radius: 3px;
+          cursor: pointer !important;
+          font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 100px;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="parent">
+    <div class="container">
+        <div class="header">
+            <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT">
+            <h1><span th:text="#{greetings(${fullName})}" class="primary-color"></span>,</h1>
+            <h2><span th:text="#{remind_revenue_message}"></span></h2>
+        </div>
+
+        <p th:text="#{checkout_reminder_action_message}"></p>
+        <p class="button-wrapper"><a th:href="${backToCheckoutLink}" th:text="#{checkout.reminder.validation.button.label}" class="cta-button"></a></p>
+
+        </br>
+        </br>
+        <p><em th:text="#{zerofiltre_team_signature}"></em></p>
+
+
+        <div class="footer">
+            <p>Zerofiltre</p>
+            <p>72 AV DE LA DIVISION LECLERC</p>
+            <p>93350 LE BOURGET</p>
+            <p>zerofiltre.tech</p>
+            <p>info@zerofiltre.tech</p>
+            <p><a href="https://www.linkedin.com/company/65767867/admin/" class="linkedin-button" target="_blank">in</a></p>
+            <p>&copy; 2020 Zerofiltre</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

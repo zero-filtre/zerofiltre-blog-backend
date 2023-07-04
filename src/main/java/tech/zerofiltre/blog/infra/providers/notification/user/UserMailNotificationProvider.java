@@ -15,12 +15,21 @@ public class UserMailNotificationProvider implements UserNotificationProvider {
 
     @Override
     public void notify(UserActionEvent userActionEvent) {
-        ApplicationEvent event = new UserActionApplicationEvent(
-                userActionEvent.getUser(),
-                userActionEvent.getLocale(),
-                userActionEvent.getAppUrl(),
-                userActionEvent.getCurrentToken(),
-                userActionEvent.getAction());
+        ApplicationEvent event;
+        if (Action.CHECKOUT_STARTED != userActionEvent.getAction()) {
+            event = new UserActionApplicationEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl(),
+                    userActionEvent.getCurrentToken(),
+                    userActionEvent.getAction());
+        } else {
+            event = new CheckoutStartedEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl()
+            );
+        }
         eventPublisher.publishEvent(event);
 
     }

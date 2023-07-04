@@ -8,7 +8,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.metrics.*;
 import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.infra.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -219,13 +218,16 @@ class StripeProviderTest {
     UserProvider userProvider;
     @Mock
     MetricsProvider metricsProvider;
+    @Mock
+    UserNotificationProvider userNotificationProvider;
 
 
     StripeProvider stripeProvider;
 
     @BeforeEach
     void init() {
-        stripeProvider = new StripeProvider(infraProperties, sessionEventHandler, invoiceEventHandler, userProvider, metricsProvider);
+        stripeProvider = new StripeProvider(infraProperties, sessionEventHandler, invoiceEventHandler, userProvider, metricsProvider, userNotificationProvider);
+        lenient().doNothing().when(userNotificationProvider).notify(any());
     }
 
 

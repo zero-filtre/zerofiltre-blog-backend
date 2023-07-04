@@ -206,6 +206,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: vimeo_root_url
+            - name: CHECKOUT_REMINDER_DELAY_MS
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key : checkout_reminder_delay_ms
+            - name: CHECKOUT_REMINDER_CHECK_FREQUENCY_MS
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: checkout_reminder_check_frequency_ms
 
 
 ---
