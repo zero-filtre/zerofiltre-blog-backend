@@ -1,0 +1,75 @@
+databaseChangeLog:
+- changeSet:
+    id: 1689111855090-1
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            name: viewed_at
+            type: datetime
+        - column:
+            name: viewed_id
+            type: BIGINT
+        - column:
+            name: viewer_id
+            type: BIGINT
+        tableName: article_view
+- changeSet:
+    id: 1689111855090-2
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: viewed_id
+        indexName: FK35ij98bostr30tl9yro7uxma
+        tableName: article_view
+- changeSet:
+    id: 1689111855090-3
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: viewer_id
+        indexName: FKr0698t20aj71w5i24b187h20n
+        tableName: article_view
+- changeSet:
+    id: 1689111855090-4
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: viewed_id
+        baseTableName: article_view
+        constraintName: FK35ij98bostr30tl9yro7uxma
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: article
+        validate: true
+- changeSet:
+    id: 1689111855090-5
+    author: philippe SIMO (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: viewer_id
+        baseTableName: article_view
+        constraintName: FKr0698t20aj71w5i24b187h20n
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+

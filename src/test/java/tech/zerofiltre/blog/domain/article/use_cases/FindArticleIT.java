@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
 import org.junit.jupiter.api.*;
-import org.mockito.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.orm.jpa.*;
 import org.springframework.context.annotation.*;
@@ -16,13 +15,14 @@ import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 
 @DataJpaTest
 @Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class,
-        DBReactionProvider.class
+        DBReactionProvider.class, DBArticleViewProvider.class
 })
 class FindArticleIT {
 
@@ -38,6 +38,9 @@ class FindArticleIT {
     @Autowired
     private UserProvider userProvider;
 
+    @Autowired
+    private ArticleViewProvider articleViewProvider;
+
     private MetricsProvider metricsProvider;
 
     private FindArticle findArticle;
@@ -45,7 +48,47 @@ class FindArticleIT {
     @BeforeEach
     void init() {
         metricsProvider = new DummyMetricsProvider();
-        findArticle = new FindArticle(articleProvider, metricsProvider);
+        findArticle = new FindArticle(articleProvider, metricsProvider, articleViewProvider);
+    }
+
+    @Test
+    void mustProperlySave_AnArticleView() throws ResourceNotFoundException {
+        //arrange
+        LocalDateTime beforeViewing = LocalDateTime.now();
+
+        User user = new User();
+        user.setRoles(Collections.singleton("ROLE_ADMIN"));
+        user = userProvider.save(user);
+
+        User viewer = new User();
+        viewer = userProvider.save(viewer);
+
+
+        Article ddd = new Article();
+        ddd.setTitle(DDD);
+        ddd.setStatus(Status.PUBLISHED);
+        ddd.setAuthor(user);
+
+        ddd = articleProvider.save(ddd);
+
+        long articleId = ddd.getId();
+        long userId = viewer.getId();
+
+
+        //act
+        findArticle.byId(articleId, viewer);
+
+        //assert
+        LocalDateTime afterViewing = LocalDateTime.now();
+        List<ArticleView> results = articleViewProvider.viewsOfArticle(articleId);
+        assertThat(results).isNotEmpty();
+        ArticleView only = results.get(0);
+        LocalDateTime viewedAt = only.getViewedAt();
+        assertThat(viewedAt).isAfterOrEqualTo(beforeViewing);
+        assertThat(viewedAt).isBeforeOrEqualTo(afterViewing);
+        assertThat(only.getViewed().getId()).isEqualTo(articleId);
+        assertThat(only.getViewer().getId()).isEqualTo(userId);
+        assertThat(only.getId()).isNotZero();
     }
 
     @Test

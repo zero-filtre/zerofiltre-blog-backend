@@ -31,12 +31,12 @@ public class ArticleController {
     private final DeleteArticle deleteArticle;
     private final MessageSource sources;
 
-    public ArticleController(ArticleProvider articleProvider, MetricsProvider metricsProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources) {
+    public ArticleController(ArticleProvider articleProvider, MetricsProvider metricsProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources, ArticleViewProvider articleViewProvider) {
         this.securityContextManager = securityContextManager;
         this.sources = sources;
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
         initArticle = new InitArticle(articleProvider);
-        findArticle = new FindArticle(articleProvider, metricsProvider);
+        findArticle = new FindArticle(articleProvider, metricsProvider, articleViewProvider);
         deleteArticle = new DeleteArticle(articleProvider, loggerProvider);
     }
 

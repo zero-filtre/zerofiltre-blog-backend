@@ -14,10 +14,12 @@ public class FindArticle {
 
     private final ArticleProvider articleProvider;
     private final MetricsProvider metricsProvider;
+    private final ArticleViewProvider articleViewProvider;
 
-    public FindArticle(ArticleProvider articleProvider, MetricsProvider metricsProvider) {
+    public FindArticle(ArticleProvider articleProvider, MetricsProvider metricsProvider, ArticleViewProvider articleViewProvider) {
         this.articleProvider = articleProvider;
         this.metricsProvider = metricsProvider;
+        this.articleViewProvider = articleViewProvider;
     }
 
     public Article byId(long id, User viewer) throws ResourceNotFoundException {
@@ -29,9 +31,12 @@ public class FindArticle {
         counterSpecs.setTags("status", result.getStatus().toString(), "title", result.getTitle(), "user", viewer != null ? viewer.getFullName() : "");
         metricsProvider.incrementCounter(counterSpecs);
 
-        if (PUBLISHED.equals(result.getStatus()) && (viewer == null || result.getAuthor().getId() != viewer.getId()))
+        if (PUBLISHED.equals(result.getStatus()) && (viewer == null || result.getAuthor().getId() != viewer.getId())) {
             result.incrementViewsCount();
-        result = articleProvider.save(result);
+            result = articleProvider.save(result);
+            ArticleView articleView = new ArticleView(viewer, result);
+            articleViewProvider.save(articleView);
+        }
         return result;
 
     }

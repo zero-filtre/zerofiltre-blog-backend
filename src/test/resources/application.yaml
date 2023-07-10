@@ -46,6 +46,7 @@ springdoc:
 zerofiltre:
   env: dev
   infra:
+    stats.reminder.cron: "* */30 * * * ?"
     security:
       jwt:
         expiration-seconds: 86400 #1 day

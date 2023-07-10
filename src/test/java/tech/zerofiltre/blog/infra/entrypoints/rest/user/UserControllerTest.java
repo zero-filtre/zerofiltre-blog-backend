@@ -103,6 +103,9 @@ class UserControllerTest {
     @MockBean
     CourseProvider courseProvider;
 
+    @MockBean
+    private ArticleViewProvider articleViewProvider;
+
     @Mock
     private CourseService courseService;
 
@@ -114,7 +117,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, metricsProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, chapterProvider);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, chapterProvider, articleViewProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }

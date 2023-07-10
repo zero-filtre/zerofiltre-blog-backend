@@ -75,7 +75,6 @@ spec:
               failureThreshold: 10
 
           env:
-
             - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
               valueFrom:
                 configMapKeyRef:
@@ -216,6 +215,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: checkout_reminder_check_frequency_ms
+            - name: ZEROFILTRE_INFRA_STATS_REMINDER_CRON
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: stats_reminder_cron
 
 
 ---

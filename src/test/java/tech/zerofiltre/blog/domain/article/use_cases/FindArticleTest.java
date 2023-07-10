@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.article.use_cases;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
+import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.*;
@@ -13,6 +14,7 @@ import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.*;
 
+import java.time.*;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -27,12 +29,14 @@ class FindArticleTest {
     FindArticle findArticle;
     @MockBean
     private ArticleProvider articleProvider;
+    @Mock
+    private ArticleViewProvider articleViewProvider;
     private MetricsProvider metricsProvider;
 
     @BeforeEach
     void setUp() {
         metricsProvider = new DummyMetricsProvider();
-        findArticle = new FindArticle(articleProvider, metricsProvider);
+        findArticle = new FindArticle(articleProvider, metricsProvider, articleViewProvider);
     }
 
 
@@ -72,6 +76,51 @@ class FindArticleTest {
     }
 
     @Test
+    void mustSave_AnArticleView_IfArticleIsFound() throws ResourceNotFoundException {
+        //ARRANGE
+        LocalDateTime beforeViewing = LocalDateTime.now();
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        mockArticle.setStatus(PUBLISHED);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(24);
+
+        //ACT
+        Article article = findArticle.byId(12, user);
+        LocalDateTime afterViewing = LocalDateTime.now();
+
+
+        //ASSERT
+        ArgumentCaptor<ArticleView> captor = ArgumentCaptor.forClass(ArticleView.class);
+        verify(articleViewProvider, times(1)).save(captor.capture());
+        ArticleView captured = captor.getValue();
+        assertThat(captured.getViewer().getId()).isEqualTo(user.getId());
+        assertThat(captured.getViewed().getId()).isEqualTo(article.getId());
+        assertThat(captured.getViewedAt()).isAfterOrEqualTo(beforeViewing);
+        assertThat(captured.getViewedAt()).isBeforeOrEqualTo(afterViewing);
+    }
+
+    @Test
+    void doNotCreateArticleView_ifArticle_IsNot_Published() throws ResourceNotFoundException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        mockArticle.setStatus(DRAFT);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(24);
+
+        //ACT
+        findArticle.byId(12, user);
+
+
+        //ASSERT
+        verify(articleViewProvider, times(0)).save(any());
+
+    }
+
+    @Test
     @DisplayName("Do not Increment view count if article is not published")
     void mustNotIncrementView_IfArticle_IsNot_Published() throws ResourceNotFoundException {
         //ARRANGE
@@ -104,6 +153,24 @@ class FindArticleTest {
         //ASSERT
         assertThat(article.getTitle()).isEqualTo(mockArticle.getTitle());
         assertThat(article.getViewsCount()).isZero();
+    }
+
+    @Test
+    void mustNotSave_AnArticleView_IfViewer_IsTheAuthor() throws ResourceNotFoundException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        mockArticle.setStatus(PUBLISHED);
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        User user = ZerofiltreUtils.createMockUser(true);
+        user.setId(24);
+
+        //ACT
+        findArticle.byId(12, mockArticle.getAuthor());
+
+
+        //ASSERT
+        verify(articleViewProvider, times(0)).save(any());
     }
 
     @Test
