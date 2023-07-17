@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
         UserMailNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class,
-        DBTagProvider.class, DBChapterProvider.class})
+        DBTagProvider.class, DBChapterProvider.class, DBArticleViewProvider.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -71,6 +71,9 @@ class UserControllerIT {
 
     @MockBean
     CourseProvider courseProvider;
+
+    @MockBean
+    ArticleViewProvider articleViewProvider;
 
     @MockBean
     GithubLoginProvider githubLoginProvider;

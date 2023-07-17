@@ -5,7 +5,7 @@ import java.util.regex.*;
 
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
-    private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,15})";
+    private static final String PASSWORD_PATTERN = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{6,}";
 
     @Override
     public void initialize(ValidPassword constraintAnnotation) {
