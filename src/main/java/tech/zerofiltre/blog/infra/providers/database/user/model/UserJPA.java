@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.database.user.model;
 
 import lombok.*;
-import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.*;
 
 import javax.persistence.*;
@@ -34,7 +33,7 @@ public class UserJPA extends BaseEntityJPA {
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;
-    private SocialLink.Platform loginFrom;
+    private String loginFrom;
     private String plan;
 
 
