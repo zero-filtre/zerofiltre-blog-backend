@@ -1,28 +1,40 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-import org.springframework.context.annotation.*;
-import tech.zerofiltre.blog.domain.article.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ReactionProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.article.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.article.DBArticleProvider;
+import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
+import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.infra.providers.notification.user.UserMailNotificationProvider;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
-import java.util.stream.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.*;
-import static tech.zerofiltre.blog.domain.article.model.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
+import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
 @DataJpaTest
-@Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class, DBReactionProvider.class})
+@Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class, DBReactionProvider.class, UserMailNotificationProvider.class})
 class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";
@@ -43,9 +55,12 @@ class PublishOrSaveArticleIT {
     @Autowired
     private ReactionProvider reactionProvider;
 
-    @BeforeEach
+    @MockBean
+    private UserNotificationProvider userNotificationProvider;
+
+    @Autowired
     void init() {
-        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
+        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider, userNotificationProvider);
     }
 
     @Test
@@ -70,7 +85,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article publishedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, PUBLISHED);
+        Article publishedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, PUBLISHED, null);
 
         //ASSERT
         assertThat(publishedArticle).isNotNull();
@@ -149,7 +164,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article savedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, DRAFT);
+        Article savedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, DRAFT, null);
 
         //ASSERT
         assertThat(savedArticle).isNotNull();

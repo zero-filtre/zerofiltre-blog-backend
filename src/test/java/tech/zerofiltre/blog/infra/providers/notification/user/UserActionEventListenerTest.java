@@ -43,6 +43,7 @@ class UserActionEventListenerTest {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
+        user.setEmail("test.user@zerofiltre.tech");
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
@@ -61,6 +62,7 @@ class UserActionEventListenerTest {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
+        user.setEmail("test.user@zerofiltre.tech");
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,
@@ -79,6 +81,7 @@ class UserActionEventListenerTest {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
+        user.setEmail("test.user@zerofiltre.tech");
         UserActionApplicationEvent event = new UserActionApplicationEvent(
                 user,
                 Locale.FRANCE,

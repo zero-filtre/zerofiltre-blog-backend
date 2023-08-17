@@ -92,6 +92,7 @@ class CheckoutStartedEventListenerTest {
         //ARRANGE
         User user = new User();
         user.setFullName("tester");
+        user.setEmail("test.user@zerofiltre.tech");
         CheckoutStartedEvent event = new CheckoutStartedEvent(
                 user,
                 Locale.FRANCE,

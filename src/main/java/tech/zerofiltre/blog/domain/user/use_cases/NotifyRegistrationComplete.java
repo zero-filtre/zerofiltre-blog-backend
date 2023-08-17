@@ -17,7 +17,7 @@ public class NotifyRegistrationComplete {
                 applicationURL,
                 locale,
                 user,
-                token, Action.REGISTRATION_COMPLETE);
+                token,null, Action.REGISTRATION_COMPLETE);
         userNotificationProvider.notify(registrationCompleteEvent);
 
     }

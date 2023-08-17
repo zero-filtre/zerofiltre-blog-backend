@@ -20,8 +20,8 @@ public class ResendRegistrationConfirmation {
     public void execute(String email, String appUrl, Locale locale) throws UserNotFoundException {
         User user = userProvider.userOfEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email, email));
-        String token = verificationTokenProvider.generate(user,86400).getToken();
-        userNotificationProvider.notify(new UserActionEvent(appUrl, locale, user, token, Action.REGISTRATION_COMPLETE));
+        String token = verificationTokenProvider.generate(user, 86400).getToken();
+        userNotificationProvider.notify(new UserActionEvent(appUrl, locale, user, token, null, Action.REGISTRATION_COMPLETE));
 
     }
 

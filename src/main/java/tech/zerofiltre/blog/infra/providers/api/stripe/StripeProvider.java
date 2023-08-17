@@ -1,26 +1,32 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
-import com.fasterxml.jackson.databind.*;
-import com.stripe.exception.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.exception.StripeException;
 import com.stripe.model.*;
-import com.stripe.model.checkout.*;
-import com.stripe.net.*;
+import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
 import com.stripe.param.*;
-import com.stripe.param.checkout.*;
-import lombok.extern.slf4j.*;
-import org.springframework.stereotype.*;
+import com.stripe.param.checkout.SessionCreateParams;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.Product;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.metrics.model.*;
-import tech.zerofiltre.blog.domain.payment.*;
-import tech.zerofiltre.blog.domain.payment.model.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.security.config.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
+import tech.zerofiltre.blog.domain.payment.PaymentException;
+import tech.zerofiltre.blog.domain.payment.PaymentProvider;
+import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.security.config.EmailValidator;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -68,14 +74,14 @@ public class StripeProvider implements PaymentProvider {
                 Customer customer = result.getData().get(0);
                 log.info("Customer for user {} found on stripe, using him to create checkout session.: {}", user.getEmail(), customer.toString().replace("\n", " "));
                 session = createSession(chargeRequest, product, customer);
-                userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, Action.CHECKOUT_STARTED));
+                userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, null, Action.CHECKOUT_STARTED));
                 counterSpecs.setTags("foundCustomer", "true", "success", "true");
                 return session;
 
             }
             session = createSession(chargeRequest, product, createCustomer(user));
             counterSpecs.setTags("foundCustomer", "false", "success", "true");
-            userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, Action.CHECKOUT_STARTED));
+            userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, null, Action.CHECKOUT_STARTED));
             metricsProvider.incrementCounter(counterSpecs);
             return session;
         } catch (StripeException e) {

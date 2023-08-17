@@ -87,5 +87,5 @@ zerofiltre:
     reminder-initial-delay: 0
     max-attempts: 1
     checkout-reminder-delay-ms: 60000
-    checkout-reminder-check-frequency-ms: 1000
+    checkout-reminder-check-frequency-ms: 2000
 

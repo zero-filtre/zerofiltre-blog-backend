@@ -26,6 +26,7 @@ import tech.zerofiltre.blog.infra.providers.api.so.*;
 import tech.zerofiltre.blog.infra.providers.database.article.*;
 import tech.zerofiltre.blog.infra.providers.database.user.*;
 import tech.zerofiltre.blog.infra.providers.logging.*;
+import tech.zerofiltre.blog.infra.providers.notification.user.UserMailNotificationProvider;
 import tech.zerofiltre.blog.infra.security.config.*;
 import tech.zerofiltre.blog.infra.security.model.*;
 import tech.zerofiltre.blog.util.*;
@@ -77,6 +78,9 @@ class ArticleControllerIT {
 
     @MockBean
     ArticleViewProvider articleViewProvider;
+
+    @MockBean
+    UserNotificationProvider userNotificationProvider;
 
 
     Article mockArticle = ZerofiltreUtils.createMockArticle(true);

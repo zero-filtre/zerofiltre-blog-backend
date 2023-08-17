@@ -1,23 +1,36 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
-import lombok.extern.slf4j.*;
-import org.springframework.context.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.use_cases.FindArticle;
+import tech.zerofiltre.blog.domain.article.use_cases.InitArticle;
+import tech.zerofiltre.blog.domain.article.use_cases.PublishOrSaveArticle;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.use_cases.DeleteArticle;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.PublishOrSaveArticleVM;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import javax.servlet.http.*;
-import javax.validation.*;
-import javax.validation.constraints.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Slf4j
 @RestController
@@ -30,14 +43,19 @@ public class ArticleController {
     private final SecurityContextManager securityContextManager;
     private final DeleteArticle deleteArticle;
     private final MessageSource sources;
+    private final String appUrl;
+    private final InfraProperties infraProperties;
 
-    public ArticleController(ArticleProvider articleProvider, MetricsProvider metricsProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources, ArticleViewProvider articleViewProvider) {
+    public ArticleController(ArticleProvider articleProvider, MetricsProvider metricsProvider, TagProvider tagProvider, LoggerProvider loggerProvider, SecurityContextManager securityContextManager, MessageSource sources, ArticleViewProvider articleViewProvider, UserNotificationProvider notificationProvider, InfraProperties infraProperties) {
         this.securityContextManager = securityContextManager;
         this.sources = sources;
-        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
+        this.infraProperties = infraProperties;
+        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider, notificationProvider);
         initArticle = new InitArticle(articleProvider);
         findArticle = new FindArticle(articleProvider, metricsProvider, articleViewProvider);
         deleteArticle = new DeleteArticle(articleProvider, loggerProvider);
+
+        appUrl = ZerofiltreUtils.getOriginUrl(this.infraProperties.getEnv());
     }
 
 
@@ -87,13 +105,13 @@ public class ArticleController {
     @PatchMapping
     public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT);
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT, appUrl);
     }
 
     @PatchMapping("/publish")
     public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED);
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED, appUrl);
     }
 
     @PostMapping

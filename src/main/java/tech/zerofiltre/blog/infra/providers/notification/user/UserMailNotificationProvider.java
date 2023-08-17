@@ -11,24 +11,38 @@ import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 @RequiredArgsConstructor
 public class UserMailNotificationProvider implements UserNotificationProvider {
 
+    //TODO on the next new action, split this class to notify sepecic events
+
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void notify(UserActionEvent userActionEvent) {
         ApplicationEvent event;
-        if (Action.CHECKOUT_STARTED != userActionEvent.getAction()) {
+        if (Action.CHECKOUT_STARTED == userActionEvent.getAction()) {
+
+            event = new CheckoutStartedEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl()
+            );
+
+
+        } else if (Action.ARTICLE_SUBMITTED == userActionEvent.getAction()) {
+            event = new ArticleSubmittedEvent(
+                    userActionEvent.getUser(),
+                    userActionEvent.getLocale(),
+                    userActionEvent.getAppUrl(),
+                    userActionEvent.getArticle()
+            );
+
+        } else {
             event = new UserActionApplicationEvent(
                     userActionEvent.getUser(),
                     userActionEvent.getLocale(),
                     userActionEvent.getAppUrl(),
                     userActionEvent.getCurrentToken(),
                     userActionEvent.getAction());
-        } else {
-            event = new CheckoutStartedEvent(
-                    userActionEvent.getUser(),
-                    userActionEvent.getLocale(),
-                    userActionEvent.getAppUrl()
-            );
+
         }
         eventPublisher.publishEvent(event);
 

@@ -1,10 +1,14 @@
 package tech.zerofiltre.blog.domain.user.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.io.*;
-import java.time.*;
-import java.util.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 public class User implements Serializable {
     private long id;
