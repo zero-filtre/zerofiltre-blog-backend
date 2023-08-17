@@ -1,18 +1,21 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.context.*;
-import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.UserActionApplicationEvent;
 
-import java.util.*;
+import java.util.Locale;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -42,7 +45,7 @@ class UserMailNotificationProviderTest {
 
         //ACT
         userMailNotificationProvider.notify(new UserActionEvent(
-                APP_URL, Locale.FRANCE, user, TOKEN, Action.REGISTRATION_COMPLETE));
+                APP_URL, Locale.FRANCE, user, TOKEN, null, Action.REGISTRATION_COMPLETE));
 
         //ASSERT
         ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);
@@ -62,7 +65,7 @@ class UserMailNotificationProviderTest {
 
         //ACT
         userMailNotificationProvider.notify(new UserActionEvent(
-                APP_URL, Locale.FRANCE, user, TOKEN, Action.PASSWORD_RESET));
+                APP_URL, Locale.FRANCE, user, TOKEN, null, Action.PASSWORD_RESET));
 
         //ASSERT
         ArgumentCaptor<UserActionApplicationEvent> captor = ArgumentCaptor.forClass(UserActionApplicationEvent.class);

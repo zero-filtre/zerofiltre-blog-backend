@@ -1,22 +1,33 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.article.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ReactionProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Reaction;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 
@@ -42,9 +53,12 @@ class PublishOrSaveArticleTest {
     @MockBean
     private ReactionProvider reactionProvider;
 
+    @MockBean
+    private UserNotificationProvider userNotificationProvider;
+
     @BeforeEach
     void init() {
-        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider);
+        publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider, userNotificationProvider);
     }
 
     @Test
@@ -74,8 +88,8 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                PUBLISHED
-        );
+                PUBLISHED,
+                null);
 
         //ASSERT
         verify(articleProvider, times(1)).save(any());
@@ -155,8 +169,8 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                DRAFT
-        );
+                DRAFT,
+                null);
 
         assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
 
@@ -187,8 +201,8 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                DRAFT
-        );
+                DRAFT,
+                null);
 
         //ASSERT
         verify(articleProvider, times(1)).save(any());
@@ -260,7 +274,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(new User(), 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(new User(), 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
 
     }
 
@@ -277,7 +291,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
 
     }
 
@@ -289,7 +303,7 @@ class PublishOrSaveArticleTest {
         editor.setEmail("email");
         editor.setRoles(Collections.singleton("ROLE_ADMIN"));
 
-        assertThatNoException().isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED));
+        assertThatNoException().isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
 
 
     }
@@ -307,7 +321,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), PUBLISHED));
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), PUBLISHED, null));
     }
 
     @Test
@@ -321,10 +335,32 @@ class PublishOrSaveArticleTest {
 
         //ACT
         Article submittedArticle = publishOrSaveArticle.execute(
-                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED);
+                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED, null);
 
         assertThat(submittedArticle).isNotNull();
         assertThat(submittedArticle.getStatus()).isEqualTo(IN_REVIEW);
+    }
+
+    @Test
+    @DisplayName("Publishing an article as non admin sends an email to the author")
+    void execute_PutInReview_andSendNotification_OnAuthorButNotAdmin() throws ForbiddenActionException, PublishOrSaveArticleException {
+        //ARRANGE
+        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
+        when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(newTag));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        //ACT
+        publishOrSaveArticle.execute(
+                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED, "https://zerofiltre.tech");
+
+        //ASSERT
+        ArgumentCaptor<UserActionEvent> captor = ArgumentCaptor.forClass(UserActionEvent.class);
+        verify(userNotificationProvider,times(1)).notify(captor.capture());
+        UserActionEvent value = captor.getValue();
+        assertThat(value.getAction()).isEqualTo(Action.ARTICLE_SUBMITTED);
+        assertThat(value.getArticle()).isNotNull();
+        assertThat(value.getAppUrl()).isEqualTo("https://zerofiltre.tech");
     }
 
 }

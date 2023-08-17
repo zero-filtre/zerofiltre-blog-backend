@@ -1,25 +1,33 @@
-package tech.zerofiltre.blog.domain.user.model;
+package tech.zerofiltre.blog.infra.providers.notification.user.model;
 
+import org.springframework.context.ApplicationEvent;
 import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
 
 import java.util.Locale;
+import java.util.UUID;
 
-public class UserActionEvent {
+public class ArticleSubmittedEvent extends ApplicationEvent {
+    private String id;
     private String appUrl;
     private Locale locale;
     private User user;
     private Article article;
-    private String currentToken;
     private Action action;
 
-
-    public UserActionEvent(String appUrl, Locale locale, User user, String currentToken, Article article, Action action) {
-        this.appUrl = appUrl;
-        this.locale = locale;
-        this.user = user;
+    public ArticleSubmittedEvent(User user, Locale locale, String appUrl, Article article) {
+        super(user);
         this.article = article;
-        this.currentToken = currentToken;
-        this.action = action;
+        this.id = UUID.randomUUID().toString();
+        this.user = user;
+        this.locale = locale;
+        this.appUrl = appUrl;
+        this.action = Action.ARTICLE_SUBMITTED;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getAppUrl() {
@@ -50,6 +58,10 @@ public class UserActionEvent {
         return action;
     }
 
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
     public Article getArticle() {
         return article;
     }
@@ -57,13 +69,4 @@ public class UserActionEvent {
     public void setArticle(Article article) {
         this.article = article;
     }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public String getCurrentToken() {
-        return currentToken;
-    }
-
 }

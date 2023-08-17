@@ -1,26 +1,35 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
 
 public class PublishOrSaveArticle {
 
     private final ArticleProvider articleProvider;
     private final TagProvider tagProvider;
+    private final UserNotificationProvider notificationProvider;
 
-    public PublishOrSaveArticle(ArticleProvider articleProvider, TagProvider tagProvider) {
+    public PublishOrSaveArticle(ArticleProvider articleProvider, TagProvider tagProvider, UserNotificationProvider notificationProvider) {
         this.articleProvider = articleProvider;
         this.tagProvider = tagProvider;
+        this.notificationProvider = notificationProvider;
     }
 
 
-    public Article execute(User currentEditor, long articleId, String title, String thumbnail, String summary, String content, List<Tag> tags, Status status) throws PublishOrSaveArticleException, ForbiddenActionException {
+    public Article execute(User currentEditor, long articleId, String title, String thumbnail, String summary, String content, List<Tag> tags, Status status, String appUrl) throws PublishOrSaveArticleException, ForbiddenActionException {
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -39,8 +48,11 @@ public class PublishOrSaveArticle {
         existingArticle.setSummary(summary);
         existingArticle.setLastSavedAt(now);
 
-        if (!isAlreadyPublished(existingArticle) && isTryingToPublish(status) && !currentEditor.isAdmin())
+        if (!isAlreadyPublished(existingArticle) && isTryingToPublish(status) && !currentEditor.isAdmin()) {
             existingArticle.setStatus(Status.IN_REVIEW);
+            UserActionEvent userActionEvent = new UserActionEvent(appUrl, Locale.forLanguageTag(author.getLanguage()), author, "", existingArticle, Action.ARTICLE_SUBMITTED);
+            notificationProvider.notify(userActionEvent);
+        }
 
         if (!isAlreadyPublished(existingArticle) && (!isTryingToPublish(status) || currentEditor.isAdmin()))
             existingArticle.setStatus(status);

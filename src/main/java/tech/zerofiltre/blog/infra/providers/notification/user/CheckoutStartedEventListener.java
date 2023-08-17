@@ -1,14 +1,17 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import lombok.extern.slf4j.*;
-import org.springframework.context.*;
-import org.springframework.stereotype.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
-import tech.zerofiltre.blog.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.CheckoutStartedEvent;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
+import tech.zerofiltre.blog.infra.security.config.EmailValidator;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.*;
 
@@ -65,29 +68,34 @@ public class CheckoutStartedEventListener implements ApplicationListener<Checkou
     void handleEvent(CheckoutStartedEvent event) {
         User user = event.getUser();
 
+        boolean validEmail = user.getEmail() != null && EmailValidator.validateEmail(user.getEmail());
+        String emailAddress = validEmail ? user.getEmail() : user.getPaymentEmail();
+        if (emailAddress != null) {
 
-        String subjectCode = "message.checkout.reminder.subject";
 
-        String pageUri = "/cours";
+            String subjectCode = "message.checkout.reminder.subject";
 
-        String template = "checkout_reminder.html";
+            String pageUri = "/cours";
 
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("fullName", user.getFullName());
-        templateModel.put("backToCheckoutLink", event.getAppUrl() + pageUri);
+            String template = "checkout_reminder.html";
 
-        String recipientAddress = user.getEmail();
-        String subject = messages.getMessage(subjectCode, null, event.getLocale());
-        Context thymeleafContext = new Context();
-        thymeleafContext.setVariables(templateModel);
-        thymeleafContext.setLocale(event.getLocale());
-        String emailContent = emailTemplateEngine.process(template, thymeleafContext);
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("fullName", user.getFullName());
+            templateModel.put("backToCheckoutLink", event.getAppUrl() + pageUri);
 
-        Email email = new Email();
-        email.setSubject(subject);
-        email.setContent(emailContent);
-        email.setRecipients(Collections.singletonList(recipientAddress));
-        emailSender.send(email);
+            String recipientAddress = user.getEmail();
+            String subject = messages.getMessage(subjectCode, null, event.getLocale());
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(event.getLocale());
+            String emailContent = emailTemplateEngine.process(template, thymeleafContext);
+
+            Email email = new Email();
+            email.setSubject(subject);
+            email.setContent(emailContent);
+            email.setRecipients(Collections.singletonList(recipientAddress));
+            emailSender.send(email);
+        }
     }
 
     public List<CheckoutStartedEvent> getEvents() {
