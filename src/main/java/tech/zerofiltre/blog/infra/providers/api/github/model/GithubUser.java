@@ -8,6 +8,7 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GithubUser {
 
+    private long id;
     private String login;
     @JsonProperty("avatar_url")
     private String avatarUrl;
