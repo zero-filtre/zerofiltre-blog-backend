@@ -12,6 +12,7 @@ import java.util.Set;
 
 public class User implements Serializable {
     private long id;
+    private String socialId;
     private String pseudoName;
     private String email;
     private String paymentEmail;
@@ -226,6 +227,14 @@ public class User implements Serializable {
 
     public void setPlan(Plan plan) {
         this.plan = plan;
+    }
+
+    public String getSocialId() {
+        return socialId;
+    }
+
+    public void setSocialId(String id) {
+        this.socialId = id;
     }
 
     @AllArgsConstructor

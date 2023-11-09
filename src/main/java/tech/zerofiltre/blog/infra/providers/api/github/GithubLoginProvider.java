@@ -1,18 +1,25 @@
 package tech.zerofiltre.blog.infra.providers.api.github;
 
-import lombok.extern.slf4j.*;
-import org.springframework.cache.annotation.*;
-import org.springframework.http.*;
-import org.springframework.retry.support.*;
-import org.springframework.stereotype.*;
-import org.springframework.util.*;
-import org.springframework.web.client.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.api.github.model.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.api.github.model.GithubAccessToken;
+import tech.zerofiltre.blog.infra.providers.api.github.model.GithubUser;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -97,6 +104,7 @@ public class GithubLoginProvider implements SocialLoginProvider {
 
     private User fromGithubUser(GithubUser githubUser) {
         User user = new User();
+        user.setSocialId(githubUser.getId());
         user.setEmail(githubUser.getEmail() == null ? githubUser.getLogin() : githubUser.getEmail());
         user.setFullName(githubUser.getName() == null ? StringUtils.capitalize(githubUser.getLogin()) : githubUser.getName());
         user.setProfilePicture(githubUser.getAvatarUrl());

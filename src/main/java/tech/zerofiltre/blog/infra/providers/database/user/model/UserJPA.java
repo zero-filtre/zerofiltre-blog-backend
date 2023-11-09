@@ -1,11 +1,12 @@
 package tech.zerofiltre.blog.infra.providers.database.user.model;
 
 import lombok.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
+import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
 
 import javax.persistence.*;
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -45,6 +46,7 @@ public class UserJPA extends BaseEntityJPA {
     private Set<SocialLinkJPA> socialLinks;
 
     private String website;
+    private String socialId;
 
     private void addSocialLink(SocialLinkJPA socialLinkJPA) {
         socialLinks.add(socialLinkJPA);
@@ -57,4 +59,11 @@ public class UserJPA extends BaseEntityJPA {
             socialLinks.forEach(this::addSocialLink);
     }
 
+    public String getSocialId() {
+        return socialId;
+    }
+
+    public void setSocialId(String socialId) {
+        this.socialId = socialId;
+    }
 }

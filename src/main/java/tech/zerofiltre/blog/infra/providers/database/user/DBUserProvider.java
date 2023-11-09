@@ -1,16 +1,17 @@
 package tech.zerofiltre.blog.infra.providers.database.user;
 
-import lombok.*;
-import org.mapstruct.factory.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.user.mapper.*;
-import tech.zerofiltre.blog.infra.providers.database.user.model.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional
@@ -58,5 +59,11 @@ public class DBUserProvider implements UserProvider {
         UserJPA userJPA = mapper.toJPA(user);
         userJPA.setSocialLinks(null);
         repository.delete(userJPA);
+    }
+
+    @Override
+    public Optional<User> userOfSocialId(String userSocialId) {
+        return repository.findBySocialId(userSocialId)
+                .map(mapper::fromJPA);
     }
 }

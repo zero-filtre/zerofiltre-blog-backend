@@ -1,25 +1,37 @@
 package tech.zerofiltre.blog.infra.providers.api.github;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.json.*;
-import org.springframework.context.annotation.*;
-import org.springframework.http.*;
-import org.springframework.retry.support.*;
-import org.springframework.test.web.client.*;
-import org.springframework.web.client.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.api.config.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.ResponseActions;
+import org.springframework.web.client.RestTemplate;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraConfiguration;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.api.config.APIClientConfiguration;
 
-import java.net.*;
-import java.nio.charset.*;
-import java.util.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @JsonTest //I don't know why @RunWith(SpringExtension.class) is not working
 @Import({InfraProperties.class, APIClientConfiguration.class, InfraConfiguration.class})
@@ -107,7 +119,7 @@ class GithubLoginProviderTest {
     }
 
     @Test
-    void userOfToken_buildUserWithAlternativesDataProperly() throws URISyntaxException {
+    void userOfToken_buildsUserWithAlternativesDataProperly() throws URISyntaxException {
         //ARRANGE
         String response = "{\n" +
                 "    \"login\": \"login\",\n" +
@@ -164,6 +176,7 @@ class GithubLoginProviderTest {
         assertThat(optionalUser).isNotEmpty();
         User user = optionalUser.get();
         assertThat(user.getEmail()).isEqualTo("optimium@gmail.com");
+        assertThat(user.getSocialId()).isEqualTo("45454545454");
         assertThat(user.getFullName()).isEqualTo("Login");
         assertThat(user.getProfilePicture()).isEqualTo("https://avatars.githubusercontent.com/u/13754910?v=4");
         assertThat(user.getBio()).isNull();
@@ -172,14 +185,14 @@ class GithubLoginProviderTest {
         Set<SocialLink> socialLinks = user.getSocialLinks();
         assertThat(socialLinks.size()).isEqualTo(1);
         socialLinks.forEach(socialLink -> {
-                    assertThat(socialLink.getPlatform()).isEqualTo(SocialLink.Platform.GITHUB);
-                    assertThat(socialLink.getLink()).isEqualTo("https://github.com/login");
+            assertThat(socialLink.getPlatform()).isEqualTo(SocialLink.Platform.GITHUB);
+            assertThat(socialLink.getLink()).isEqualTo("https://github.com/login");
                 }
         );
     }
 
     @Test
-    void userOfToken_buildUserProperly() throws URISyntaxException {
+    void userOfToken_buildsUserProperly() throws URISyntaxException {
         //ARRANGE
         String response = "{\n" +
                 "    \"login\": \"login\",\n" +
@@ -236,6 +249,7 @@ class GithubLoginProviderTest {
         assertThat(optionalUser).isNotEmpty();
         User user = optionalUser.get();
         assertThat(user.getEmail()).isEqualTo("login");
+        assertThat(user.getSocialId()).isEqualTo("45454545454");
         assertThat(user.getFullName()).isEqualTo("Watson ONANA");
         assertThat(user.getProfilePicture()).isEqualTo("https://avatars.githubusercontent.com/u/13754910?v=4");
         assertThat(user.getBio()).isNull();
