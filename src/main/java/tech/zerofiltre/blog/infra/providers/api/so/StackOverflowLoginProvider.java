@@ -129,6 +129,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
 
     private User fromStackOverflowUser(StackOverflowUser stackOverflowUser) {
         User user = new User();
+        user.setSocialId(stackOverflowUser.getUserId());
         user.setEmail(stackOverflowUser.getUserId());
         user.setProfilePicture(stackOverflowUser.getProfileImage());
         user.setFullName(stackOverflowUser.getDisplayName());

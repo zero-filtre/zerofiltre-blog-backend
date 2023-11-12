@@ -1,27 +1,30 @@
 package tech.zerofiltre.blog.infra.security.filter;
 
-import lombok.extern.slf4j.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.authority.*;
-import org.springframework.security.core.context.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.metrics.model.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
+import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider> {
 
+    public static final String SUCCESS = "success";
     final L socialLoginProvider;
     final UserProvider userProvider;
-    private MetricsProvider metricsProvider;
+    private final MetricsProvider metricsProvider;
     private final SecurityContextManager securityContextManager;
 
     public SocialTokenValidatorAndAuthenticator(L socialLoginProvider, UserProvider userProvider, MetricsProvider metricsProvider, SecurityContextManager securityContextManager) {
@@ -34,8 +37,6 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
     public void validateAndAuthenticate(String token) {
         try {    // exceptions might be thrown in validating the token: if for example the token is expired
 
-            CounterSpecs counterSpecs = new CounterSpecs();
-
             // 4. Validate the token
             if (socialLoginProvider.isValid(token)) {
                 //5. Get the user info from the token
@@ -43,15 +44,12 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                 if (userOfToken.isPresent()) {
                     User user = userOfToken.get();
                     //7. Check if user in DB, otherwise save him
-                    Optional<User> foundUser = userProvider.userOfEmail(user.getEmail());
+                    Optional<User> foundUser = userProvider.userOfSocialId(user.getSocialId());
                     if (foundUser.isEmpty()) {
-                        userProvider.save(user);
-                        counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CREATIONS);
-                        counterSpecs.setTags("from", user.getLoginFrom().toString(), "success", "true");
-                        metricsProvider.incrementCounter(counterSpecs);
-
+                        user = save(user);
                     } else {
-                        recordConnectionMetrics(counterSpecs, user.getLoginFrom().toString(), foundUser.get());
+                        user = foundUser.get();
+                        recordConnectionMetrics(user.getLoginFrom().toString(), user);
                     }
                     // 8. Create auth object
                     // UsernamePasswordAuthenticationToken: A built-in object, used by spring to represent the current authenticated / being authenticated user.
@@ -73,19 +71,47 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
         }
     }
 
-    private void recordConnectionMetrics(CounterSpecs counterSpecs, String loginFrom, User foundUser) throws UnAuthenticatedActionException {
+    private User save(User user) throws UnAuthenticatedActionException {
+        try {
+            user = userProvider.save(user);
+            recordAccountCreationMetrics(user);
+        } catch (DataIntegrityViolationException e) {
+            log.info("User already exists, update him with socialId", e);
+            Optional<User> existingUser = userProvider.userOfEmail(user.getSocialId()); //stackoverflow
+            if (existingUser.isEmpty()) existingUser = userProvider.userOfEmail(user.getEmail()); //github
+            if (existingUser.isPresent()) {
+                existingUser.get().setSocialId(user.getSocialId());
+                user = userProvider.save(existingUser.get());
+                recordConnectionMetrics(user.getLoginFrom().toString(), existingUser.get());
+            } else {
+                log.error("User already exists but we do not find it in DB");
+                throw e;
+            }
+        }
+        return user;
+    }
+
+    private void recordAccountCreationMetrics(User user) {
+        CounterSpecs counterSpecs = new CounterSpecs();
+        counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CREATIONS);
+        counterSpecs.setTags("from", user.getLoginFrom().toString(), SUCCESS, "true");
+        metricsProvider.incrementCounter(counterSpecs);
+    }
+
+    private void recordConnectionMetrics(String loginFrom, User foundUser) throws UnAuthenticatedActionException {
+        CounterSpecs counterSpecs = new CounterSpecs();
         try {
             securityContextManager.getAuthenticatedUser();
         } catch (UserNotFoundException une) {
             counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
-            counterSpecs.setTags("from", loginFrom, "success", "true");
+            counterSpecs.setTags("from", loginFrom, SUCCESS, "true");
             metricsProvider.incrementCounter(counterSpecs);
         }
 
         if (foundUser.isExpired()) {
 
             counterSpecs.setName(CounterSpecs.ZEROFILTRE_ACCOUNT_CONNECTIONS);
-            counterSpecs.setTags("from", loginFrom, "success", "false");
+            counterSpecs.setTags("from", loginFrom, SUCCESS, "false");
             metricsProvider.incrementCounter(counterSpecs);
 
             throw new UnAuthenticatedActionException(

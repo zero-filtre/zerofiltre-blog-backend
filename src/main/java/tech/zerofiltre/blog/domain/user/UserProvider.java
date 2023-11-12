@@ -1,8 +1,9 @@
 package tech.zerofiltre.blog.domain.user;
 
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public interface UserProvider {
 
@@ -17,4 +18,6 @@ public interface UserProvider {
     List<User> nonActiveUsers();
 
     void deleteUser(User user);
+
+    Optional<User> userOfSocialId(String userSocialId);
 }
