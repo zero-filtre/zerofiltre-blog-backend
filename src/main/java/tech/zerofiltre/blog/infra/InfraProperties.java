@@ -1,8 +1,8 @@
 package tech.zerofiltre.blog.infra;
 
-import lombok.*;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.*;
+import org.springframework.stereotype.Component;
 
 @Data
 @Component
@@ -64,6 +64,12 @@ public class InfraProperties {
 
     @Value("${zerofiltre.infra.api.stripe.pro-plan-yearly-price-id}")
     private String proPlanYearlyPriceId;
+
+    @Value("${zerofiltre.infra.api.k8s-provisioner.url}")
+    private String k8sProvisionerUrl;
+
+    @Value("${zerofiltre.infra.api.k8s-provisioner.token}")
+    private String k8sProvisionerToken;
 
     @Value("${zerofiltre.infra.max-attempts}")
     private int maxAttempts;

@@ -1,26 +1,40 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
+import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class EnrollTest {
 
     private Enroll enroll;
+    private SandboxProvider sandboxProvider;
 
     @Test
     void executeThrowsResourceNotFoundIfUserNotFound() {
@@ -42,24 +56,14 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
-        Enrollment enrollment = new Enrollment();
-        when(enrollmentProvider.save(any())).thenReturn(enrollment);
 
         User user = ZerofiltreUtils.createMockUser(false);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
-        Course course = new Course();
-        course.setStatus(Status.PUBLISHED);
-        enrollment.setCourse(course);
-        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
-
-        when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
-        when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> enroll.execute(user.getId(), course.getId(), true));
+                .isThrownBy(() -> enroll.execute(user.getId(), 5, true));
 
     }
 
@@ -226,4 +230,57 @@ class EnrollTest {
 
 
     }
+
+    @Test
+    void execute_DoesNot_callSandboxProvider_ifCourseDoesNotNeedSandbox() throws ZerofiltreException {
+        NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+
+        sandboxProvider = mock(SandboxProvider.class);
+
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider);
+
+
+        //act
+        enroll.execute(1, 1, true);
+
+
+        //assert
+        verify(sandboxProvider, times(0)).initialize(any(), anyString());
+
+    }
+
+    @Test
+    void execute_callsSandboxProvider_ifCourseNeedsSandbox() throws ZerofiltreException {
+        NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
+        CourseProvider courseProvider = mock(CourseProvider.class);
+
+        User author = ZerofiltreUtils.createMockUser(false);
+        Course mockCourse = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>());
+        mockCourse.setSandboxType(Sandbox.Type.K8S);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(
+                Optional.of(mockCourse)
+        );
+
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+
+        sandboxProvider = mock(SandboxProvider.class);
+        when(sandboxProvider.initialize(any(), anyString())).thenReturn(new Sandbox());
+
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider);
+
+
+        //act
+        enroll.execute(1, 1, true);
+
+
+        //assert
+        verify(sandboxProvider, times(1)).initialize(any(), anyString());
+
+    }
+
+
 }

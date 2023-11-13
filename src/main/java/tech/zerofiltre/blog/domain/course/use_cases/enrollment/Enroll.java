@@ -1,16 +1,24 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
-import lombok.extern.slf4j.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import lombok.extern.slf4j.Slf4j;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static tech.zerofiltre.blog.domain.sandbox.model.Sandbox.Type.K8S;
 
 @Slf4j
 public class Enroll {
@@ -19,12 +27,18 @@ public class Enroll {
     private final CourseProvider courseProvider;
     private final UserProvider userProvider;
     private final ChapterProvider chapterProvider;
+    private final SandboxProvider sandboxProvider;
 
     public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider) {
+        this(enrollmentProvider, courseProvider, userProvider, chapterProvider, null);
+    }
+
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
         this.chapterProvider = chapterProvider;
+        this.sandboxProvider = sandboxProvider;
     }
 
     public Enrollment execute(long userId, long courseId, boolean fromEndUser) throws ZerofiltreException {
@@ -63,11 +77,21 @@ public class Enroll {
             lastModifiedAt = enrollment.getEnrolledAt();
         }
         enrollment.setLastModifiedAt(lastModifiedAt);
-        if(user.isPro()) enrollment.setPlan(User.Plan.PRO);
+        if (user.isPro()) enrollment.setPlan(User.Plan.PRO);
         Enrollment result = enrollmentProvider.save(enrollment);
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
+        Thread sandboxProvisioner = new Thread(() -> {
+            if (sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())) {
+                try {
+                    sandboxProvider.initialize(user.getFullName(), user.getEmail());
+                } catch (ZerofiltreException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "sandbox-provisioner");
+        sandboxProvisioner.start();
         log.info("User {} enrolled to course {}", userId, courseId);
         return result;
     }
