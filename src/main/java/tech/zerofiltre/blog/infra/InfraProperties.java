@@ -77,6 +77,9 @@ public class InfraProperties {
     @Value("${zerofiltre.env:dev}")
     private String env;
 
+    @Value("${zerofiltre.infra.sandbox.k8s.doc:https://github.com/Zerofiltre-Courses/bootcamp-devops-dev/blob/main/k8s/k8s_README.md}")
+    private String sandboxK8sDoc;
+
     @Value("${zerofiltre.contact.email:info@zerofiltre.tech}")
     private String contactEmail;
 

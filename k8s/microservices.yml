@@ -221,7 +221,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: stats_reminder_cron
-
+            - name: SANDBOX_K8S_DOC
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: sandbox_k8s_doc
 
 ---
 apiVersion: v1

@@ -100,6 +100,7 @@ zerofiltre:
   env: dev
   contact.email: info@zerofiltre.tech
   infra:
+    sandbox.k8s.doc: https://github.com/Zerofiltre-Courses/bootcamp-devops-dev/blob/main/k8s/k8s_README.md
     stats.reminder.cron: "* */30 * * * ?"
     security:
       jwt:

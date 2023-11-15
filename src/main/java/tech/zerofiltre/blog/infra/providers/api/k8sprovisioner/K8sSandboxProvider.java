@@ -14,8 +14,16 @@ import org.springframework.web.client.RestTemplate;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
+import tech.zerofiltre.blog.domain.sandbox.model.SandboxCreatedEvent;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
 import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
+
+import java.util.Locale;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -25,6 +33,7 @@ public class K8sSandboxProvider implements SandboxProvider {
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final UserProvider userProvider;
+    private final UserNotificationProvider notificationProvider;
 
 
     @Override
@@ -47,15 +56,25 @@ public class K8sSandboxProvider implements SandboxProvider {
                 HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
                 ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Sandbox.class);
                 Sandbox result = response.getBody();
-//                Optional<User> user = userProvider.userOfEmail(email);
-//                user.ifPresent(foundUser -> {
-//                    String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
-//                });
+                notifyUser(email, result);
                 log.info("K8s sandbox for user {} initialized: {}", fullName, result);
                 return result;
             });
         } catch (Exception e) {
             throw new ZerofiltreException("We couldn't init k8s sandbox for user " + fullName + "/" + email, e, null);
+        }
+    }
+
+    private void notifyUser(String email, Sandbox result) {
+        if (result != null) {
+            //TODO API SHOULD RETURN SANDBOX TYPE IN BODY
+            result.setType(Sandbox.Type.K8S);
+            Optional<User> user = userProvider.userOfEmail(email);
+            user.ifPresent(foundUser -> {
+                String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
+                UserActionEvent event = new SandboxCreatedEvent(appUrl, Locale.forLanguageTag(foundUser.getLanguage()), foundUser, result);
+                notificationProvider.notify(event);
+            });
         }
     }
 

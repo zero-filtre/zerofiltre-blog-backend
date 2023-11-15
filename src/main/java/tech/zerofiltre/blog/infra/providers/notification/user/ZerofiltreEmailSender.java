@@ -1,16 +1,22 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import lombok.*;
-import lombok.extern.slf4j.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.*;
-import org.springframework.mail.javamail.*;
-import org.springframework.stereotype.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 
-import javax.mail.*;
-import javax.mail.internet.*;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -19,6 +25,8 @@ public class ZerofiltreEmailSender {
 
     private final JavaMailSender mailSender;
     private final InfraProperties infraProperties;
+    private final ITemplateEngine emailTemplateEngine;
+
 
     public void send(Email email) {
         try {
@@ -41,4 +49,18 @@ public class ZerofiltreEmailSender {
             log.error("An error occurred when sending email", e);
         }
     }
+
+    public void send(Email email, boolean templateReady) {
+        if (!templateReady) {
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("content", email.getContent());
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(Locale.FRENCH);
+            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
+            email.setContent(emailContent);
+        }
+        send(email);
+    }
+
 }

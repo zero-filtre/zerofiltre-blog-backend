@@ -275,6 +275,7 @@ class EnrollTest {
 
         //act
         enroll.execute(1, 1, true);
+        ZerofiltreUtils.sleep(500);
 
 
         //assert
