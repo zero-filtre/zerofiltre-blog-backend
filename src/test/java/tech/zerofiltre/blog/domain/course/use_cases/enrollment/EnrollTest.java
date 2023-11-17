@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,8 @@ import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.purchase.model.Purchase;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.UserProvider;
@@ -35,6 +38,129 @@ class EnrollTest {
 
     private Enroll enroll;
     private SandboxProvider sandboxProvider;
+    PurchaseProvider purchaseProvider;
+
+    @BeforeEach
+    void setUp() {
+        sandboxProvider = mock(SandboxProvider.class);
+        purchaseProvider = mock(PurchaseProvider.class);
+    }
+
+
+    @Test
+    void proUser_cannot_enrollInBootcamp_withoutPurchasing() {
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        when(purchaseProvider.purchaseOf(anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        course.setSandboxType(Sandbox.Type.K8S);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
+
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPlan(User.Plan.PRO);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> enroll.execute(1, 1, true));
+
+    }
+
+    @Test
+    void proUser_can_enrollInBootcamp_ifPurchased() throws ZerofiltreException {
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        course.setSandboxType(Sandbox.Type.K8S);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPlan(User.Plan.PRO);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+
+        when(purchaseProvider.purchaseOf(anyLong(), anyLong())).thenReturn(Optional.of(new Purchase()));
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
+
+        //act
+        Enrollment result = enroll.execute(1, 1, true);
+
+        //assert
+        assertThat(result).isNotNull();
+
+
+    }
+
+    @Test
+    void basicUser_can_enrollInBootcamp_ifPurchased() throws ZerofiltreException {
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        course.setSandboxType(Sandbox.Type.K8S);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+
+        when(purchaseProvider.purchaseOf(anyLong(), anyLong())).thenReturn(Optional.of(new Purchase()));
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
+
+        //act
+        Enrollment result = enroll.execute(1, 1, false);
+
+        //assert
+        assertThat(result).isNotNull();
+
+
+    }
+
+    @Test
+    void adminUser_can_enrollInBootcamp_withoutPurchasing() throws ZerofiltreException {
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        UserProvider userProvider = new FoundAdminUserProviderSpy();
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        course.setSandboxType(Sandbox.Type.K8S);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
+
+        Assertions.assertThatNoException()
+                .isThrownBy(() -> enroll.execute(1, 1, true));
+
+    }
 
     @Test
     void executeThrowsResourceNotFoundIfUserNotFound() {
@@ -50,7 +176,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeThrowsForbiddenActionIfUserNotAdminNorPRO() throws ZerofiltreException {
+    void execute_ThrowsForbiddenAction_IfUser_NotAdminNorPRO() throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
         UserProvider userProvider = mock(UserProvider.class);
@@ -125,7 +251,7 @@ class EnrollTest {
 
 
     @Test
-    void executeThrowsResourceNotFoundIfCourseNotFound() {
+    void execute_ThrowsResourceNotFound_IfCourseNotFound() {
         FoundCancelledOnlyEnrollmentProviderSpy enrollmentProviderSpy = new FoundCancelledOnlyEnrollmentProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
@@ -138,7 +264,7 @@ class EnrollTest {
     }
 
     @Test
-    void executeThrowsForbiddenActionIfCourseIsNotPublished() {
+    void executeThrows_ForbiddenAction_IfCourseIsNotPublished() {
         FoundCancelledOnlyEnrollmentProviderSpy enrollmentProviderSpy = new FoundCancelledOnlyEnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
@@ -151,12 +277,13 @@ class EnrollTest {
     }
 
     @Test
-    void executeSavesEnrollmentProperly() throws ZerofiltreException {
+    @DisplayName("A legitimate user(admin,pro,buyer) must be able to enroll a non bootcamp course properly")
+    void executeSaves_EnrollmentProperly_ifCourseNotBootcamp_andNoPurchases() throws ZerofiltreException {
         NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
         Enrollment enrollment = enroll.execute(1, 1, true);
