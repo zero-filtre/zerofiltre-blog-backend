@@ -12,4 +12,9 @@ public class Purchase {
     private User user;
     private Course course;
     private LocalDateTime at = LocalDateTime.now();
+
+    public Purchase(User user, Course course) {
+        this.user = user;
+        this.course = course;
+    }
 }

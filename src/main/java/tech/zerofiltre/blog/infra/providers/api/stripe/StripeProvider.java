@@ -148,6 +148,17 @@ public class StripeProvider implements PaymentProvider {
         }
     }
 
+    @Override
+    public void cancelSubscription(String paymentCustomerId) throws PaymentException {
+        try {
+            cancelForPrice(paymentCustomerId, infraProperties.getProPlanPriceId());
+            cancelForPrice(paymentCustomerId, infraProperties.getProPlanYearlyPriceId());
+        } catch (StripeException e) {
+            throw new PaymentException("Error while cancelling the subscription", e, "");
+        }
+    }
+
+
     boolean isEventNotForUs(Event event) {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> eventContent = objectMapper.convertValue(event.getData(), Map.class);
@@ -182,18 +193,6 @@ public class StripeProvider implements PaymentProvider {
             }
         }
     }
-
-    @Override
-    public void cancelSubscription(String paymentCustomerId) throws PaymentException {
-        try {
-            cancelForPrice(paymentCustomerId, infraProperties.getProPlanPriceId());
-            cancelForPrice(paymentCustomerId, infraProperties.getProPlanYearlyPriceId());
-        } catch (StripeException e) {
-            log.error("Error while cancelling the subscription: " + e.getLocalizedMessage(), e);
-            throw new PaymentException("Error while cancelling the subscription", e, "");
-        }
-    }
-
 
     private Event checkSignature(String payload, String sigHeader) {
         Event event;
