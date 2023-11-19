@@ -31,18 +31,6 @@ public class Enroll {
     private final SandboxProvider sandboxProvider;
     private final PurchaseProvider purchaseProvider;
 
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider) {
-        this(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
-    }
-
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider) {
-        this(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, null);
-    }
-
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
-        this(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider);
-    }
-
     public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;

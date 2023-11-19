@@ -17,6 +17,7 @@ import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -41,9 +42,10 @@ public class EnrollmentController {
             SecurityContextManager securityContextManager,
             LessonProvider lessonProvider,
             ChapterProvider chapterProvider,
-            SandboxProvider sandboxProvider) {
+            SandboxProvider sandboxProvider,
+            PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);

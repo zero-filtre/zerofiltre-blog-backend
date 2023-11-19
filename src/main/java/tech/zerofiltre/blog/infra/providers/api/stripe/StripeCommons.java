@@ -16,6 +16,7 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.purchase.model.Purchase;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
@@ -53,14 +54,24 @@ public class StripeCommons {
     private final PurchaseProvider purchaseProvider;
 
 
-    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, ZerofiltreEmailSender emailSender, InfraProperties infraProperties, ITemplateEngine emailTemplateEngine, PurchaseProvider purchaseProvider) {
+    public StripeCommons(
+            UserProvider userProvider,
+            EnrollmentProvider enrollmentProvider,
+            CourseProvider courseProvider,
+            ChapterProvider chapterProvider,
+            ZerofiltreEmailSender emailSender,
+            InfraProperties infraProperties,
+            ITemplateEngine emailTemplateEngine,
+            PurchaseProvider purchaseProvider,
+            SandboxProvider sandboxProvider) {
+
         this.userProvider = userProvider;
         this.emailSender = emailSender;
         this.infraProperties = infraProperties;
         this.emailTemplateEngine = emailTemplateEngine;
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
     }
 

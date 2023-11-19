@@ -168,7 +168,7 @@ class EnrollTest {
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new NotFoundUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> enroll.execute(1, 1, true))
@@ -187,7 +187,7 @@ class EnrollTest {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> enroll.execute(user.getId(), 5, true));
 
@@ -214,7 +214,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
         Enrollment result = enroll.execute(user.getId(), course.getId(), true);
         Assertions.assertThat(result.getPlan()).isEqualTo(User.Plan.PRO);
 
@@ -241,7 +241,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
         Enrollment result = enroll.execute(user.getId(), course.getId(), false);
         Assertions.assertThat(result.getPlan()).isEqualTo(User.Plan.BASIC);
         Assertions.assertThat(result.getUser().getId()).isEqualTo(856);
@@ -256,7 +256,7 @@ class EnrollTest {
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
-        enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider, null, null);
 
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> enroll.execute(1, 1, true))
@@ -269,7 +269,7 @@ class EnrollTest {
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
-        enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProviderSpy, courseProvider, userProvider, chapterProvider, null, null);
 
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> enroll.execute(1, 1, true))
@@ -320,7 +320,7 @@ class EnrollTest {
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
         Enrollment enrollment = enroll.execute(1, 1, true);
@@ -346,7 +346,7 @@ class EnrollTest {
         Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
 
         Enrollment enrollment = enroll.execute(1, 1, true);
 
@@ -367,7 +367,7 @@ class EnrollTest {
 
         sandboxProvider = mock(SandboxProvider.class);
 
-        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, null);
 
 
         //act
@@ -397,7 +397,7 @@ class EnrollTest {
         sandboxProvider = mock(SandboxProvider.class);
         when(sandboxProvider.initialize(any(), anyString())).thenReturn(new Sandbox());
 
-        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, null);
 
 
         //act

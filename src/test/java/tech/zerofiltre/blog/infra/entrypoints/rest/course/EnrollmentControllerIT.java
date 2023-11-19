@@ -34,6 +34,7 @@ import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.api.k8sprovisioner.K8sSandboxProvider;
 import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBVerificationTokenProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
@@ -58,7 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, K8sSandboxProvider.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
-        APIClientConfiguration.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
+        APIClientConfiguration.class, DBPurchaseProvider.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
 class EnrollmentControllerIT {
     @MockBean
     SecurityContextManager securityContextManager;
@@ -87,6 +88,9 @@ class EnrollmentControllerIT {
 
     @MockBean
     K8sSandboxProvider sandboxProvider;
+
+    @MockBean
+    DBPurchaseProvider dbPurchaseProvider;
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;
