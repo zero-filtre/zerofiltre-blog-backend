@@ -60,12 +60,13 @@ spec:
               periodSeconds: 300
               timeoutSeconds: 5
 
-          readinessProbe:
-              httpGet:
-                path: /actuator/health
-                port: 80
-              periodSeconds: 30
-              timeoutSeconds: 5
+# Disabling as readinessProbe is checking the same endpoint as livenessProbe
+#           readinessProbe:
+#               httpGet:
+#                 path: /actuator/health
+#                 port: 80
+#               periodSeconds: 30
+#               timeoutSeconds: 5
 
           startupProbe:
               httpGet:
