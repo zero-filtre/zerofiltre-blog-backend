@@ -13,6 +13,9 @@ public class Purchase {
     private Course course;
     private LocalDateTime at = LocalDateTime.now();
 
+    public Purchase() {
+    }
+
     public Purchase(User user, Course course) {
         this.user = user;
         this.course = course;

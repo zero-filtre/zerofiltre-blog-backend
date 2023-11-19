@@ -41,6 +41,7 @@ public class StripeCommons {
     public static final String EVENT_ID_EVENT_TYPE_PRICE = "EventId= {}, EventType={}, Price: {}";
     public static final String EVENT_ID = "EventId= ";
     public static final String EVENT_TYPE = ",EventType= ";
+    public static final String TO_EDIT = " to edit";
 
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
@@ -49,19 +50,16 @@ public class StripeCommons {
     private final ZerofiltreEmailSender emailSender;
     private final InfraProperties infraProperties;
     private final ITemplateEngine emailTemplateEngine;
-    private PurchaseProvider purchaseProvider;
+    private final PurchaseProvider purchaseProvider;
+
 
     public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, ZerofiltreEmailSender emailSender, InfraProperties infraProperties, ITemplateEngine emailTemplateEngine, PurchaseProvider purchaseProvider) {
-        this(userProvider, enrollmentProvider, courseProvider, chapterProvider, emailSender, infraProperties, emailTemplateEngine);
-        this.purchaseProvider = purchaseProvider;
-    }
-
-    public StripeCommons(UserProvider userProvider, EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, ZerofiltreEmailSender emailSender, InfraProperties infraProperties, ITemplateEngine emailTemplateEngine) {
         this.userProvider = userProvider;
         this.emailSender = emailSender;
         this.infraProperties = infraProperties;
         this.emailTemplateEngine = emailTemplateEngine;
         this.courseProvider = courseProvider;
+        this.purchaseProvider = purchaseProvider;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
     }
@@ -94,10 +92,9 @@ public class StripeCommons {
         Optional<Purchase> foundPurchase = purchaseProvider.purchaseOf(Long.parseLong(userId), productId);
         if (foundPurchase.isEmpty()) {
             User user = userProvider.userOfId(Long.parseLong(userId))
-                    .orElseThrow(() -> new UserNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the user " + userId + " to edit", userId));
+                    .orElseThrow(() -> new UserNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the user " + userId + TO_EDIT, userId));
             Course course = courseProvider.courseOfId(productId)
-                    .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + " to edit", String.valueOf(productId), null));
-
+                    .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId), null));
             Purchase purchase = new Purchase(user, course);
             purchase = purchaseProvider.save(purchase);
             if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId, false);
@@ -106,24 +103,7 @@ public class StripeCommons {
         }
     }
 
-    private void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws ZerofiltreException {
-        User user = userProvider.userOfId(Long.parseLong(userId))
-                .orElseThrow(() -> {
-                    log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
-                    return new UserNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the user " + userId + " to edit", userId);
-                });
-        if (isPro && !paymentSuccess) {
-            user.setPlan(BASIC);
-            suspend.all(Long.parseLong(userId), PRO);
-        } else if (isPro) {
-            user.setPlan(PRO);
-        }
-        String paymentEmail = customer.getEmail();
-        user.setPaymentEmail(paymentEmail);
-        userProvider.save(user);
-    }
-
-    public void notifyUser(Customer customer, String subject, String message) {
+    void notifyUser(Customer customer, String subject, String message) {
         try {
             Email email = new Email();
             email.setRecipients(Collections.singletonList(customer.getEmail()));
@@ -143,6 +123,23 @@ public class StripeCommons {
         } catch (Exception e) {
             log.warn("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message);
         }
+    }
+
+    void updateUserInfo(String userId, boolean paymentSuccess, Event event, Customer customer, boolean isPro) throws ZerofiltreException {
+        User user = userProvider.userOfId(Long.parseLong(userId))
+                .orElseThrow(() -> {
+                    log.error("EventId= {}, EventType={}, We couldn't find the user {} to edit", event.getId(), event.getType(), userId);
+                    return new UserNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the user " + userId + TO_EDIT, userId);
+                });
+        if (isPro && !paymentSuccess) {
+            user.setPlan(BASIC);
+            suspend.all(Long.parseLong(userId), PRO);
+        } else if (isPro) {
+            user.setPlan(PRO);
+        }
+        String paymentEmail = customer.getEmail();
+        user.setPaymentEmail(paymentEmail);
+        userProvider.save(user);
     }
 
 
