@@ -124,7 +124,7 @@ zerofiltre:
         password: ${OVH_PASSWORD}
         auth-url: ${OVH_AUTH_URL}
       k8s-provisioner:
-        url: https://provisioner.zerofiltre.tech
+        url: ${K8S_PROVISIONER_URL}
         token: ${K8S_PROVISIONER_TOKEN}
     entrypoints:
       rest:

@@ -226,7 +226,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: sandbox_k8s_doc
-
+            - name: K8S_PROVISIONER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: k8s_provisioner_url
 ---
 apiVersion: v1
 kind: Service
