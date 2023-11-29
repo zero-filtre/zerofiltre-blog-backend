@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class Enroll {
         }
 
         //TODO When purchase condition check will be added few lines upper, there will be no need to check here
-        if (!user.isAdmin() && isBootcamp(course) && purchaseProvider != null && purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
+        if (!user.isAdmin() && isMentored(course) && purchaseProvider != null && purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
             throw new ForbiddenActionException("You must purchase this course to enroll", Domains.COURSE.name());
         }
 
@@ -91,9 +92,9 @@ public class Enroll {
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         Thread sandboxProvisioner = new Thread(() -> {
-            if (sandboxProvider != null && isBootcamp(resultCourse)) {
+            if (sandboxProvider != null && isMentored(resultCourse)) {
                 try {
-                    sandboxProvider.initialize(user.getFullName(), user.getEmail());
+                    sandboxProvider.initialize(user.getFullName(), ZerofiltreUtils.getValidEmail(user));
                 } catch (ZerofiltreException e) {
                     throw new RuntimeException(e);
                 }
@@ -105,7 +106,7 @@ public class Enroll {
     }
 
     //TODO Add type attribute to course instead of using sandbox type to get the course type
-    private static boolean isBootcamp(Course resultCourse) {
+    private static boolean isMentored(Course resultCourse) {
         return K8S.equals(resultCourse.getSandboxType());
     }
 

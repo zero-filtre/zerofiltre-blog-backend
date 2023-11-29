@@ -21,7 +21,7 @@ public class Course extends Product {
     private List<Reaction> reactions = new ArrayList<>();
     private int lessonsCount;
     private Sandbox.Type sandboxType = Sandbox.Type.NONE;
-    private boolean bootcamp;
+    private boolean mentored;
 
 
     public Sandbox.Type getSandboxType() {
@@ -104,11 +104,11 @@ public class Course extends Product {
     }
 
 
-    public boolean isBootcamp() {
-        return bootcamp;
+    public boolean isMentored() {
+        return mentored;
     }
 
-    public void setBootcamp(boolean bootcamp) {
-        this.bootcamp = bootcamp;
+    public void setMentored(boolean mentored) {
+        this.mentored = mentored;
     }
 }

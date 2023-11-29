@@ -1,8 +1,9 @@
 package tech.zerofiltre.blog.infra.security.config;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EmailValidatorTest {
 
@@ -17,6 +18,7 @@ class EmailValidatorTest {
     @Test
     void testInvalidEmails() {
         assertFalse(EmailValidator.validateEmail("user@domain"));
+        assertFalse(EmailValidator.validateEmail("imGoLanguage"));
         assertFalse(EmailValidator.validateEmail("user@domain."));
         assertFalse(EmailValidator.validateEmail("user@.com"));
         assertFalse(EmailValidator.validateEmail("@domain.com"));

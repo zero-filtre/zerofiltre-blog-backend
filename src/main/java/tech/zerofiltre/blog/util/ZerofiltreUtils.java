@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.course.SectionProvider;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -167,6 +168,11 @@ public class ZerofiltreUtils {
         course.setSummary(TEST_SUMMARY);
         return course;
 
+    }
+
+    public static String getValidEmail(User user) {
+        boolean validEmail = user.getEmail() != null && EmailValidator.validateEmail(user.getEmail());
+        return validEmail ? user.getEmail() : user.getPaymentEmail();
     }
 
     public static List<Tag> createMockTags(boolean withTagIds) {

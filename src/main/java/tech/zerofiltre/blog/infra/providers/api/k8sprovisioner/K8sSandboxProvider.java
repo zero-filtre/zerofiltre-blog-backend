@@ -1,5 +1,8 @@
 package tech.zerofiltre.blog.infra.providers.api.k8sprovisioner;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
@@ -44,16 +47,16 @@ public class K8sSandboxProvider implements SandboxProvider {
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "*/*");
 
-        String body = "{\n" +
-                "    \"full_name\":\"" + fullName + "\",\n" +
-                "    \"email\":\"" + email + "\"\n" +
-                "}";
+        Body body = new Body();
+        body.setFullName(fullName);
+        body.setEmail(email);
 
         try {
-            log.info("Initializing a k8s sandbox for user {} with request body: \n {}", fullName, body);
+            String bodyAsJson = new ObjectMapper().writeValueAsString(body);
+            log.info("Initializing a k8s sandbox for user {} with request body: \n {}", fullName, bodyAsJson);
             return retryTemplate.execute(retryContext -> {
                 String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
-                HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+                HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
                 ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Sandbox.class);
                 Sandbox result = response.getBody();
                 notifyUser(email, result);
@@ -70,6 +73,7 @@ public class K8sSandboxProvider implements SandboxProvider {
             //TODO API SHOULD RETURN SANDBOX TYPE IN BODY
             result.setType(Sandbox.Type.K8S);
             Optional<User> user = userProvider.userOfEmail(email);
+            //TODO if user if empty try to find him by payment email
             user.ifPresent(foundUser -> {
                 String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
                 UserActionEvent event = new SandboxCreatedEvent(appUrl, Locale.forLanguageTag(foundUser.getLanguage()), foundUser, result);
@@ -81,6 +85,13 @@ public class K8sSandboxProvider implements SandboxProvider {
     @Override
     public void destroy(String fullName, String email) {
         throw new NotImplementedException("Please provide an implementation for this method in: " + this.getClass().getCanonicalName());
+    }
+
+    @Data
+    static class Body {
+        @JsonProperty(value = "full_name")
+        String fullName;
+        String email;
     }
 
 }
