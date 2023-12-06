@@ -15,18 +15,11 @@
     <springProfile name="kubernetes">
         <appender name="Console"
                   class="ch.qos.logback.core.ConsoleAppender">
-            <!--        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">-->
-            <!--            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">-->
-
-            <!--            </jsonFormatter>-->
-            <!--            <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>-->
-            <!--            <appendLineSeparator>true</appendLineSeparator>-->
-            <!--        </layout>-->
-            <encoder>
-                <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg - %replace(%ex){'\n','\\n'}
-                    %nopex %n
-                </pattern>
-            </encoder>
+                    <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                        <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"></jsonFormatter>
+                        <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                        <appendLineSeparator>true</appendLineSeparator>
+                    </layout>
         </appender>
         <root level="INFO">
             <appender-ref ref="Console"/>
