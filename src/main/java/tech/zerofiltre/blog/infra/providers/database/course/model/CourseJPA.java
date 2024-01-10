@@ -1,15 +1,16 @@
 package tech.zerofiltre.blog.infra.providers.database.course.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.user.model.*;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
+import tech.zerofiltre.blog.infra.providers.database.article.model.ReactionCourseJPA;
+import tech.zerofiltre.blog.infra.providers.database.article.model.TagJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import javax.persistence.*;
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -23,6 +24,7 @@ public class CourseJPA extends BaseEntityJPA {
     private String subTitle;
     private String summary;
     private String thumbnail;
+    private String sandboxType;
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "course_tag",

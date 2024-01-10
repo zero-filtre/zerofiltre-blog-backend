@@ -1,60 +1,15 @@
 package tech.zerofiltre.blog.infra.providers.notification.user.model;
 
-import org.springframework.context.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import lombok.ToString;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.util.*;
+import java.util.Locale;
 
-public class UserActionApplicationEvent extends ApplicationEvent {
-    private String appUrl;
-    private Locale locale;
-    private User user;
-    private String token;
-    private Action action;
+@ToString
+public class UserActionApplicationEvent extends ActionApplicationEvent {
 
     public UserActionApplicationEvent(User user, Locale locale, String appUrl, String token, Action action) {
-        super(user);
-        this.user = user;
-        this.locale = locale;
-        this.appUrl = appUrl;
-        this.token = token;
-        this.action = action;
+        super(user, locale, appUrl, token, action);
     }
-
-    public String getAppUrl() {
-        return appUrl;
-    }
-
-    public void setAppUrl(String appUrl) {
-        this.appUrl = appUrl;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
 }

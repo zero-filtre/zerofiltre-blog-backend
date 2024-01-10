@@ -1,23 +1,28 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-import org.springframework.context.annotation.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.course.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @DataJpaTest
@@ -42,7 +47,7 @@ class EnrollIT {
 
     @BeforeEach
     void init() {
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
         suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
 

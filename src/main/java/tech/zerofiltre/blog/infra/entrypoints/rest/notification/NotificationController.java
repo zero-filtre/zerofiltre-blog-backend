@@ -1,24 +1,22 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.notification;
 
-import lombok.*;
-import lombok.extern.slf4j.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import org.thymeleaf.spring5.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.*;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.providers.notification.user.ZerofiltreEmailSender;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
-import tech.zerofiltre.blog.infra.security.config.*;
+import tech.zerofiltre.blog.infra.security.config.ValidEmail;
 
-import javax.validation.*;
-import javax.validation.constraints.*;
-import java.util.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotEmpty;
+import java.util.Collections;
 
 @Slf4j
 @RestController
@@ -29,7 +27,6 @@ public class NotificationController {
     private final ZerofiltreEmailSender emailSender;
     private final SecurityContextManager securityContextManager;
     private final InfraProperties infraProPerties;
-    private final ITemplateEngine emailTemplateEngine;
 
 
     @PostMapping
@@ -37,17 +34,7 @@ public class NotificationController {
         User user = securityContextManager.getAuthenticatedUser();
         if (!user.getRoles().contains("ROLE_ADMIN"))
             throw new ForbiddenActionException("You are not allowed to send emails", Domains.NONE.name());
-
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("content", email.getContent());
-        Context thymeleafContext = new Context();
-        thymeleafContext.setVariables(templateModel);
-        thymeleafContext.setLocale(Locale.FRENCH);
-
-        String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
-        email.setContent(emailContent);
-
-        emailSender.send(email);
+        emailSender.send(email, false);
         return "Email(s) sent";
     }
 

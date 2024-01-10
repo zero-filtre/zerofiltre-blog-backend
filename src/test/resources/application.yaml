@@ -79,6 +79,9 @@ zerofiltre:
         username: ff
         password: ff
         auth-url: ff
+      k8s-provisioner:
+        url: https://provisioner-dev.zerofiltre.tech
+        token: yy
     entrypoints:
       rest:
         api-version: 1.0

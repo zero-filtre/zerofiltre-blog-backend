@@ -19,12 +19,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class UserMailNotificationProviderTest {
+class AppPublisherNotificationProviderTest {
 
     public static final String APP_URL = "appUrl";
     public static final String LAST_NAME = "last";
     public static final String TOKEN = "token";
-    UserMailNotificationProvider userMailNotificationProvider;
+    AppPublisherNotificationProvider appPublisherNotificationProvider;
 
     @MockBean
     ApplicationEventPublisher eventPublisher;
@@ -35,7 +35,7 @@ class UserMailNotificationProviderTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        userMailNotificationProvider = new UserMailNotificationProvider(eventPublisher);
+        appPublisherNotificationProvider = new AppPublisherNotificationProvider(eventPublisher);
     }
 
     @Test
@@ -44,7 +44,7 @@ class UserMailNotificationProviderTest {
         doNothing().when(eventPublisher).publishEvent(any());
 
         //ACT
-        userMailNotificationProvider.notify(new UserActionEvent(
+        appPublisherNotificationProvider.notify(new UserActionEvent(
                 APP_URL, Locale.FRANCE, user, TOKEN, null, Action.REGISTRATION_COMPLETE));
 
         //ASSERT
@@ -64,7 +64,7 @@ class UserMailNotificationProviderTest {
         doNothing().when(eventPublisher).publishEvent(any());
 
         //ACT
-        userMailNotificationProvider.notify(new UserActionEvent(
+        appPublisherNotificationProvider.notify(new UserActionEvent(
                 APP_URL, Locale.FRANCE, user, TOKEN, null, Action.PASSWORD_RESET));
 
         //ASSERT

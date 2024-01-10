@@ -20,7 +20,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBArticleProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.infra.providers.notification.user.UserMailNotificationProvider;
+import tech.zerofiltre.blog.infra.providers.notification.user.AppPublisherNotificationProvider;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
 @DataJpaTest
-@Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class, DBReactionProvider.class, UserMailNotificationProvider.class})
+@Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class, DBReactionProvider.class, AppPublisherNotificationProvider.class})
 class PublishOrSaveArticleIT {
 
     public static final String NEW_CONTENT = "New content";

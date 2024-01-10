@@ -1,16 +1,18 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
-import com.stripe.exception.*;
+import com.stripe.exception.StripeException;
 import com.stripe.model.*;
-import com.stripe.model.checkout.*;
-import com.stripe.param.checkout.*;
-import lombok.extern.slf4j.*;
-import org.springframework.stereotype.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.util.*;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionListLineItemsParams;
+import com.stripe.param.checkout.SessionRetrieveParams;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.*;
 
@@ -26,7 +28,7 @@ public class SessionEventHandler {
         this.infraProperties = infraProperties;
     }
 
-    public void handleSessionCompleted(Event event, Session stripeObject) throws StripeException, ZerofiltreException {
+    public void handleSessionCompleted(Event event, Session stripeObject) throws StripeException, ZerofiltreException { //one shot payment
         String userId;
         Customer customer;
         SessionRetrieveParams params = SessionRetrieveParams.builder()

@@ -89,7 +89,8 @@ zerofiltre:
   env: ${ZEROFILTRE_ENV}
   contact.email: info@zerofiltre.tech
   infra:
-    stats.reminder.cron: "* * 13 1 /1 ?"
+    sandbox.k8s.doc: ${SANDBOX_K8S_DOC}
+    stats.reminder.cron: ${ZEROFILTRE_INFRA_STATS_REMINDER_CRON}
     security:
       jwt:
         expiration-seconds: ${SECURITY_JWT_EXPIRATION}
@@ -122,6 +123,9 @@ zerofiltre:
         username: ${OVH_USERNAME}
         password: ${OVH_PASSWORD}
         auth-url: ${OVH_AUTH_URL}
+      k8s-provisioner:
+        url: ${K8S_PROVISIONER_URL}
+        token: ${K8S_PROVISIONER_TOKEN}
     entrypoints:
       rest:
         api-version: 1.0

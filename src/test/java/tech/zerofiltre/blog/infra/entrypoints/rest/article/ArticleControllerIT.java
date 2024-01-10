@@ -1,37 +1,49 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
-import com.fasterxml.jackson.core.*;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.web.servlet.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.context.annotation.*;
-import org.springframework.http.*;
-import org.springframework.http.converter.json.*;
-import org.springframework.security.test.context.support.*;
-import org.springframework.test.web.servlet.*;
-import org.springframework.test.web.servlet.request.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
-import tech.zerofiltre.blog.infra.providers.api.config.*;
-import tech.zerofiltre.blog.infra.providers.api.github.*;
-import tech.zerofiltre.blog.infra.providers.api.so.*;
-import tech.zerofiltre.blog.infra.providers.database.article.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
-import tech.zerofiltre.blog.infra.providers.logging.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.UserMailNotificationProvider;
-import tech.zerofiltre.blog.infra.security.config.*;
-import tech.zerofiltre.blog.infra.security.model.*;
-import tech.zerofiltre.blog.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.ReactionProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.PublishOrSaveArticleVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.config.PasswordEncoderConfiguration;
+import tech.zerofiltre.blog.infra.providers.api.config.APIClientConfiguration;
+import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
+import tech.zerofiltre.blog.infra.providers.database.article.DBArticleViewProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.DBVerificationTokenProvider;
+import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
+import tech.zerofiltre.blog.infra.security.config.DBUserDetailsService;
+import tech.zerofiltre.blog.infra.security.config.LoginFirstAuthenticationEntryPoint;
+import tech.zerofiltre.blog.infra.security.config.RoleRequiredAccessDeniedHandler;
+import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -216,9 +228,7 @@ class ArticleControllerIT {
                         "less than 20 chars" +
                         "less than 20 chars" +
                         "less than 20 chars" +
-                        "less than 20 chars" +
-
-                        "");
+                        "less than 20 chars");
 
 
         //ACT

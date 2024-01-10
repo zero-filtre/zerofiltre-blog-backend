@@ -1,24 +1,24 @@
 #System env variables takes precedence over application-x.yml(properties) variables !!!
 # Ex: if ${SERVER_PORT} is 7000 in your system env var, defining 8000 in this file will have no effect !!! Spring will always pick 7000 to use as server.port
 management:
-    metrics:
-        export:
-            prometheus:
-                enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
-    endpoints:
-        web:
-            exposure:
-                include: '*'
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 
-    endpoint:
-        health:
-            show-details: always
+  endpoint:
+    health:
+      show-details: always
 logging:
   level:
     root: INFO
     org:
-      zalando.logbook : TRACE
+      zalando.logbook: TRACE
       hibernate.SQL: DEBUG
     tech.zerofiltre: DEBUG
 server:
@@ -27,31 +27,31 @@ server:
 logbook:
   write.max-body-size: 50
   exclude:
-  - '**swagger-ui**'
-  - '**v3/api-docs**'
-  - '**/swagger-resources/**'
-  - '**/webjars/**'
-  - '**/actuator/**'
-  - '**/csrf'
+    - '**swagger-ui**'
+    - '**v3/api-docs**'
+    - '**/swagger-resources/**'
+    - '**/webjars/**'
+    - '**/actuator/**'
+    - '**/csrf'
 
 bucket4j:
   enabled: true
   filters:
-  - cache-name: rate-limit-buckets
-    url: .*
-    metrics:
+    - cache-name: rate-limit-buckets
+      url: .*
+      metrics:
         enabled: true
         tags:
           - key: IP
             expression: getRemote()
             types: REJECTED_COUNTER
-    http-response-body: "{\"apiVersion\": \"1.0\",\"error\": {\"status\": \"429\",\"message\": \"TOO MANY REQUESTS!\"}}"
-    rate-limits:
-    - expression: "getRemote()"
-      bandwidths:
-      - capacity: 5
-        time: 10
-        unit: seconds
+      http-response-body: "{\"apiVersion\": \"1.0\",\"error\": {\"status\": \"429\",\"message\": \"TOO MANY REQUESTS!\"}}"
+      rate-limits:
+        - expression: "getRemote()"
+          bandwidths:
+            - capacity: 5
+              time: 10
+              unit: seconds
 
 
 
@@ -59,7 +59,7 @@ bucket4j:
 spring:
   cache:
     cache-names:
-    - rate-limit-buckets
+      - rate-limit-buckets
 
   liquibase:
     change-log: classpath:/liquibase/db/changelog/db.changelog-dev.yaml
@@ -100,6 +100,7 @@ zerofiltre:
   env: dev
   contact.email: info@zerofiltre.tech
   infra:
+    sandbox.k8s.doc: https://github.com/Zerofiltre-Courses/bootcamp-devops-dev/blob/main/k8s/k8s_README.md
     stats.reminder.cron: "* */30 * * * ?"
     security:
       jwt:
@@ -134,6 +135,9 @@ zerofiltre:
         username: ${OVH_USERNAME}
         password: ${OVH_PASSWORD}
         auth-url: ${OVH_AUTH_URL}
+      k8s-provisioner:
+        url: https://provisioner-dev.zerofiltre.tech
+        token: ${K8S_PROVISIONER_TOKEN}
     entrypoints:
       rest:
         api-version: 1.0

@@ -1,16 +1,28 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.CompleteLesson;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Enroll;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.FindEnrollment;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -29,9 +41,11 @@ public class EnrollmentController {
             UserProvider userProvider,
             SecurityContextManager securityContextManager,
             LessonProvider lessonProvider,
-            ChapterProvider chapterProvider) {
+            ChapterProvider chapterProvider,
+            SandboxProvider sandboxProvider,
+            PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);

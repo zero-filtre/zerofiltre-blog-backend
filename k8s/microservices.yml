@@ -31,6 +31,7 @@ spec:
             export PRO_PLAN_PRICE_ID='{{ .Data.data.pro_plan_price_id }}'
             export PRO_PLAN_YEARLY_PRICE_ID='{{ .Data.data.pro_plan_yearly_price_id }}'
             export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
+            export K8S_PROVISIONER_TOKEN='{{ .Data.data.k8s_provisioner_token }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
@@ -59,12 +60,13 @@ spec:
               periodSeconds: 300
               timeoutSeconds: 5
 
-          readinessProbe:
-              httpGet:
-                path: /actuator/health
-                port: 80
-              periodSeconds: 30
-              timeoutSeconds: 5
+# Disabling as readinessProbe is checking the same endpoint as livenessProbe
+#           readinessProbe:
+#               httpGet:
+#                 path: /actuator/health
+#                 port: 80
+#               periodSeconds: 30
+#               timeoutSeconds: 5
 
           startupProbe:
               httpGet:
@@ -220,8 +222,16 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: stats_reminder_cron
-
-
+            - name: SANDBOX_K8S_DOC
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: sandbox_k8s_doc
+            - name: K8S_PROVISIONER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: k8s_provisioner_url
 ---
 apiVersion: v1
 kind: Service
