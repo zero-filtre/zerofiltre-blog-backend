@@ -1,35 +1,44 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
-import lombok.extern.slf4j.*;
-import org.mapstruct.factory.*;
-import org.springframework.context.*;
-import org.springframework.http.*;
-import org.springframework.security.crypto.password.*;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.ReactionProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.use_cases.FindArticle;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
 import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.*;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.PublicUserProfileVMMapper;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UpdateUserVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
-import tech.zerofiltre.blog.infra.providers.api.github.*;
-import tech.zerofiltre.blog.infra.security.model.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.security.model.Token;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import javax.servlet.http.*;
-import javax.validation.*;
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Collections;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -219,6 +228,14 @@ public class UserController {
         String newEncodedPassword = passwordEncoder.encode(passwordVM.getPassword());
         updatePassword.execute(user.getEmail(), passwordVM.getOldPassword(), newEncodedPassword);
         return sources.getMessage("message.reset.password.success", null, request.getLocale());
+
+    }
+
+    @PostMapping("/user/updateEmail")
+    public String updateEmail(@RequestBody @Valid EmailHolder emailVM, HttpServletRequest request) throws ZerofiltreException {
+        User user = securityContextManager.getAuthenticatedUser();
+        updateUser.execute(emailVM.getEmail(), user);
+        return sources.getMessage("message.reset.email.success", null, request.getLocale());
 
     }
 

@@ -1,9 +1,9 @@
 package tech.zerofiltre.blog.domain.user.use_cases;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 
 public class UpdateUser {
 
@@ -28,6 +28,16 @@ public class UpdateUser {
         foundUser.setLanguage(user.getLanguage());
         foundUser.setWebsite(user.getWebsite());
         foundUser.setSocialLinks(user.getSocialLinks());
+        userProvider.save(foundUser);
+        return foundUser;
+    }
+
+    public User execute(String email, User currentUser) throws UserNotFoundException {
+
+        User foundUser = userProvider.userOfId(currentUser.getId())
+                .orElseThrow(() -> new UserNotFoundException("We could not find the user you want to save", String.valueOf(currentUser.getId())));
+
+        foundUser.setEmail(email);
         userProvider.save(foundUser);
         return foundUser;
     }
