@@ -11,6 +11,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
@@ -255,7 +256,8 @@ public class StripeProvider implements PaymentProvider {
                         .setInterval(SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH)
                         .build();
 
-                price = product.getPrice() / 3 + 1;
+                price = getProductMonthlyPrice(product);
+
                 priceDataBuilder.setRecurring(recurring);
             } else {
                 priceDataBuilder.setUnitAmount(product.getPrice());
@@ -292,6 +294,12 @@ public class StripeProvider implements PaymentProvider {
         Session session = Session.create(sessionCreateParams);
         return session.getUrl();
 
+    }
+
+    private long getProductMonthlyPrice(Product product){
+        if (product instanceof Course && ((Course) product).isMentored())
+            return product.getPrice();
+        return product.getPrice() / 3 + 1;
     }
 
 
