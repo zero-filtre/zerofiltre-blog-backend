@@ -66,7 +66,7 @@ public class Enroll {
         }
 
         //TODO When purchase condition check will be added few lines upper, there will be no need to check here
-        if (!user.isAdmin() && isMentored(course) && purchaseProvider != null && purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
+        if (!user.isAdmin() && course.isMentored() && purchaseProvider != null && purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
             throw new ForbiddenActionException("You must purchase this course to enroll", Domains.COURSE.name());
         }
 
@@ -92,7 +92,7 @@ public class Enroll {
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         Thread sandboxProvisioner = new Thread(() -> {
-            if (sandboxProvider != null && isMentored(resultCourse)) {
+            if (sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())) {
                 try {
                     sandboxProvider.initialize(user.getFullName(), ZerofiltreUtils.getValidEmail(user));
                 } catch (ZerofiltreException e) {
@@ -103,11 +103,6 @@ public class Enroll {
         sandboxProvisioner.start();
         log.info("User {} enrolled to course {}", userId, courseId);
         return result;
-    }
-
-    //TODO Add type attribute to course instead of using sandbox type to get the course type
-    private static boolean isMentored(Course resultCourse) {
-        return K8S.equals(resultCourse.getSandboxType());
     }
 
     private int getLessonsCount(long courseId) {

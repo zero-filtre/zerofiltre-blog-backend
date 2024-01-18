@@ -49,4 +49,7 @@ public class CourseJPA extends BaseEntityJPA {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "course")
     private Set<ReactionCourseJPA> reactions;
+
+    private boolean mentored;
+
 }
