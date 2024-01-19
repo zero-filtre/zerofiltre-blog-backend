@@ -230,38 +230,25 @@ public class StripeProvider implements PaymentProvider {
         SessionCreateParams.LineItem.Builder lineItemBuilder = SessionCreateParams.LineItem.builder()
                 .setQuantity(1L);
 
+        SessionCreateParams.LineItem.PriceData.ProductData productData = getProductData(product);
+
+        SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = getPriceDataBuilder(productData);
+
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
-            if ("month".equals(chargeRequestVM.getRecurringInterval()))
-                lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
-            else lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
+            if ("month".equals(chargeRequestVM.getRecurringInterval())){
+                if (isMentored(product)){
+                    priceDataBuilder.setUnitAmount(product.getPrice());
+                    setRecusing(priceDataBuilder);
+                    lineItemBuilder.setPriceData(priceDataBuilder.build());
+                }else lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
+            } else lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
         } else {
-
-            SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                    .putMetadata(PRODUCT_ID, String.valueOf(product.getId()))
-                    .setName(product.getTitle())
-                    .setDescription(product.getSummary())
-                    .addImage(product.getThumbnail() == null || product.getThumbnail().isBlank() ?
-                            "https://ik.imagekit.io/lfegvix1p/tr:w-800,ar-auto,dpr-auto,di-Article_default_oz_Yb-VZj.svg/not_found_image.jpg"
-                            : product.getThumbnail())
-                    .build();
-
-            SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = SessionCreateParams.LineItem.PriceData.builder()
-                    .setCurrency(ChargeRequest.Currency.EUR.getValue())
-                    .setTaxBehavior(SessionCreateParams.LineItem.PriceData.TaxBehavior.INCLUSIVE)
-                    .setProductData(productData);
-
             long price = product.getPrice();
             if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
-                SessionCreateParams.LineItem.PriceData.Recurring recurring = SessionCreateParams.LineItem.PriceData.Recurring.builder()
-                        .setInterval(SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH)
-                        .build();
-
                 price = getProductMonthlyPrice(product);
-
-                priceDataBuilder.setRecurring(recurring);
+                setRecusing(priceDataBuilder);
             } else {
                 priceDataBuilder.setUnitAmount(product.getPrice());
-
             }
             priceDataBuilder.setUnitAmount(price);
             lineItemBuilder.setPriceData(priceDataBuilder.build());
@@ -296,10 +283,39 @@ public class StripeProvider implements PaymentProvider {
 
     }
 
+    private static void setRecusing(SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder) {
+        SessionCreateParams.LineItem.PriceData.Recurring recurring = SessionCreateParams.LineItem.PriceData.Recurring.builder()
+                .setInterval(SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH)
+                .build();
+        priceDataBuilder.setRecurring(recurring);
+    }
+
+    private static SessionCreateParams.LineItem.PriceData.Builder getPriceDataBuilder(SessionCreateParams.LineItem.PriceData.ProductData productData) {
+        return SessionCreateParams.LineItem.PriceData.builder()
+                .setCurrency(ChargeRequest.Currency.EUR.getValue())
+                .setTaxBehavior(SessionCreateParams.LineItem.PriceData.TaxBehavior.INCLUSIVE)
+                .setProductData(productData);
+    }
+
+    private static SessionCreateParams.LineItem.PriceData.ProductData getProductData(Product product) {
+        return SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                .putMetadata(PRODUCT_ID, String.valueOf(product.getId()))
+                .setName(product.getTitle())
+                .setDescription(product.getSummary())
+                .addImage(product.getThumbnail() == null || product.getThumbnail().isBlank() ?
+                        "https://ik.imagekit.io/lfegvix1p/tr:w-800,ar-auto,dpr-auto,di-Article_default_oz_Yb-VZj.svg/not_found_image.jpg"
+                        : product.getThumbnail())
+                .build();
+    }
+
     private long getProductMonthlyPrice(Product product){
-        if (product instanceof Course && ((Course) product).isMentored())
+        if (isMentored(product))
             return product.getPrice();
         return product.getPrice() / 3 + 1;
+    }
+
+    private boolean isMentored(Product product){
+        return product instanceof Course && ((Course) product).isMentored();
     }
 
 
