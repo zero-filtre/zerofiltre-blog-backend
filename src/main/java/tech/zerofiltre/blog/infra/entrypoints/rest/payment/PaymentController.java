@@ -71,13 +71,16 @@ public class PaymentController {
 
 
     private Product getProduct(long productId, ChargeRequest.ProductType productType) throws ResourceNotFoundException {
-        if (productType == ChargeRequest.ProductType.COURSE) {
-            return courseProvider
-                    .courseOfId(productId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(productId), ""));
-        } else {
+        if (!supportedProduct(productType))
             throw new IllegalArgumentException("Product type not supported");
-        }
+
+        return courseProvider
+                .courseOfId(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(productId), ""));
+    }
+
+    private boolean supportedProduct(ChargeRequest.ProductType productType){
+       return  productType == ChargeRequest.ProductType.COURSE || productType == ChargeRequest.ProductType.MENTORED;
     }
 
 }
