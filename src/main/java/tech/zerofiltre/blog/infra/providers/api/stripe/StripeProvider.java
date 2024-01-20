@@ -235,13 +235,16 @@ public class StripeProvider implements PaymentProvider {
         SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = getPriceDataBuilder(productData);
 
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
-            if ("month".equals(chargeRequestVM.getRecurringInterval())){
-                if (isMentored(product)){
-                    priceDataBuilder.setUnitAmount(product.getPrice());
-                    setRecusing(priceDataBuilder);
-                    lineItemBuilder.setPriceData(priceDataBuilder.build());
-                }else lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
-            } else lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
+            if (isMentored(product)){
+                priceDataBuilder.setUnitAmount(product.getPrice());
+                setRecusing(priceDataBuilder);
+                lineItemBuilder.setPriceData(priceDataBuilder.build());
+            }else{
+                if ("month".equals(chargeRequestVM.getRecurringInterval()))
+                    lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
+                else
+                    lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
+            }
         } else {
             long price = product.getPrice();
             if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
