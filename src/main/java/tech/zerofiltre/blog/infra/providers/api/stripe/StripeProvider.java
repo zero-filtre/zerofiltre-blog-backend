@@ -11,7 +11,6 @@ import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.Product;
-import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
@@ -235,11 +234,11 @@ public class StripeProvider implements PaymentProvider {
         SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = getPriceDataBuilder(productData);
 
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
-            if (isMentored(product)){
+            if (ZerofiltreUtils.isMentored(product)) {
                 priceDataBuilder.setUnitAmount(product.getPrice());
                 setRecusing(priceDataBuilder);
                 lineItemBuilder.setPriceData(priceDataBuilder.build());
-            }else{
+            } else {
                 if ("month".equals(chargeRequestVM.getRecurringInterval()))
                     lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
                 else
@@ -311,14 +310,10 @@ public class StripeProvider implements PaymentProvider {
                 .build();
     }
 
-    private long getProductMonthlyPrice(Product product){
-        if (isMentored(product))
+    private long getProductMonthlyPrice(Product product) {
+        if (ZerofiltreUtils.isMentored(product))
             return product.getPrice();
         return product.getPrice() / 3 + 1;
-    }
-
-    private boolean isMentored(Product product){
-        return product instanceof Course && ((Course) product).isMentored();
     }
 
 

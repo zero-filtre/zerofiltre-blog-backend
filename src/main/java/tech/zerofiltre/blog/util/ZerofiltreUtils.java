@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.util;
 
 import lombok.extern.slf4j.Slf4j;
+import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Reaction;
 import tech.zerofiltre.blog.domain.article.model.Status;
@@ -56,6 +57,9 @@ public class ZerofiltreUtils {
     private ZerofiltreUtils() {
     }
 
+    public static boolean isMentored(Product product) {
+        return product instanceof Course && ((Course) product).isMentored();
+    }
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser(false);
         List<Reaction> reactions = createMockReactions(true, 1, 0, user);
