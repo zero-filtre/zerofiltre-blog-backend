@@ -1,21 +1,27 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.payment;
 
-import com.stripe.*;
-import lombok.extern.slf4j.*;
+import com.stripe.Stripe;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.payment.*;
-import tech.zerofiltre.blog.domain.payment.model.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.payment.model.*;
+import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.payment.PaymentException;
+import tech.zerofiltre.blog.domain.payment.PaymentProvider;
+import tech.zerofiltre.blog.domain.payment.PaymentService;
+import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.payment.model.ChargeRequestVM;
 
-import javax.validation.*;
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -27,10 +33,10 @@ public class PaymentController {
     private final PaymentService paymentService;
 
 
-    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, PaymentProvider paymentProvider, UserProvider userProvider, EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider) {
+    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, PaymentProvider paymentProvider, UserProvider userProvider, EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
-        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
+        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
         this.paymentService = new PaymentService(paymentProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
     }

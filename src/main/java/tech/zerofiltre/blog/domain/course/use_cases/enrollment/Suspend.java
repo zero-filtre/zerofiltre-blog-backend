@@ -1,25 +1,32 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
-import lombok.extern.slf4j.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import lombok.extern.slf4j.Slf4j;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 public class Suspend {
     private final EnrollmentProvider enrollmentProvider;
     private final CourseProvider courseProvider;
     private final ChapterProvider chapterProvider;
+    private final PurchaseProvider purchaseProvider;
 
-    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider) {
+    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.chapterProvider = chapterProvider;
+        this.purchaseProvider = purchaseProvider;
     }
 
     public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
@@ -53,6 +60,8 @@ public class Suspend {
         Enrollment result = enrollmentProvider.save(enrollment);
 
         Course resultCourse = result.getCourse();
+        //TODO Delete purchase for classic course as well
+        if (resultCourse.isMentored()) purchaseProvider.delete(userId, resultCourse.getId());
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         log.info("User {} enrollment suspended for course {}", userId, enrollment.getCourse().getId());

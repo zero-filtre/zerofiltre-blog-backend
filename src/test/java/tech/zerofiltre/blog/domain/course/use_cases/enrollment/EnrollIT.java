@@ -48,7 +48,7 @@ class EnrollIT {
     @BeforeEach
     void init() {
         enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider);
+        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, null);
     }
 
     @Test
@@ -85,6 +85,43 @@ class EnrollIT {
         Assertions.assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
         Assertions.assertThat(enrollment.isActive()).isTrue();
     }
+
+
+    @Test
+    void enrollMentoredGetsExecutedProperly() throws ZerofiltreException {
+        User author = ZerofiltreUtils.createMockUser(false);
+        author = dbUserProvider.save(author);
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPlan(User.Plan.PRO);
+        user.setEmail("test@gmail.grok");
+        user.setPseudoName("tester");
+        user = dbUserProvider.save(user);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
+        course = dbCourseProvider.save(course);
+        LocalDateTime beforeEnroll = LocalDateTime.now();
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
+        LocalDateTime afterEnroll = LocalDateTime.now();
+
+        assertThat(enrollment).isNotNull();
+        Assertions.assertThat(enrollment.getPlan()).isEqualTo(User.Plan.BASIC);
+        assertThat(enrollment.getUser().getId()).isEqualTo(user.getId());
+        assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
+        assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());
+        assertThat(enrollment.getCourse().getId()).isEqualTo(course.getId());
+        assertThat(enrollment.getCourse().getEnrolledCount()).isOne();
+
+        assertThat(enrollment.getId()).isNotZero();
+        assertThat(enrollment.isCompleted()).isFalse();
+        Assertions.assertThat(enrollment.getCompletedLessons()).isEmpty();
+
+        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isAfterOrEqualTo(beforeEnroll);
+        Assertions.assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
+        Assertions.assertThat(enrollment.isActive()).isTrue();
+    }
+
 
 
     @Test

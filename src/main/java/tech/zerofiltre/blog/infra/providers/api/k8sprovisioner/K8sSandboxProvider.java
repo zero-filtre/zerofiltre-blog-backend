@@ -32,7 +32,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class K8sSandboxProvider implements SandboxProvider {
-    private final RetryTemplate retryTemplate;
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final UserProvider userProvider;
@@ -54,15 +53,13 @@ public class K8sSandboxProvider implements SandboxProvider {
         try {
             String bodyAsJson = new ObjectMapper().writeValueAsString(body);
             log.info("Initializing a k8s sandbox for user {} with request body: \n {}", fullName, bodyAsJson);
-            return retryTemplate.execute(retryContext -> {
-                String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
-                HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
-                ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Sandbox.class);
-                Sandbox result = response.getBody();
-                notifyUser(email, result);
-                log.info("K8s sandbox for user {} initialized: {}", fullName, result);
-                return result;
-            });
+            String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
+            HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
+            ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Sandbox.class);
+            Sandbox result = response.getBody();
+            notifyUser(email, result);
+            log.info("K8s sandbox for user {} initialized: {}", fullName, result);
+            return result;
         } catch (Exception e) {
             throw new ZerofiltreException("We couldn't init k8s sandbox for user " + fullName + "/" + email, e, null);
         }

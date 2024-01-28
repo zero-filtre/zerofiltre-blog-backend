@@ -86,7 +86,7 @@ public class Enroll {
             lastModifiedAt = enrollment.getEnrolledAt();
         }
         enrollment.setLastModifiedAt(lastModifiedAt);
-        if (user.isPro()) enrollment.setPlan(User.Plan.PRO);
+        if (user.isPro() && !course.isMentored()) enrollment.setPlan(User.Plan.PRO);
         Enrollment result = enrollmentProvider.save(enrollment);
         Course resultCourse = result.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));

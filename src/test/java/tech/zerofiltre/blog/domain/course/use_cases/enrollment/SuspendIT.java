@@ -14,20 +14,24 @@ import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.purchase.model.Purchase;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
+import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
-@Import({DBEnrollmentProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class})
+@Import({DBEnrollmentProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class, DBPurchaseProvider.class})
 class SuspendIT {
 
     Suspend suspend;
@@ -46,12 +50,15 @@ class SuspendIT {
     @Autowired
     ChapterProvider chapterProvider;
 
+    @Autowired
+    PurchaseProvider purchaseProvider;
+
     FindEnrollment findEnrollment;
 
 
     @BeforeEach
     void init() {
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider);
+        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, purchaseProvider);
         enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
         findEnrollment = new FindEnrollment(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
@@ -145,6 +152,51 @@ class SuspendIT {
         //then
         enrollments = findEnrollment.of(request);
         Assertions.assertThat(enrollments.getContent()).hasSize(1);
+
+
+    }
+
+    @Test
+    void suspendAllDeletesPurchaseProperly() throws ZerofiltreException {
+        User user = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtils.createMockUser(false);
+        user = dbUserProvider.save(user);
+
+        author.setEmail("test@mail.com");
+        author.setPseudoName("test@mail.com");
+        author = dbUserProvider.save(author);
+
+        Course courseBasic = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
+        courseBasic = dbCourseProvider.save(courseBasic);
+
+        Enrollment enrollmentBasic = new Enrollment();
+        enrollmentBasic.setUser(user);
+        enrollmentBasic.setCourse(courseBasic);
+        enrollmentBasic.setPlan(User.Plan.BASIC);
+        enrollmentProvider.save(enrollmentBasic);
+
+        Purchase purchase = new Purchase(user, courseBasic);
+        purchase = purchaseProvider.save(purchase);
+
+        FinderRequest request = new FinderRequest();
+        request.setPageNumber(0);
+        request.setPageSize(5);
+        request.setUser(user);
+
+
+        Page<Course> enrollments = findEnrollment.of(request);
+        Assertions.assertThat(enrollments.getContent()).hasSize(1);
+        assertThat(purchase.getId()).isNotZero();
+
+        //when
+        suspend.execute(user.getId(), courseBasic.getId());
+
+
+        //then
+        enrollments = findEnrollment.of(request);
+        Assertions.assertThat(enrollments.getContent()).hasSize(0);
+        Optional<Purchase> deletePurchase = purchaseProvider.purchaseOf(user.getId(), courseBasic.getId());
+        assertThat(deletePurchase).isEmpty();
 
 
     }

@@ -155,6 +155,12 @@ public class ZerofiltreUtils {
         return user;
     }
 
+    public static Course createMockCourse(boolean withId, Status status, User author, List<Section> sections, List<Reaction> reactions, boolean isMentored) {
+        Course result = createMockCourse(withId, status, author, sections, reactions);
+        result.setMentored(isMentored);
+        return result;
+    }
+
     public static Course createMockCourse(boolean withId, Status status, User author, List<Section> sections, List<Reaction> reactions) {
         Course course = new Course();
         course.setId(withId ? 45 : 0);
