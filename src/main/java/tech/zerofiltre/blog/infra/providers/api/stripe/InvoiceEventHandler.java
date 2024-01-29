@@ -4,8 +4,11 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.Map;
 
@@ -17,10 +20,12 @@ public class InvoiceEventHandler {
 
     private final StripeCommons stripeCommons;
     private final InfraProperties infraProperties;
+    private final CourseProvider courseProvider;
 
-    public InvoiceEventHandler(StripeCommons stripeCommons, InfraProperties infraProperties) {
+    public InvoiceEventHandler(StripeCommons stripeCommons, InfraProperties infraProperties, CourseProvider courseProvider) {
         this.stripeCommons = stripeCommons;
         this.infraProperties = infraProperties;
+        this.courseProvider = courseProvider;
     }
 
     public void handleInvoicePaid(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, boolean isProPlan, Subscription subscription) throws StripeException, ZerofiltreException {
@@ -48,13 +53,27 @@ public class InvoiceEventHandler {
         cancelFor3TimesPayment(event, userId, isProPlan, subscription, count, productObject);
     }
 
-    void cancelFor3TimesPayment(Event event, String userId, boolean isProPlan, Subscription subscription, int count, Product productObject) throws StripeException {
-        if (!isProPlan && count >= 3) {
+    void cancelFor3TimesPayment(Event event, String userId, boolean isProPlan, Subscription subscription, int count, Product productObject) throws StripeException, ZerofiltreException {
+        if (shouldCancel3TimesPayment(isProPlan, count, productObject)) {
             subscription.cancel();
             log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
         }
     }
 
+    private boolean shouldCancel3TimesPayment(boolean isProPlan, int count, Product productObject) throws ZerofiltreException {
+        return !isProPlan && count >=3 && !ZerofiltreUtils.isMentored(getEnrolledProduct(productObject));
+    }
+
+    private tech.zerofiltre.blog.domain.Product getEnrolledProduct(Product productObject) throws ZerofiltreException {
+        long id = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
+
+        log.info("Get enrolled product productId={}", id);
+
+        return courseProvider
+                .courseOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(id), ""));
+
+    }
 
     public void handleInvoicePaymentFailed(Event event, Customer customer, String userId, Invoice invoice, InvoiceLineItemCollection items, Subscription subscription) throws ZerofiltreException {
         String customerPortalLink = infraProperties.getCustomerPortalLink();
