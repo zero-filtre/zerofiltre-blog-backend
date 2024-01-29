@@ -2,11 +2,14 @@ package tech.zerofiltre.blog.infra.providers.api.stripe;
 
 import com.google.gson.*;
 import com.stripe.model.*;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.mockito.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.infra.*;
 
@@ -221,6 +224,11 @@ class StripeProviderTest {
     @Mock
     UserNotificationProvider userNotificationProvider;
 
+    @Mock
+    ChargeRequest chargeRequestVM;
+
+    @Mock
+    Course course;
 
     StripeProvider stripeProvider;
 
@@ -269,5 +277,91 @@ class StripeProviderTest {
 
         //then
         assertThat(result).isFalse();
+    }
+
+    @Test
+    void returnsProPlanPrice_WhenModeIsSubscriptionAndProPlanAndRecurringIntervalIsMonth() {
+        // Arrange
+        when(chargeRequestVM.isProPlan()).thenReturn(true);
+        when(chargeRequestVM.getRecurringInterval()).thenReturn("month");
+        when(infraProperties.getProPlanProductId()).thenReturn("proPlanProductId");
+        when(course.isMentored()).thenReturn(false);
+
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.SUBSCRIPTION);
+
+        // Assert
+        assertThat(infraProperties.getProPlanPriceId()).isEqualTo(result);
+    }
+
+    @Test
+    void returnsProPlanYearlyPrice_WhenModeIsSubscriptionAndProPlanAndRecurringIntervalIsYear() {
+        // Arrange
+        when(chargeRequestVM.isProPlan()).thenReturn(true);
+        when(chargeRequestVM.getRecurringInterval()).thenReturn("year");
+        when(infraProperties.getProPlanYearlyPriceId()).thenReturn("proPlanYearlyPriceId");
+        when(course.isMentored()).thenReturn(false);
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.SUBSCRIPTION);
+
+        // Assert
+        assertThat(infraProperties.getProPlanYearlyPriceId()).isEqualTo(result);
+    }
+
+    @Test
+    void returnsProductPrice_WhenModeIsSubscriptionAndProPlanAndMentored() {
+        // Arrange
+        when(chargeRequestVM.isProPlan()).thenReturn(true);
+        when(course.isMentored()).thenReturn(true);
+        when(course.getPrice()).thenReturn(50l);
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.SUBSCRIPTION);
+
+        // Assert
+        assertThat("50").isEqualTo(result);
+    }
+
+    @Test
+    void returnsProductPrice_WhenModeIsSubscriptionAndNotProPlanAndMentored() {
+        // Arrange
+        when(chargeRequestVM.isProPlan()).thenReturn(false);
+        when(course.isMentored()).thenReturn(true);
+        when(course.getPrice()).thenReturn(50l);
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.SUBSCRIPTION);
+
+        // Assert
+        assertThat("50").isEqualTo(result);
+    }
+
+    @Test
+    void returnsThirdOfProductPrice_WhenModeIsSubscriptionAndNotProPlanAndNotMentored() {
+        // Arrange
+        when(chargeRequestVM.isProPlan()).thenReturn(false);
+        when(course.isMentored()).thenReturn(false);
+        when(course.getPrice()).thenReturn(60l);
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.SUBSCRIPTION);
+        // result = price / 3 + 1
+
+        // Assert
+        assertThat("21").isEqualTo(result);
+    }
+
+    @Test
+    void returnsProductPrice_WhenModeIsNotSubscription() {
+        // Arrange
+        when(course.getPrice()).thenReturn(60l);
+
+        // Act
+        String result = stripeProvider.getProductPrice(course, chargeRequestVM, SessionCreateParams.Mode.PAYMENT);
+
+        // Assert
+        assertThat("60").isEqualTo(result);
     }
 }

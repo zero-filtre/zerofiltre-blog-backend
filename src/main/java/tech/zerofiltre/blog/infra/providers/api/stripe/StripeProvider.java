@@ -233,26 +233,21 @@ public class StripeProvider implements PaymentProvider {
 
         SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = getPriceDataBuilder(productData);
 
+        String productPrice = getProductPrice(product, chargeRequestVM, mode);
+
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
             if (ZerofiltreUtils.isMentored(product)) {
-                priceDataBuilder.setUnitAmount(product.getPrice());
+                priceDataBuilder.setUnitAmount(Long.parseLong(productPrice));
                 setRecusing(priceDataBuilder);
                 lineItemBuilder.setPriceData(priceDataBuilder.build());
             } else {
-                if ("month".equals(chargeRequestVM.getRecurringInterval()))
-                    lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
-                else
-                    lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
+                lineItemBuilder.setPrice(productPrice);
             }
         } else {
-            long price = product.getPrice();
             if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
-                price = getProductMonthlyPrice(product);
                 setRecusing(priceDataBuilder);
-            } else {
-                priceDataBuilder.setUnitAmount(product.getPrice());
             }
-            priceDataBuilder.setUnitAmount(price);
+            priceDataBuilder.setUnitAmount(Long.parseLong(productPrice));
             lineItemBuilder.setPriceData(priceDataBuilder.build());
         }
 
@@ -283,6 +278,25 @@ public class StripeProvider implements PaymentProvider {
         Session session = Session.create(sessionCreateParams);
         return session.getUrl();
 
+    }
+
+    String getProductPrice(Product product, ChargeRequest chargeRequestVM, SessionCreateParams.Mode mode){
+        if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
+            if (ZerofiltreUtils.isMentored(product)) {
+                return String.valueOf(product.getPrice());
+            } else {
+                String proPlanPrice = infraProperties.getProPlanYearlyPriceId();
+                if ("month".equals(chargeRequestVM.getRecurringInterval()))
+                    proPlanPrice = infraProperties.getProPlanPriceId();
+                return proPlanPrice;
+            }
+        } else {
+            long productPrice = product.getPrice();
+            if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
+                productPrice = getProductMonthlyPrice(product);
+            }
+            return String.valueOf(productPrice);
+        }
     }
 
     private static void setRecusing(SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder) {
