@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
@@ -26,7 +25,6 @@ import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.Locale;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -97,8 +95,6 @@ public class StripeProvider implements PaymentProvider {
             log.debug("Payload: {}", payload.replace("\n", " "));
 
             Event event = checkSignature(payload, sigHeader);
-            if (isEventNotForUs(event)) return "NOT FOR US!";
-
 
             log.info("Handling Event: id = {},type = {}", event.getId(), event.getType());
 
@@ -158,15 +154,6 @@ public class StripeProvider implements PaymentProvider {
         }
     }
 
-
-    boolean isEventNotForUs(Event event) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> eventContent = objectMapper.convertValue(event.getData(), Map.class);
-        Map<String, Object> data = (Map<String, Object>) eventContent.get("object");
-        String successURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv()) + "/payment/success";
-        return "checkout.session.completed".equals(event.getType()) && !successURL.equals(data.get("successUrl")) && !successURL.equals(data.get("success_url"));
-    }
-
     private static void cancelForPrice(String paymentCustomerId, String priceId) throws StripeException {
         if (paymentCustomerId == null || paymentCustomerId.isBlank()) {
             log.info("No customer id provided, skipping");
@@ -222,6 +209,13 @@ public class StripeProvider implements PaymentProvider {
         return customer;
     }
 
+    private static void setMonthlyRecurring(SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder) {
+        SessionCreateParams.LineItem.PriceData.Recurring recurring = SessionCreateParams.LineItem.PriceData.Recurring.builder()
+                .setInterval(SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH)
+                .build();
+        priceDataBuilder.setRecurring(recurring);
+    }
+
     private String createSession(ChargeRequest chargeRequestVM, Product product, Customer customer) throws StripeException {
 
         SessionCreateParams.Mode mode = SessionCreateParams.Mode.valueOf(chargeRequestVM.getMode().toUpperCase());
@@ -233,26 +227,21 @@ public class StripeProvider implements PaymentProvider {
 
         SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder = getPriceDataBuilder(productData);
 
+        String productPrice = getProductPrice(product, chargeRequestVM, mode);
+
         if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
             if (ZerofiltreUtils.isMentored(product)) {
-                priceDataBuilder.setUnitAmount(product.getPrice());
-                setRecusing(priceDataBuilder);
+                priceDataBuilder.setUnitAmount(Long.parseLong(productPrice));
+                setMonthlyRecurring(priceDataBuilder);
                 lineItemBuilder.setPriceData(priceDataBuilder.build());
             } else {
-                if ("month".equals(chargeRequestVM.getRecurringInterval()))
-                    lineItemBuilder.setPrice(infraProperties.getProPlanPriceId());
-                else
-                    lineItemBuilder.setPrice(infraProperties.getProPlanYearlyPriceId());
+                lineItemBuilder.setPrice(productPrice);
             }
         } else {
-            long price = product.getPrice();
             if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
-                price = getProductMonthlyPrice(product);
-                setRecusing(priceDataBuilder);
-            } else {
-                priceDataBuilder.setUnitAmount(product.getPrice());
+                setMonthlyRecurring(priceDataBuilder);
             }
-            priceDataBuilder.setUnitAmount(price);
+            priceDataBuilder.setUnitAmount(Long.parseLong(productPrice));
             lineItemBuilder.setPriceData(priceDataBuilder.build());
         }
 
@@ -285,11 +274,23 @@ public class StripeProvider implements PaymentProvider {
 
     }
 
-    private static void setRecusing(SessionCreateParams.LineItem.PriceData.Builder priceDataBuilder) {
-        SessionCreateParams.LineItem.PriceData.Recurring recurring = SessionCreateParams.LineItem.PriceData.Recurring.builder()
-                .setInterval(SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH)
-                .build();
-        priceDataBuilder.setRecurring(recurring);
+    String getProductPrice(Product product, ChargeRequest chargeRequestVM, SessionCreateParams.Mode mode) {
+        if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION) && chargeRequestVM.isProPlan()) {
+            if (ZerofiltreUtils.isMentored(product)) {
+                return String.valueOf(product.getPrice());
+            } else {
+                if ("month".equals(chargeRequestVM.getRecurringInterval())) {
+                    return infraProperties.getProPlanPriceId();
+                }
+                return infraProperties.getProPlanYearlyPriceId();
+            }
+        } else {
+            long productPrice = product.getPrice();
+            if (mode.equals(SessionCreateParams.Mode.SUBSCRIPTION)) {
+                productPrice = getProductMonthlyPrice(product);
+            }
+            return String.valueOf(productPrice);
+        }
     }
 
     private static SessionCreateParams.LineItem.PriceData.Builder getPriceDataBuilder(SessionCreateParams.LineItem.PriceData.ProductData productData) {
