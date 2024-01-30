@@ -1,13 +1,13 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
-import com.stripe.exception.*;
+import com.stripe.exception.StripeException;
 import com.stripe.model.*;
-import lombok.extern.slf4j.*;
-import org.springframework.stereotype.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.infra.InfraProperties;
 
-import java.util.*;
+import java.util.Map;
 
 import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.*;
 
@@ -45,6 +45,10 @@ public class InvoiceEventHandler {
         int count = totalPaidCount + 1;
         notifyUser(event, customer, userId, invoice, subscription, count);
 
+        cancelFor3TimesPayment(event, userId, isProPlan, subscription, count, productObject);
+    }
+
+    void cancelFor3TimesPayment(Event event, String userId, boolean isProPlan, Subscription subscription, int count, Product productObject) throws StripeException {
         if (!isProPlan && count >= 3) {
             subscription.cancel();
             log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());

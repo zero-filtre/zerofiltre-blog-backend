@@ -46,7 +46,7 @@ public class EnrollmentController {
             PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider);
+        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
     }

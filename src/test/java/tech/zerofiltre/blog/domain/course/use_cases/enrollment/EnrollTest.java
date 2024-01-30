@@ -222,6 +222,34 @@ class EnrollTest {
     }
 
     @Test
+    void enrollMentoredAsPRO_DoesNot_SetsEnrollmentPlanToPro() throws ZerofiltreException {
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPlan(User.Plan.PRO);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        Course course = new Course();
+        course.setStatus(Status.PUBLISHED);
+        course.setMentored(true);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
+        when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
+
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
+        Enrollment result = enroll.execute(user.getId(), course.getId(), true);
+        Assertions.assertThat(result.getPlan()).isEqualTo(User.Plan.BASIC);
+
+    }
+
+    @Test
     void enrollAsNonPRO_SetsEnrollmentPlanToBasic_ifNotFromEndUser() throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);

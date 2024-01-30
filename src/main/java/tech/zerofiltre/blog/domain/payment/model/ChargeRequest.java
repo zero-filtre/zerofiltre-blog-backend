@@ -71,6 +71,6 @@ public class ChargeRequest {
     }
 
     public enum ProductType {
-        COURSE, BOOTCAMP
+        COURSE, BOOTCAMP, MENTORED
     }
 }
