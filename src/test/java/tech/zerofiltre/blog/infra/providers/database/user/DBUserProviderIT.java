@@ -11,6 +11,8 @@ import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
@@ -18,6 +20,7 @@ class DBUserProviderIT {
 
     public static final String TOKEN = "token";
     public static final String SOCIAL_ID = "socialId";
+    public static final String PAYMENT_EMAIL = "payment.email@zerofiltre.tech";
     DBUserProvider provider;
 
     @Autowired
@@ -43,6 +46,21 @@ class DBUserProviderIT {
 
         //ASSERT
         user.getSocialLinks().forEach(socialLink -> assertThat(socialLink.getId()).isNotZero());
+
+    }
+
+    @Test
+    void shouldGet_UserBy_PaymentEmail() {
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setPaymentEmail(PAYMENT_EMAIL);
+
+        //ACT
+        provider.save(user);
+        Optional<User> foundUser = provider.userOfEmail(PAYMENT_EMAIL);
+
+        //ASSERT
+        assertThat(foundUser).isNotEmpty();
+        assertThat(foundUser.get().getPaymentEmail()).isEqualTo(PAYMENT_EMAIL);
 
     }
 

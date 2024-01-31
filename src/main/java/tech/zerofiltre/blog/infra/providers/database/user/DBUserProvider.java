@@ -42,8 +42,9 @@ public class DBUserProvider implements UserProvider {
     @Override
     //@Cacheable(value = "connected-user", key = "#email") - Buggy
     public Optional<User> userOfEmail(String email) {
-        return repository.findByEmail(email)
-                .map(mapper::fromJPA);
+        Optional<UserJPA> result = repository.findByEmail(email);
+        if (result.isEmpty()) result = repository.findByPaymentEmail(email);
+        return result.map(mapper::fromJPA);
     }
 
     @Override

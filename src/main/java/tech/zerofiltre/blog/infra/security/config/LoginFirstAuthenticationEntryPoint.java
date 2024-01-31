@@ -1,17 +1,19 @@
 package tech.zerofiltre.blog.infra.security.config;
 
-import com.fasterxml.jackson.databind.*;
-import lombok.extern.slf4j.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.context.*;
-import org.springframework.http.*;
-import org.springframework.security.core.*;
-import org.springframework.security.web.*;
-import org.springframework.stereotype.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.error.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.infra.entrypoints.rest.error.BlogError;
 
-import javax.servlet.http.*;
-import java.io.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -29,7 +31,6 @@ public class LoginFirstAuthenticationEntryPoint implements AuthenticationEntryPo
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        log.error("Authentication Error", authException);
 
         String code = "ZBLOG_007";
         BlogError error = new BlogError(
