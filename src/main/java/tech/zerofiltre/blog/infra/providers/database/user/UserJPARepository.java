@@ -9,6 +9,10 @@ import java.util.Optional;
 public interface UserJPARepository extends JpaRepository<UserJPA, Long> {
     Optional<UserJPA> findByEmail(String email);
 
+    Optional<UserJPA> findByPaymentEmail(String email);
+
+
+
     List<UserJPA> findByIsActiveIsFalse();
 
     Optional<UserJPA> findBySocialId(String userSocialId);
