@@ -5,6 +5,8 @@ import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 
+import java.time.LocalDateTime;
+
 public class CompleteLesson {
 
     private final EnrollmentProvider enrollmentProvider;
@@ -23,7 +25,7 @@ public class CompleteLesson {
         Enrollment existingEnrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no enrollment regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
 
-        if (existingEnrollment.getCompletedLessons().stream().anyMatch(lesson -> lesson.getId() == lessonId) == completeLesson && completeLesson)
+        if (existingEnrollment.getCompletedLessons().stream().anyMatch(lesson -> lesson.getLessonId() == lessonId) == completeLesson && completeLesson)
             return computeCounts(existingEnrollment);
 
         Lesson lesson = lessonProvider.lessonOfId(lessonId)
@@ -37,9 +39,13 @@ public class CompleteLesson {
         if (chapter.getCourseId() != courseId) throw forbiddenActionException;
 
         if (completeLesson) {
-            existingEnrollment.getCompletedLessons().add(lesson);
+            CompletedLesson completedLesson = new CompletedLesson();
+            completedLesson.setLessonId(lesson.getId());
+            completedLesson.setCompletedAt(LocalDateTime.now());
+            completedLesson.setEnrollmentId(existingEnrollment.getId());
+            existingEnrollment.getCompletedLessons().add(completedLesson);
         } else {
-            existingEnrollment.getCompletedLessons().removeIf(existingLesson -> existingLesson.getId() == lesson.getId());
+            existingEnrollment.getCompletedLessons().removeIf(existingLesson -> existingLesson.getLessonId() == lesson.getId());
         }
 
         Enrollment result = enrollmentProvider.save(existingEnrollment);

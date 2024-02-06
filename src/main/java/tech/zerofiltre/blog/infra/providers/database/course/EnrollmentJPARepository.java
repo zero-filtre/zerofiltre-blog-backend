@@ -14,6 +14,6 @@ public interface EnrollmentJPARepository extends JpaRepository<EnrollmentJPA, Lo
 
     void deleteByUserIdAndCourseId(long userId, long courseId);
 
-    List<EnrollmentJPA> getAllByCompletedLessonsContains(LessonJPA toJPA);
+    List<EnrollmentJPA> getAllByCompletedLessonsLesson(LessonJPA lessonJPA);
 }
 

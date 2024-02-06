@@ -1,21 +1,22 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
-import lombok.*;
-import org.mapstruct.factory.*;
-import org.springframework.dao.*;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
-import tech.zerofiltre.blog.infra.providers.database.course.mapper.*;
-import tech.zerofiltre.blog.infra.providers.database.course.model.*;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
+import tech.zerofiltre.blog.infra.providers.database.course.mapper.EnrollmentJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.course.model.EnrollmentJPA;
 
-import java.util.*;
+import java.util.Optional;
 
 @Component
 @Transactional
@@ -53,7 +54,9 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     @Override
     public Enrollment save(Enrollment enrollment) throws ZerofiltreException {
         try {
-            return mapper.fromJPA(repository.save(mapper.toJPA(enrollment)));
+            EnrollmentJPA enrollmentJPA = mapper.toJPA(enrollment);
+            enrollmentJPA = repository.save(enrollmentJPA);
+            return mapper.fromJPA(enrollmentJPA);
         } catch (DataIntegrityViolationException e) {
             throw new ZerofiltreException("You are already enrolled", e, "");
         }

@@ -18,7 +18,7 @@ public class Enrollment {
     private User.Plan plan = User.Plan.BASIC;
 
 
-    private List<Lesson> completedLessons = new ArrayList<>();
+    private List<CompletedLesson> completedLessons = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -52,11 +52,11 @@ public class Enrollment {
         this.completed = completed;
     }
 
-    public List<Lesson> getCompletedLessons() {
+    public List<CompletedLesson> getCompletedLessons() {
         return completedLessons;
     }
 
-    public void setCompletedLessons(List<Lesson> completedLessons) {
+    public void setCompletedLessons(List<CompletedLesson> completedLessons) {
         this.completedLessons = completedLessons;
     }
 
