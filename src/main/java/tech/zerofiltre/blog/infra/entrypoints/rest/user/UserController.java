@@ -81,7 +81,7 @@ public class UserController {
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider, tokenProvider);
-        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
+        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, loggerProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
