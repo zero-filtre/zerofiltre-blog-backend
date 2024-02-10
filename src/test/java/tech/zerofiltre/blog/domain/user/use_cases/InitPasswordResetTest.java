@@ -4,6 +4,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.logging.model.LogEntry;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -26,6 +28,9 @@ class InitPasswordResetTest {
     @MockBean
     VerificationTokenProvider tokenProvider;
 
+    @MockBean
+    private LoggerProvider loggerProvider;
+
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
 
@@ -33,7 +38,7 @@ class InitPasswordResetTest {
 
     @BeforeEach
     void setUp() {
-        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
+        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, loggerProvider);
         when(tokenProvider.generate(any(),anyLong())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), "",expiryDate));
 
     }
@@ -61,5 +66,20 @@ class InitPasswordResetTest {
         //ACT & ASSERT
         assertThatExceptionOfType(UserNotFoundException.class).isThrownBy(() -> initPasswordReset.execute("email", "appUrl", Locale.FRANCE));
 
+    }
+
+    @Test
+    void mustCheckUser_ThendDoNotNotify_whenSocialAccount() throws UserNotFoundException {
+        //ARRANGE
+        User user = new User();
+        user.setLoginFrom(SocialLink.Platform.GITHUB);
+        when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
+        doNothing().when(userNotificationProvider).notify(any());
+
+        //ACT
+        initPasswordReset.execute("email", "appUrl", Locale.FRANCE);
+
+        //ASSERT
+        verify(loggerProvider).log(any(LogEntry.class));
     }
 }
