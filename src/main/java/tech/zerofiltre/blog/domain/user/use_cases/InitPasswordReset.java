@@ -27,7 +27,9 @@ public class InitPasswordReset {
         if(isSocialAccount(user)){
             LogEntry logEntry = new LogEntry(LogEntry.Level.WARN, "User " + user.getId() + " with loginForm " + user.getLoginFrom() + " cannot update his password", null, User.class);
             loggerProvider.log(logEntry);
-            return;
+            user.setLoginFrom(null);
+            userProvider.save(user);
+            //return;
         }
 
         String token = verificationTokenProvider.generate(user,86400).getToken();
