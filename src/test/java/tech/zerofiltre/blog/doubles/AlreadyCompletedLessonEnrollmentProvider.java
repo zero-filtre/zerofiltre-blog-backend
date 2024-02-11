@@ -22,7 +22,9 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
         enrollment1.setId(224);
         enrollment1.setCourse(new Course());
         Lesson lesson = new Lesson.LessonBuilder().id(3).build();
-        enrollment1.getCompletedLessons().add(lesson);
+        CompletedLesson completedLesson = new CompletedLesson();
+        completedLesson.setLessonId(lesson.getId());
+        enrollment1.getCompletedLessons().add(completedLesson);
         return Optional.of(enrollment1);
     }
 

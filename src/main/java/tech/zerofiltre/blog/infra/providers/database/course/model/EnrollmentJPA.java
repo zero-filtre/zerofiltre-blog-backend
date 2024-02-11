@@ -31,13 +31,8 @@ public class EnrollmentJPA extends BaseEntityJPA {
     private LocalDateTime lastModifiedAt;
     private String plan;
 
-    @ManyToMany(cascade = CascadeType.REFRESH)
-    @JoinTable(
-            name = "enrollment_completed_lessons",
-            joinColumns = @JoinColumn(name = "enrollment_id"),
-            inverseJoinColumns = @JoinColumn(name = "lesson_id")
-    )
-    private Set<LessonJPA> completedLessons;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "enrollment", orphanRemoval = true)
+    private Set<CompletedLessonJPA> completedLessons;
 
 
 }

@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.doubles.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -68,28 +69,35 @@ class CompleteLessonTest {
     }
 
     @Test
-    void completeLesson_addLessonId_toCompletedLessons() throws ZerofiltreException {
+    void completeLesson_builds_and_adds_toCompletedLessons_Properly() throws ZerofiltreException {
         //given
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
+        LocalDateTime beforeCompletion = LocalDateTime.now();
 
         //when
         Enrollment enrollment = completeLesson.execute(1, 3, 1, true);
 
         //then
-        List<Lesson> completedLessons = enrollment.getCompletedLessons();
+        List<CompletedLesson> completedLessons = enrollment.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
         assertThat(lessonProvider.calledLessonId).isEqualTo(3);
         assertThat(chapterProvider.calledChapterId).isEqualTo(lessonProvider.lessonOfId(3).get().getChapterId());
-        completedLessons.forEach(lesson -> assertThat(lesson.getId()).isEqualTo(1));
+
+        completedLessons.forEach(completed -> {
+            assertThat(completed.getLessonId()).isEqualTo(1);
+            assertThat(completed.getEnrollmentId()).isEqualTo(enrollment.getId());
+            assertThat(completed.getCompletedAt()).isNotNull();
+            assertThat(completed.getCompletedAt()).isAfterOrEqualTo(beforeCompletion);
+        });
         assertThat(enrollmentProviderSpy.saveCalled).isTrue();
     }
 
     @Test
-    void unCompleteLesson_removesLessonId_fromCompletedLessons() throws ZerofiltreException {
+    void unCompleteLesson_removesLesson_fromCompletedLessons() throws ZerofiltreException {
         //given
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
@@ -99,7 +107,7 @@ class CompleteLessonTest {
 
         //when
         Enrollment enrollment = completeLesson.execute(1, 3, 1, true);
-        List<Lesson> completedLessons = enrollment.getCompletedLessons();
+        List<CompletedLesson> completedLessons = enrollment.getCompletedLessons();
         assertThat(completedLessons).isNotEmpty();
 
 

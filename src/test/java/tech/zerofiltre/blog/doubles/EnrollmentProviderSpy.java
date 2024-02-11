@@ -12,6 +12,7 @@ import java.util.*;
 
 public class EnrollmentProviderSpy implements EnrollmentProvider {
 
+    public static final int ID = 1;
     public boolean saveCalled = false;
     public boolean ofCalled = false;
     public boolean enrollmentOfCalled = false;
@@ -20,7 +21,7 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     @Override
     public Enrollment save(Enrollment enrollment) {
         saveCalled = true;
-        enrollment.setId(1);
+        enrollment.setId(ID);
         enrollment.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
         return enrollment;
@@ -68,6 +69,7 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     @Override
     public Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive) {
         Enrollment value = new Enrollment();
+        value.setId(ID);
         value.setEnrolledAt(LocalDateTime.now().minusDays(2));
         value.setLastModifiedAt(value.getEnrolledAt());
         value.setSuspendedAt(LocalDateTime.now().minusDays(1));

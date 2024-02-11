@@ -34,8 +34,8 @@ public class DBLessonProvider implements LessonProvider {
 
     @Override
     public void delete(Lesson lesson) {
-        enrollmentJPARepository.getAllByCompletedLessonsContains(lessonJPAMapper.toJPA(lesson)).forEach(enrollmentJPA -> {
-            enrollmentJPA.getCompletedLessons().removeIf(lessonJPA -> lessonJPA.getId() == lesson.getId());
+        enrollmentJPARepository.getAllByCompletedLessonsLesson(lessonJPAMapper.toJPA(lesson)).forEach(enrollmentJPA -> {
+            enrollmentJPA.getCompletedLessons().removeIf(completedLessonJPA -> completedLessonJPA.getLesson().getId() == lesson.getId());
             enrollmentJPARepository.save(enrollmentJPA);
         });
         lessonJPARepository.delete(lessonJPAMapper.toJPA(lesson));
