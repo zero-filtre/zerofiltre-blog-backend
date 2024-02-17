@@ -81,6 +81,6 @@ class InitPasswordResetTest {
 
         //ASSERT
         verify(loggerProvider).log(any(LogEntry.class));
-        verify(userNotificationProvider, times(0)).notify(any());
+        verify(userNotificationProvider, times(1)).notify(any());
     }
 }
