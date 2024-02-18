@@ -206,6 +206,9 @@ public class UserController {
             initPasswordReset.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
             log.error("We were unable to initiate password reset", e);
+        } catch (ResetPasswordNotAllowedException e) {
+            log.error(e.getMessage(), e);
+            return sources.getMessage("message.reset.password.not.allowed", null, request.getLocale());
         }
         return sources.getMessage("message.reset.password.sent", null, request.getLocale());
     }

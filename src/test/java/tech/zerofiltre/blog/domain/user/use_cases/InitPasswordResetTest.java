@@ -44,7 +44,7 @@ class InitPasswordResetTest {
     }
 
     @Test
-    void mustCheckUser_ThenNotify() throws UserNotFoundException {
+    void mustCheckUser_ThenNotify() throws UserNotFoundException, ResetPasswordNotAllowedException {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
         doNothing().when(userNotificationProvider).notify(any());
@@ -69,18 +69,13 @@ class InitPasswordResetTest {
     }
 
     @Test
-    void mustCheckUser_ThendDoNotNotify_whenSocialAccount() throws UserNotFoundException {
+    void onNotAllowed_ThrowResetPasswordNotAllowedException() throws UserNotFoundException, ResetPasswordNotAllowedException {
         //ARRANGE
         User user = new User();
         user.setLoginFrom(SocialLink.Platform.GITHUB);
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
-        doNothing().when(userNotificationProvider).notify(any());
-
-        //ACT
-        initPasswordReset.execute("email", "appUrl", Locale.FRANCE);
 
         //ASSERT
-        verify(loggerProvider).log(any(LogEntry.class));
-        verify(userNotificationProvider, times(1)).notify(any());
+        assertThatExceptionOfType(ResetPasswordNotAllowedException.class).isThrownBy(() -> initPasswordReset.execute("email", "appUrl", Locale.FRANCE));
     }
 }

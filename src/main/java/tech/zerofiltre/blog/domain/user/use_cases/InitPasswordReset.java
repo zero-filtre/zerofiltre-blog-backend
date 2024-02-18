@@ -20,16 +20,12 @@ public class InitPasswordReset {
         this.loggerProvider = loggerProvider;
     }
 
-    public void execute(String email, String appUrl, Locale locale) throws UserNotFoundException {
+    public void execute(String email, String appUrl, Locale locale) throws UserNotFoundException, ResetPasswordNotAllowedException {
         User user = userProvider.userOfEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email, email));
 
         if(isSocialAccount(user)){
-            LogEntry logEntry = new LogEntry(LogEntry.Level.WARN, "User " + user.getId() + " with loginForm " + user.getLoginFrom() + " cannot update his password", null, User.class);
-            loggerProvider.log(logEntry);
-            user.setLoginFrom(null);
-            userProvider.save(user);
-            //return;
+            throw new ResetPasswordNotAllowedException("Github and stackoverflow users not allowed to reset their password", email);
         }
 
         String token = verificationTokenProvider.generate(user,86400).getToken();
