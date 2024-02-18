@@ -81,7 +81,7 @@ public class UserController {
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider, tokenProvider);
-        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, loggerProvider);
+        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
@@ -200,15 +200,12 @@ public class UserController {
     }
 
     @GetMapping("/user/initPasswordReset")
-    public String initPasswordReset(@RequestParam String email, HttpServletRequest request) {
+    public String initPasswordReset(@RequestParam String email, HttpServletRequest request) throws ForbiddenActionException{
         String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
         try {
             initPasswordReset.execute(email, appUrl, request.getLocale());
         } catch (UserNotFoundException e) {
             log.error("We were unable to initiate password reset", e);
-        } catch (ResetPasswordNotAllowedException e) {
-            log.error(e.getMessage(), e);
-            return sources.getMessage("message.reset.password.not.allowed", null, request.getLocale());
         }
         return sources.getMessage("message.reset.password.sent", null, request.getLocale());
     }

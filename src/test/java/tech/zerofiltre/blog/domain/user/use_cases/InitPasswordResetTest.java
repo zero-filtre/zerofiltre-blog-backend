@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.logging.model.LogEntry;
 import tech.zerofiltre.blog.domain.user.*;
@@ -28,9 +29,6 @@ class InitPasswordResetTest {
     @MockBean
     VerificationTokenProvider tokenProvider;
 
-    @MockBean
-    private LoggerProvider loggerProvider;
-
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
 
@@ -38,13 +36,13 @@ class InitPasswordResetTest {
 
     @BeforeEach
     void setUp() {
-        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, loggerProvider);
+        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
         when(tokenProvider.generate(any(),anyLong())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), "",expiryDate));
 
     }
 
     @Test
-    void mustCheckUser_ThenNotify() throws UserNotFoundException, ResetPasswordNotAllowedException {
+    void mustCheckUser_ThenNotify() throws UserNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
         doNothing().when(userNotificationProvider).notify(any());
@@ -69,13 +67,13 @@ class InitPasswordResetTest {
     }
 
     @Test
-    void onNotAllowed_ThrowResetPasswordNotAllowedException() throws UserNotFoundException, ResetPasswordNotAllowedException {
+    void onGithubOrStackoverflow_ThrowForbiddenActionException(){
         //ARRANGE
         User user = new User();
         user.setLoginFrom(SocialLink.Platform.GITHUB);
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(user));
 
         //ASSERT
-        assertThatExceptionOfType(ResetPasswordNotAllowedException.class).isThrownBy(() -> initPasswordReset.execute("email", "appUrl", Locale.FRANCE));
+        assertThatExceptionOfType(ForbiddenActionException.class).isThrownBy(() -> initPasswordReset.execute("email", "appUrl", Locale.FRANCE));
     }
 }
