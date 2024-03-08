@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.user.use_cases;
 import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.logging.MessageSourceProvider;
 import tech.zerofiltre.blog.domain.logging.model.LogEntry;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -15,12 +16,13 @@ public class InitPasswordReset {
     private final UserProvider userProvider;
     private final UserNotificationProvider userNotificationProvider;
     private final VerificationTokenProvider verificationTokenProvider;
-    private static final String USER_NOT_ALLOW_TO_RESET_PASSWORD = "Renouvellement impossible car il s'agit d'un compte github/stackoverflow.\nMerci de faire la demande avec une autre adresse email. ";
+    private final MessageSourceProvider messageSourceProvider;
 
-    public InitPasswordReset(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider) {
+    public InitPasswordReset(UserProvider userProvider, UserNotificationProvider userNotificationProvider, VerificationTokenProvider verificationTokenProvider, MessageSourceProvider messageSourceProvider) {
         this.userProvider = userProvider;
         this.userNotificationProvider = userNotificationProvider;
         this.verificationTokenProvider = verificationTokenProvider;
+        this.messageSourceProvider = messageSourceProvider;
     }
 
     public void execute(String email, String appUrl, Locale locale) throws UserNotFoundException, ForbiddenActionException{
@@ -28,7 +30,7 @@ public class InitPasswordReset {
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email, email));
 
         if(isSocialAccount(user)){
-            throw new ForbiddenActionException(USER_NOT_ALLOW_TO_RESET_PASSWORD + email, Domains.USER.name());
+            throw new ForbiddenActionException(messageSourceProvider.getMessage("ZBLOG_013", null, locale) + email, Domains.USER.name());
         }
 
         String token = verificationTokenProvider.generate(user,86400).getToken();

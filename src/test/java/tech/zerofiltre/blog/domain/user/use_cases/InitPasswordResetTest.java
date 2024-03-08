@@ -5,8 +5,7 @@ import org.junit.jupiter.api.extension.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.test.context.junit.jupiter.*;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
-import tech.zerofiltre.blog.domain.logging.LoggerProvider;
-import tech.zerofiltre.blog.domain.logging.model.LogEntry;
+import tech.zerofiltre.blog.domain.logging.MessageSourceProvider;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
@@ -29,6 +28,9 @@ class InitPasswordResetTest {
     @MockBean
     VerificationTokenProvider tokenProvider;
 
+    @MockBean
+    MessageSourceProvider messageSourceProvider;
+
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
 
@@ -36,7 +38,7 @@ class InitPasswordResetTest {
 
     @BeforeEach
     void setUp() {
-        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
+        initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, messageSourceProvider);
         when(tokenProvider.generate(any(),anyLong())).thenAnswer(invocationOnMock -> new VerificationToken(invocationOnMock.getArgument(0), "",expiryDate));
 
     }

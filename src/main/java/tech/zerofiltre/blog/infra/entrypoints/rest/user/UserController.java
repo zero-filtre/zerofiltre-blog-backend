@@ -22,6 +22,7 @@ import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.logging.MessageSourceProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -32,6 +33,7 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.PublicUserProfile
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UpdateUserVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.providers.logging.SpringMessageSourceProvider;
 import tech.zerofiltre.blog.infra.security.model.Token;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
@@ -81,7 +83,7 @@ public class UserController {
         this.savePasswordReset = new SavePasswordReset(verificationTokenProvider, userProvider);
         this.confirmUserRegistration = new ConfirmUserRegistration(verificationTokenProvider, userProvider);
         this.resendRegistrationConfirmation = new ResendRegistrationConfirmation(userProvider, userNotificationProvider, tokenProvider);
-        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider);
+        this.initPasswordReset = new InitPasswordReset(userProvider, userNotificationProvider, tokenProvider, new SpringMessageSourceProvider(sources));
         this.verifyToken = new VerifyToken(verificationTokenProvider);
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
