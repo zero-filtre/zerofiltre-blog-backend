@@ -72,6 +72,8 @@ public class InvoiceEventHandler {
 
     void cancelFor3TimesPayment(Event event, String userId, boolean isProPlan, Subscription subscription, int count, Product productObject) throws StripeException, ZerofiltreException {
         if (shouldCancel3TimesPayment(isProPlan, count, productObject)) {
+            subscription.getMetadata().put(CANCELLED_3TIMES_PAID, Boolean.toString(true));
+            subscription.update(Map.of("metadata", subscription.getMetadata()));
             subscription.cancel();
             log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
         }

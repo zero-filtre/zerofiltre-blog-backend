@@ -39,6 +39,7 @@ public class StripeCommons {
     public static final String SIGNATURE = "\n\n L'équipe Zerofiltre";
     public static final String SUBSCRIPTION_CREATE_BILLING_REASON = "subscription_create";
     public static final String TOTAL_PAID_COUNT = "totalPaidCount";
+    public static final String CANCELLED_3TIMES_PAID = "cancelled3TimesPaid";
     public static final String EVENT_ID_EVENT_TYPE_PRICE = "EventId= {}, EventType={}, Price: {}";
     public static final String EVENT_ID = "EventId= ";
     public static final String EVENT_TYPE = ",EventType= ";
