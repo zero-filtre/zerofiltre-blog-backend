@@ -181,7 +181,7 @@ class UserControllerTest {
     }
 
     @Test
-    void resetPassword_mustCheckUser_ThenNotify() {
+    void resetPassword_mustCheckUser_ThenNotify() throws ForbiddenActionException{
         //ARRANGE
         when(userProvider.userOfEmail(any())).thenReturn(Optional.of(new User()));
         VerificationToken t = new VerificationToken(new User(), TOKEN, expiryDate);
