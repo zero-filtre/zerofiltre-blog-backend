@@ -101,7 +101,7 @@ zerofiltre:
   contact.email: info@zerofiltre.tech
   infra:
     sandbox.k8s.doc: https://github.com/Zerofiltre-Courses/bootcamp-devops-dev/blob/main/k8s/k8s_README.md
-    stats.reminder.cron: "* */30 * * * ?"
+    stats.reminder.cron: "0 0 13 1 * ?"
     security:
       jwt:
         expiration-seconds: 86400 #1 day

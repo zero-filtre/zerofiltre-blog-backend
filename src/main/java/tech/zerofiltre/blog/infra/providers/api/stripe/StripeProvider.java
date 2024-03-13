@@ -1,10 +1,8 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
-import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.Webhook;
 import com.stripe.param.*;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
@@ -33,23 +31,31 @@ public class StripeProvider implements PaymentProvider {
     private static final String USER_ID = "userId";
     public static final String PRODUCT_ID = "productId";
     public static final String INVALID_PAYLOAD = "Invalid payload";
+    public static final String CHECKOUT_SESSION_COMPLETED = "checkout.session.completed";
+    public static final String CUSTOMER_SUBSCRIPTION_DELETED = "customer.subscription.deleted";
 
 
     private final InfraProperties infraProperties;
     private final SessionEventHandler sessionEventHandler;
+
+    private final SubscriptionEventHandler subscriptionEventHandler;
     private final InvoiceEventHandler invoiceEventHandler;
     private final UserProvider userProvider;
     private final MetricsProvider metricsProvider;
     private final UserNotificationProvider userNotificationProvider;
 
-    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider) {
+    private final EventChecker eventChecker;
+
+    public StripeProvider(InfraProperties infraProperties, SessionEventHandler sessionEventHandler, SubscriptionEventHandler subscriptionEventHandler, InvoiceEventHandler invoiceEventHandler, UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, EventChecker eventChecker) {
         this.infraProperties = infraProperties;
 
         this.sessionEventHandler = sessionEventHandler;
+        this.subscriptionEventHandler = subscriptionEventHandler;
         this.invoiceEventHandler = invoiceEventHandler;
         this.userProvider = userProvider;
         this.metricsProvider = metricsProvider;
         this.userNotificationProvider = userNotificationProvider;
+        this.eventChecker = eventChecker;
     }
 
 
@@ -92,12 +98,7 @@ public class StripeProvider implements PaymentProvider {
     public String handleWebhook(String payload, String sigHeader) throws PaymentException {
 
         try {
-            log.debug("Payload: {}", payload.replace("\n", " "));
-
-            Event event = checkSignature(payload, sigHeader);
-
-            log.info("Handling Event: id = {},type = {}", event.getId(), event.getType());
-
+            Event event = eventChecker.checkAndProvideEvent(payload, sigHeader);
             StripeObject stripeObject = event.getDataObjectDeserializer().getObject()
                     .orElseThrow(() -> new IllegalArgumentException(INVALID_PAYLOAD));
 
@@ -105,8 +106,10 @@ public class StripeProvider implements PaymentProvider {
             String userId;
             InvoiceRetrieveParams invoiceRetrieveParams;
 
-            if ("checkout.session.completed".equals(event.getType())) {
+            if (CHECKOUT_SESSION_COMPLETED.equals(event.getType())) {
                 sessionEventHandler.handleSessionCompleted(event, (Session) stripeObject);
+            } else if (CUSTOMER_SUBSCRIPTION_DELETED.equals(event.getType())) {
+                subscriptionEventHandler.handleSubscriptionDeleted(event, (Subscription) stripeObject);
             } else {
                 invoiceRetrieveParams = InvoiceRetrieveParams.builder()
                         .addExpand("customer")
@@ -181,17 +184,6 @@ public class StripeProvider implements PaymentProvider {
         }
     }
 
-    private Event checkSignature(String payload, String sigHeader) {
-        Event event;
-        try {
-            event = Webhook.constructEvent(payload, sigHeader, infraProperties.getStripeWebhookSecret());
-        } catch (SignatureVerificationException e) {
-            throw new IllegalArgumentException("Invalid signature", e);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(INVALID_PAYLOAD, e);
-        }
-        return event;
-    }
 
     private Customer createCustomer(User user) throws StripeException {
 

@@ -35,6 +35,15 @@ public class Suspend {
         return doSuspend(userId, enrollment);
     }
 
+    public void all(long userId, User.Plan relatedPlan) throws ZerofiltreException {
+        List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.isActive() && enrollment.getPlan().equals(relatedPlan)) {
+                doSuspend(userId, enrollment);
+            }
+        }
+    }
+
     private int getLessonsCount(long courseId) {
         return chapterProvider.ofCourseId(courseId)
                 .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
@@ -43,15 +52,6 @@ public class Suspend {
 
     private int getEnrolledCount(long courseId) {
         return courseProvider.getEnrolledCount(courseId);
-    }
-
-    public void all(long userId, User.Plan relatedPlan) throws ZerofiltreException {
-        List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.isActive() && enrollment.getPlan().equals(relatedPlan)) {
-                doSuspend(userId, enrollment);
-            }
-        }
     }
 
     private Enrollment doSuspend(long userId, Enrollment enrollment) throws ZerofiltreException {
