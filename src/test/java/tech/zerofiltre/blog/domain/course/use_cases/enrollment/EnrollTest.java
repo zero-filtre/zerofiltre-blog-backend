@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.model.Course;
-import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
@@ -27,6 +27,7 @@ import tech.zerofiltre.blog.util.ZerofiltreUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -44,6 +45,71 @@ class EnrollTest {
     void setUp() {
         sandboxProvider = mock(SandboxProvider.class);
         purchaseProvider = mock(PurchaseProvider.class);
+    }
+
+    @Test
+    @DisplayName("A basic user can enroll in a course that is related to a course he is already enrolled into")
+    void basicUser_can_enrollInACourse_RelatedToAlreadyEnrolled() throws ZerofiltreException {
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        // Build user's previous enrollment
+
+        Resource resource = Resource.builder()
+                .lessonId(13)
+                .type("course")
+                .url("https://dev.zerofiltre.tech/cours/14")
+                .build();
+        List<Resource> resources = List.of(resource);
+
+        Lesson lesson = Lesson.builder()
+                .resources(resources)
+                .build();
+        List<Lesson> lessons = List.of(lesson);
+
+        Chapter chapter = Chapter.builder()
+                .lessons(lessons)
+                .build();
+        List<Chapter> chapters = List.of(chapter);
+        when(chapterProvider.ofCourseId(10)).thenReturn(chapters);
+
+        Course parentCourse = new Course();
+        parentCourse.setStatus(Status.PUBLISHED);
+        parentCourse.setMentored(true);
+        parentCourse.setId(10);
+
+        // find users enrollments
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(12);
+        when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCourse(parentCourse);
+        Page<Enrollment> enrollments = new Page<>();
+        enrollments.setContent(List.of(enrollment));
+
+        when(enrollmentProvider.of(anyInt(), anyInt(), anyLong(), eq(null), eq(null)))
+                .thenReturn(enrollments);
+
+        // the related course the user wants to enroll into
+        Course relatedCourse = new Course();
+        relatedCourse.setStatus(Status.PUBLISHED);
+        relatedCourse.setId(14);
+        when(courseProvider.courseOfId(14)).thenReturn(Optional.of(relatedCourse));
+
+        when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
+        when(enrollmentProvider.enrollmentOf(12, 14, true)).thenReturn(Optional.empty());
+        when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        //act
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
+        Enrollment result = enroll.execute(user.getId(), relatedCourse.getId(), true);
+
+        //assert
+        assertThat(result).isNotNull();
+
     }
 
 
@@ -186,6 +252,11 @@ class EnrollTest {
 
         User user = ZerofiltreUtils.createMockUser(false);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(new Course()));
+
+        when(enrollmentProvider.of(anyInt(), anyInt(), anyLong(), eq(null), eq(null)))
+                .thenReturn(new Page<>());
 
 
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
