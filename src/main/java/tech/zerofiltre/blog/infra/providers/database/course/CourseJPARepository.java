@@ -1,11 +1,13 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.course.model.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 
-import java.util.*;
+import java.util.List;
 
 public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
 
@@ -31,7 +33,7 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
     @Query("select a from CourseJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY enrolledCount desc ")
     Page<CourseJPA> findByEnrolledAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
 
-    @Query("select count(a) from CourseJPA a JOIN EnrollmentJPA s ON a.id=s.course.id WHERE a.id=?1 AND s.active=true")
+    @Query("select count(a) from CourseJPA a JOIN EnrollmentJPA s ON a.id=s.course.id WHERE a.id=?1")
     int getEnrolledCount(long courseId);
 }
 
