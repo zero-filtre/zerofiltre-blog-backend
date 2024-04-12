@@ -1,14 +1,14 @@
 package tech.zerofiltre.blog.infra.providers.database.article.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
-import tech.zerofiltre.blog.infra.providers.database.user.model.*;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import javax.persistence.*;
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -48,4 +48,5 @@ public class ArticleJPA extends BaseEntityJPA {
     private Set<TagJPA> tags;
     private String summary;
     private long viewsCount;
+    private boolean premium;
 }

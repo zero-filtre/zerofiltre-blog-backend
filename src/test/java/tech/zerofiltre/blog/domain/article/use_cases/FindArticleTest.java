@@ -1,25 +1,35 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.ArticleView;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.doubles.DummyMetricsProvider;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
+import static tech.zerofiltre.blog.domain.article.use_cases.FindArticle.DOTS;
 
 @ExtendWith(SpringExtension.class)
 class FindArticleTest {
@@ -278,6 +288,123 @@ class FindArticleTest {
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class).
                 isThrownBy(() -> findArticle.of(new FinderRequest(0, 3, IN_REVIEW, new User())));
+
+    }
+
+    @Test
+    @DisplayName("Not being an admin, nor author, ask for premium article return a truncated one")
+    void mustTruncate_IfNotAdminButAskForPremium() throws ResourceNotFoundException {
+        //ARRANGE
+        String a26WordContent = "This is a 26-char content.";
+        String halfOfA26WordContent = "This is a 26-";
+
+        User author = ZerofiltreUtils.createMockUser(false);
+        author.setId(85);
+
+        Article premium = new Article();
+        premium.setStatus(PUBLISHED);
+        premium.setContent(a26WordContent);
+        premium.setPremium(true);
+        premium.setAuthor(author);
+
+
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        //ACT
+        Article result = findArticle.byId(12, new User());
+
+        //ASSERT
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEqualTo(halfOfA26WordContent + DOTS);
+
+    }
+
+    @Test
+    @DisplayName("Being an admin, asking for premium article returns the full content")
+    void mustNotTruncate_IfAdminAndAskForPremium() throws ResourceNotFoundException {
+        //ARRANGE
+        String a26WordContent = "This is a 26-char content.";
+
+        User author = ZerofiltreUtils.createMockUser(false);
+
+        Article premium = new Article();
+        premium.setStatus(PUBLISHED);
+        premium.setContent(a26WordContent);
+        premium.setPremium(true);
+        premium.setAuthor(author);
+
+
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        User admin = ZerofiltreUtils.createMockUser(true);
+        admin.setId(24);
+
+        //ACT
+        Article result = findArticle.byId(12, admin);
+
+        //ASSERT
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEqualTo(a26WordContent);
+
+    }
+
+    @Test
+    @DisplayName("Being the author  of a premium article, asking for that article returns the full content")
+    void mustNotTruncate_IfAuthorAndAskForPremium() throws ResourceNotFoundException {
+        //ARRANGE
+        String a26WordContent = "This is a 26-char content.";
+
+        User author = ZerofiltreUtils.createMockUser(false);
+        author.setId(24);
+
+        Article premium = new Article();
+        premium.setStatus(PUBLISHED);
+        premium.setContent(a26WordContent);
+        premium.setPremium(true);
+        premium.setAuthor(author);
+
+
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        //ACT
+        Article result = findArticle.byId(12, author);
+
+        //ASSERT
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEqualTo(a26WordContent);
+
+    }
+
+    @Test
+    @DisplayName("Being a PRO member, asking for a premium article returns the full content")
+    void mustNotTruncate_IfPROAndAskForPremium() throws ResourceNotFoundException {
+        //ARRANGE
+        String a26WordContent = "This is a 26-char content.";
+
+        User author = ZerofiltreUtils.createMockUser(false);
+        author.setId(24);
+
+        Article premium = new Article();
+        premium.setStatus(PUBLISHED);
+        premium.setContent(a26WordContent);
+        premium.setPremium(true);
+        premium.setAuthor(author);
+
+
+        when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
+        when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        User pro = ZerofiltreUtils.createMockUser(false);
+        pro.setId(102);
+        pro.setPlan(User.Plan.PRO);
+
+        //ACT
+        Article result = findArticle.byId(12, pro);
+
+        //ASSERT
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEqualTo(a26WordContent);
 
     }
 

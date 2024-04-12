@@ -1,17 +1,24 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.metrics.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.ArticleView;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import static tech.zerofiltre.blog.domain.article.model.Status.*;
+import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
 public class FindArticle {
 
+    public static final String DOTS = "...";
     private final ArticleProvider articleProvider;
     private final MetricsProvider metricsProvider;
     private final ArticleViewProvider articleViewProvider;
@@ -20,6 +27,10 @@ public class FindArticle {
         this.articleProvider = articleProvider;
         this.metricsProvider = metricsProvider;
         this.articleViewProvider = articleViewProvider;
+    }
+
+    private static boolean isAuthor(User viewer, Article article) {
+        return article.getAuthor().getId() == viewer.getId();
     }
 
     public Article byId(long id, User viewer) throws ResourceNotFoundException {
@@ -31,12 +42,20 @@ public class FindArticle {
         counterSpecs.setTags("status", result.getStatus().toString(), "title", result.getTitle(), "user", viewer != null ? viewer.getFullName() : "");
         metricsProvider.incrementCounter(counterSpecs);
 
-        if (PUBLISHED.equals(result.getStatus()) && (viewer == null || result.getAuthor().getId() != viewer.getId())) {
+        if (PUBLISHED.equals(result.getStatus()) && (viewer == null || !isAuthor(viewer, result))) {
             result.incrementViewsCount();
             result = articleProvider.save(result);
             ArticleView articleView = new ArticleView(viewer, result);
             articleViewProvider.save(articleView);
         }
+
+        if (viewer != null && (isAuthor(viewer, result) || viewer.isAdmin())) return result;
+        if (!result.isPremium()) return result;
+        if (viewer != null && viewer.isPro()) return result;
+
+        int halfLength = result.getContent().length() / 2;
+        String truncated = result.getContent().substring(0, halfLength) + DOTS;
+        result.setContent(truncated);
         return result;
 
     }
