@@ -1,9 +1,11 @@
 package tech.zerofiltre.blog.domain.article.model;
 
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Article {
     private long id;
@@ -20,6 +22,7 @@ public class Article {
     private List<Tag> tags = new ArrayList<>();
     private String summary;
     private long viewsCount;
+    private boolean premium;
 
 
     public long getId() {
@@ -170,5 +173,13 @@ public class Article {
                 ", summary='" + summary + '\'' +
                 ", viewsCount=" + viewsCount +
                 '}';
+    }
+
+    public boolean isPremium() {
+        return premium;
+    }
+
+    public void setPremium(boolean premium) {
+        this.premium = premium;
     }
 }
