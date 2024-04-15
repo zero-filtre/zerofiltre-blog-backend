@@ -105,13 +105,13 @@ public class ArticleController {
     @PatchMapping
     public Article save(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.DRAFT, appUrl);
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), publishOrSaveArticleVM.getVideo(), Status.DRAFT, appUrl);
     }
 
     @PatchMapping("/publish")
     public Article publish(@RequestBody @Valid PublishOrSaveArticleVM publishOrSaveArticleVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), Status.PUBLISHED, appUrl);
+        return publishOrSaveArticle.execute(user, publishOrSaveArticleVM.getId(), publishOrSaveArticleVM.getTitle(), publishOrSaveArticleVM.getThumbnail(), publishOrSaveArticleVM.getSummary(), publishOrSaveArticleVM.getContent(), publishOrSaveArticleVM.getTags(), publishOrSaveArticleVM.getVideo(), Status.PUBLISHED, appUrl);
     }
 
     @PostMapping

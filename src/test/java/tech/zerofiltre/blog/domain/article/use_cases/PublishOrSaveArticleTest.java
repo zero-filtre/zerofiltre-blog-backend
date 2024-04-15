@@ -38,6 +38,7 @@ class PublishOrSaveArticleTest {
     public static final String NEW_THUMBNAIL = "New thumbnail";
     public static final String NEW_TITLE = "New title";
     public static final String NEW_SUMMARY = "New summary";
+    public static final String VIDEO = "video";
     Tag newTag = new Tag(12, "c++");
 
 
@@ -88,7 +89,7 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                PUBLISHED,
+                VIDEO, PUBLISHED,
                 null);
 
         //ASSERT
@@ -99,6 +100,8 @@ class PublishOrSaveArticleTest {
         assertThat(publishedArticle).isNotNull();
         assertThat(publishedArticle.getId()).isNotZero();
 
+        assertThat(publishedArticle.getVideo()).isNotNull();
+        assertThat(publishedArticle.getVideo()).isEqualTo(VIDEO);
         assertThat(publishedArticle.getCreatedAt()).isNotNull();
         assertThat(publishedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);
         assertThat(publishedArticle.getPublishedAt()).isNotNull();
@@ -169,7 +172,7 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                DRAFT,
+                "", DRAFT,
                 null);
 
         assertThat(publishedArticle.getStatus()).isEqualTo(PUBLISHED);
@@ -201,7 +204,7 @@ class PublishOrSaveArticleTest {
                 NEW_SUMMARY,
                 NEW_CONTENT,
                 newTags,
-                DRAFT,
+                VIDEO, DRAFT,
                 null);
 
         //ASSERT
@@ -212,6 +215,8 @@ class PublishOrSaveArticleTest {
         assertThat(publishedArticle).isNotNull();
         assertThat(publishedArticle.getId()).isNotZero();
 
+        assertThat(publishedArticle.getVideo()).isNotNull();
+        assertThat(publishedArticle.getVideo()).isEqualTo(VIDEO);
         assertThat(publishedArticle.getCreatedAt()).isNotNull();
         assertThat(publishedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);
         assertThat(publishedArticle.getLastSavedAt()).isNotNull();
@@ -274,7 +279,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(new User(), 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
+                .isThrownBy(() -> publishOrSaveArticle.execute(new User(), 1, "", "", "", "", new ArrayList<>(), "", PUBLISHED, null));
 
     }
 
@@ -291,7 +296,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), "", PUBLISHED, null));
 
     }
 
@@ -303,7 +308,7 @@ class PublishOrSaveArticleTest {
         editor.setEmail("email");
         editor.setRoles(Collections.singleton("ROLE_ADMIN"));
 
-        assertThatNoException().isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), PUBLISHED, null));
+        assertThatNoException().isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", new ArrayList<>(), "", PUBLISHED, null));
 
 
     }
@@ -321,7 +326,7 @@ class PublishOrSaveArticleTest {
 
         //ACT & ASSERT
         assertThatExceptionOfType(PublishOrSaveArticleException.class)
-                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), PUBLISHED, null));
+                .isThrownBy(() -> publishOrSaveArticle.execute(editor, 1, "", "", "", "", Collections.singletonList(newTag), "", PUBLISHED, null));
     }
 
     @Test
@@ -335,7 +340,7 @@ class PublishOrSaveArticleTest {
 
         //ACT
         Article submittedArticle = publishOrSaveArticle.execute(
-                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED, null);
+                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), "", PUBLISHED, null);
 
         assertThat(submittedArticle).isNotNull();
         assertThat(submittedArticle.getStatus()).isEqualTo(IN_REVIEW);
@@ -352,11 +357,11 @@ class PublishOrSaveArticleTest {
 
         //ACT
         publishOrSaveArticle.execute(
-                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), PUBLISHED, "https://zerofiltre.tech");
+                mockArticle.getAuthor(), mockArticle.getId(), "", "", "", "", Collections.singletonList(newTag), "", PUBLISHED, "https://zerofiltre.tech");
 
         //ASSERT
         ArgumentCaptor<UserActionEvent> captor = ArgumentCaptor.forClass(UserActionEvent.class);
-        verify(userNotificationProvider,times(1)).notify(captor.capture());
+        verify(userNotificationProvider, times(1)).notify(captor.capture());
         UserActionEvent value = captor.getValue();
         assertThat(value.getAction()).isEqualTo(Action.ARTICLE_SUBMITTED);
         assertThat(value.getArticle()).isNotNull();

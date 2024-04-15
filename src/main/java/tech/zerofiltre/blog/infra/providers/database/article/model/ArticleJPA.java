@@ -49,4 +49,5 @@ public class ArticleJPA extends BaseEntityJPA {
     private String summary;
     private long viewsCount;
     private boolean premium;
+    private String video;
 }

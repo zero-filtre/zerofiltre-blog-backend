@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ class PublishOrSaveArticleIT {
     public static final String NEW_THUMBNAIL = "New thumbnail";
     public static final String NEW_TITLE = "New title";
     public static final String NEW_SUMMARY = "New summary";
+    public static final String VIDEO = "video";
     private PublishOrSaveArticle publishOrSaveArticle;
 
     @Autowired
@@ -58,7 +60,7 @@ class PublishOrSaveArticleIT {
     @MockBean
     private UserNotificationProvider userNotificationProvider;
 
-    @Autowired
+    @BeforeEach
     void init() {
         publishOrSaveArticle = new PublishOrSaveArticle(articleProvider, tagProvider, userNotificationProvider);
     }
@@ -85,7 +87,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article publishedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, PUBLISHED, null);
+        Article publishedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, VIDEO, PUBLISHED, null);
 
         //ASSERT
         assertThat(publishedArticle).isNotNull();
@@ -99,6 +101,8 @@ class PublishOrSaveArticleIT {
         assertThat(publishedArticle.getPublishedAt()).isNotNull();
         assertThat(publishedArticle.getLastPublishedAt()).isNotNull();
         assertThat(publishedArticle.getLastSavedAt()).isNotNull();
+        assertThat(publishedArticle.getVideo()).isNotNull();
+        assertThat(publishedArticle.getVideo()).isEqualTo(VIDEO);
         assertThat(publishedArticle.getPublishedAt()).isBeforeOrEqualTo(publishedArticle.getLastPublishedAt());
         assertThat(publishedArticle.getLastPublishedAt()).isAfterOrEqualTo(beforePublication);
         assertThat(publishedArticle.getLastSavedAt()).isAfterOrEqualTo(beforePublication);
@@ -164,7 +168,7 @@ class PublishOrSaveArticleIT {
 
 
         //ACT
-        Article savedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, DRAFT, null);
+        Article savedArticle = publishOrSaveArticle.execute(user, article.getId(), NEW_TITLE, NEW_THUMBNAIL, NEW_SUMMARY, NEW_CONTENT, newTags, VIDEO, DRAFT, null);
 
         //ASSERT
         assertThat(savedArticle).isNotNull();
@@ -173,6 +177,8 @@ class PublishOrSaveArticleIT {
         assertThat(savedArticle.getSummary()).isEqualTo(NEW_SUMMARY);
 
 
+        assertThat(savedArticle.getVideo()).isNotNull();
+        assertThat(savedArticle.getVideo()).isEqualTo(VIDEO);
         assertThat(savedArticle.getCreatedAt()).isNotNull();
         assertThat(savedArticle.getCreatedAt()).isBeforeOrEqualTo(beforePublication);
         assertThat(savedArticle.getLastSavedAt()).isNotNull();

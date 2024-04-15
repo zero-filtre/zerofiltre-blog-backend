@@ -29,7 +29,7 @@ public class PublishOrSaveArticle {
     }
 
 
-    public Article execute(User currentEditor, long articleId, String title, String thumbnail, String summary, String content, List<Tag> tags, Status status, String appUrl) throws PublishOrSaveArticleException, ForbiddenActionException {
+    public Article execute(User currentEditor, long articleId, String title, String thumbnail, String summary, String content, List<Tag> tags, String video, Status status, String appUrl) throws PublishOrSaveArticleException, ForbiddenActionException {
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -47,6 +47,7 @@ public class PublishOrSaveArticle {
         existingArticle.setContent(content);
         existingArticle.setSummary(summary);
         existingArticle.setLastSavedAt(now);
+        existingArticle.setVideo(video);
 
         if (!isAlreadyPublished(existingArticle) && isTryingToPublish(status) && !currentEditor.isAdmin()) {
             existingArticle.setStatus(Status.IN_REVIEW);

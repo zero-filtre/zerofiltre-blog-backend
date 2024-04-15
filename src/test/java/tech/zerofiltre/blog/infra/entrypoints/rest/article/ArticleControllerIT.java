@@ -102,6 +102,7 @@ class ArticleControllerIT {
             mockArticle.getThumbnail(),
             mockArticle.getSummary(),
             mockArticle.getContent(),
+            "",
             mockArticle.getTags()
     );
 
