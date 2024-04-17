@@ -21,6 +21,8 @@ public class Article {
     private Status status = Status.DRAFT;
     private List<Tag> tags = new ArrayList<>();
     private String summary;
+
+    private String video;
     private long viewsCount;
     private boolean premium;
 
@@ -181,5 +183,13 @@ public class Article {
 
     public void setPremium(boolean premium) {
         this.premium = premium;
+    }
+
+    public String getVideo() {
+        return video;
+    }
+
+    public void setVideo(String video) {
+        this.video = video;
     }
 }

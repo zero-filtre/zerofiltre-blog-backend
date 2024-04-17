@@ -1,10 +1,16 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article.model;
 
-import lombok.*;
-import tech.zerofiltre.blog.domain.article.model.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import tech.zerofiltre.blog.domain.article.model.Tag;
 
-import javax.validation.constraints.*;
-import java.util.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @ToString
@@ -27,5 +33,7 @@ public class PublishOrSaveArticleVM {
     @NotNull(message = "The content must not be null")
     @NotEmpty(message = "The content must not be empty")
     private String content;
+
+    private String video;
     private List<Tag> tags = new ArrayList<>();
 }

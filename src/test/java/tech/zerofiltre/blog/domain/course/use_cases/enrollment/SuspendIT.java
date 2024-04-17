@@ -85,7 +85,6 @@ class SuspendIT {
         assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
         assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());
         assertThat(enrollment.getCourse().getId()).isEqualTo(course.getId());
-        assertThat(enrollment.getCourse().getEnrolledCount()).isZero();
 
         assertThat(enrollment.getId()).isNotZero();
 

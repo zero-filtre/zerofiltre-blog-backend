@@ -62,7 +62,6 @@ public class Suspend {
         Course resultCourse = result.getCourse();
         //TODO Delete purchase for classic course as well
         if (resultCourse.isMentored()) purchaseProvider.delete(userId, resultCourse.getId());
-        resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         log.info("User {} enrollment suspended for course {}", userId, enrollment.getCourse().getId());
         return result;

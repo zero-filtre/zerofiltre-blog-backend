@@ -39,7 +39,6 @@ class SuspendTest {
         LocalDateTime afterSuspendPlus10Sec = LocalDateTime.now().plusSeconds(10);
 
         Enrollment deactivatedEnrollment = suspend.execute(1, 1);
-        assertThat(courseProvider.enrollCalledCount).isTrue();
         assertThat(chapterProvider.ofCourseIdCalled).isTrue();
 
         Assertions.assertThat(deactivatedEnrollment).isNotNull();
