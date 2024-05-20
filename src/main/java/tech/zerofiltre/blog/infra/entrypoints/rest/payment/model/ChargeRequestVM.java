@@ -14,6 +14,8 @@ public class ChargeRequestVM {
     @NotNull(message = "The product type must not be null")
     ChargeRequest.ProductType productType;
 
+    ChargeRequest.Currency currency;
+
 
     @NotNull(message = "The mode must not be null")
     @NotEmpty(message = "The mode must not be empty")
@@ -30,6 +32,7 @@ public class ChargeRequestVM {
         return mode.equals("payment") // one shot payment
                 || (mode.equals("subscription") && !proPlan)  // pay in 3
                 || (mode.equals("subscription") && recurringInterval != null); // pro plan
+                || (mode.equals("subscription") && recurringInterval != null && ChargeRequest.Currency); // pro plan
     }
 
 }

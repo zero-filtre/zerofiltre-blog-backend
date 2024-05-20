@@ -57,7 +57,8 @@ public class ChargeRequest {
     }
 
     public enum Currency {
-        EUR("eur");
+        EUR("eur"),
+        XAF("xaf");
 
         private final String value;
 
