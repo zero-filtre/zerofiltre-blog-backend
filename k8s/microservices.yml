@@ -32,6 +32,8 @@ spec:
             export PRO_PLAN_YEARLY_PRICE_ID='{{ .Data.data.pro_plan_yearly_price_id }}'
             export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
             export K8S_PROVISIONER_TOKEN='{{ .Data.data.k8s_provisioner_token }}'
+            export NOTCHPAY_PRIVATE_KEY='{{ .Data.data.notchpay_private_key }}'
+            export NOTCHPAY_HASH='{{ .Data.data.notchpay_hash }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
@@ -232,6 +234,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: k8s_provisioner_url
+            - name: NOTCHPAY_PUBLIC_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: notchpay_public_key
 ---
 apiVersion: v1
 kind: Service

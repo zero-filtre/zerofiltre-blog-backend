@@ -89,5 +89,17 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.checkout-reminder-check-frequency-ms:3600000}")
     private long checkoutReminderCheckFrequencyMs;
 
+    @Value("${zerofiltre.infra.api.notchpay.url}")
+    private String notchPayUrl;
+
+    @Value("${zerofiltre.infra.api.notchpay.public-key}")
+    private String notchPayPublicKey;
+
+    @Value("${zerofiltre.infra.api.notchpay.private-key}")
+    private String notchPayPrivateKey;
+
+    @Value("${zerofiltre.infra.api.notchpay.hash}")
+    private String notchPayHash;
+
 
 }

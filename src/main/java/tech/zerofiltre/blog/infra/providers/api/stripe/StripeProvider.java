@@ -6,6 +6,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.*;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
@@ -26,6 +27,7 @@ import java.util.Locale;
 
 @Slf4j
 @Component
+@Qualifier("stripeProvider")
 public class StripeProvider implements PaymentProvider {
 
     private static final String USER_ID = "userId";

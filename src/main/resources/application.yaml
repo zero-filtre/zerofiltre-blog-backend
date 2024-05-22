@@ -113,6 +113,11 @@ zerofiltre:
         expiration-seconds: 604800   #7 days
 
     api:
+      notchpay:
+        url: https://api.notchpay.co
+        public-key: ${NOTCHPAY_PUBLIC_KEY}
+        private-key: ${NOTCHPAY_PRIVATE_KEY}
+        hash: ${NOTCHPAY_HASH}
       vimeo:
         root-url: ${VIMEO_ROOT_URL}
         access-token: ${VIMEO_ACCESS_TOKEN}
