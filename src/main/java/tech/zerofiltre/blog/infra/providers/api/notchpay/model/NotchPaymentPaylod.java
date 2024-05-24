@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class Payment {
+public class NotchPaymentPaylod {
     private String email;
     private int amount;
     private String currency;

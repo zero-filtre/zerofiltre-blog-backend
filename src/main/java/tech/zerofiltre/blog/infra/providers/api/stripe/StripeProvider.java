@@ -9,11 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
 import tech.zerofiltre.blog.domain.payment.PaymentProvider;
 import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
+import tech.zerofiltre.blog.domain.payment.model.Payment;
 import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.Action;
@@ -24,6 +26,7 @@ import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.Locale;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -157,6 +160,16 @@ public class StripeProvider implements PaymentProvider {
         } catch (StripeException e) {
             throw new PaymentException("Error while cancelling the subscription", e, "");
         }
+    }
+
+    @Override
+    public Optional<Payment> paymentOf(String reference) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Payment save(Payment payment) throws ZerofiltreException {
+        return null;
     }
 
     private static void cancelForPrice(String paymentCustomerId, String priceId) throws StripeException {
