@@ -30,9 +30,14 @@ import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static tech.zerofiltre.blog.domain.payment.model.Payment.MONTH;
+import static tech.zerofiltre.blog.domain.payment.model.Payment.YEAR;
 
 @Slf4j
 @Component
@@ -59,9 +64,12 @@ public class NotchPayProvider implements PaymentProvider {
 
         NotchPaymentPaylod body = new NotchPaymentPaylod();
         body.setEmail(chargeRequest.getPaymentEmail());
-        body.setAmount(6550);
+        boolean monthly = "month".equals(chargeRequest.getRecurringInterval());
+        int amount = monthly ? 6500 : 72000;
+        body.setAmount(amount);
         body.setCurrency(chargeRequest.getCurrency().getValue());
-        body.setDescription("Abonnement PRO à la plateforme Zerofiltre");
+
+        body.setDescription("Abonnement PRO" + (monthly ? "" : " annuel") + " à la plateforme Zerofiltre");
         String paymentReference = UUID.randomUUID().toString();
         body.setReference(paymentReference);
         body.getCustomerMeta().put("userId", user.getId());
@@ -84,6 +92,7 @@ public class NotchPayProvider implements PaymentProvider {
                 JsonNode authorizationUrl = rootNode.get("authorization_url");
                 if (code != null && code.asText().equals("201")) {
                     Payment payment = new Payment();
+                    payment.setRecurringInterval(monthly ? MONTH : YEAR);
                     payment.setReference(paymentReference);
                     payment.setUser(user);
                     save(payment);
@@ -111,18 +120,20 @@ public class NotchPayProvider implements PaymentProvider {
             String paymentReference = webhookPayload.getData().getMerchantReference();
             Optional<Payment> payment = paymentOf(paymentReference);
             if (payment.isEmpty()) throw new PaymentException("Initialized payment not found in db", "payment");
-            User user = userProvider.userOfId(payment.get().getUser().getId()).orElseThrow(() -> new PaymentException("Unable to find the user of the payment", "payment"));
+            Payment foundPayment = payment.get();
+            foundPayment.setStatus(Payment.COMPLETED);
+            foundPayment.setAt(LocalDateTime.now());
+            save(foundPayment);
+            User user = userProvider.userOfId(foundPayment.getUser().getId()).orElseThrow(() -> new PaymentException("Unable to find the user of the payment", "payment"));
             user.setPlan(User.Plan.PRO);
             userProvider.save(user);
-//            scheduleReminderToRenew();
             String originURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
 
             notifyUser(user,
                     "Votre paiement chez Zerofiltre",
                     "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent bénéficier de nos contenus dans leur entièreté: " +
                             originURL +
-                            "\n\n Vous recevrez un rappel 5 jours avant la date de renouvellement de votre abonnement afin d'éviter toute coupure." +
-                            "\n\n L'équipe Zerofiltre. ");
+                            ". Vous recevrez un rappel 5 jours avant la date de renouvellement de votre abonnement afin d'éviter toute coupure.");
             return "OK";
         } catch (Exception e) {
             throw new PaymentException("Unable to process notchpay webhook", e, "payment");
@@ -131,18 +142,18 @@ public class NotchPayProvider implements PaymentProvider {
 
     @Override
     public void cancelSubscription(String paymentCustomerId) throws PaymentException {
-//            cancelScheduleReminderToRenew();
-        //            notifyUser();
     }
 
-    @Override
     public Optional<tech.zerofiltre.blog.domain.payment.model.Payment> paymentOf(String reference) {
         return dbNotchPayProvider.paymentOf(reference);
     }
 
-    @Override
     public tech.zerofiltre.blog.domain.payment.model.Payment save(tech.zerofiltre.blog.domain.payment.model.Payment payment) throws ZerofiltreException {
         return dbNotchPayProvider.save(payment);
+    }
+
+    public List<Payment> payments() {
+        return dbNotchPayProvider.payments();
     }
 
     void notifyUser(User user, String subject, String message) {
@@ -158,4 +169,7 @@ public class NotchPayProvider implements PaymentProvider {
         }
     }
 
+    public void delete(String status, long userId) {
+        dbNotchPayProvider.delete(status, userId);
+    }
 }

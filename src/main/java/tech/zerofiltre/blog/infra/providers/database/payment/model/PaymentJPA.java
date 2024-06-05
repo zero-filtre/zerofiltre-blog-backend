@@ -22,4 +22,8 @@ public class PaymentJPA extends BaseEntityJPA {
     private String reference;
 
     private LocalDateTime at;
+
+    private String status;
+
+    private String recurringInterval;
 }

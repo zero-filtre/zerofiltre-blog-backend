@@ -239,6 +239,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: notchpay_public_key
+            - name: ZEROFILTRE_INFRA_MOBILE_PAYMENTS_REMINDER_CRON
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: mobile_payments_reminder_cron
 ---
 apiVersion: v1
 kind: Service

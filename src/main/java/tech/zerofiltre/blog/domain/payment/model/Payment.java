@@ -13,9 +13,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Payment {
+    public static final String COMPLETED = "completed";
+    public static final String INITIALIZED = "initialized";
+    public static final String YEAR = "year";
+    public static final String MONTH = "month";
+
     private User user;
     private String reference;
     private long id;
     private LocalDateTime at = LocalDateTime.now();
+    private String status = INITIALIZED;
+    private String recurringInterval = MONTH;
 
 }

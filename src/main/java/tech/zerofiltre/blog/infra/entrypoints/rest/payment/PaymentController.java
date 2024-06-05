@@ -31,11 +31,8 @@ public class PaymentController {
 
     private final SecurityContextManager securityContextManager;
     private final CourseProvider courseProvider;
-    private final PaymentProvider stripeProvider;
-    private final PaymentProvider notchPayProvider;
-    private final UserProvider userProvider;
-    private final Suspend suspend;
-    private PaymentService paymentService;
+    private final PaymentService stripePaymentService;
+    private final PaymentService notchPaymentService;
 
 
     public PaymentController(SecurityContextManager securityContextManager,
@@ -47,18 +44,16 @@ public class PaymentController {
                              EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
-        this.stripeProvider = stripeProvider;
-        this.notchPayProvider = notchPayProvider;
-        this.userProvider = userProvider;
-        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
-        this.paymentService = new PaymentService(stripeProvider, userProvider, suspend);
+        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        stripePaymentService = new PaymentService(stripeProvider, userProvider, suspend);
+        notchPaymentService = new PaymentService(notchPayProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
     }
 
     @PostMapping("/cancelPlan")
     public String cancel() throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        paymentService.cancelSubscription(user);
+        stripePaymentService.cancelSubscription(user);
         return "Plan cancelled";
 
     }
@@ -68,9 +63,10 @@ public class PaymentController {
         User user = securityContextManager.getAuthenticatedUser();
         Product product = getProduct(chargeRequestVM.getProductId(), chargeRequestVM.getProductType());
         ChargeRequest chargeRequest = fromVM(chargeRequestVM);
-        if (ChargeRequest.Currency.XAF.equals(chargeRequest.getCurrency()))
-            this.paymentService = new PaymentService(notchPayProvider, userProvider, suspend);
-        return paymentService.createCheckoutSession(user, product, chargeRequest);
+        if (ChargeRequest.Currency.XAF.equals(chargeRequest.getCurrency())) {
+            return notchPaymentService.createCheckoutSession(user, product, chargeRequest);
+        }
+        return stripePaymentService.createCheckoutSession(user, product, chargeRequest);
     }
 
     private ChargeRequest fromVM(ChargeRequestVM chargeRequestVM) {
@@ -91,11 +87,9 @@ public class PaymentController {
             @RequestBody String payload,
             @RequestHeader(value = "Stripe-Signature", required = false) String sigHeader, @RequestHeader(value = "x-notch-signature", required = false) String notchPaySigHeader) throws PaymentException {
         if (sigHeader == null || sigHeader.isBlank()) {
-            this.paymentService = new PaymentService(notchPayProvider, userProvider, suspend);
-            return paymentService.fulfill(payload, notchPaySigHeader);
+            return notchPaymentService.fulfill(payload, notchPaySigHeader);
         } else {
-            this.paymentService = new PaymentService(stripeProvider, userProvider, suspend);
-            return paymentService.fulfill(payload, sigHeader);
+            return stripePaymentService.fulfill(payload, sigHeader);
         }
     }
 

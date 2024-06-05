@@ -47,6 +47,10 @@ zerofiltre:
   env: dev
   infra:
     stats.reminder.cron: "* */30 * * * ?"
+    mobile:
+      payments:
+        reminder:
+          cron: "0 */5 * * * ?"
     security:
       jwt:
         expiration-seconds: 86400 #1 day
