@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.payment;
 
 import com.stripe.Stripe;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
@@ -30,21 +31,29 @@ public class PaymentController {
 
     private final SecurityContextManager securityContextManager;
     private final CourseProvider courseProvider;
-    private final PaymentService paymentService;
+    private final PaymentService stripePaymentService;
+    private final PaymentService notchPaymentService;
 
 
-    public PaymentController(SecurityContextManager securityContextManager, CourseProvider courseProvider, InfraProperties infraProperties, PaymentProvider paymentProvider, UserProvider userProvider, EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
+    public PaymentController(SecurityContextManager securityContextManager,
+                             CourseProvider courseProvider,
+                             InfraProperties infraProperties,
+                             @Qualifier("stripeProvider") PaymentProvider stripeProvider,
+                             @Qualifier("notchPayProvider") PaymentProvider notchPayProvider,
+                             UserProvider userProvider,
+                             EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
         Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
-        this.paymentService = new PaymentService(paymentProvider, userProvider, suspend);
+        stripePaymentService = new PaymentService(stripeProvider, userProvider, suspend);
+        notchPaymentService = new PaymentService(notchPayProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
     }
 
     @PostMapping("/cancelPlan")
     public String cancel() throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        paymentService.cancelSubscription(user);
+        stripePaymentService.cancelSubscription(user);
         return "Plan cancelled";
 
     }
@@ -54,7 +63,10 @@ public class PaymentController {
         User user = securityContextManager.getAuthenticatedUser();
         Product product = getProduct(chargeRequestVM.getProductId(), chargeRequestVM.getProductType());
         ChargeRequest chargeRequest = fromVM(chargeRequestVM);
-        return paymentService.createCheckoutSession(user, product, chargeRequest);
+        if (ChargeRequest.Currency.XAF.equals(chargeRequest.getCurrency())) {
+            return notchPaymentService.createCheckoutSession(user, product, chargeRequest);
+        }
+        return stripePaymentService.createCheckoutSession(user, product, chargeRequest);
     }
 
     private ChargeRequest fromVM(ChargeRequestVM chargeRequestVM) {
@@ -64,6 +76,8 @@ public class PaymentController {
         chargeRequest.setMode(chargeRequestVM.getMode());
         chargeRequest.setProPlan(chargeRequestVM.isProPlan());
         chargeRequest.setRecurringInterval(chargeRequestVM.getRecurringInterval());
+        chargeRequest.setCurrency(chargeRequestVM.getCurrency());
+        chargeRequest.setPaymentEmail(chargeRequestVM.getPaymentEmail());
         return chargeRequest;
     }
 
@@ -71,8 +85,12 @@ public class PaymentController {
     @PostMapping("/webhook")
     public String handleWebhook(
             @RequestBody String payload,
-            @RequestHeader("Stripe-Signature") String sigHeader) throws PaymentException {
-        return paymentService.fulfill(payload, sigHeader);
+            @RequestHeader(value = "Stripe-Signature", required = false) String sigHeader, @RequestHeader(value = "x-notch-signature", required = false) String notchPaySigHeader) throws PaymentException {
+        if (sigHeader == null || sigHeader.isBlank()) {
+            return notchPaymentService.fulfill(payload, notchPaySigHeader);
+        } else {
+            return stripePaymentService.fulfill(payload, sigHeader);
+        }
     }
 
 
@@ -85,8 +103,8 @@ public class PaymentController {
                 .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(productId), ""));
     }
 
-    private boolean supportedProduct(ChargeRequest.ProductType productType){
-       return  productType == ChargeRequest.ProductType.COURSE || productType == ChargeRequest.ProductType.MENTORED;
+    private boolean supportedProduct(ChargeRequest.ProductType productType) {
+        return productType == ChargeRequest.ProductType.COURSE || productType == ChargeRequest.ProductType.MENTORED;
     }
 
 }

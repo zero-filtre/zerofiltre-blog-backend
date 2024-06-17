@@ -2,12 +2,14 @@ package tech.zerofiltre.blog.domain.payment.model;
 
 public class ChargeRequest {
 
-    private final Currency currency = Currency.EUR;
+
+    private Currency currency = Currency.EUR;
     private long productId;
     private String mode;
     private ProductType productType;
     private boolean proPlan;
     private String recurringInterval;
+    private String paymentEmail;
 
 
     public String getRecurringInterval() {
@@ -47,6 +49,10 @@ public class ChargeRequest {
         return currency;
     }
 
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+
 
     public ProductType getProductType() {
         return productType;
@@ -56,8 +62,17 @@ public class ChargeRequest {
         this.productType = productType;
     }
 
+    public String getPaymentEmail() {
+        return paymentEmail;
+    }
+
+    public void setPaymentEmail(String paymentEmail) {
+        this.paymentEmail = paymentEmail;
+    }
+
     public enum Currency {
-        EUR("eur");
+        EUR("eur"),
+        XAF("XAF");
 
         private final String value;
 

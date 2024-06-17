@@ -47,6 +47,10 @@ zerofiltre:
   env: dev
   infra:
     stats.reminder.cron: "* */30 * * * ?"
+    mobile:
+      payments:
+        reminder:
+          cron: "0 */5 * * * ?"
     security:
       jwt:
         expiration-seconds: 86400 #1 day
@@ -57,6 +61,11 @@ zerofiltre:
       verification-token:
         expiration-seconds: 604800   #7 days
     api:
+      notchpay:
+        url: https://api.notchpay.co
+        public-key: zz
+        private-key: 45
+        hash: 85
       vimeo:
         root-url: xx
         access-token: yy

@@ -1,8 +1,8 @@
 package tech.zerofiltre.blog.domain.payment;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.payment.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
+import tech.zerofiltre.blog.domain.user.model.User;
 
 public interface PaymentProvider {
 
@@ -11,4 +11,5 @@ public interface PaymentProvider {
     String handleWebhook(String payload, String signature) throws PaymentException;
 
     void cancelSubscription(String paymentCustomerId) throws PaymentException;
+
 }
