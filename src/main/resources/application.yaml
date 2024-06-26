@@ -116,34 +116,34 @@ zerofiltre:
     api:
       notchpay:
         url: https://api.notchpay.co
-        public-key: ${NOTCHPAY_PUBLIC_KEY}
-        private-key: ${NOTCHPAY_PRIVATE_KEY}
-        hash: ${NOTCHPAY_HASH}
+        public-key: xx #${NOTCHPAY_PUBLIC_KEY}
+        private-key: xx #${NOTCHPAY_PRIVATE_KEY}
+        hash: xx #${NOTCHPAY_HASH}
       vimeo:
-        root-url: ${VIMEO_ROOT_URL}
-        access-token: ${VIMEO_ACCESS_TOKEN}
+        root-url: xx #${VIMEO_ROOT_URL}
+        access-token: xx #${VIMEO_ACCESS_TOKEN}
       stripe:
-        secret-key: ${STRIPE_SECRET_KEY}
-        webhook-secret: ${STRIPE_WEBHOOK_SECRET}
-        customer-portal-link: ${CUSTOMER_PORTAL_LINK}
-        pro-plan-product-id: ${PRO_PLAN_PRODUCT_ID}
-        pro-plan-price-id: ${PRO_PLAN_PRICE_ID}
-        pro-plan-yearly-price-id: ${PRO_PLAN_YEARLY_PRICE_ID}
+        secret-key: xx #${STRIPE_SECRET_KEY}
+        webhook-secret: xx #${STRIPE_WEBHOOK_SECRET}
+        customer-portal-link: xx #${CUSTOMER_PORTAL_LINK}
+        pro-plan-product-id: xx #${PRO_PLAN_PRODUCT_ID}
+        pro-plan-price-id: xx #${PRO_PLAN_PRICE_ID}
+        pro-plan-yearly-price-id: xx #${PRO_PLAN_YEARLY_PRICE_ID}
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa
-        client-secret: ${GITHUB_CLIENT_SECRET}
+        client-secret: xx #${GITHUB_CLIENT_SECRET}
       stackoverflow:
         version: 2.3
         root-url: https://api.stackexchange.com/
         key: ZAeo5W0MnZPxiEBgb99MvA((
       ovh:
-        username: ${OVH_USERNAME}
-        password: ${OVH_PASSWORD}
-        auth-url: ${OVH_AUTH_URL}
+        username: xx #${OVH_USERNAME}
+        password: xx #${OVH_PASSWORD}
+        auth-url: xx #${OVH_AUTH_URL}
       k8s-provisioner:
         url: https://provisioner-dev.zerofiltre.tech
-        token: ${K8S_PROVISIONER_TOKEN}
+        token: xx #${K8S_PROVISIONER_TOKEN}
     entrypoints:
       rest:
         api-version: 1.0

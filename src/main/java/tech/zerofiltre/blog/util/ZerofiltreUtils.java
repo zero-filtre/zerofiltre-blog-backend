@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -329,5 +330,12 @@ public class ZerofiltreUtils {
 
         // Format the LocalDateTime to the desired format
         return dateTime.format(formatter);
+    }
+
+    public static List<LocalDate> defineDateStartAndDateEnd() {
+        LocalDate dateEnd1 = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
+        LocalDate dateStart1 = dateEnd1.minusMonths(1);
+
+        return Arrays.asList(dateStart1, dateEnd1);
     }
 }

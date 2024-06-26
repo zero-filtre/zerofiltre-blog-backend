@@ -29,4 +29,7 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
 
     @Query("select a from ArticleJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY viewsCount desc ")
     Page<ArticleJPA> findByViewsAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
+
+    @Query(value = "select count(distinct a.author_id) from article a WHERE a.last_published_at>=?1 AND a.last_published_at<?2 AND a.author_id=?3", nativeQuery = true)
+    int countByDateStartAndDateEndAndAuthorId(String dateStart, String dateEnd, long authorId);
 }

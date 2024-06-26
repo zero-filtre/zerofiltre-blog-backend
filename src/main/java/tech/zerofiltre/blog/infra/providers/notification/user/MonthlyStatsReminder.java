@@ -8,13 +8,13 @@ import org.springframework.stereotype.*;
 import org.thymeleaf.*;
 import org.thymeleaf.context.*;
 import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.*;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
 import tech.zerofiltre.blog.infra.security.config.*;
 
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -25,13 +25,16 @@ import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 @RequiredArgsConstructor
 public class MonthlyStatsReminder {
 
+    private static final int DATE_START = 0;
+    private static final int DATE_END = 1;
+
     private final UserProvider userProvider;
     private final ZerofiltreEmailSender emailSender;
     private final MessageSource messages;
     private final InfraProperties infraProperties;
     private final ITemplateEngine emailTemplateEngine;
-    private final ArticleViewProvider articleViewProvider;
-    private final ArticleProvider articleProvider;
+    private final ArticleViewByDatesProvider articleViewByDatesProvider;
+    private final ArticleByDatesProvider articleByDatesProvider;
 
 
     @Scheduled(cron = "${zerofiltre.infra.stats.reminder.cron}")
@@ -39,6 +42,8 @@ public class MonthlyStatsReminder {
 
         List<User> users = userProvider.users();
         //TODO: Get only users having views/enrollments ... only active users actually
+
+        List<LocalDate> listDates = defineDateStartAndDateEnd();
 
         for (User user : users) {
             if (user.getEmail() != null && EmailValidator.validateEmail(user.getEmail())) {
@@ -49,8 +54,9 @@ public class MonthlyStatsReminder {
                 String subject = messages.getMessage("message.stats.subject.remind", null, locale);
 
                 String pageUri = "/articles";
-                int articlesViewsCount = articleViewProvider.viewsOfUser(user.getId()).size();
-                int publishedArticlesCount = articleProvider.articlesOf(0, Integer.MAX_VALUE, Status.PUBLISHED, user.getId(), null, null).getNumberOfElements();
+
+                int articlesViewsCount = articleViewByDatesProvider.countByUser(listDates.get(DATE_START).toString(), listDates.get(DATE_END).toString(), user.getId());
+                int publishedArticlesCount = articleByDatesProvider.countByUser(listDates.get(DATE_START).toString(), listDates.get(DATE_END).toString(), user.getId());
 
                 Map<String, Object> templateModel = new HashMap<>();
                 templateModel.put("fullName", user.getFullName());
