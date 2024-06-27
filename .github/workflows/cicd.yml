@@ -22,9 +22,8 @@ jobs:
       docker_tag_suffix: ${{startsWith(github.ref, 'refs/heads/release-') && 'stable' || 'unstable'}}
       replicas : ${{startsWith(github.ref, 'refs/heads/release-') && 1 || 1 }}
       requests_cpu : ${{startsWith(github.ref, 'refs/heads/release-') && 0.1 || 0.1 }}
-      requests_memory : ${{startsWith(github.ref, 'refs/heads/release-') && '0.5Gi' || '0.5Gi' }}
-      limits_cpu : ${{startsWith(github.ref, 'refs/heads/release-') && 0.5 || 0.5 }}
-      limits_memory : ${{startsWith(github.ref, 'refs/heads/release-') && '2Gi' || '3Gi' }}
+      requests_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '1Gi' || '1Gi' }}
+      limits_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '1Gi' || '1Gi' }}
       tag_number : ${{ github.run_number }}
       
 
@@ -49,6 +48,20 @@ jobs:
  
 #     - name: SonarCloud Scan
 #       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+    - name: Cache OpenTelemetry Java agent
+      id: cache-otel-agent
+      uses: actions/cache@v4
+      with:
+        path: opentelemetry-javaagent.jar
+        key: ${{ runner.os }}-otel-agent-v2.5.0
+        restore-keys: |
+          ${{ runner.os }}-otel-agent-
+          
+
+    - name: Download OpenTelemetry Java agent
+      if: steps.cache-otel-agent.outputs.cache-hit != 'true'
+      run: wget -O opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.5.0/opentelemetry-javaagent.jar
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -75,6 +88,7 @@ jobs:
         tags: imzerofiltre/zerofiltretech-blog:${{ github.run_number }}_${{ env.docker_tag_suffix }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
+        build-args: PROFILE=${{ env.env_name }}
 
     - name: Set up kubectl
       uses: tale/kubectl-action@v1
