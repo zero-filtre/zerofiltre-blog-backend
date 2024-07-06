@@ -32,6 +32,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Check PR Origin
+      id: check_origin
+      run: |
+        PR_REPO_URL=$(jq -r '.head_commit.url' "$GITHUB_EVENT_PATH")
+        echo $PR_REPO_URL
+        if [[ $PR_REPO_URL == https://github.com/zero-filtre* ]]; then
+          echo "PR is from the same origin."
+          echo "same_origin=true" >> $GITHUB_OUTPUT
+        else
+          echo "PR is from a fork."
+          echo "same_origin=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
@@ -50,6 +63,7 @@ jobs:
 #       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
     - name: Cache OpenTelemetry Java agent
+      if: steps.check_origin.outputs.same_origin == 'true'
       id: cache-otel-agent
       uses: actions/cache@v4
       with:
@@ -60,13 +74,15 @@ jobs:
           
 
     - name: Download OpenTelemetry Java agent
-      if: steps.cache-otel-agent.outputs.cache-hit != 'true'
+      if: steps.check_origin.outputs.same_origin == 'true' && steps.cache-otel-agent.outputs.cache-hit != 'true'
       run: wget -O opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.5.0/opentelemetry-javaagent.jar
 
     - name: Set up Docker Buildx
+      if: steps.check_origin.outputs.same_origin == 'true'
       uses: docker/setup-buildx-action@v1
 
     - name: Cache Docker layers
+      if: steps.check_origin.outputs.same_origin == 'true'
       uses: actions/cache@v2
       with:
         path: /tmp/.buildx-cache
@@ -75,12 +91,14 @@ jobs:
           ${{ runner.os }}-buildx-
 
     - name: Docker Login
+      if: steps.check_origin.outputs.same_origin == 'true'
       uses: docker/login-action@v2.1.0
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     - name: Build and push
+      if: steps.check_origin.outputs.same_origin == 'true'
       uses: docker/build-push-action@v2
       with:
         context: .
@@ -91,16 +109,19 @@ jobs:
         build-args: PROFILE=${{ env.env_name }}
 
     - name: Set up kubectl
+      if: steps.check_origin.outputs.same_origin == 'true'
       uses: tale/kubectl-action@v1
       with:
         base64-kube-config: ${{ secrets.KUBE_CONFIG }}
         
     - name: Set up k8s manifest
+      if: steps.check_origin.outputs.same_origin == 'true'
       run: |
         envsubst < k8s/microservices.yml > k8s.yml
         cat k8s.yml
         
     - name: Deploy to k8s
+      if: steps.check_origin.outputs.same_origin == 'true'
       run: |
         kubectl apply -f k8s.yml
         kubectl annotate deployment zerofiltretech-blog-${{ env.env_name }} kubernetes.io/change-cause="version change to: ${{ github.run_number }}_${{ env.docker_tag_suffix }} " -n zerofiltretech-${{ env.env_name }} --overwrite=true
@@ -111,7 +132,7 @@ jobs:
         fi
         
     - name: Get commit author email
-      if: ${{ failure() }}
+      if: ${{ failure() }} && steps.check_origin.outputs.same_origin == 'true'
       run: |
         COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
         echo "COMMIT_AUTHOR_EMAIL=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_ENV
@@ -128,9 +149,10 @@ jobs:
             Workflow failed on ${{ github.repository }}/${{ github.head_ref }} (commit ${{ github.sha }}). \nSee the workflow run log for more details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           from: "GitHub Actions <${{ vars.EMAIL_FROM }}>"
           to: ${{ env.COMMIT_AUTHOR_EMAIL }}
-      if: ${{ failure() }}
- 
+      if: ${{ failure() }} && steps.check_origin.outputs.same_origin == 'true'
+
     - name: Move cache
+      if: steps.check_origin.outputs.same_origin == 'true'
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
