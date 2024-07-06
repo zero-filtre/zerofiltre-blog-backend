@@ -56,4 +56,9 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     public int getLessonsCount(long courseId) {
         return 0;
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        return 0;
+    }
 }

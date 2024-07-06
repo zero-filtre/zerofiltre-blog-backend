@@ -57,4 +57,9 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons imp
     public int getLessonsCount(long courseId) {
         return 2;
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        return 0;
+    }
 }

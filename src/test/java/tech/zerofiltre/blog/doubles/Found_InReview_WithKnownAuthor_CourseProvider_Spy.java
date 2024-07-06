@@ -53,4 +53,9 @@ public class Found_InReview_WithKnownAuthor_CourseProvider_Spy implements Course
     public int getLessonsCount(long courseId) {
         return 0;
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        return 0;
+    }
 }

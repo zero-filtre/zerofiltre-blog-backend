@@ -64,4 +64,9 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
     public int getLessonsCount(long courseId) {
         return 0;
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        return 0;
+    }
 }

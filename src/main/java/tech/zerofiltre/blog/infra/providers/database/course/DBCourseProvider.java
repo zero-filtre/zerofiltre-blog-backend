@@ -113,4 +113,10 @@ public class DBCourseProvider implements CourseProvider {
     public int getLessonsCount(long courseId) {
         return repository.getLessonsCount(courseId);
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        Optional<CourseJPA> course = repository.findByChapterId(chapterId);
+        return course.map(CourseJPA::getId).orElse(0L);
+    }
 }

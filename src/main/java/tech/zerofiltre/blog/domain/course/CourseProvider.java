@@ -23,4 +23,6 @@ public interface CourseProvider {
     int getEnrolledCount(long courseId);
 
     int getLessonsCount(long courseId);
+
+    long courseIdOfChapterId(long chapterId);
 }
