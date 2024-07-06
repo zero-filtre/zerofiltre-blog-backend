@@ -32,17 +32,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Print Event Payload
+      run: |
+        cat $GITHUB_EVENT_PATH
+
     - name: Check PR Origin
       id: check_origin
       run: |
-        PR_REPO_URL=$(jq -r '.head_commit.url' "$GITHUB_EVENT_PATH")
-        echo $PR_REPO_URL
-        if [[ $PR_REPO_URL == https://github.com/zero-filtre* ]]; then
-          echo "PR is from the same origin."
-          echo "same_origin=true" >> $GITHUB_OUTPUT
-        else
+        PR_REPO_URL=$(jq -r '.pull_request.head.repo.clone_url' "$GITHUB_EVENT_PATH")
+        BASE_REPO_URL=$(jq -r '.repository.clone_url' "$GITHUB_EVENT_PATH")
+        if [ "$PR_REPO_URL" != "null" -a "$PR_REPO_URL" != "$BASE_REPO_URL" ]; then
           echo "PR is from a fork."
           echo "same_origin=false" >> $GITHUB_OUTPUT
+        else
+          echo "Either it is not a PR or PR is from the same origin."
+          echo "same_origin=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Set up JDK 11
@@ -132,7 +136,7 @@ jobs:
         fi
         
     - name: Get commit author email
-      if: ${{ failure() }} && steps.check_origin.outputs.same_origin == 'true'
+      if: ${{ failure()  && steps.check_origin.outputs.same_origin == 'true' }}
       run: |
         COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
         echo "COMMIT_AUTHOR_EMAIL=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_ENV
@@ -149,7 +153,7 @@ jobs:
             Workflow failed on ${{ github.repository }}/${{ github.head_ref }} (commit ${{ github.sha }}). \nSee the workflow run log for more details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           from: "GitHub Actions <${{ vars.EMAIL_FROM }}>"
           to: ${{ env.COMMIT_AUTHOR_EMAIL }}
-      if: ${{ failure() }} && steps.check_origin.outputs.same_origin == 'true'
+      if: ${{ failure() && steps.check_origin.outputs.same_origin == 'true' }}
 
     - name: Move cache
       if: steps.check_origin.outputs.same_origin == 'true'
