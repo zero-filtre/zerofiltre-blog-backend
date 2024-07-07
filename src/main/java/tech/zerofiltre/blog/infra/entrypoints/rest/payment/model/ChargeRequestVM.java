@@ -32,10 +32,10 @@ public class ChargeRequestVM {
 
     @AssertTrue(message = "The mode must be either payment or subscription (with a recurringInterval = 'month' or 'year'; note that using 'recurringInterval' requires proPlan to be true). \n If you use xaf for payment then you must provide a valid paymentEmail address.")
     private boolean isOk() {
-        return mode.equals("payment") // one shot payment
-                || (mode.equals("subscription") && !proPlan)  // pay in 3
-                || (mode.equals("subscription") && recurringInterval != null && currency == null) // pro plan eur
-                || (mode.equals("subscription") && recurringInterval != null && ChargeRequest.Currency.XAF.equals(currency)
+        return "payment".equals(mode) // one shot payment
+                || ("subscription".equals(mode) && !proPlan)  // pay in 3
+                || ("subscription".equals(mode) && recurringInterval != null && currency == null) // pro plan eur
+                || ("subscription".equals(mode) && recurringInterval != null && ChargeRequest.Currency.XAF.equals(currency)
                 && EmailValidator.validateEmail(paymentEmail)); // Mobile Money pro plan
     }
 

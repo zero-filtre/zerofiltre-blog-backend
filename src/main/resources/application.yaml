@@ -68,8 +68,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: philippesimo@zerofiltre.tech
-    password: ${SPRING_MAIL_PASSWORD}
+    username: your_address@domain.com
+    password: ${SPRING_MAIL_PASSWORD:yourpassword}
     properties:
       mail:
         smtp:
@@ -78,8 +78,8 @@ spring:
             enable: true
   datasource:
     username: blog_api_dev
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_dev
+    password: ${SPRING_DATASOURCE_PASSWORD:your_mySQLDB_password}
+    url: jdbc:mysql://blog-api-db.cttqyqreuonm.eu-west-3.rds.amazonaws.com:3306/blogapidb_dev #replace with your mySQL server host:port/db
   jpa:
     generate-ddl: true
     hibernate:
@@ -116,34 +116,34 @@ zerofiltre:
     api:
       notchpay:
         url: https://api.notchpay.co
-        public-key: ${NOTCHPAY_PUBLIC_KEY}
-        private-key: ${NOTCHPAY_PRIVATE_KEY}
-        hash: ${NOTCHPAY_HASH}
+        public-key: ${NOTCHPAY_PUBLIC_KEY:noneed}
+        private-key: ${NOTCHPAY_PRIVATE_KEY:noneed}
+        hash: ${NOTCHPAY_HASH:noneed}
       vimeo:
-        root-url: ${VIMEO_ROOT_URL}
-        access-token: ${VIMEO_ACCESS_TOKEN}
+        root-url: ${VIMEO_ROOT_URL:noneed}
+        access-token: ${VIMEO_ACCESS_TOKEN:noneed}
       stripe:
-        secret-key: ${STRIPE_SECRET_KEY}
-        webhook-secret: ${STRIPE_WEBHOOK_SECRET}
-        customer-portal-link: ${CUSTOMER_PORTAL_LINK}
-        pro-plan-product-id: ${PRO_PLAN_PRODUCT_ID}
-        pro-plan-price-id: ${PRO_PLAN_PRICE_ID}
-        pro-plan-yearly-price-id: ${PRO_PLAN_YEARLY_PRICE_ID}
+        secret-key: ${STRIPE_SECRET_KEY:noneed}
+        webhook-secret: ${STRIPE_WEBHOOK_SECRET:noneed}
+        customer-portal-link: ${CUSTOMER_PORTAL_LINK:noneed}
+        pro-plan-product-id: ${PRO_PLAN_PRODUCT_ID:noneed}
+        pro-plan-price-id: ${PRO_PLAN_PRICE_ID:noneed}
+        pro-plan-yearly-price-id: ${PRO_PLAN_YEARLY_PRICE_ID:noneed}
       github:
         root-url: https://api.github.com/
         client-id: 9b6bffa9841d19dfd8aa
-        client-secret: ${GITHUB_CLIENT_SECRET}
+        client-secret: ${GITHUB_CLIENT_SECRET:noneed}
       stackoverflow:
         version: 2.3
         root-url: https://api.stackexchange.com/
         key: ZAeo5W0MnZPxiEBgb99MvA((
       ovh:
-        username: ${OVH_USERNAME}
-        password: ${OVH_PASSWORD}
-        auth-url: ${OVH_AUTH_URL}
+        username: ${OVH_USERNAME:noneed}
+        password: ${OVH_PASSWORD:noneed}
+        auth-url: ${OVH_AUTH_URL:noneed}
       k8s-provisioner:
         url: https://provisioner-dev.zerofiltre.tech
-        token: ${K8S_PROVISIONER_TOKEN}
+        token: ${K8S_PROVISIONER_TOKEN:noneed}
     entrypoints:
       rest:
         api-version: 1.0

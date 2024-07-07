@@ -1,12 +1,18 @@
 package tech.zerofiltre.blog.doubles;
 
-import org.springframework.data.domain.*;
-import org.springframework.data.repository.query.*;
-import tech.zerofiltre.blog.infra.providers.database.course.*;
-import tech.zerofiltre.blog.infra.providers.database.course.model.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.course.LessonJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
+import tech.zerofiltre.blog.infra.providers.database.course.model.LessonWithCourseIdJPA;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class DummyLessonJPARepository implements LessonJPARepository {
     @Override
@@ -152,5 +158,10 @@ public class DummyLessonJPARepository implements LessonJPARepository {
     @Override
     public <S extends LessonJPA, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
+    }
+
+    @Override
+    public List<LessonWithCourseIdJPA> findByKeyword(String keyword, Status status) {
+        return List.of();
     }
 }

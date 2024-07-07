@@ -18,8 +18,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: philippesimo@zerofiltre.tech
-    password: upoafthyaafaadzr
+    username: your_mail@domain.com
+    password: yourpassword
     properties:
       mail:
         smtp:
