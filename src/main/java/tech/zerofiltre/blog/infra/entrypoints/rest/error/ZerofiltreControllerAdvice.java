@@ -1,21 +1,29 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.error;
 
-import lombok.extern.slf4j.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.context.*;
-import org.springframework.context.support.*;
-import org.springframework.http.*;
-import org.springframework.http.converter.*;
-import org.springframework.web.bind.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import tech.zerofiltre.blog.domain.article.use_cases.PublishOrSaveArticleException;
 import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.payment.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
+import tech.zerofiltre.blog.domain.payment.PaymentException;
+import tech.zerofiltre.blog.domain.user.use_cases.InvalidTokenException;
 
-import javax.servlet.*;
-import java.util.*;
+import javax.servlet.ServletException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Locale;
+import java.util.UUID;
 
 @Slf4j
 @RestControllerAdvice
@@ -57,7 +65,7 @@ public class ZerofiltreControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<BlogError> handleException(MethodArgumentNotValidException exception, Locale locale) {
         String errorMessage = exception.getAllErrors()
                 .stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -73,6 +81,44 @@ public class ZerofiltreControllerAdvice {
                 errorMessage
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler({MissingServletRequestParameterException.class})
+    public ResponseEntity<BlogError> handleException(MissingServletRequestParameterException exception, Locale locale) {
+
+        String errorCode = UUID.randomUUID().toString();
+
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                errorCode,
+                messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
+                exception.getLocalizedMessage()
+        );
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<BlogError> handleConstraintViolationException(ConstraintViolationException ex, Locale locale) {
+        String errorMessage = ex.getConstraintViolations()
+                .stream().map(ConstraintViolation::getMessage)
+                .reduce("", (prev, next) -> prev = prev + next + "; ");
+
+        String errorCode = UUID.randomUUID().toString();
+
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.BAD_REQUEST.value()),
+                errorCode,
+                messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
+                errorMessage
+        );
+
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 

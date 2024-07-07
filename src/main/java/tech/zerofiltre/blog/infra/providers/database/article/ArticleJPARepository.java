@@ -1,11 +1,13 @@
 package tech.zerofiltre.blog.infra.providers.database.article;
 
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 
-import java.util.*;
+import java.util.List;
 
 public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
     Page<ArticleJPA> findByStatus(Pageable pageable, Status status);
@@ -29,4 +31,11 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
 
     @Query("select a from ArticleJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY viewsCount desc ")
     Page<ArticleJPA> findByViewsAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
+
+    @Query("SELECT a FROM ArticleJPA a WHERE a.status = :status AND " +
+            "(LOWER(a.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(a.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(a.summary) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<ArticleJPA> findByKeyword(String keyword, Status status);
+
 }
