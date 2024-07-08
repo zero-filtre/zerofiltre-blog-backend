@@ -1,24 +1,29 @@
 package tech.zerofiltre.blog.infra.security.config;
 
-import lombok.extern.slf4j.*;
-import org.springframework.context.annotation.*;
-import org.springframework.http.*;
-import org.springframework.http.converter.json.*;
-import org.springframework.security.config.annotation.authentication.builders.*;
-import org.springframework.security.config.annotation.web.builders.*;
-import org.springframework.security.config.annotation.web.configuration.*;
-import org.springframework.security.config.http.*;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.password.*;
-import org.springframework.security.web.authentication.*;
-import org.springframework.security.web.util.matcher.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.providers.api.github.*;
-import tech.zerofiltre.blog.infra.providers.api.so.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
 import tech.zerofiltre.blog.infra.security.filter.*;
-import tech.zerofiltre.blog.infra.security.model.*;
+import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
 
 @Slf4j
 @Configuration
@@ -129,6 +134,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/initPasswordReset",
                         "/user/verifyTokenForPasswordReset",
                         "/tag/**",
+                        "/search",
                         "/user/profile/*",
                         "/user/jwt/refreshToken",
                         "/payment/success",
