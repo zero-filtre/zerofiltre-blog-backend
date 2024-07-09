@@ -25,8 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DBSearchProviderIT {
 
     private final SearchResultJpaMapper mapper = new SearchResultJpaMapper();
-    ArticleJPA article1;
-    CourseJPA course1;
+    private ArticleJPA article1;
+    private CourseJPA course2;
+    private CourseJPA course1;
     @Autowired
     private ArticleJPARepository articleJPARepository;
     @Autowired
@@ -56,16 +57,36 @@ class DBSearchProviderIT {
         course1.setStatus(Status.PUBLISHED);
         courseJPARepository.save(course1);
 
+        course2 = new CourseJPA();
+        course2.setTitle("2nd Java Course");
+        course2.setSubTitle("2nd Introduction to Spring");
+        course2.setSummary("2nd Summary of Java Course");
+        course2.setStatus(Status.PUBLISHED);
+        courseJPARepository.save(course2);
+
         ChapterJPA chapterJPA = new ChapterJPA();
         chapterJPA.setCourse(course1);
         chapterJPA = chapterJPARepository.save(chapterJPA);
+
+        ChapterJPA chapterJPA2 = new ChapterJPA();
+        chapterJPA2.setCourse(course1);
+        chapterJPA2 = chapterJPARepository.save(chapterJPA2);
 
         LessonJPA lesson1 = new LessonJPA();
         lesson1.setTitle("Data JPA Lesson");
         lesson1.setContent("Content about Data JPA");
         lesson1.setSummary("Summary of Spring Data JPA Lesson");
         lesson1.setChapter(chapterJPA);
+
+        LessonJPA lesson2 = new LessonJPA();
+        lesson2.setTitle("Data JPA Lesson");
+        lesson2.setContent("2nd Content about Data JPA");
+        lesson2.setSummary("Summary of Spring Data JPA Lesson");
+        lesson2.setChapter(chapterJPA2);
+
+
         lessonJPARepository.save(lesson1);
+        lessonJPARepository.save(lesson2);
     }
 
     @Test
@@ -77,12 +98,15 @@ class DBSearchProviderIT {
         assertThat(result.getArticles()).hasSize(1);
         assertThat(result.getArticles().get(0).getTitle()).isEqualTo("Spring Boot Guide");
 
-        assertThat(result.getCourses()).hasSize(1);
+        assertThat(result.getCourses()).hasSize(2);
         assertThat(result.getCourses().get(0).getTitle()).isEqualTo("Java Course");
 
-        assertThat(result.getLessons()).hasSize(1);
+        assertThat(result.getLessons()).hasSize(2);
         assertThat(result.getLessons().get(0).getTitle()).isEqualTo("Data JPA Lesson");
         assertThat(result.getLessons().get(0).getCourseId()).isEqualTo(course1.getId());
+
+        assertThat(result.getLessons().get(1).getContent()).isEqualTo("2nd Content about Data JPA");
+        assertThat(result.getLessons().get(1).getCourseId()).isEqualTo(course1.getId());
     }
 
     @Test
@@ -92,7 +116,9 @@ class DBSearchProviderIT {
         articleJPARepository.save(article1);
 
         course1.setStatus(Status.DRAFT);
+        course2.setStatus(Status.DRAFT);
         courseJPARepository.save(course1);
+        courseJPARepository.save(course2);
 
 
         // Execute the search

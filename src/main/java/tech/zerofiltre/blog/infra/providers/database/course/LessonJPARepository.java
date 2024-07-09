@@ -11,7 +11,7 @@ import java.util.List;
 public interface LessonJPARepository extends JpaRepository<LessonJPA, Long> {
 
     @Query("select new tech.zerofiltre.blog.infra.providers.database.course.model.LessonWithCourseIdJPA(l, co.id) from LessonJPA l " +
-            "join ChapterJPA c on c.id=l.id " +
+            "join ChapterJPA c on c.id=l.chapter.id " +
             "join CourseJPA co on co.id = c.course.id " +
             "where co.status= :status and" +
             "(LOWER(l.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
