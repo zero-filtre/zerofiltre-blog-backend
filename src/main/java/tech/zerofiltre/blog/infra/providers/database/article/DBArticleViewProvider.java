@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
 
+import java.time.LocalDate;
 import java.util.*;
 @Component
 @Transactional
@@ -36,6 +37,10 @@ public class DBArticleViewProvider implements ArticleViewProvider {
     @Override
     public void delete(ArticleView articleView) {
         repository.deleteById(articleView.getId());
+    }
 
+    @Override
+    public int countArticlesReadByDatesAndUser(LocalDate startDate, LocalDate endDate, long viewerId) {
+        return repository.countViewedIdByDatesAndViewerId(startDate, endDate, viewerId);
     }
 }
