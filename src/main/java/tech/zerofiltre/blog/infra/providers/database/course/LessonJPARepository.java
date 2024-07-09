@@ -19,4 +19,3 @@ public interface LessonJPARepository extends JpaRepository<LessonJPA, Long> {
             "LOWER(l.summary) LIKE LOWER(CONCAT('%', :keyword, '%'))) ")
     List<LessonWithCourseIdJPA> findByKeyword(String keyword, Status status);
 }
-
