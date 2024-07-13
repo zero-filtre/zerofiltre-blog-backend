@@ -35,6 +35,12 @@ public class StripeProvider implements PaymentProvider {
     public static final String INVALID_PAYLOAD = "Invalid payload";
     public static final String CHECKOUT_SESSION_COMPLETED = "checkout.session.completed";
     public static final String CUSTOMER_SUBSCRIPTION_DELETED = "customer.subscription.deleted";
+    public static final String FALSE_LABEL_VALUE = "false";
+    public static final String FOUND_CUSTOMER_LABEL = "foundCustomer";
+    public static final String SUCCESS_LABEL = "success";
+    public static final String PROVIDER_LABEL = "provider";
+    public static final String STRIPE_LABEL_VALUE = "stripe";
+    public static final String TRUE_LABEL_VALUE = "true";
 
 
     private final InfraProperties infraProperties;
@@ -81,17 +87,19 @@ public class StripeProvider implements PaymentProvider {
                 log.info("Customer for user {} found on stripe, using him to create checkout session.: {}", user.getEmail(), customer.toString().replace("\n", " "));
                 session = createSession(chargeRequest, product, customer);
                 userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, null, Action.CHECKOUT_STARTED));
-                counterSpecs.setTags("foundCustomer", "true", "success", "true");
+                counterSpecs.setTags(FOUND_CUSTOMER_LABEL, TRUE_LABEL_VALUE, SUCCESS_LABEL, TRUE_LABEL_VALUE, PROVIDER_LABEL, STRIPE_LABEL_VALUE);
                 return session;
 
             }
             session = createSession(chargeRequest, product, createCustomer(user));
-            counterSpecs.setTags("foundCustomer", "false", "success", "true");
             userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, null, Action.CHECKOUT_STARTED));
+            counterSpecs.setTags(FOUND_CUSTOMER_LABEL, FALSE_LABEL_VALUE, SUCCESS_LABEL, TRUE_LABEL_VALUE, PROVIDER_LABEL, STRIPE_LABEL_VALUE);
             metricsProvider.incrementCounter(counterSpecs);
             return session;
         } catch (StripeException e) {
             log.error("Error while initializing the checkout session: " + e.getLocalizedMessage(), e);
+            counterSpecs.setTags(FOUND_CUSTOMER_LABEL, FALSE_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE, PROVIDER_LABEL, STRIPE_LABEL_VALUE);
+            metricsProvider.incrementCounter(counterSpecs);
             throw new PaymentException("Error while initializing the checkout session" + e.getLocalizedMessage(), "");
         }
     }
