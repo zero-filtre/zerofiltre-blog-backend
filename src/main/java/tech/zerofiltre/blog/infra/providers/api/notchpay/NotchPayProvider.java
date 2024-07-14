@@ -15,12 +15,17 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
 import tech.zerofiltre.blog.domain.payment.PaymentProvider;
 import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
 import tech.zerofiltre.blog.domain.payment.model.Payment;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.Action;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.api.notchpay.model.NotchPaymentPaylod;
 import tech.zerofiltre.blog.infra.providers.api.notchpay.model.WebhookPayload;
@@ -31,10 +36,7 @@ import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static tech.zerofiltre.blog.domain.payment.model.Payment.MONTH;
 import static tech.zerofiltre.blog.domain.payment.model.Payment.YEAR;
@@ -43,24 +45,37 @@ import static tech.zerofiltre.blog.domain.payment.model.Payment.YEAR;
 @Component
 @Qualifier("notchPayProvider")
 public class NotchPayProvider implements PaymentProvider {
+    public static final String NOTCHPAY_LABEL_VALUE = "notchpay";
+    public static final String FALSE_LABEL_VALUE = "false";
+    public static final String SUCCESS_LABEL = "success";
+    public static final String PROVIDER_LABEL = "provider";
+    public static final String TRUE_LABEL_VALUE = "true";
+
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final RetryTemplate retryTemplate;
     private final UserProvider userProvider;
     private final DBNotchPayProvider dbNotchPayProvider;
     private final ZerofiltreEmailSender emailSender;
+    private final MetricsProvider metricsProvider;
+    private final UserNotificationProvider userNotificationProvider;
 
-    public NotchPayProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate, UserProvider userProvider, DBNotchPayProvider dbNotchPayProvider, ZerofiltreEmailSender emailSender) {
+    public NotchPayProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate, UserProvider userProvider, DBNotchPayProvider dbNotchPayProvider, ZerofiltreEmailSender emailSender, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         this.retryTemplate = retryTemplate;
         this.userProvider = userProvider;
         this.dbNotchPayProvider = dbNotchPayProvider;
         this.emailSender = emailSender;
+        this.metricsProvider = metricsProvider;
+        this.userNotificationProvider = userNotificationProvider;
     }
 
     @Override
     public String createSession(User user, Product product, ChargeRequest chargeRequest) throws PaymentException {
+        CounterSpecs counterSpecs = new CounterSpecs();
+        counterSpecs.setName(CounterSpecs.ZEROFILTRE_CHECKOUT_CREATIONS);
+        String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
 
         NotchPaymentPaylod body = new NotchPaymentPaylod();
         body.setEmail(chargeRequest.getPaymentEmail());
@@ -98,13 +113,21 @@ public class NotchPayProvider implements PaymentProvider {
                     save(payment);
                     user.setPaymentEmail(chargeRequest.getPaymentEmail());
                     userProvider.save(user);
-                    return authorizationUrl.asText();
+                    String session = authorizationUrl.asText();
+                    userNotificationProvider.notify(new UserActionEvent(appUrl, Locale.forLanguageTag(user.getLanguage()), user, null, null, Action.CHECKOUT_STARTED));
+                    counterSpecs.setTags(PROVIDER_LABEL, NOTCHPAY_LABEL_VALUE, SUCCESS_LABEL, TRUE_LABEL_VALUE);
+                    metricsProvider.incrementCounter(counterSpecs);
+                    return session;
                 } else {
+                    counterSpecs.setTags(PROVIDER_LABEL, NOTCHPAY_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE);
+                    metricsProvider.incrementCounter(counterSpecs);
                     throw new PaymentException("We couldn't initialize the payment due to : " + responseBody, "payment");
                 }
             });
         } catch (Exception e) {
             log.error("We couldn't initialize the payment", e);
+            counterSpecs.setTags(PROVIDER_LABEL, NOTCHPAY_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE);
+            metricsProvider.incrementCounter(counterSpecs);
             throw new PaymentException("We couldn't initialize the payment", e, "payment");
         }
     }
