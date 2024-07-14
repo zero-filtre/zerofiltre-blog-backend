@@ -1,15 +1,23 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
-import org.junit.jupiter.api.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.CompletedLesson;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.doubles.*;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 
 class CompleteLessonTest {
@@ -23,7 +31,7 @@ class CompleteLessonTest {
         EnrollmentProvider enrollmentProvider = new NotEnrolledEnrollmentProvider();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
@@ -39,7 +47,7 @@ class CompleteLessonTest {
         EnrollmentProvider enrollmentProvider = new NotEnrolledEnrollmentProvider();
         LessonProvider lessonProvider = new NotFoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
@@ -55,7 +63,7 @@ class CompleteLessonTest {
         AlreadyCompletedLessonEnrollmentProvider enrollmentProvider = new AlreadyCompletedLessonEnrollmentProvider();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
 
         //when
@@ -74,7 +82,7 @@ class CompleteLessonTest {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         FoundLessonProviderSpy lessonProvider = new FoundLessonProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
         LocalDateTime beforeCompletion = LocalDateTime.now();
 
@@ -102,7 +110,7 @@ class CompleteLessonTest {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
@@ -127,7 +135,7 @@ class CompleteLessonTest {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when
@@ -145,7 +153,7 @@ class CompleteLessonTest {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
         LessonProvider lessonProvider = new FoundLessonProviderSpy();
         ChapterProvider chapterProvider = new FoundChapterWithUnknownCourseProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
         //when

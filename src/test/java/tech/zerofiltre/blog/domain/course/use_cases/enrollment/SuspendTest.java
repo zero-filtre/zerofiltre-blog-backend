@@ -32,7 +32,7 @@ class SuspendTest {
     @Test
     void suspendDeactivatesTheEnrollment() throws ZerofiltreException {
         EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         LocalDateTime beforeSuspend = LocalDateTime.now();
         ChapterProviderSpy chapterProvider = new ChapterProviderSpy();
         suspend = new Suspend(enrollmentProviderSpy, courseProvider, chapterProvider, null);

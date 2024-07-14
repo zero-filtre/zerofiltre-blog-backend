@@ -1,22 +1,26 @@
 package tech.zerofiltre.blog.domain.course.use_cases.course;
 
-import org.junit.jupiter.api.*;
-import tech.zerofiltre.blog.domain.article.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_COURSE_TITLE;
 
 class CourseServiceTest {
 
@@ -174,7 +178,7 @@ class CourseServiceTest {
     @Test
     void publishOrSave_should_ThrowResourceNotFoundException_ifTagsNotFound() {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
 
         tagProvider = new NotFoundTagProviderSpy();
 
@@ -187,7 +191,7 @@ class CourseServiceTest {
                 .isThrownBy(() -> courseService.save(course, editor));
 
         //THEN
-        assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy) courseProvider).registerCourseCalled).isFalse();
+        assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons) courseProvider).registerCourseCalled).isFalse();
         assertThat(((NotFoundTagProviderSpy) tagProvider).tagOfIdCalled).isTrue();
     }
 
@@ -218,7 +222,7 @@ class CourseServiceTest {
     @Test
     void publishOrSave_should_setDatesAndStatusProperly_onPublish_AlreadyPublished() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
 
         tagProvider = new FoundTagProviderSpy();
 
@@ -285,7 +289,7 @@ class CourseServiceTest {
     @Test
     void publishOrSave_should_setStatusToPublished_whenSaving_PublishedCourse() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
 
         tagProvider = new FoundTagProviderSpy();
 
@@ -435,7 +439,7 @@ class CourseServiceTest {
     @Test
     void findById_ReturnCourse_IfUserNull() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         tagProvider = new FoundTagProviderSpy();
         chapterProvider = new FoundChapterProviderSpy();
 
@@ -463,7 +467,7 @@ class CourseServiceTest {
     @Test
     void getLessonsCount_returns_theProperNumber() {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         tagProvider = new FoundTagProviderSpy();
         chapterProvider = new FoundChapterProviderSpy();
 
@@ -479,7 +483,7 @@ class CourseServiceTest {
     @Test
     void getEnrolledCount_returns_theProperNumber() {
         //given
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
 
         //when
@@ -494,7 +498,7 @@ class CourseServiceTest {
     @Test
     void deleteThrowsForbiddenActionException_whenEnrolledCount_NotZero_evenForAnAdmin() {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         loggerProvider = new LoggerProviderSpy();
         editor.getRoles().add("ROLE_ADMIN");
 
@@ -509,7 +513,7 @@ class CourseServiceTest {
     @Test
     void deleteThrowsForbiddenActionException_ifCourseIsPublished_evenForAnAdmin() {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         loggerProvider = new LoggerProviderSpy();
         editor.getRoles().add("ROLE_ADMIN");
 

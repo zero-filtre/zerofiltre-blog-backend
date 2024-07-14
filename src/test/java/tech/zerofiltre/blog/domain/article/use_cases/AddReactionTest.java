@@ -1,23 +1,37 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.test.context.junit.jupiter.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Reaction;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.doubles.Found_Draft_WithKnownAuthor_CourseProvider_Spy;
+import tech.zerofiltre.blog.doubles.Found_Published_With49Reactions_CourseProvider_Spy;
+import tech.zerofiltre.blog.doubles.Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons;
+import tech.zerofiltre.blog.doubles.NotFoundCourseProviderSpy;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.*;
+import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.CLAP;
+import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.FIRE;
 
 @ExtendWith(SpringExtension.class)
 class AddReactionTest {
@@ -29,7 +43,7 @@ class AddReactionTest {
 
     @BeforeEach
     void init() {
-        addReaction = new AddReaction(articleProvider, new Found_Published_WithKnownAuthor_CourseProvider_Spy());
+        addReaction = new AddReaction(articleProvider, new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons());
     }
 
     @Test
@@ -71,7 +85,7 @@ class AddReactionTest {
         reaction.setCourseId(45);
         reaction.setAction(CLAP);
 
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         addReaction = new AddReaction(articleProvider, courseProvider);
 
         //ACT

@@ -1,11 +1,13 @@
 package tech.zerofiltre.blog.domain.course;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public interface CourseProvider {
     Optional<Course> courseOfId(long id);
@@ -19,4 +21,6 @@ public interface CourseProvider {
     List<Course> courseOf(User foundUser);
 
     int getEnrolledCount(long courseId);
+
+    int getLessonsCount(long courseId);
 }

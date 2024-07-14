@@ -1,15 +1,20 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Reaction;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.*;
+import static tech.zerofiltre.blog.domain.article.model.Reaction.Action.CLAP;
 
 public class Found_Published_With49Reactions_CourseProvider_Spy implements CourseProvider {
 
@@ -52,6 +57,11 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
 
     @Override
     public int getEnrolledCount(long courseId) {
+        return 0;
+    }
+
+    @Override
+    public int getLessonsCount(long courseId) {
         return 0;
     }
 }
