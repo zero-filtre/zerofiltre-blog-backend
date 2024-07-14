@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.infra.providers.database.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.article.model.*;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.*;
 
@@ -79,5 +80,8 @@ public class DBArticleProvider implements ArticleProvider {
         repository.delete(entity);
     }
 
-
+    @Override
+    public int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId) {
+        return repository.countPublishedArticlesByDatesAndUser(startDate, endDate, authorId);
+    }
 }

@@ -4,6 +4,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.model.*;
 import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public interface ArticleProvider {
@@ -17,4 +18,6 @@ public interface ArticleProvider {
     List<Article> articlesOf(User user);
 
     void delete(Article article);
+
+    int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId);
 }

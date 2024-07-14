@@ -9,6 +9,7 @@ import tech.zerofiltre.blog.domain.*;
 import tech.zerofiltre.blog.domain.article.*;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.*;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
 import tech.zerofiltre.blog.infra.providers.database.article.model.*;
@@ -24,7 +25,7 @@ import java.util.stream.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBArticleProvider.class, DBTagProvider.class})
+@Import({DBArticleProvider.class, DBTagProvider.class, DBUserProvider.class})
 class DBArticleProviderIT {
 
     @Autowired
@@ -42,6 +43,8 @@ class DBArticleProviderIT {
     @Autowired
     private ArticleProvider articleProvider;
 
+    @Autowired
+    private UserProvider userProvider;
 
     @BeforeEach
     void setUp() {
@@ -513,4 +516,58 @@ class DBArticleProviderIT {
         assertThat(articles.getContent().get(1).getTitle()).isEqualTo("article1");
 
     }
+
+    @Test
+    @DisplayName("Count published articles by dates and user works properly")
+    void countPublishedArticlesByDatesAndUser_works_properly() {
+        //ARRANGE
+        // -- dates
+        LocalDateTime lastMonth = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().minusMonths(1).getMonthValue(), 10, 0, 0);
+        LocalDateTime threeMonthsBack = lastMonth.minusMonths(2);
+        List<LocalDate> listDates = ZerofiltreUtils.defineStartDateAndEndDate();
+
+        // -- Users
+        User userA = new User();
+        userA = userProvider.save(userA);
+
+        User userB = new User();
+        userB = userProvider.save(userB);
+
+        // -- Articles
+        Article articleA1 = new Article();
+        articleA1.setAuthor(userA);
+        articleA1.setLastPublishedAt(threeMonthsBack);
+        articleProvider.save(articleA1);
+
+        Article articleA2 = new Article();
+        articleA2.setAuthor(userA);
+        articleA2.setLastPublishedAt(lastMonth);
+        articleProvider.save(articleA2);
+
+        Article articleA3 = new Article();
+        articleA3.setAuthor(userA);
+        articleA3.setLastPublishedAt(lastMonth);
+        articleProvider.save(articleA3);
+
+        Article articleB1 = new Article();
+        articleB1.setAuthor(userB);
+        articleB1.setLastPublishedAt(threeMonthsBack);
+        articleProvider.save(articleB1);
+
+        Article articleB2 = new Article();
+        articleB2.setAuthor(userB);
+        articleB2.setLastPublishedAt(lastMonth);
+        articleProvider.save(articleB2);
+
+        //ACT
+        int articlesPublishedByUserA = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(0), listDates.get(1), userA.getId());
+        int articlesPublishedByUserB = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(0), listDates.get(1), userB.getId());
+
+        //ASSERT
+        assertThat(articlesPublishedByUserA).isNotNull();
+        assertThat(articlesPublishedByUserA).isEqualTo(2);
+        assertThat(articlesPublishedByUserB).isNotNull();
+        assertThat(articlesPublishedByUserB).isEqualTo(1);
+    }
+
 }

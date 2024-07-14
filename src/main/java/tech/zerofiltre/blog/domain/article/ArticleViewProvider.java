@@ -1,8 +1,8 @@
 package tech.zerofiltre.blog.domain.article;
 
 import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public interface ArticleViewProvider {
@@ -14,4 +14,6 @@ public interface ArticleViewProvider {
     List<ArticleView> viewsOfUser(long viewerId);
 
     void delete(ArticleView articleView);
+
+    int countArticlesReadByDatesAndUser(LocalDate startDate, LocalDate endDate, long viewerId);
 }
