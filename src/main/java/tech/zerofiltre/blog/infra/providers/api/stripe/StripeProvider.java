@@ -25,13 +25,14 @@ import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.Locale;
 
+import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.PRODUCT_ID;
+import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.USER_ID;
+
 @Slf4j
 @Component
 @Qualifier("stripeProvider")
 public class StripeProvider implements PaymentProvider {
 
-    private static final String USER_ID = "userId";
-    public static final String PRODUCT_ID = "productId";
     public static final String INVALID_PAYLOAD = "Invalid payload";
     public static final String CHECKOUT_SESSION_COMPLETED = "checkout.session.completed";
     public static final String CUSTOMER_SUBSCRIPTION_DELETED = "customer.subscription.deleted";

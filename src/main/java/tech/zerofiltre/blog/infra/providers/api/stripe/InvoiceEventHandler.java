@@ -100,8 +100,8 @@ public class InvoiceEventHandler {
                     "[Urgent] Paiement échoué",
                     "Le paiement de votre facture a échoué, votre abonnement ne sera pas (re)activé. "
                             + "\n Vous pouvez utiliser le lien ci-dessous pour mettre à jour vos moyens de paiement et essayer de nouveau."
-                            + " \n Servez-vous de l'adresse e-mail utilisée lors du dernier paiement."
-                            + "\n Vous pouvez copier et coller le lien dans votre navigateur internet si jamais cliquer dessus ne fonctionne pas."
+                            + "\n Servez-vous de l'adresse e-mail utilisée lors du dernier paiement."
+                            + "\n Vous pouvez copier et coller le lien dans votre navigateur internet si lorsque vous cliquez dessus cela ne fonctionne pas."
                             + "\n" + customerPortalLink);
         }
         log.info("EventId= {}, EventType={}, Invoice payment failed for User {} on subscription {}", event.getId(), event.getType(), userId, subscription.getId());

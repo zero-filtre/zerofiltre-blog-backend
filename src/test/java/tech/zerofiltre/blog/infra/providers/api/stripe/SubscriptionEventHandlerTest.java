@@ -1,11 +1,10 @@
 package tech.zerofiltre.blog.infra.providers.api.stripe;
 
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.Event;
-import com.stripe.model.Subscription;
+import com.stripe.model.*;
 import com.stripe.param.SubscriptionRetrieveParams;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -16,22 +15,22 @@ import org.springframework.test.util.ReflectionTestUtils;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.CANCELLED_3TIMES_PAID;
-import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.USER_ID;
+import static tech.zerofiltre.blog.infra.providers.api.stripe.StripeCommons.*;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionEventHandlerTest {
@@ -63,20 +62,148 @@ class SubscriptionEventHandlerTest {
     @Mock
     UserProvider userProvider;
 
+    @Mock
+    StripeCommons stripeCommons;
+
+    @Mock
+    InfraProperties infraProperties;
+
     SubscriptionEventHandler eventHandler;
 
     @BeforeEach
     void init() {
-        eventHandler = new SubscriptionEventHandler(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, userProvider);
-
+        eventHandler = new SubscriptionEventHandler(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, userProvider, stripeCommons, infraProperties);
+        ReflectionTestUtils.setField(eventHandler, "suspend", suspend);
     }
 
+    @DisplayName("if the user is PRO and the subscription is canceled before the third payment then must transform enrollment to PRO")
+    @Test
+    void mustTransform_EnrollmentToPro_forUserPro() throws ZerofiltreException, StripeException {
 
+        try (MockedStatic<Subscription> mockedStatic = Mockito.mockStatic(Subscription.class)) {
+            //arrange
+            mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
+                    .thenReturn(subscription);
+
+            when(subscription.getId()).thenReturn("subscriptionId");
+            when(subscription.getCustomerObject()).thenReturn(customer);
+            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+
+            long userId15 = 15;
+            long courseId3 = 3;
+
+            Map<String, String> metadataCustomer = new HashMap<>();
+            metadataCustomer.put(USER_ID, String.valueOf(userId15));
+            when(customer.getMetadata()).thenReturn(metadataCustomer);
+
+            Product product = new Product();
+            product.setMetadata(new HashMap<>());
+            product.getMetadata().put(PRODUCT_ID, String.valueOf(courseId3));
+
+            Plan plan = new Plan();
+            plan.setProductObject(product);
+
+            SubscriptionItem subscriptionItem = new SubscriptionItem();
+            subscriptionItem.setPlan(plan);
+
+            List<SubscriptionItem> data = new ArrayList<>();
+            data.add(subscriptionItem);
+
+            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+            subscriptionItemCollection.setData(data);
+
+            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+
+            User user = new User();
+            user.setId(userId15);
+            user.setPlan(User.Plan.PRO);
+            when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+            Enrollment enrollment = new Enrollment();
+            enrollment.setUser(user);
+            enrollment.setCourse(new Course());
+            enrollment.setActive(true);
+            when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), eq(true))).thenReturn(Optional.of(enrollment));
+
+            when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment);
+
+            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+
+            //act
+            eventHandler.handleSubscriptionDeleted(event, subscription);
+
+            //assert
+            assertThat(enrollment.getPlan()).isEqualTo(User.Plan.PRO);
+
+            verify(enrollmentProvider, times(1)).save(any(Enrollment.class));
+            verify(suspend, times(0)).execute(anyLong(), anyLong());
+            verify(suspend, times(0)).all(anyLong(), any());
+            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+        }
+    }
+
+    @DisplayName("if the user is not PRO and the subscription is canceled before the third payment then must suspend enrollment on course")
+    @Test
+    void mustSuspend_Enrollment_forCoursePurchase() throws ZerofiltreException, StripeException {
+
+        try (MockedStatic<Subscription> mockedStatic = Mockito.mockStatic(Subscription.class)) {
+            //arrange
+            when(subscription.getCustomerObject()).thenReturn(customer);
+            mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), any()))
+                    .thenReturn(subscription);
+
+            when(subscription.getId()).thenReturn("subscriptionId");
+            when(subscription.getCustomerObject()).thenReturn(customer);
+            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+
+            long userId15 = 15;
+            long courseId3 = 3;
+
+            Map<String, String> metadataCustomer = new HashMap<>();
+            metadataCustomer.put(USER_ID, String.valueOf(userId15));
+            when(customer.getMetadata()).thenReturn(metadataCustomer);
+
+            Product product = new Product();
+            product.setMetadata(new HashMap<>());
+            product.getMetadata().put(PRODUCT_ID, String.valueOf(courseId3));
+
+            Plan plan = new Plan();
+            plan.setProductObject(product);
+
+            SubscriptionItem subscriptionItem = new SubscriptionItem();
+            subscriptionItem.setPlan(plan);
+
+            List<SubscriptionItem> data = new ArrayList<>();
+            data.add(subscriptionItem);
+
+            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+            subscriptionItemCollection.setData(data);
+
+            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+
+            User user = new User();
+            user.setId(userId15);
+            user.setPlan(User.Plan.BASIC);
+
+            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+
+            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+
+            //act
+            eventHandler.handleSubscriptionDeleted(event, subscription);
+
+            //assert
+            verify(suspend, times(1)).execute(userId15, courseId3);
+            verify(suspend, times(0)).all(anyLong(), any());
+            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+        }
+    }
+
+    @DisplayName("if the subscription is canceled AFTER the third payment then must ignore the event")
     @Test
     void mustIgnore_DeletedSubscription_IfItIs_3TimesPaymentCancelled() throws ZerofiltreException, StripeException {
 
         //arrange
-        ReflectionTestUtils.setField(eventHandler, "suspend", suspend);
         Map<String, String> metadata = new HashMap<>();
         metadata.put(CANCELLED_3TIMES_PAID, Boolean.toString(true));
         when(subscription.getMetadata()).thenReturn(metadata);
@@ -86,9 +213,58 @@ class SubscriptionEventHandlerTest {
 
         //assert
         verify(suspend, times(0)).all(anyLong(), any());
+        verify(suspend, times(0)).execute(anyLong(), anyLong());
 
     }
 
+    @DisplayName("if the user is not PRO and the subscription is not related to a course then must suspend all")
+    @Test
+    void mustSuspend_allEvents_onDeleted_BasicPlanSubscription() throws ZerofiltreException, StripeException {
+
+        try (MockedStatic<Subscription> mockedStatic = Mockito.mockStatic(Subscription.class)) {
+            //arrange
+            mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
+                    .thenReturn(subscription);
+
+            when(subscription.getId()).thenReturn("subscriptionId");
+            when(subscription.getCustomerObject()).thenReturn(customer);
+            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+
+            long userId15 = 15;
+
+            Map<String, String> metadataCustomer = new HashMap<>();
+            metadataCustomer.put(USER_ID, String.valueOf(userId15));
+            when(customer.getMetadata()).thenReturn(metadataCustomer);
+
+            SubscriptionItem subscriptionItem = new SubscriptionItem();
+            subscriptionItem.setPlan(new Plan());
+
+            List<SubscriptionItem> data = new ArrayList<>();
+            data.add(subscriptionItem);
+
+            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+            subscriptionItemCollection.setData(data);
+
+            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+
+            User user = new User();
+            user.setId(userId15);
+            user.setPlan(User.Plan.BASIC);
+            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+
+            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+
+            //act
+            eventHandler.handleSubscriptionDeleted(event, subscription);
+
+            //assert
+            verify(suspend, times(1)).all(userId15, User.Plan.PRO);
+            verify(suspend, times(0)).execute(anyLong(), anyLong());
+            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+        }
+    }
+
+    @DisplayName("if the user is PRO and the subscription is not related to a course then must suspend all and bring the user back to basic")
     @Test
     void mustSuspend_allEnrollments_onDeleted_ProPlanSubscription() throws ZerofiltreException, StripeException {
 
@@ -98,35 +274,76 @@ class SubscriptionEventHandlerTest {
                     .thenReturn(subscription);
 
             when(subscription.getId()).thenReturn("subscriptionId");
-
             when(subscription.getCustomerObject()).thenReturn(customer);
-
             when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
 
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put(USER_ID, "15");
-            when(customer.getMetadata()).thenReturn(metadata);
+            long userId15 = 15;
 
-            when(event.getId()).thenReturn("eventId");
-            when(event.getType()).thenReturn("eventType");
+            Map<String, String> metadataCustomer = new HashMap<>();
+            metadataCustomer.put(USER_ID, String.valueOf(userId15));
+            when(customer.getMetadata()).thenReturn(metadataCustomer);
 
-            ReflectionTestUtils.setField(eventHandler, "suspend", suspend);
+            SubscriptionItem subscriptionItem = new SubscriptionItem();
+            subscriptionItem.setPlan(new Plan());
 
-            doNothing().when(suspend).all(anyLong(), eq(User.Plan.PRO));
+            List<SubscriptionItem> data = new ArrayList<>();
+            data.add(subscriptionItem);
 
-            User user = mock(User.class);
-            when(userProvider.userOfId(15L)).thenReturn(Optional.ofNullable(user));
-            when(userProvider.save(any())).thenReturn(user);
+            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+            subscriptionItemCollection.setData(data);
 
+            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
 
+            User user = new User();
+            user.setId(userId15);
+            user.setPlan(User.Plan.PRO);
+            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+
+            when(infraProperties.getEnv()).thenReturn("dev");
+
+            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
 
             //act
             eventHandler.handleSubscriptionDeleted(event, subscription);
 
             //assert
-            verify(suspend, times(1)).all(15, User.Plan.PRO);
-            verify(user, times(1)).setPlan(User.Plan.BASIC);
+            assertThat(user.getPlan()).isEqualTo(User.Plan.BASIC);
+
+            verify(suspend, times(1)).all(userId15, User.Plan.PRO);
+            verify(suspend, times(0)).execute(anyLong(), anyLong());
             verify(userProvider, times(1)).save(any());
+            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
         }
     }
+
+    @DisplayName("if the user is not found then must ignore the event")
+    @Test
+    void mustIgnore_DeletedSubscription_IfUserNotfound() throws ZerofiltreException, StripeException {
+        try (MockedStatic<Subscription> mockedStatic = Mockito.mockStatic(Subscription.class)) {
+            //arrange
+            mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
+                    .thenReturn(subscription);
+
+            when(subscription.getId()).thenReturn("subscriptionId");
+            when(subscription.getCustomerObject()).thenReturn(customer);
+            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+
+            long userId15 = 15;
+
+            Map<String, String> metadataCustomer = new HashMap<>();
+            metadataCustomer.put(USER_ID, String.valueOf(userId15));
+            when(customer.getMetadata()).thenReturn(metadataCustomer);
+
+            when(userProvider.userOfId(anyLong())).thenReturn(Optional.empty());
+
+            //act
+            eventHandler.handleSubscriptionDeleted(event, subscription);
+
+            //assert
+            verify(suspend, times(0)).all(anyLong(), any());
+            verify(suspend, times(0)).execute(anyLong(), anyLong());
+            verify(stripeCommons, times(0)).notifyUser(any(), anyString(), anyString());
+        }
+    }
+
 }
