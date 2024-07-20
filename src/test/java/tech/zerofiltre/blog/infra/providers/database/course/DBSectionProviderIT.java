@@ -1,14 +1,16 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import tech.zerofiltre.blog.domain.course.model.Section;
+import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
 class DBSectionProviderIT {
@@ -19,11 +21,14 @@ class DBSectionProviderIT {
     private SectionJPARepository sectionJPARepository;
     @Autowired
     private CourseJPARepository courseJPARepository;
+    @Autowired
+    private UserJPARepository userJPARepository;
+
 
     @BeforeEach
     void init() {
         sectionProvider = new DBSectionProvider(sectionJPARepository);
-        courseProvider = new DBCourseProvider(courseJPARepository);
+        courseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
     }
 
     @Test

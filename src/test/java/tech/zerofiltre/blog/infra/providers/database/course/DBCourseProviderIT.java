@@ -1,9 +1,12 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Reaction;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -16,16 +19,22 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
+import tech.zerofiltre.blog.infra.providers.database.article.ReactionCourseJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_FULL_NAME;
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_PROFILE_PICTURE;
 
 @DataJpaTest
 class DBCourseProviderIT {
@@ -37,6 +46,8 @@ class DBCourseProviderIT {
     DBChapterProvider chapterProvider;
 
     DBLessonProvider lessonProvider;
+
+    DBReactionProvider reactionProvider;
 
     @Autowired
     CourseJPARepository courseJPARepository;
@@ -53,10 +64,13 @@ class DBCourseProviderIT {
     @Autowired
     private ChapterJPARepository chapterJPARepository;
 
+    @Autowired
+    private ReactionCourseJPARepository reactionRepository;
+
 
     @BeforeEach
     void init() {
-        courseProvider = new DBCourseProvider(courseJPARepository);
+        courseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
         userProvider = new DBUserProvider(userJPARepository);
         lessonProvider = new DBLessonProvider(lessonJPARepository, enrollmentJPARepository);
         chapterProvider = new DBChapterProvider(chapterJPARepository);
@@ -93,7 +107,7 @@ class DBCourseProviderIT {
     @Test
     void getEnrolledCount_GetsEnrollments_ActiveAndNotActive() throws ZerofiltreException {
         //given
-        Course course = init2Enrollments(true, false);
+        Course course = initCourse2Enrollments(true, false);
 
         //when
         long enrolledCount = courseProvider.getEnrolledCount(course.getId());
@@ -107,7 +121,7 @@ class DBCourseProviderIT {
     @Test
     void getEnrolledCount_GetsEnrollments_CompletedAndNotCompleted() throws ZerofiltreException {
         //given
-        Course course = init2Enrollments(true, true);
+        Course course = initCourse2Enrollments(true, true);
 
         //when
         long enrolledCount = courseProvider.getEnrolledCount(course.getId());
@@ -130,11 +144,58 @@ class DBCourseProviderIT {
         assertThat(lessonsCount).isEqualTo(2);
     }
 
+    @Test
+    void courseOf_works_properly() throws ZerofiltreException {
 
-    private Course init2Enrollments(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws ZerofiltreException {
+        //given
+        initCourseWithReactions();
+
+        initCourse2Enrollments(false, false);
+
+        //when
+        Page<Course> result = courseProvider.courseOf(0, 10, PUBLISHED, 0, null, null);
+
+        //then
+        assertThat(result).isNotNull();
+        List<Course> content = result.getContent();
+        Assertions.assertThat(content).hasSize(2);
+        Course oldest = content.get(1);
+        Course newest = content.get(0);
+
+        assertThat(oldest.getAuthor().getId()).isNotZero();
+        assertThat(oldest.getAuthor().getFullName()).isEqualTo("first");
+        assertThat(oldest.getAuthor().getProfilePicture()).isEqualTo("picture");
+
+        assertThat(newest.getAuthor().getId()).isNotZero();
+        assertThat(newest.getAuthor().getFullName()).isEqualTo(TEST_FULL_NAME);
+        assertThat(newest.getAuthor().getProfilePicture()).isEqualTo(TEST_PROFILE_PICTURE);
+
+    }
+
+    private List<Reaction> initCourseWithReactions() {
+        User author = ZerofiltreUtils.createMockUser(false);
+        author.setFullName("first");
+        author.setProfilePicture("picture");
+        author = userProvider.save(author);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        course.setPublishedAt(LocalDateTime.now());
+        course.setEnrolledCount(0);
+        course = courseProvider.save(course);
+
+        reactionProvider = new DBReactionProvider(null, reactionRepository);
+        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(false, 0, course.getId(), author);
+        for (Reaction reaction : reactions) {
+            reactionProvider.save(reaction);
+        }
+        return reactions;
+    }
+
+
+    private Course initCourse2Enrollments(boolean withThe2ndOneInactive, boolean withThe2ndOneCompleted) throws ZerofiltreException {
         EnrollmentProvider enrollmentProvider = new DBEnrollmentProvider(enrollmentJPARepository);
         UserProvider userProvider = new DBUserProvider(userJPARepository);
-        CourseProvider courseProvider = new DBCourseProvider(courseJPARepository);
+        CourseProvider courseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
 
 
         User author = ZerofiltreUtils.createMockUser(false);
@@ -154,6 +215,7 @@ class DBCourseProviderIT {
         secondUser = userProvider.save(secondUser);
 
         Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        course.setPublishedAt(LocalDateTime.now());
         course = courseProvider.save(course);
 
         Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, user, course);

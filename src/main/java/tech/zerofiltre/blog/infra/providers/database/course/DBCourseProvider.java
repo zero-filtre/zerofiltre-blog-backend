@@ -15,6 +15,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.CourseJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class DBCourseProvider implements CourseProvider {
 
     private final CourseJPARepository repository;
+    private final UserJPARepository userRepository;
     private final CourseJPAMapper mapper = Mappers.getMapper(CourseJPAMapper.class);
     private final SpringPageMapper<Course> pageMapper = new SpringPageMapper<>();
 
@@ -70,7 +72,17 @@ public class DBCourseProvider implements CourseProvider {
             else
                 page = repository.findByStatusAndAuthorId(PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, publishedAtPropertyName), status, authorId);
         }
-        return pageMapper.fromSpringPage(page.map(mapper::fromJPA));
+        return pageMapper.fromSpringPage(page.map(courseJPA -> {
+            User author = new User();
+            Course course = mapper.fromJPALight(courseJPA);
+            String info = userRepository.findAuthorInfoByCourseId(courseJPA.getId());
+            String[] splitInfo = info.split(",");
+            author.setId(Long.parseLong(splitInfo[0]));
+            author.setFullName(splitInfo[1]);
+            author.setProfilePicture(splitInfo[2]);
+            course.setAuthor(author);
+            return course;
+        }));
     }
 
 
