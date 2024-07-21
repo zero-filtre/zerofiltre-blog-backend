@@ -18,6 +18,8 @@ public class InfraConfiguration {
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(60)))
                 .withCacheConfiguration("courses-list",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1)))
+                .withCacheConfiguration("articles-list",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1)))
                 .withCacheConfiguration("connected-user",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)))
                 .withCacheConfiguration("github-token-validity",
