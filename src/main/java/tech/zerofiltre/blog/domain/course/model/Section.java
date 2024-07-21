@@ -1,23 +1,29 @@
 package tech.zerofiltre.blog.domain.course.model;
 
-import com.fasterxml.jackson.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.logging.model.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.SectionProvider;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.logging.model.LogEntry;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.List;
 
-import static tech.zerofiltre.blog.domain.Domains.*;
-import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
+import static tech.zerofiltre.blog.domain.Domains.COURSE;
+import static tech.zerofiltre.blog.domain.error.ErrorMessages.DOES_NOT_EXIST;
+import static tech.zerofiltre.blog.domain.error.ErrorMessages.THE_COURSE_WITH_ID;
 
 @JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "courseService"})
-public class Section {
+public class Section implements Serializable {
 
     private long id;
     private int position;
@@ -44,7 +50,7 @@ public class Section {
         this.userProvider = sectionBuilder.userProvider;
         this.courseProvider = sectionBuilder.courseProvider;
         this.loggerProvider = sectionBuilder.loggerProvider;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
     }
 
     public static SectionBuilder builder() {

@@ -16,6 +16,8 @@ public class InfraConfiguration {
         return builder -> builder
                 .withCacheConfiguration("search-results",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(60)))
+                .withCacheConfiguration("courses-list",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1)))
                 .withCacheConfiguration("connected-user",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)))
                 .withCacheConfiguration("github-token-validity",

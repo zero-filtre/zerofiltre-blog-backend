@@ -1,42 +1,61 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.user;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.context.*;
-import org.springframework.core.env.*;
-import org.springframework.security.crypto.password.*;
-import org.springframework.test.context.junit.jupiter.*;
-import org.springframework.test.util.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.ReactionProvider;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.use_cases.FindArticle;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
 import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.metrics.*;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
-import tech.zerofiltre.blog.infra.providers.api.github.*;
-import tech.zerofiltre.blog.infra.providers.logging.*;
-import tech.zerofiltre.blog.infra.security.model.*;
+import tech.zerofiltre.blog.domain.user.model.JwtToken;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.VerificationToken;
+import tech.zerofiltre.blog.domain.user.use_cases.InvalidTokenException;
+import tech.zerofiltre.blog.domain.user.use_cases.RetrieveSocialToken;
+import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
+import tech.zerofiltre.blog.doubles.DummyMetricsProvider;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.PublicUserProfileVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.RegisterUserVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.UpdatePasswordVM;
+import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.Token;
 
-import javax.servlet.http.*;
-import java.time.*;
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static tech.zerofiltre.blog.domain.user.model.SocialLink.Platform.*;
+import static tech.zerofiltre.blog.domain.user.model.SocialLink.Platform.GITHUB;
 
 @ExtendWith(SpringExtension.class)
 class UserControllerTest {
@@ -117,7 +136,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, metricsProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, chapterProvider, articleViewProvider);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, articleViewProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }

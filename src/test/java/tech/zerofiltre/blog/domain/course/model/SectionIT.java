@@ -1,27 +1,35 @@
 package tech.zerofiltre.blog.domain.course.model;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-import org.springframework.context.annotation.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.article.*;
-import tech.zerofiltre.blog.infra.providers.database.course.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
-import tech.zerofiltre.blog.infra.providers.logging.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.SectionProvider;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBSectionProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 
 @DataJpaTest
@@ -54,7 +62,10 @@ class SectionIT {
     void init_Section_IsOK() throws ForbiddenActionException, ResourceNotFoundException {
 
         //GIVEN
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        User author = new User();
+        author = userProvider.save(author);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         User user = ZerofiltreUtils.createMockUser(true);
         user = userProvider.save(user);
@@ -76,7 +87,10 @@ class SectionIT {
     void update_Section_IsOK() throws ZerofiltreException {
 
         //GIVEN
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        User author = new User();
+        author = userProvider.save(author);
+
+        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         User user = ZerofiltreUtils.createMockUser(true);
         user = userProvider.save(user);
@@ -264,7 +278,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
 
         Course course = courseService.init("", user);
 
@@ -295,7 +309,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
 
         Course course = courseService.init("", user);
 

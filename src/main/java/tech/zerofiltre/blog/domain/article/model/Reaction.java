@@ -1,7 +1,9 @@
 package tech.zerofiltre.blog.domain.article.model;
 
 
-public class Reaction {
+import java.io.Serializable;
+
+public class Reaction implements Serializable {
 
     private long id;
     private Action action;

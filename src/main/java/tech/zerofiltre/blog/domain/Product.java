@@ -1,8 +1,9 @@
 package tech.zerofiltre.blog.domain;
 
-import java.time.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-public class Product {
+public class Product implements Serializable {
     private long id;
     private long price;
     private String thumbnail;

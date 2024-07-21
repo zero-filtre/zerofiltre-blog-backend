@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.course;
 
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -35,12 +36,20 @@ public class DBCourseProvider implements CourseProvider {
     @Override
     public Optional<Course> courseOfId(long id) {
         return repository.findById(id)
-                .map(mapper::fromJPA);
+                .map(mapper::fromJPA)
+                .map(course -> {
+                    course.setEnrolledCount(getEnrolledCount(course.getId()));
+                    course.setLessonsCount(getLessonsCount(course.getId()));
+                    return course;
+                });
     }
 
     @Override
     public Course save(Course course) {
-        return mapper.fromJPA(repository.save(mapper.toJPA(course)));
+        course = mapper.fromJPA(repository.save(mapper.toJPA(course)));
+        course.setEnrolledCount(getEnrolledCount(course.getId()));
+        course.setLessonsCount(getLessonsCount(course.getId()));
+        return course;
     }
 
     @Override
@@ -49,6 +58,7 @@ public class DBCourseProvider implements CourseProvider {
     }
 
     @Override
+    @Cacheable("courses-list")
     public Page<Course> courseOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         org.springframework.data.domain.Page<CourseJPA> page;
 
@@ -81,6 +91,8 @@ public class DBCourseProvider implements CourseProvider {
             author.setFullName(splitInfo[1]);
             author.setProfilePicture(splitInfo[2]);
             course.setAuthor(author);
+            course.setLessonsCount(getLessonsCount(courseJPA.getId()));
+            course.setEnrolledCount(getEnrolledCount(courseJPA.getId()));
             return course;
         }));
     }
