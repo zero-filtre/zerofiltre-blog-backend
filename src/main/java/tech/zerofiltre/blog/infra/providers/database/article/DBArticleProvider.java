@@ -1,22 +1,26 @@
 package tech.zerofiltre.blog.infra.providers.database.article;
 
-import lombok.*;
-import org.mapstruct.factory.*;
-import org.springframework.data.domain.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
-import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
+import tech.zerofiltre.blog.infra.providers.database.article.mapper.ArticleJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional
@@ -42,6 +46,7 @@ public class DBArticleProvider implements ArticleProvider {
     }
 
     @Override
+    @Cacheable("articles-list")
     public tech.zerofiltre.blog.domain.Page<Article> articlesOf(int pageNumber, int pageSize, Status status, long authorId, FinderRequest.Filter filter, String tag) {
         Page<ArticleJPA> page;
 
