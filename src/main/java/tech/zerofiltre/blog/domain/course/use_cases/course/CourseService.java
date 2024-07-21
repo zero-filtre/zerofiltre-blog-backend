@@ -1,19 +1,25 @@
 package tech.zerofiltre.blog.domain.course.use_cases.course;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.logging.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Domains;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.logging.model.LogEntry;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import static tech.zerofiltre.blog.domain.article.model.Status.*;
+import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
 public class CourseService {
 
@@ -162,8 +168,7 @@ public class CourseService {
     }
 
     public int getLessonsCount(long courseId) {
-        return chapterProvider.ofCourseId(courseId)
-                .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
+        return courseProvider.getLessonsCount(courseId);
     }
 
 

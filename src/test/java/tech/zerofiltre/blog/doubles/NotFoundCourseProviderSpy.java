@@ -1,12 +1,15 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class NotFoundCourseProviderSpy implements CourseProvider {
 
@@ -42,6 +45,11 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
 
     @Override
     public int getEnrolledCount(long courseId) {
+        return 0;
+    }
+
+    @Override
+    public int getLessonsCount(long courseId) {
         return 0;
     }
 }

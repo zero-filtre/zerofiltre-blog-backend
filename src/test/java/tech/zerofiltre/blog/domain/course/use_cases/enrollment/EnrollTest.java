@@ -232,7 +232,7 @@ class EnrollTest {
     @Test
     void throwsResourceNotFoundIfUserNotFound() {
         FoundCancelledOnlyEnrollmentProviderSpy enrollmentProvider = new FoundCancelledOnlyEnrollmentProviderSpy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new NotFoundUserProviderSpy();
         ChapterProvider chapterProvider = new ChapterProviderSpy();
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
@@ -380,7 +380,7 @@ class EnrollTest {
     @DisplayName("A legitimate user(admin,pro,buyer) must be able to enroll a non mentored course properly")
     void saves_EnrollmentProperly_ifCourseNotMentored_andNoPurchases() throws ZerofiltreException {
         NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
@@ -417,7 +417,7 @@ class EnrollTest {
     @DisplayName("Enrolling after a suspension should set fields properly")
     void setsSuspendedAt_toNull() throws ZerofiltreException {
         FoundCancelledOnlyEnrollmentProviderSpy enrollmentProvider = new FoundCancelledOnlyEnrollmentProviderSpy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
@@ -443,7 +443,7 @@ class EnrollTest {
     @Test
     void doesNothingIfUserAlreadyEnrolled() throws ZerofiltreException {
         EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null);
@@ -461,7 +461,7 @@ class EnrollTest {
     @Test
     void doesNot_callSandboxProvider_ifCourseDoesNotNeedSandbox() throws ZerofiltreException {
         NotFoundEnrollmentProviderDummy enrollmentProviderDummy = new NotFoundEnrollmentProviderDummy();
-        Found_Published_WithKnownAuthor_CourseProvider_Spy courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy();
+        Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
 

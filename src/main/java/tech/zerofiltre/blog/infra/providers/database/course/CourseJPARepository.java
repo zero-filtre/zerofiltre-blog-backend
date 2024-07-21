@@ -41,5 +41,12 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
             "LOWER(a.subTitle) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(a.summary) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<CourseJPA> findByKeyword(String keyword, Status status);
+
+
+    @Query("SELECT count(l.id) from CourseJPA co " +
+            "join ChapterJPA ch on ch.course.id=co.id " +
+            "join LessonJPA l on l.chapter.id=ch.id " +
+            "where co.id=:courseId")
+    int getLessonsCount(long courseId);
 }
 

@@ -43,7 +43,7 @@ class DBPurchaseProviderTest {
 
     @BeforeEach
     public void setup() {
-        DBCourseProvider courseProvider = new DBCourseProvider(courseRepository);
+        DBCourseProvider courseProvider = new DBCourseProvider(courseRepository, null);
         DBUserProvider userProvider = new DBUserProvider(userRepository);
         dbPurchaseProvider = new DBPurchaseProvider(purchaseRepository);
 

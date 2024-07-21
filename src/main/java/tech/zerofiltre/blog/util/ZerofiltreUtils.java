@@ -8,8 +8,10 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
@@ -61,6 +63,7 @@ public class ZerofiltreUtils {
     public static boolean isMentored(Product product) {
         return product instanceof Course && ((Course) product).isMentored();
     }
+
     public static Article createMockArticle(boolean withTagIds) {
         User user = createMockUser(false);
         List<Reaction> reactions = createMockReactions(true, 1, 0, user);
@@ -301,12 +304,19 @@ public class ZerofiltreUtils {
     }
 
     public static Chapter createMockChapter(boolean withId, ChapterProvider chapterProvider, List<Lesson> lessons, long courseId) {
+        return createMockChapter(withId, chapterProvider, null, null, null, lessons, courseId);
+    }
+
+    public static Chapter createMockChapter(boolean withId, ChapterProvider chapterProvider, UserProvider userProvider, LessonProvider lessonProvider, CourseProvider courseProvider, List<Lesson> lessons, long courseId) {
         return Chapter.builder()
                 .title(TEST_CHAPTER_TITLE)
                 .courseId(courseId)
                 .lessons(lessons)
                 .id(withId ? 1 : 0)
+                .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .courseProvider(courseProvider)
                 .build();
     }
 
