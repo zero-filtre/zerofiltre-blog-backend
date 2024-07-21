@@ -50,7 +50,7 @@ public abstract class CourseJPAMapper {
         course.setStatus(courseJPA.getStatus());
         course.setVideo(courseJPA.getVideo());
 
-        course.setReactions(reactionMapper.fromJPA(courseJPA.getReactions()));
+        course.setReactions(reactionMapper.fromJPAListLight(courseJPA.getReactions()));
         course.setMentored(courseJPA.isMentored());
 
         return course;

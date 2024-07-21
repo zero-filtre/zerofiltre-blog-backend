@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.providers.database.article.mapper;
 
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -23,7 +24,16 @@ public interface ReactionCourseJPAMapper {
     @Mapping(target = "courseId", source = "course.id")
     Reaction fromJPA(ReactionCourseJPA reactionCourseJPA);
 
+    @Named("fromJPALight")
+    @Mapping(ignore = true, target = "authorId")
+    @Mapping(ignore = true, target = "courseId")
+    Reaction fromJPALight(ReactionCourseJPA reactionCourseJPA);
+
     List<Reaction> fromJPA(Set<ReactionCourseJPA> reactions);
+
+    @Named("fromJPAListLight")
+    @IterableMapping(qualifiedByName = "fromJPALight")
+    List<Reaction> fromJPAListLight(Set<ReactionCourseJPA> reactions);
 
     @Named("authorFromId")
     default UserJPA authorFromId(long authorId) {
