@@ -1,8 +1,10 @@
 package tech.zerofiltre.blog.domain;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Page<T> {
+public class Page<T> implements Serializable {
 
     private int pageSize;
     private int pageNumber;

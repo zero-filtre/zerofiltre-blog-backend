@@ -1,28 +1,34 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-import org.springframework.context.annotation.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.database.article.*;
-import tech.zerofiltre.blog.infra.providers.database.course.*;
-import tech.zerofiltre.blog.infra.providers.database.user.*;
-import tech.zerofiltre.blog.infra.providers.logging.*;
-import tech.zerofiltre.blog.util.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBLessonProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static tech.zerofiltre.blog.domain.article.model.Status.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class, Slf4jLoggerProvider.class, DBTagProvider.class})
@@ -177,7 +183,7 @@ class LessonIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
         Course course = courseService.init("A course", author);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
@@ -200,7 +206,8 @@ class LessonIT {
                 .lessonProvider(lessonProvider)
                 .build()
                 .init(TITLE_2, chapter2.getId(), author.getId());
+        course = courseProvider.courseOfId(course.getId()).get();
 
-        assertThat(courseService.getLessonsCount(course.getId())).isEqualTo(2);
+        assertThat(course.getLessonsCount()).isEqualTo(2);
     }
 }

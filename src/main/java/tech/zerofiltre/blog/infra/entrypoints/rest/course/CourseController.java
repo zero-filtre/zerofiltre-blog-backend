@@ -1,24 +1,32 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
-import lombok.extern.slf4j.*;
-import org.springframework.context.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.logging.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Section;
+import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.PublishOrSaveCourseVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SectionVM;
 
-import javax.servlet.http.*;
-import javax.validation.*;
-import javax.validation.constraints.*;
-import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -29,10 +37,10 @@ public class CourseController {
     private final CourseService courseService;
     private final MessageSource sources;
 
-    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, ChapterProvider chapterProvider, MessageSource sources) {
+    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, MessageSource sources) {
         this.securityContextManager = securityContextManager;
         this.sources = sources;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
     }
 
     @GetMapping("/{id}")

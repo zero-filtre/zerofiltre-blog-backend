@@ -6,7 +6,6 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -30,14 +29,12 @@ public class CourseService {
 
     private final TagProvider tagProvider;
     private final LoggerProvider loggerProvider;
-    private final ChapterProvider chapterProvider;
 
 
-    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, ChapterProvider chapterProvider) {
+    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider) {
         this.courseProvider = courseProvider;
         this.tagProvider = tagProvider;
         this.loggerProvider = loggerProvider;
-        this.chapterProvider = chapterProvider;
     }
 
 
@@ -59,8 +56,6 @@ public class CourseService {
                 || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
             throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published", Domains.COURSE.name());
         }
-        foundCourse.setLessonsCount(getLessonsCount(foundCourse.getId()));
-        foundCourse.setEnrolledCount(getEnrolledCount(foundCourse.getId()));
         return foundCourse;
     }
 
@@ -95,8 +90,6 @@ public class CourseService {
         checkTags(updatedCourse.getTags());
         existingCourse.setTags(updatedCourse.getTags());
         Course result = courseProvider.save(existingCourse);
-        result.setLessonsCount(getLessonsCount(result.getId()));
-        result.setEnrolledCount(getEnrolledCount(result.getId()));
         return result;
     }
 
@@ -108,7 +101,7 @@ public class CourseService {
         if (existingCourse.getStatus().equals(Status.PUBLISHED))
             throw new ForbiddenActionException("You are not allowed to delete this course as it is published", Domains.COURSE.name());
 
-        if (getEnrolledCount(existingCourse.getId()) > 0)
+        if (existingCourse.getEnrolledCount() > 0)
             throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users", Domains.COURSE.name());
 
         if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
@@ -122,28 +115,25 @@ public class CourseService {
     public Page<Course> of(FinderRequest request) throws ForbiddenActionException, UnAuthenticatedActionException {
         User user = request.getUser();
 
-        //UNAUTHENTICATED USER TRYING TO GET NON PUBLISHED COURSES
-        if (!PUBLISHED.equals(request.getStatus())
+        boolean unAuthenticatedUserGettingNonPublishedCourses = !PUBLISHED.equals(request.getStatus())
                 && user == null
-                && !request.isYours()) {
+                && !request.isYours();
+
+        if (unAuthenticatedUserGettingNonPublishedCourses) {
             throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ", Domains.ARTICLE.name());
         }
 
-        //NON ADMIN USER TRYING TO GET NON PUBLISHED COURSES
-        if (!PUBLISHED.equals(request.getStatus())
+        boolean nonAdminGettingNonPublishedCourses = !PUBLISHED.equals(request.getStatus())
                 && (user == null || !user.getRoles().contains("ROLE_ADMIN"))
-                && !request.isYours()) {
+                && !request.isYours();
+
+        if (nonAdminGettingNonPublishedCourses) {
             throw new ForbiddenActionException("You are not authorize to request courses other than the published ones with this API. " +
                     "Please request with status=published or try /user/courses/* API resources", Domains.COURSE.name());
         }
 
         long authorId = request.isYours() ? request.getUser().getId() : 0;
-        Page<Course> courses = courseProvider.courseOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.getFilter(), request.getTag());
-        courses.getContent().forEach(course -> {
-            course.setLessonsCount(getLessonsCount(course.getId()));
-            course.setEnrolledCount(getEnrolledCount(course.getId()));
-        });
-        return courses;
+        return courseProvider.courseOf(request.getPageNumber(), request.getPageSize(), request.getStatus(), authorId, request.getFilter(), request.getTag());
     }
 
 
@@ -167,12 +157,12 @@ public class CourseService {
         }
     }
 
-    public int getLessonsCount(long courseId) {
-        return courseProvider.getLessonsCount(courseId);
-    }
-
-
-    public int getEnrolledCount(long courseId) {
-        return courseProvider.getEnrolledCount(courseId);
-    }
+//    public int getLessonsCount(long courseId) {
+//        return courseProvider.getLessonsCount(courseId);
+//    }
+//
+//
+//    public int getEnrolledCount(long courseId) {
+//        return courseProvider.getEnrolledCount(courseId);
+//    }
 }

@@ -1,6 +1,8 @@
 package tech.zerofiltre.blog.domain.article.model;
 
-public class Tag {
+import java.io.Serializable;
+
+public class Tag implements Serializable {
 
     private long id;
     private String name;

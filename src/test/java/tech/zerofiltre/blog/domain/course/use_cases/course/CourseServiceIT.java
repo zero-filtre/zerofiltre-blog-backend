@@ -91,7 +91,7 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
 
         course = courseService.init("some title", author);
 
@@ -132,7 +132,7 @@ class CourseServiceIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
         Course course = courseService.init("some title", author);
 
         assertThat(courseService.findById(course.getId(), author)).isNotNull();
@@ -150,7 +150,7 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
         course = courseService.init("some title", author);
 
         courseService.delete(course.getId(), author);
@@ -179,7 +179,7 @@ class CourseServiceIT {
         student3.setPseudoName("zulu");
         student3 = userProvider.save(student3);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, chapterProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
         course = courseService.init("some title", author);
         course.setStatus(Status.PUBLISHED);
         course = courseService.save(course, author);
@@ -195,7 +195,9 @@ class CourseServiceIT {
         enrollment2.setUser(student2);
         enrollmentProvider.save(enrollment2);
 
-        int enrolledCount = courseService.getEnrolledCount(course.getId());
+        course = courseProvider.courseOfId(course.getId()).get();
+
+        long enrolledCount = course.getEnrolledCount();
 
         assertThat(enrolledCount).isEqualTo(2);
 
@@ -205,7 +207,8 @@ class CourseServiceIT {
         suspendedEnrollment.setUser(student3);
         enrollmentProvider.save(suspendedEnrollment);
 
-        enrolledCount = courseService.getEnrolledCount(course.getId());
+        course = courseProvider.courseOfId(course.getId()).get();
+        enrolledCount = course.getEnrolledCount();
 
         assertThat(enrolledCount).isEqualTo(3);
     }
