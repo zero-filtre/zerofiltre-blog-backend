@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
 
@@ -48,5 +49,8 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
             "join LessonJPA l on l.chapter.id=ch.id " +
             "where co.id=:courseId")
     int getLessonsCount(long courseId);
+
+    @Query("SELECT ch.course from ChapterJPA ch where ch.id=:chapterId")
+    Optional<CourseJPA> findByChapterId(long chapterId);
 }
 

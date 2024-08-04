@@ -55,7 +55,7 @@ public class ZerofiltreUtils {
     public static final String TEST_SECTION_CONTENT_2 = "Section 2 content";
     public static final String TEST_SECTION_TITLE_3 = "Section 3";
     public static final String TEST_SECTION_CONTENT_3 = "Section 3 content";
-    private static final String TEST_CHAPTER_TITLE = "test chapter title";
+    public static final String TEST_CHAPTER_TITLE = "test chapter title";
 
     private ZerofiltreUtils() {
     }
@@ -156,6 +156,12 @@ public class ZerofiltreUtils {
         if (isAdmin)
             user.getRoles().add("ROLE_ADMIN");
         user.setLoginFrom(SocialLink.Platform.LINKEDIN);
+        return user;
+    }
+
+    public static User createMockProUser(boolean isAdmin, boolean isPro) {
+        User user = createMockUser(isAdmin);
+        user.setPlan(isPro ? User.Plan.PRO : User.Plan.BASIC);
         return user;
     }
 
@@ -276,7 +282,6 @@ public class ZerofiltreUtils {
 
     }
 
-
     public static String getAppURL(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
@@ -330,15 +335,12 @@ public class ZerofiltreUtils {
     }
 
     public static String toHumanReadable(long timestamp) {
-        // Convert the timestamp to LocalDateTime
         LocalDateTime dateTime = Instant.ofEpochMilli(timestamp)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
 
-        // Define the desired date and time format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-        // Format the LocalDateTime to the desired format
         return dateTime.format(formatter);
     }
 

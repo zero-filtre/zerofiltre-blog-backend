@@ -52,4 +52,9 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
     public int getLessonsCount(long courseId) {
         return 0;
     }
+
+    @Override
+    public long courseIdOfChapterId(long chapterId) {
+        return 0;
+    }
 }
