@@ -90,13 +90,13 @@ public class SubscriptionEventHandler {
 
     private void handleProUser(Long userIdLong, String courseId, User user) throws ZerofiltreException {
         if (courseId.isEmpty()) {
-            suspend.all(userIdLong, User.Plan.PRO);
+            suspend.all(userIdLong, false);
             user.setPlan(User.Plan.BASIC);
             userProvider.save(user);
         } else {
             Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(userIdLong, Long.parseLong(courseId), true);
             if (enrollment.isPresent()) {
-                enrollment.get().setPlan(User.Plan.PRO);
+                enrollment.get().setForLife(false);
                 enrollmentProvider.save(enrollment.get());
             }
         }
@@ -104,7 +104,7 @@ public class SubscriptionEventHandler {
 
     private void handleNonProUser(Long userIdLong, String courseId) throws ZerofiltreException {
         if (courseId.isEmpty()) {
-            suspend.all(userIdLong, User.Plan.PRO);
+            suspend.all(userIdLong, false);
         } else {
             suspend.execute(userIdLong, Long.parseLong(courseId));
         }

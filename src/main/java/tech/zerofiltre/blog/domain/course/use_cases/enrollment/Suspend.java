@@ -35,10 +35,10 @@ public class Suspend {
         return doSuspend(userId, enrollment);
     }
 
-    public void all(long userId, User.Plan relatedPlan) throws ZerofiltreException {
+    public void all(long userId, boolean enrolledForLife) throws ZerofiltreException {
         List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
         for (Enrollment enrollment : enrollments) {
-            if (enrollment.isActive() && enrollment.getPlan().equals(relatedPlan)) {
+            if (enrollment.isActive() && Boolean.valueOf(enrollment.getForLife()).equals(enrolledForLife)) {
                 doSuspend(userId, enrollment);
             }
         }

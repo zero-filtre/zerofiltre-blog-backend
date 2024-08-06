@@ -75,7 +75,7 @@ class SuspendIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
-        enroll.execute(user.getId(), course.getId(), true);
+        enroll.execute(user.getId(), course.getId());
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Enrollment enrollment = suspend.execute(user.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();
@@ -119,19 +119,19 @@ class SuspendIT {
         Enrollment enrollmentBasic = new Enrollment();
         enrollmentBasic.setUser(user);
         enrollmentBasic.setCourse(courseBasic);
-        enrollmentBasic.setPlan(User.Plan.BASIC);
+        enrollmentBasic.setForLife(true);
         enrollmentProvider.save(enrollmentBasic);
 
         Enrollment enrollmentPro1 = new Enrollment();
         enrollmentPro1.setUser(user);
         enrollmentPro1.setCourse(coursePro1);
-        enrollmentPro1.setPlan(User.Plan.PRO);
+        enrollmentPro1.setForLife(false);
         enrollmentProvider.save(enrollmentPro1);
 
         Enrollment enrollmentPro2 = new Enrollment();
         enrollmentPro2.setUser(user);
         enrollmentPro2.setCourse(coursePro2);
-        enrollmentPro2.setPlan(User.Plan.PRO);
+        enrollmentPro2.setForLife(false);
         enrollmentProvider.save(enrollmentPro2);
 
 
@@ -145,7 +145,7 @@ class SuspendIT {
         Assertions.assertThat(enrollments.getContent()).hasSize(3);
 
         //when
-        suspend.all(user.getId(), User.Plan.PRO);
+        suspend.all(user.getId(), false);
 
 
         //then
@@ -171,7 +171,7 @@ class SuspendIT {
         Enrollment enrollmentBasic = new Enrollment();
         enrollmentBasic.setUser(user);
         enrollmentBasic.setCourse(courseBasic);
-        enrollmentBasic.setPlan(User.Plan.BASIC);
+        enrollmentBasic.setForLife(true);
         enrollmentProvider.save(enrollmentBasic);
 
         Purchase purchase = new Purchase(user, courseBasic);

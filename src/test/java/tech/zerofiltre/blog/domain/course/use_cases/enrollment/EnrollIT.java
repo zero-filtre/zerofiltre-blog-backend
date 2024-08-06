@@ -12,10 +12,12 @@ import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.purchase.model.Purchase;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
+import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
@@ -24,9 +26,8 @@ import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBEnrollmentProvider.class, DBChapterProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBEnrollmentProvider.class, DBChapterProvider.class, DBPurchaseProvider.class})
 class EnrollIT {
 
 
@@ -45,10 +46,13 @@ class EnrollIT {
     @Autowired
     ChapterProvider chapterProvider;
 
+    @Autowired
+    DBPurchaseProvider dbPurchaseProvider;
+
     @BeforeEach
     void init() {
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, null);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider);
+        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, dbPurchaseProvider);
     }
 
     @Test
@@ -65,11 +69,11 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId());
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
-        Assertions.assertThat(enrollment.getPlan()).isEqualTo(User.Plan.PRO);
+        assertThat(enrollment.getForLife()).isEqualTo(false);
         assertThat(enrollment.getUser().getId()).isEqualTo(user.getId());
         assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
         assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());
@@ -80,10 +84,10 @@ class EnrollIT {
         assertThat(enrollment.isCompleted()).isFalse();
         Assertions.assertThat(enrollment.getCompletedLessons()).isEmpty();
 
-        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isAfterOrEqualTo(beforeEnroll);
-        Assertions.assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
-        Assertions.assertThat(enrollment.isActive()).isTrue();
+        assertThat(enrollment.getEnrolledAt()).isNotNull();
+        assertThat(enrollment.getEnrolledAt()).isAfterOrEqualTo(beforeEnroll);
+        assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
+        assertThat(enrollment.isActive()).isTrue();
     }
 
 
@@ -100,12 +104,16 @@ class EnrollIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
         course = dbCourseProvider.save(course);
+
+        Purchase purchase = ZerofiltreUtils.createMockPurchase(1, user, course, LocalDateTime.now());
+        dbPurchaseProvider.save(purchase);
+
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId());
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
-        Assertions.assertThat(enrollment.getPlan()).isEqualTo(User.Plan.BASIC);
+        assertThat(enrollment.getForLife()).isEqualTo(false);
         assertThat(enrollment.getUser().getId()).isEqualTo(user.getId());
         assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
         assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());
@@ -116,12 +124,11 @@ class EnrollIT {
         assertThat(enrollment.isCompleted()).isFalse();
         Assertions.assertThat(enrollment.getCompletedLessons()).isEmpty();
 
-        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isAfterOrEqualTo(beforeEnroll);
-        Assertions.assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
-        Assertions.assertThat(enrollment.isActive()).isTrue();
+        assertThat(enrollment.getEnrolledAt()).isNotNull();
+        assertThat(enrollment.getEnrolledAt()).isAfterOrEqualTo(beforeEnroll);
+        assertThat(enrollment.getEnrolledAt()).isBeforeOrEqualTo(afterEnroll);
+        assertThat(enrollment.isActive()).isTrue();
     }
-
 
 
     @Test
@@ -135,15 +142,15 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        enroll.execute(user.getId(), course.getId(), true);
+        enroll.execute(user.getId(), course.getId());
 
         Enrollment suspendedEnrollment = suspend.execute(user.getId(), course.getId());
         assertThat(suspendedEnrollment.getSuspendedAt()).isNotNull();
 
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), true);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId());
 
-        Assertions.assertThat(enrollment.getSuspendedAt()).isNull();
-        Assertions.assertThat(enrollment.getId()).isEqualTo(suspendedEnrollment.getId());
+        assertThat(enrollment.getSuspendedAt()).isNull();
+        assertThat(enrollment.getId()).isEqualTo(suspendedEnrollment.getId());
 
     }
 }
