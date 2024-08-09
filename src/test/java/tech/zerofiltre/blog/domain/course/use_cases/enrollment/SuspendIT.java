@@ -75,7 +75,7 @@ class SuspendIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
-        enroll.execute(user.getId(), course.getId(), true);
+        enroll.execute(user.getId(), course.getId());
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Enrollment enrollment = suspend.execute(user.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();
@@ -116,23 +116,23 @@ class SuspendIT {
         coursePro2 = dbCourseProvider.save(coursePro2);
 
 
-        Enrollment enrollmentBasic = new Enrollment();
-        enrollmentBasic.setUser(user);
-        enrollmentBasic.setCourse(courseBasic);
-        enrollmentBasic.setPlan(User.Plan.BASIC);
-        enrollmentProvider.save(enrollmentBasic);
+        Enrollment enrollmentForLife = new Enrollment();
+        enrollmentForLife.setUser(user);
+        enrollmentForLife.setCourse(courseBasic);
+        enrollmentForLife.setForLife(true);
+        enrollmentProvider.save(enrollmentForLife);
 
-        Enrollment enrollmentPro1 = new Enrollment();
-        enrollmentPro1.setUser(user);
-        enrollmentPro1.setCourse(coursePro1);
-        enrollmentPro1.setPlan(User.Plan.PRO);
-        enrollmentProvider.save(enrollmentPro1);
+        Enrollment enrollmentNotForLife1 = new Enrollment();
+        enrollmentNotForLife1.setUser(user);
+        enrollmentNotForLife1.setCourse(coursePro1);
+        enrollmentNotForLife1.setForLife(false);
+        enrollmentProvider.save(enrollmentNotForLife1);
 
-        Enrollment enrollmentPro2 = new Enrollment();
-        enrollmentPro2.setUser(user);
-        enrollmentPro2.setCourse(coursePro2);
-        enrollmentPro2.setPlan(User.Plan.PRO);
-        enrollmentProvider.save(enrollmentPro2);
+        Enrollment enrollmentNotForLife2 = new Enrollment();
+        enrollmentNotForLife2.setUser(user);
+        enrollmentNotForLife2.setCourse(coursePro2);
+        enrollmentNotForLife2.setForLife(false);
+        enrollmentProvider.save(enrollmentNotForLife2);
 
 
         FinderRequest request = new FinderRequest();
@@ -145,7 +145,7 @@ class SuspendIT {
         Assertions.assertThat(enrollments.getContent()).hasSize(3);
 
         //when
-        suspend.all(user.getId(), User.Plan.PRO);
+        suspend.all(user.getId(), false);
 
 
         //then
@@ -168,11 +168,11 @@ class SuspendIT {
         Course courseBasic = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
         courseBasic = dbCourseProvider.save(courseBasic);
 
-        Enrollment enrollmentBasic = new Enrollment();
-        enrollmentBasic.setUser(user);
-        enrollmentBasic.setCourse(courseBasic);
-        enrollmentBasic.setPlan(User.Plan.BASIC);
-        enrollmentProvider.save(enrollmentBasic);
+        Enrollment enrollmentForLife = new Enrollment();
+        enrollmentForLife.setUser(user);
+        enrollmentForLife.setCourse(courseBasic);
+        enrollmentForLife.setForLife(true);
+        enrollmentProvider.save(enrollmentForLife);
 
         Purchase purchase = new Purchase(user, courseBasic);
         purchase = purchaseProvider.save(purchase);

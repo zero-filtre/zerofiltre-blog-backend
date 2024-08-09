@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.purchase.model.Purchase;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -280,6 +281,15 @@ public class ZerofiltreUtils {
         });
         return result;
 
+    }
+
+    public static Purchase createMockPurchase(long id, User user, Course course, LocalDateTime localDateTime) {
+        Purchase purchase = new Purchase();
+        purchase.setId(id);
+        purchase.setUser(user);
+        purchase.setCourse(course);
+        purchase.setAt(localDateTime);
+        return purchase;
     }
 
     public static String getAppURL(HttpServletRequest request) {

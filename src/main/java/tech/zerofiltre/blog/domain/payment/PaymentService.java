@@ -31,6 +31,6 @@ public class PaymentService {
         paymentProvider.cancelSubscription(user.getPaymentCustomerId());
         user.setPlan(User.Plan.BASIC);
         userProvider.save(user);
-        suspend.all(user.getId(), User.Plan.PRO);
+        suspend.all(user.getId(), false);
     }
 }
