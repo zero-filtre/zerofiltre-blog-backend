@@ -10,7 +10,6 @@ import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
-import tech.zerofiltre.blog.domain.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,7 +37,7 @@ public class Suspend {
     public void all(long userId, boolean enrolledForLife) throws ZerofiltreException {
         List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
         for (Enrollment enrollment : enrollments) {
-            if (enrollment.isActive() && Boolean.valueOf(enrollment.getForLife()).equals(enrolledForLife)) {
+            if (enrollment.isActive() && enrollment.isForLife() == enrolledForLife) {
                 doSuspend(userId, enrollment);
             }
         }

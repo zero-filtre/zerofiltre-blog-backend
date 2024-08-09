@@ -73,7 +73,7 @@ class EnrollIT {
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
-        assertThat(enrollment.getForLife()).isEqualTo(false);
+        assertThat(enrollment.isForLife()).isEqualTo(false);
         assertThat(enrollment.getUser().getId()).isEqualTo(user.getId());
         assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
         assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());
@@ -113,7 +113,7 @@ class EnrollIT {
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
-        assertThat(enrollment.getForLife()).isEqualTo(false);
+        assertThat(enrollment.isForLife()).isEqualTo(true);
         assertThat(enrollment.getUser().getId()).isEqualTo(user.getId());
         assertThat(enrollment.getUser().getEmail()).isEqualTo(user.getEmail());
         assertThat(enrollment.getUser().getPseudoName()).isEqualTo(user.getPseudoName());

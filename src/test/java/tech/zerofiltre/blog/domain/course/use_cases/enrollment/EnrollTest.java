@@ -120,7 +120,7 @@ class EnrollTest {
         assertThat(result.isActive()).isTrue();
         assertThat(result.getUser()).isEqualTo(user);
         assertThat(result.getCourse()).isEqualTo(relatedCourse);
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
         verify(purchaseProvider, times(0)).purchaseOf(anyLong(), anyLong());
 
@@ -245,7 +245,7 @@ class EnrollTest {
         //assert
         Assertions.assertThatNoException()
                 .isThrownBy(() -> enroll.execute(1, 1));
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
         verify(purchaseProvider, times(0)).purchaseOf(anyLong(), anyLong());
 
     }
@@ -288,7 +288,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(user.getId(), course.getId());
 
         //assert
-        assertThat(result.getForLife()).isFalse();
+        assertThat(result.isForLife()).isFalse();
         verify(purchaseProvider, times(0)).purchaseOf(anyLong(), anyLong());
     }
 
@@ -322,7 +322,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(user.getId(), course.getId());
 
         //assert
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
     }
 
@@ -350,7 +350,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(1, course.getId());
 
         //assert
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
     }
 
@@ -385,7 +385,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(user.getId(), course.getId());
 
         //assert
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
     }
 
@@ -414,7 +414,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(1, course.getId());
 
         //assert
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
     }
 
@@ -449,7 +449,7 @@ class EnrollTest {
         Enrollment result = enroll.execute(user.getId(), course.getId());
 
         //assert
-        assertThat(result.getForLife()).isTrue();
+        assertThat(result.isForLife()).isTrue();
 
     }
 
@@ -510,7 +510,7 @@ class EnrollTest {
 
         assertThat(courseProvider.enrollCalledCount).isTrue();
         assertThat(enrollment).isNotNull();
-        assertThat(enrollment.getForLife()).isEqualTo(true);
+        assertThat(enrollment.isForLife()).isEqualTo(true);
         assertThat(enrollment.getId()).isNotZero();
         assertThat(enrollment.getCourse().getId()).isNotZero();
         assertThat(enrollment.isCompleted()).isFalse();

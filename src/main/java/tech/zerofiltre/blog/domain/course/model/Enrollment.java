@@ -92,7 +92,7 @@ public class Enrollment {
         this.lastModifiedAt = lastModifiedAt;
     }
 
-    public boolean getForLife() { return forLife; }
+    public boolean isForLife() { return forLife; }
 
     public void setForLife(boolean forLife) { this.forLife = forLife; }
 }
