@@ -48,7 +48,7 @@ class EnrollIT {
     @BeforeEach
     void init() {
         enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, null);
+        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, null, null);
     }
 
     @Test

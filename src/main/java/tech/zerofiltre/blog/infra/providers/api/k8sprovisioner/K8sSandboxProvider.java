@@ -46,6 +46,7 @@ public class K8sSandboxProvider implements SandboxProvider {
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "*/*");
 
+        log.info("Token init : {} ", infraProperties.getK8sProvisionerToken());
         Body body = new Body();
         body.setFullName(fullName);
         body.setEmail(email);
@@ -80,8 +81,27 @@ public class K8sSandboxProvider implements SandboxProvider {
     }
 
     @Override
-    public void destroy(String fullName, String email) {
-        throw new NotImplementedException("Please provide an implementation for this method in: " + this.getClass().getCanonicalName());
+    public void destroy(String fullName, String email) throws ZerofiltreException {
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Authorization", infraProperties.getK8sProvisionerToken());
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "*/*");
+        Body body = new Body();
+        body.setFullName(fullName);
+        body.setEmail(email);
+
+        try {
+            String bodyAsJson = new ObjectMapper().writeValueAsString(body);
+            log.info("Body as json: {}", bodyAsJson);
+
+            String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
+            HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
+            ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Sandbox.class);
+            Sandbox result = response.getBody();
+            log.info("K8s sandbox for user {} destroyed: {}", fullName, result);
+        }catch (Exception e){
+            throw new ZerofiltreException("We couldn't delete k8s sandbox for user " + fullName, e, null);
+        }
     }
 
     @Data
@@ -90,5 +110,4 @@ public class K8sSandboxProvider implements SandboxProvider {
         String fullName;
         String email;
     }
-
 }

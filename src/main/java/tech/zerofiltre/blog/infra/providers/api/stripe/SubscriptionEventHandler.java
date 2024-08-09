@@ -38,7 +38,7 @@ public class SubscriptionEventHandler {
         this.enrollmentProvider = enrollmentProvider;
         this.stripeCommons = stripeCommons;
         this.infraProperties = infraProperties;
-        this.suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        this.suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, null);
     }
 
     public void handleSubscriptionDeleted(Event event, Subscription subscription) throws ZerofiltreException, StripeException {

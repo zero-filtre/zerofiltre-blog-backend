@@ -73,7 +73,7 @@ public class StripeCommons {
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, sandboxProvider);
     }
 
     public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws ZerofiltreException {

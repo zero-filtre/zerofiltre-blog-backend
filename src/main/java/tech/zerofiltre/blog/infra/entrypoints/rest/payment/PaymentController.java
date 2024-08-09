@@ -44,7 +44,7 @@ public class PaymentController {
                              EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
-        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, null);
         stripePaymentService = new PaymentService(stripeProvider, userProvider, suspend);
         notchPaymentService = new PaymentService(notchPayProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();

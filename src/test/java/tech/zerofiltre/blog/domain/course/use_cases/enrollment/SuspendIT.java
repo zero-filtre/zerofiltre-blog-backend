@@ -58,7 +58,7 @@ class SuspendIT {
 
     @BeforeEach
     void init() {
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, purchaseProvider);
+        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, purchaseProvider, null);
         enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
         findEnrollment = new FindEnrollment(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
