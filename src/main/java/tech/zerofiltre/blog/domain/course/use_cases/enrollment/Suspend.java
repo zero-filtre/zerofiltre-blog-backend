@@ -10,10 +10,14 @@ import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
+import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static tech.zerofiltre.blog.domain.sandbox.model.Sandbox.Type.K8S;
 
 @Slf4j
 public class Suspend {
@@ -21,12 +25,14 @@ public class Suspend {
     private final CourseProvider courseProvider;
     private final ChapterProvider chapterProvider;
     private final PurchaseProvider purchaseProvider;
+    private final SandboxProvider sandboxProvider;
 
-    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
+    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, SandboxProvider sandboxProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.chapterProvider = chapterProvider;
         this.purchaseProvider = purchaseProvider;
+        this.sandboxProvider = sandboxProvider;
     }
 
     public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
@@ -64,6 +70,13 @@ public class Suspend {
         if (resultCourse.isMentored()) purchaseProvider.delete(userId, resultCourse.getId());
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         log.info("User {} enrollment suspended for course {}", userId, enrollment.getCourse().getId());
+
+        // TODO We should check if resultCourse has a sandbox, if yes delete it
+        if(sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())){
+            // TODO Delete the sandbox by calling the destroy method.
+            sandboxProvider.destroy(result.getUser().getFullName(), result.getUser().getEmail());
+        }
+
         return result;
     }
 }
