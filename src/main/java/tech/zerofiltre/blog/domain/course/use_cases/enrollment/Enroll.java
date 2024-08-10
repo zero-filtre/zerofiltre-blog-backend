@@ -50,18 +50,17 @@ public class Enroll {
         }
     }
 
-    public Enrollment execute(long userId, long courseId, boolean fromEndUser) throws ZerofiltreException {
-
+    public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
         User user = getTheUser(userId);
-        //TODO Add purchase check condition here (bootcamp or not)
         Course course = getTheCourse(courseId);
-        checkIfCanEnrollAsPro(fromEndUser, user, course);
         checkIfCourseIsPublished(course);
-        //TODO When purchase condition check will be added few lines upper, there will be no need to check here
-        checkIfMentoredCourseAndPurchased(userId, courseId, user, course);
 
         Enrollment existingEnrollment = getExisting(userId, courseId);
         if (existingEnrollment != null) return existingEnrollment;
+
+        if(!hasFreeAccess(user, course)) {
+            checkIfCourseIsPurchased(userId, courseId);
+        }
 
         Enrollment enrollment = buildAndSaveEnrollment(userId, courseId, course, user);
 
@@ -73,55 +72,12 @@ public class Enroll {
         return enrollment;
     }
 
-    private void initSandbox(Course resultCourse, User user) {
-        Thread sandboxProvisioner = new Thread(() -> {
-            if (sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())) {
-                try {
-                    sandboxProvider.initialize(user.getFullName(), ZerofiltreUtils.getValidEmail(user));
-                } catch (ZerofiltreException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }, "sandbox-provisioner");
-        sandboxProvisioner.start();
-    }
-
-    private Enrollment buildAndSaveEnrollment(long userId, long courseId, Course course, User user) throws ZerofiltreException {
-        Enrollment enrollment = new Enrollment();
-        LocalDateTime lastModifiedAt = LocalDateTime.now();
-        Optional<Enrollment> cancelledEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, false);
-        if (cancelledEnrollment.isPresent()) {
-            enrollment = cancelledEnrollment.get();
-            enrollment.setActive(true);
-            enrollment.setSuspendedAt(null);
-        } else {
-            enrollment.setCourse(course);
-            enrollment.setUser(user);
-            lastModifiedAt = enrollment.getEnrolledAt();
-        }
-        enrollment.setLastModifiedAt(lastModifiedAt);
-
-        if (user.isPro() && !course.isMentored()) enrollment.setPlan(User.Plan.PRO);
-        return enrollmentProvider.save(enrollment);
-    }
-
-    private Enrollment getExisting(long userId, long courseId) {
-        Optional<Enrollment> existingEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, true);
-        return existingEnrollment.orElse(null);
-    }
-
     private User getTheUser(long userId) throws ResourceNotFoundException {
         return userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We could not find the user with id " + userId,
                         String.valueOf(userId),
                         Domains.USER.name()));
-    }
-
-    private void checkIfMentoredCourseAndPurchased(long userId, long courseId, User user, Course course) throws ForbiddenActionException {
-        if (!user.isAdmin() && course.isMentored() && purchaseProvider != null && purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
-            throw new ForbiddenActionException("You must purchase this course to enroll", Domains.COURSE.name());
-        }
     }
 
     private Course getTheCourse(long courseId) throws ResourceNotFoundException {
@@ -132,10 +88,13 @@ public class Enroll {
                         Domains.COURSE.name()));
     }
 
-    private void checkIfCanEnrollAsPro(boolean fromEndUser, User user, Course course) throws ForbiddenActionException {
-        if (!user.isAdmin() && !user.isPro() && fromEndUser && !hasARelatedEnrollment(user, course)) {
-            throw new ForbiddenActionException("You must be a PRO to enroll to a course this way", Domains.COURSE.name());
-        }
+    private Enrollment getExisting(long userId, long courseId) {
+        Optional<Enrollment> existingEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, true);
+        return existingEnrollment.orElse(null);
+    }
+
+    private boolean hasFreeAccess(User user, Course course) {
+        return user.isAdmin() || user.isPro() && !course.isMentored() || hasARelatedEnrollment(user, course);
     }
 
     private boolean hasARelatedEnrollment(User user, Course course) {
@@ -164,13 +123,51 @@ public class Enroll {
         }
     }
 
+    private void checkIfCourseIsPurchased(long userId, long courseId) throws ForbiddenActionException {
+        if (purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
+            throw new ForbiddenActionException("You must purchase this course to enroll", Domains.COURSE.name());
+        }
+    }
+
+    private Enrollment buildAndSaveEnrollment(long userId, long courseId, Course course, User user) throws ZerofiltreException {
+        Enrollment enrollment = new Enrollment();
+        LocalDateTime lastModifiedAt = LocalDateTime.now();
+        Optional<Enrollment> cancelledEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, false);
+        if (cancelledEnrollment.isPresent()) {
+            enrollment = cancelledEnrollment.get();
+            enrollment.setActive(true);
+            enrollment.setSuspendedAt(null);
+        } else {
+            enrollment.setCourse(course);
+            enrollment.setUser(user);
+            lastModifiedAt = enrollment.getEnrolledAt();
+        }
+        enrollment.setLastModifiedAt(lastModifiedAt);
+        enrollment.setForLife(!user.isPro() || course.isMentored());
+
+        return enrollmentProvider.save(enrollment);
+    }
+
+    private int getEnrolledCount(long courseId) {
+        return courseProvider.getEnrolledCount(courseId);
+    }
+
     private int getLessonsCount(long courseId) {
         return chapterProvider.ofCourseId(courseId)
                 .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
     }
 
-
-    private int getEnrolledCount(long courseId) {
-        return courseProvider.getEnrolledCount(courseId);
+    private void initSandbox(Course resultCourse, User user) {
+        Thread sandboxProvisioner = new Thread(() -> {
+            if (sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())) {
+                try {
+                    sandboxProvider.initialize(user.getFullName(), ZerofiltreUtils.getValidEmail(user));
+                } catch (ZerofiltreException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, "sandbox-provisioner");
+        sandboxProvisioner.start();
     }
+
 }

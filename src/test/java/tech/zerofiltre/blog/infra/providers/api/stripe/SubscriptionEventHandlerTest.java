@@ -133,11 +133,11 @@ class SubscriptionEventHandlerTest {
             eventHandler.handleSubscriptionDeleted(event, subscription);
 
             //assert
-            assertThat(enrollment.getPlan()).isEqualTo(User.Plan.PRO);
+            assertThat(enrollment.isForLife()).isEqualTo(false);
 
             verify(enrollmentProvider, times(1)).save(any(Enrollment.class));
             verify(suspend, times(0)).execute(anyLong(), anyLong());
-            verify(suspend, times(0)).all(anyLong(), any());
+            verify(suspend, times(0)).all(anyLong(), anyBoolean());
             verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
         }
     }
@@ -194,7 +194,7 @@ class SubscriptionEventHandlerTest {
 
             //assert
             verify(suspend, times(1)).execute(userId15, courseId3);
-            verify(suspend, times(0)).all(anyLong(), any());
+            verify(suspend, times(0)).all(anyLong(), anyBoolean());
             verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
         }
     }
@@ -212,7 +212,7 @@ class SubscriptionEventHandlerTest {
         eventHandler.handleSubscriptionDeleted(event, subscription);
 
         //assert
-        verify(suspend, times(0)).all(anyLong(), any());
+        verify(suspend, times(0)).all(anyLong(), anyBoolean());
         verify(suspend, times(0)).execute(anyLong(), anyLong());
 
     }
@@ -258,7 +258,7 @@ class SubscriptionEventHandlerTest {
             eventHandler.handleSubscriptionDeleted(event, subscription);
 
             //assert
-            verify(suspend, times(1)).all(userId15, User.Plan.PRO);
+            verify(suspend, times(1)).all(userId15, false);
             verify(suspend, times(0)).execute(anyLong(), anyLong());
             verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
         }
@@ -309,7 +309,7 @@ class SubscriptionEventHandlerTest {
             //assert
             assertThat(user.getPlan()).isEqualTo(User.Plan.BASIC);
 
-            verify(suspend, times(1)).all(userId15, User.Plan.PRO);
+            verify(suspend, times(1)).all(userId15, false);
             verify(suspend, times(0)).execute(anyLong(), anyLong());
             verify(userProvider, times(1)).save(any());
             verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
@@ -340,7 +340,7 @@ class SubscriptionEventHandlerTest {
             eventHandler.handleSubscriptionDeleted(event, subscription);
 
             //assert
-            verify(suspend, times(0)).all(anyLong(), any());
+            verify(suspend, times(0)).all(anyLong(), anyBoolean());
             verify(suspend, times(0)).execute(anyLong(), anyLong());
             verify(stripeCommons, times(0)).notifyUser(any(), anyString(), anyString());
         }

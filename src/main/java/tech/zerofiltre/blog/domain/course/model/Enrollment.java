@@ -15,7 +15,7 @@ public class Enrollment {
     private LocalDateTime enrolledAt = LocalDateTime.now();
     private LocalDateTime lastModifiedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
-    private User.Plan plan = User.Plan.BASIC;
+    private boolean forLife = false;
 
 
     private List<CompletedLesson> completedLessons = new ArrayList<>();
@@ -92,11 +92,7 @@ public class Enrollment {
         this.lastModifiedAt = lastModifiedAt;
     }
 
-    public User.Plan getPlan() {
-        return plan;
-    }
+    public boolean isForLife() { return forLife; }
 
-    public void setPlan(User.Plan plan) {
-        this.plan = plan;
-    }
+    public void setForLife(boolean forLife) { this.forLife = forLife; }
 }
