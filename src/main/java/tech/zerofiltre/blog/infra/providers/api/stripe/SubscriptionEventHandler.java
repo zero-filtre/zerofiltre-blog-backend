@@ -48,7 +48,6 @@ public class SubscriptionEventHandler {
 
         SubscriptionRetrieveParams subscriptionRetrieveParams = SubscriptionRetrieveParams.builder()
                 .addExpand("customer")
-                .addExpand("data.plan.product")
                 .build();
         subscription = Subscription.retrieve(subscription.getId(), subscriptionRetrieveParams, null);
 
