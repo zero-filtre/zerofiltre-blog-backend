@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.api.stripe;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
+import com.stripe.param.PlanRetrieveParams;
 import com.stripe.param.SubscriptionRetrieveParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -76,15 +77,28 @@ public class SubscriptionEventHandler {
         }
     }
 
-    private static String getCourseIdFromSubscription(Subscription subscription) {
+    private static String getCourseIdFromSubscription(Subscription subscription) throws StripeException {
 
         SubscriptionItemCollection items = subscription.getItems();
         List<SubscriptionItem> data = items.getData();
         SubscriptionItem subscriptionItem = data.get(0);
         Plan plan = subscriptionItem.getPlan();
+
+        PlanRetrieveParams retrieveParams = PlanRetrieveParams.builder()
+                .addExpand("product")
+                .build();
+        plan = Plan.retrieve(plan.getId(), retrieveParams, null);
+
         Product productObject = plan.getProductObject();
 
-        return productObject != null ? productObject.getMetadata().get(PRODUCT_ID) : "";
+        String productId = "";
+        if(productObject != null && productObject.getMetadata().containsKey(PRODUCT_ID)){
+            productId = productObject.getMetadata().get(PRODUCT_ID);
+        }
+
+        log.debug("Product id: {}", productId);
+
+        return productId;
     }
 
     private void handleProUser(Long userIdLong, String courseId, User user) throws ZerofiltreException {
