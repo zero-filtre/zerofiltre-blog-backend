@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -13,6 +14,7 @@ import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.model.Purchase;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
@@ -25,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBEnrollmentProvider.class, DBChapterProvider.class, DBPurchaseProvider.class})
@@ -49,10 +53,14 @@ class EnrollIT {
     @Autowired
     DBPurchaseProvider dbPurchaseProvider;
 
+    @Mock
+    private SandboxProvider sandboxProvider;
+
     @BeforeEach
-    void init() {
+    void init() throws ZerofiltreException {
+        doNothing().when(sandboxProvider).destroy(any(), any());
         enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider);
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, dbPurchaseProvider);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, dbPurchaseProvider, sandboxProvider);
     }
 
     @Test

@@ -16,6 +16,7 @@ import tech.zerofiltre.blog.domain.payment.PaymentProvider;
 import tech.zerofiltre.blog.domain.payment.PaymentService;
 import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
@@ -41,10 +42,10 @@ public class PaymentController {
                              @Qualifier("stripeProvider") PaymentProvider stripeProvider,
                              @Qualifier("notchPayProvider") PaymentProvider notchPayProvider,
                              UserProvider userProvider,
-                             EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
+                             EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, SandboxProvider sandboxProvider) {
         this.securityContextManager = securityContextManager;
         this.courseProvider = courseProvider;
-        Suspend suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        Suspend suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
         stripePaymentService = new PaymentService(stripeProvider, userProvider, suspend);
         notchPaymentService = new PaymentService(notchPayProvider, userProvider, suspend);
         Stripe.apiKey = infraProperties.getStripeSecretKey();
