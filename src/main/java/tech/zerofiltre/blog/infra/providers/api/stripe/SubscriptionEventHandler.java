@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.api.stripe;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
+import com.stripe.param.PlanRetrieveParams;
 import com.stripe.param.SubscriptionRetrieveParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -48,7 +49,6 @@ public class SubscriptionEventHandler {
 
         SubscriptionRetrieveParams subscriptionRetrieveParams = SubscriptionRetrieveParams.builder()
                 .addExpand("customer")
-                .addExpand("data.plan.product")
                 .build();
         subscription = Subscription.retrieve(subscription.getId(), subscriptionRetrieveParams, null);
 
@@ -77,26 +77,39 @@ public class SubscriptionEventHandler {
         }
     }
 
-    private static String getCourseIdFromSubscription(Subscription subscription) {
+    private static String getCourseIdFromSubscription(Subscription subscription) throws StripeException {
 
         SubscriptionItemCollection items = subscription.getItems();
         List<SubscriptionItem> data = items.getData();
         SubscriptionItem subscriptionItem = data.get(0);
         Plan plan = subscriptionItem.getPlan();
+
+        PlanRetrieveParams retrieveParams = PlanRetrieveParams.builder()
+                .addExpand("product")
+                .build();
+        plan = Plan.retrieve(plan.getId(), retrieveParams, null);
+
         Product productObject = plan.getProductObject();
 
-        return productObject != null ? productObject.getMetadata().get(PRODUCT_ID) : "";
+        String productId = "";
+        if(productObject != null && productObject.getMetadata().containsKey(PRODUCT_ID)){
+            productId = productObject.getMetadata().get(PRODUCT_ID);
+        }
+
+        log.debug("Product id: {}", productId);
+
+        return productId;
     }
 
     private void handleProUser(Long userIdLong, String courseId, User user) throws ZerofiltreException {
         if (courseId.isEmpty()) {
-            suspend.all(userIdLong, User.Plan.PRO);
+            suspend.all(userIdLong, false);
             user.setPlan(User.Plan.BASIC);
             userProvider.save(user);
         } else {
             Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(userIdLong, Long.parseLong(courseId), true);
             if (enrollment.isPresent()) {
-                enrollment.get().setPlan(User.Plan.PRO);
+                enrollment.get().setForLife(false);
                 enrollmentProvider.save(enrollment.get());
             }
         }
@@ -104,7 +117,7 @@ public class SubscriptionEventHandler {
 
     private void handleNonProUser(Long userIdLong, String courseId) throws ZerofiltreException {
         if (courseId.isEmpty()) {
-            suspend.all(userIdLong, User.Plan.PRO);
+            suspend.all(userIdLong, false);
         } else {
             suspend.execute(userIdLong, Long.parseLong(courseId));
         }

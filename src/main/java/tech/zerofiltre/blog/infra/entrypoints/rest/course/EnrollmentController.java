@@ -54,7 +54,7 @@ public class EnrollmentController {
 
     @PostMapping
     public Enrollment enroll(@RequestParam long courseId) throws ZerofiltreException {
-        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, true);
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
 
     }
 
