@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.api.stripe;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
+import com.stripe.param.PlanRetrieveParams;
 import com.stripe.param.SubscriptionRetrieveParams;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,12 @@ class SubscriptionEventHandlerTest {
     Customer customer;
 
     @Mock
+    Plan plan;
+
+    @Mock
+    Product product;
+
+    @Mock
     Subscription subscription;
 
     @Mock
@@ -85,60 +92,66 @@ class SubscriptionEventHandlerTest {
             mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
                     .thenReturn(subscription);
 
-            when(subscription.getId()).thenReturn("subscriptionId");
-            when(subscription.getCustomerObject()).thenReturn(customer);
-            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+            try (MockedStatic<Plan> mockedStaticPlan = Mockito.mockStatic(Plan.class)) {
+                mockedStaticPlan.when(() -> Plan.retrieve(anyString(), any(PlanRetrieveParams.class), eq(null)))
+                        .thenReturn(plan);
 
-            long userId15 = 15;
-            long courseId3 = 3;
+                when(subscription.getId()).thenReturn("subscriptionId");
+                when(subscription.getCustomerObject()).thenReturn(customer);
+                when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
 
-            Map<String, String> metadataCustomer = new HashMap<>();
-            metadataCustomer.put(USER_ID, String.valueOf(userId15));
-            when(customer.getMetadata()).thenReturn(metadataCustomer);
+                when(plan.getId()).thenReturn("8");
+                when(plan.getProductObject()).thenReturn(product);
 
-            Product product = new Product();
-            product.setMetadata(new HashMap<>());
-            product.getMetadata().put(PRODUCT_ID, String.valueOf(courseId3));
+                long userId15 = 15;
+                long courseId3 = 3;
 
-            Plan plan = new Plan();
-            plan.setProductObject(product);
+                Map<String, String> metadataProduct = new HashMap<>();
+                metadataProduct.put(PRODUCT_ID, String.valueOf(courseId3));
 
-            SubscriptionItem subscriptionItem = new SubscriptionItem();
-            subscriptionItem.setPlan(plan);
+                when(product.getMetadata()).thenReturn(metadataProduct);
 
-            List<SubscriptionItem> data = new ArrayList<>();
-            data.add(subscriptionItem);
+                Map<String, String> metadataCustomer = new HashMap<>();
+                metadataCustomer.put(USER_ID, String.valueOf(userId15));
+                when(customer.getMetadata()).thenReturn(metadataCustomer);
 
-            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
-            subscriptionItemCollection.setData(data);
+                SubscriptionItem subscriptionItem = new SubscriptionItem();
+                subscriptionItem.setPlan(plan);
 
-            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+                List<SubscriptionItem> data = new ArrayList<>();
+                data.add(subscriptionItem);
 
-            User user = new User();
-            user.setId(userId15);
-            user.setPlan(User.Plan.PRO);
-            when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+                SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+                subscriptionItemCollection.setData(data);
 
-            Enrollment enrollment = new Enrollment();
-            enrollment.setUser(user);
-            enrollment.setCourse(new Course());
-            enrollment.setActive(true);
-            when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), eq(true))).thenReturn(Optional.of(enrollment));
+                when(subscription.getItems()).thenReturn(subscriptionItemCollection);
 
-            when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment);
+                User user = new User();
+                user.setId(userId15);
+                user.setPlan(User.Plan.PRO);
+                when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
-            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+                Enrollment enrollment = new Enrollment();
+                enrollment.setUser(user);
+                enrollment.setCourse(new Course());
+                enrollment.setActive(true);
+                when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), eq(true))).thenReturn(Optional.of(enrollment));
 
-            //act
-            eventHandler.handleSubscriptionDeleted(event, subscription);
+                when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment);
 
-            //assert
-            assertThat(enrollment.isForLife()).isEqualTo(false);
+                doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
 
-            verify(enrollmentProvider, times(1)).save(any(Enrollment.class));
-            verify(suspend, times(0)).execute(anyLong(), anyLong());
-            verify(suspend, times(0)).all(anyLong(), anyBoolean());
-            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+                //act
+                eventHandler.handleSubscriptionDeleted(event, subscription);
+
+                //assert
+                assertThat(enrollment.isForLife()).isEqualTo(false);
+
+                verify(enrollmentProvider, times(1)).save(any(Enrollment.class));
+                verify(suspend, times(0)).execute(anyLong(), anyLong());
+                verify(suspend, times(0)).all(anyLong(), anyBoolean());
+                verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+            }
         }
     }
 
@@ -152,50 +165,56 @@ class SubscriptionEventHandlerTest {
             mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), any()))
                     .thenReturn(subscription);
 
-            when(subscription.getId()).thenReturn("subscriptionId");
-            when(subscription.getCustomerObject()).thenReturn(customer);
-            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+            try (MockedStatic<Plan> mockedStaticPlan = Mockito.mockStatic(Plan.class)) {
+                mockedStaticPlan.when(() -> Plan.retrieve(anyString(), any(PlanRetrieveParams.class), eq(null)))
+                        .thenReturn(plan);
 
-            long userId15 = 15;
-            long courseId3 = 3;
+                when(subscription.getId()).thenReturn("subscriptionId");
+                when(subscription.getCustomerObject()).thenReturn(customer);
+                when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
 
-            Map<String, String> metadataCustomer = new HashMap<>();
-            metadataCustomer.put(USER_ID, String.valueOf(userId15));
-            when(customer.getMetadata()).thenReturn(metadataCustomer);
+                when(plan.getId()).thenReturn("8");
+                when(plan.getProductObject()).thenReturn(product);
 
-            Product product = new Product();
-            product.setMetadata(new HashMap<>());
-            product.getMetadata().put(PRODUCT_ID, String.valueOf(courseId3));
+                long userId15 = 15;
+                long courseId3 = 3;
 
-            Plan plan = new Plan();
-            plan.setProductObject(product);
+                Map<String, String> metadataProduct = new HashMap<>();
+                metadataProduct.put(PRODUCT_ID, String.valueOf(courseId3));
 
-            SubscriptionItem subscriptionItem = new SubscriptionItem();
-            subscriptionItem.setPlan(plan);
+                when(product.getMetadata()).thenReturn(metadataProduct);
 
-            List<SubscriptionItem> data = new ArrayList<>();
-            data.add(subscriptionItem);
+                Map<String, String> metadataCustomer = new HashMap<>();
+                metadataCustomer.put(USER_ID, String.valueOf(userId15));
+                when(customer.getMetadata()).thenReturn(metadataCustomer);
 
-            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
-            subscriptionItemCollection.setData(data);
+                SubscriptionItem subscriptionItem = new SubscriptionItem();
+                subscriptionItem.setPlan(plan);
 
-            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+                List<SubscriptionItem> data = new ArrayList<>();
+                data.add(subscriptionItem);
 
-            User user = new User();
-            user.setId(userId15);
-            user.setPlan(User.Plan.BASIC);
+                SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+                subscriptionItemCollection.setData(data);
 
-            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+                when(subscription.getItems()).thenReturn(subscriptionItemCollection);
 
-            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+                User user = new User();
+                user.setId(userId15);
+                user.setPlan(User.Plan.BASIC);
 
-            //act
-            eventHandler.handleSubscriptionDeleted(event, subscription);
+                when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
 
-            //assert
-            verify(suspend, times(1)).execute(userId15, courseId3);
-            verify(suspend, times(0)).all(anyLong(), anyBoolean());
-            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+                doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+
+                //act
+                eventHandler.handleSubscriptionDeleted(event, subscription);
+
+                //assert
+                verify(suspend, times(1)).execute(userId15, courseId3);
+                verify(suspend, times(0)).all(anyLong(), anyBoolean());
+                verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+            }
         }
     }
 
@@ -226,41 +245,49 @@ class SubscriptionEventHandlerTest {
             mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
                     .thenReturn(subscription);
 
-            when(subscription.getId()).thenReturn("subscriptionId");
-            when(subscription.getCustomerObject()).thenReturn(customer);
-            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+            try (MockedStatic<Plan> mockedStaticPlan = Mockito.mockStatic(Plan.class)) {
+                mockedStaticPlan.when(() -> Plan.retrieve(anyString(), any(PlanRetrieveParams.class), eq(null)))
+                        .thenReturn(plan);
 
-            long userId15 = 15;
+                when(subscription.getId()).thenReturn("subscriptionId");
+                when(subscription.getCustomerObject()).thenReturn(customer);
+                when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
 
-            Map<String, String> metadataCustomer = new HashMap<>();
-            metadataCustomer.put(USER_ID, String.valueOf(userId15));
-            when(customer.getMetadata()).thenReturn(metadataCustomer);
+                when(plan.getId()).thenReturn("8");
+                when(plan.getProductObject()).thenReturn(product);
 
-            SubscriptionItem subscriptionItem = new SubscriptionItem();
-            subscriptionItem.setPlan(new Plan());
+                long userId15 = 15;
 
-            List<SubscriptionItem> data = new ArrayList<>();
-            data.add(subscriptionItem);
+                Map<String, String> metadataCustomer = new HashMap<>();
+                metadataCustomer.put(USER_ID, String.valueOf(userId15));
+                when(customer.getMetadata()).thenReturn(metadataCustomer);
 
-            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
-            subscriptionItemCollection.setData(data);
+                SubscriptionItem subscriptionItem = new SubscriptionItem();
+                subscriptionItem.setPlan(plan);
 
-            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+                List<SubscriptionItem> data = new ArrayList<>();
+                data.add(subscriptionItem);
 
-            User user = new User();
-            user.setId(userId15);
-            user.setPlan(User.Plan.BASIC);
-            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+                SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+                subscriptionItemCollection.setData(data);
 
-            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+                when(subscription.getItems()).thenReturn(subscriptionItemCollection);
 
-            //act
-            eventHandler.handleSubscriptionDeleted(event, subscription);
+                User user = new User();
+                user.setId(userId15);
+                user.setPlan(User.Plan.BASIC);
+                when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
 
-            //assert
-            verify(suspend, times(1)).all(userId15, false);
-            verify(suspend, times(0)).execute(anyLong(), anyLong());
-            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+                doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+
+                //act
+                eventHandler.handleSubscriptionDeleted(event, subscription);
+
+                //assert
+                verify(suspend, times(1)).all(userId15, false);
+                verify(suspend, times(0)).execute(anyLong(), anyLong());
+                verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+            }
         }
     }
 
@@ -273,46 +300,54 @@ class SubscriptionEventHandlerTest {
             mockedStatic.when(() -> Subscription.retrieve(anyString(), any(SubscriptionRetrieveParams.class), eq(null)))
                     .thenReturn(subscription);
 
-            when(subscription.getId()).thenReturn("subscriptionId");
-            when(subscription.getCustomerObject()).thenReturn(customer);
-            when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
+            try (MockedStatic<Plan> mockedStaticPlan = Mockito.mockStatic(Plan.class)) {
+                mockedStaticPlan.when(() -> Plan.retrieve(anyString(), any(PlanRetrieveParams.class), eq(null)))
+                        .thenReturn(plan);
 
-            long userId15 = 15;
+                when(subscription.getId()).thenReturn("subscriptionId");
+                when(subscription.getCustomerObject()).thenReturn(customer);
+                when(subscription.getMetadata()).thenReturn(Collections.emptyMap());
 
-            Map<String, String> metadataCustomer = new HashMap<>();
-            metadataCustomer.put(USER_ID, String.valueOf(userId15));
-            when(customer.getMetadata()).thenReturn(metadataCustomer);
+                when(plan.getId()).thenReturn("8");
+                when(plan.getProductObject()).thenReturn(product);
 
-            SubscriptionItem subscriptionItem = new SubscriptionItem();
-            subscriptionItem.setPlan(new Plan());
+                long userId15 = 15;
 
-            List<SubscriptionItem> data = new ArrayList<>();
-            data.add(subscriptionItem);
+                Map<String, String> metadataCustomer = new HashMap<>();
+                metadataCustomer.put(USER_ID, String.valueOf(userId15));
+                when(customer.getMetadata()).thenReturn(metadataCustomer);
 
-            SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
-            subscriptionItemCollection.setData(data);
+                SubscriptionItem subscriptionItem = new SubscriptionItem();
+                subscriptionItem.setPlan(plan);
 
-            when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+                List<SubscriptionItem> data = new ArrayList<>();
+                data.add(subscriptionItem);
 
-            User user = new User();
-            user.setId(userId15);
-            user.setPlan(User.Plan.PRO);
-            when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
+                SubscriptionItemCollection subscriptionItemCollection = new SubscriptionItemCollection();
+                subscriptionItemCollection.setData(data);
 
-            when(infraProperties.getEnv()).thenReturn("dev");
+                when(subscription.getItems()).thenReturn(subscriptionItemCollection);
 
-            doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
+                User user = new User();
+                user.setId(userId15);
+                user.setPlan(User.Plan.PRO);
+                when(userProvider.userOfId(userId15)).thenReturn(Optional.of(user));
 
-            //act
-            eventHandler.handleSubscriptionDeleted(event, subscription);
+                when(infraProperties.getEnv()).thenReturn("dev");
 
-            //assert
-            assertThat(user.getPlan()).isEqualTo(User.Plan.BASIC);
+                doNothing().when(stripeCommons).notifyUser(any(Customer.class), anyString(), anyString());
 
-            verify(suspend, times(1)).all(userId15, false);
-            verify(suspend, times(0)).execute(anyLong(), anyLong());
-            verify(userProvider, times(1)).save(any());
-            verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+                //act
+                eventHandler.handleSubscriptionDeleted(event, subscription);
+
+                //assert
+                assertThat(user.getPlan()).isEqualTo(User.Plan.BASIC);
+
+                verify(suspend, times(1)).all(userId15, false);
+                verify(suspend, times(0)).execute(anyLong(), anyLong());
+                verify(userProvider, times(1)).save(any());
+                verify(stripeCommons, times(1)).notifyUser(any(), anyString(), anyString());
+            }
         }
     }
 
