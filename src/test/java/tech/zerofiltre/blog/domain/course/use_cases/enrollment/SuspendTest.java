@@ -14,7 +14,11 @@ import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
+
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
+
+import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
+
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,7 +45,8 @@ class SuspendTest {
         Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         LocalDateTime beforeSuspend = LocalDateTime.now();
         ChapterProviderSpy chapterProvider = new ChapterProviderSpy();
-        suspend = new Suspend(enrollmentProviderSpy, courseProvider, chapterProvider, null, null);
+        PurchaseProvider purchaseProvider = mock(PurchaseProvider.class);
+        suspend = new Suspend(enrollmentProviderSpy, courseProvider, chapterProvider, purchaseProvider);
         LocalDateTime afterSuspendPlus10Sec = LocalDateTime.now().plusSeconds(10);
 
         Enrollment deactivatedEnrollment = suspend.execute(1, 1);
@@ -58,9 +63,9 @@ class SuspendTest {
     }
 
     @Test
-    void suspendDelete_Purchase_IfMentored() throws ZerofiltreException {
+    void suspendDelete_Purchase() throws ZerofiltreException {
 
-        EnrollmentProvider enrollmentProvider = new MentoredEnrollmentProviderSpy();
+        EnrollmentProvider enrollmentProvider = new EnrollmentProviderSpy();
 
         ChapterProvider chapterProvider = new ChapterProviderSpy();
 
@@ -71,7 +76,7 @@ class SuspendTest {
         suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, null);
         suspend.execute(1, 1);
 
-        verify(purchaseProvider, times(1)).delete(1, 45);
+        verify(purchaseProvider, times(1)).delete(1, 0);
 
     }
 

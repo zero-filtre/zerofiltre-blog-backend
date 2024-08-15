@@ -39,7 +39,7 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
             "LOWER(a.summary) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<ArticleJPA> findByKeyword(String keyword, Status status);
 
-    @Query(value = "select count (a.id) from article a WHERE a.last_published_at>=?1 AND a.last_published_at<?2 AND a.author_id=?3", nativeQuery = true)
+    @Query(value = "select count(a.id) from article a WHERE a.last_published_at>=?1 AND a.last_published_at<?2 AND a.author_id=?3", nativeQuery = true)
     int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId);
 
 }

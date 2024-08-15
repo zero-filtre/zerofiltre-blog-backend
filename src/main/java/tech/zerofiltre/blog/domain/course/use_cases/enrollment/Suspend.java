@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.model.User;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,10 +42,10 @@ public class Suspend {
         return doSuspend(userId, enrollment);
     }
 
-    public void all(long userId, User.Plan relatedPlan) throws ZerofiltreException {
+    public void all(long userId, boolean enrolledForLife) throws ZerofiltreException {
         List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
         for (Enrollment enrollment : enrollments) {
-            if (enrollment.isActive() && enrollment.getPlan().equals(relatedPlan)) {
+            if (enrollment.isActive() && enrollment.isForLife() == enrolledForLife) {
                 doSuspend(userId, enrollment);
             }
         }
@@ -66,14 +67,13 @@ public class Suspend {
         Enrollment result = enrollmentProvider.save(enrollment);
 
         Course resultCourse = result.getCourse();
-        //TODO Delete purchase for classic course as well
-        if (resultCourse.isMentored()) purchaseProvider.delete(userId, resultCourse.getId());
+        purchaseProvider.delete(userId, resultCourse.getId());
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         log.info("User {} enrollment suspended for course {}", userId, enrollment.getCourse().getId());
 
-        // TODO We should check if resultCourse has a sandbox, if yes delete it
+        
         if(sandboxProvider != null && K8S.equals(resultCourse.getSandboxType())){
-            // TODO Delete the sandbox by calling the destroy method.
+            
             sandboxProvider.destroy(result.getUser().getFullName(), result.getUser().getEmail());
         }
 

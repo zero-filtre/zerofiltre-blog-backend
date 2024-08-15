@@ -90,7 +90,7 @@ public class StripeCommons {
             long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
             log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
             if (paymentSuccess) {
-                purchaseAndEnroll(userId, event, productId);
+                purchase(userId, event, productId);
                 log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(), userId, productId);
             } else {
                 suspend.execute(Long.parseLong(userId), productId);
@@ -100,7 +100,7 @@ public class StripeCommons {
         }
     }
 
-    private void purchaseAndEnroll(String userId, Event event, long productId) throws ZerofiltreException {
+    private void purchase(String userId, Event event, long productId) throws ZerofiltreException {
         Optional<Purchase> foundPurchase = purchaseProvider.purchaseOf(Long.parseLong(userId), productId);
         if (foundPurchase.isEmpty()) {
             User user = userProvider.userOfId(Long.parseLong(userId))
@@ -109,9 +109,7 @@ public class StripeCommons {
                     .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId), null));
             Purchase purchase = new Purchase(user, course);
             purchase = purchaseProvider.save(purchase);
-            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId, false);
-        } else {
-            enroll.execute(Long.parseLong(userId), productId, false);
+            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId);
         }
     }
 
@@ -145,7 +143,7 @@ public class StripeCommons {
                 });
         if (isPro && !paymentSuccess) {
             user.setPlan(BASIC);
-            suspend.all(Long.parseLong(userId), PRO);
+            suspend.all(Long.parseLong(userId), false);
         } else if (isPro) {
             user.setPlan(PRO);
         }
@@ -153,6 +151,5 @@ public class StripeCommons {
         user.setPaymentEmail(paymentEmail);
         userProvider.save(user);
     }
-
 
 }

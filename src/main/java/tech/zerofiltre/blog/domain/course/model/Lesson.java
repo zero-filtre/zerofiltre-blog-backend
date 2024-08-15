@@ -117,6 +117,10 @@ public class Lesson {
         return resources;
     }
 
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
+    }
+
     public static LessonBuilder builder() {
         return new LessonBuilder();
     }
