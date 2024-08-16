@@ -10,22 +10,26 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
+import tech.zerofiltre.blog.infra.security.config.EmailValidator;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ZerofiltreEmailSender {
 
+    private static final int NUMBER_MAX_EMAILS = 20;
     private final JavaMailSender mailSender;
     private final InfraProperties infraProperties;
     private final ITemplateEngine emailTemplateEngine;
+    private final DBUserProvider dbUserProvider;
 
 
     public void send(Email email) {
@@ -63,4 +67,34 @@ public class ZerofiltreEmailSender {
         send(email);
     }
 
+    public void sendForAllUsers(Email email, boolean b) {
+        email.setRecipients(Collections.singletonList(infraProperties.getContactEmail()));
+        email.setCcs(new ArrayList<>());
+        email.setReplyTo(infraProperties.getContactEmail());
+
+        Collection<List<String>> listAllEmails = listAllEmails();
+        for(List<String> li : listAllEmails) {
+            email.setBccs(li);
+
+            send(email);
+        }
+    }
+
+    private Collection<List<String>> listAllEmails() {
+        List<UserEmail> userEmailList = dbUserProvider.allEmails();
+        List<String> list = new ArrayList<>();
+
+        for(UserEmail u : userEmailList) {
+            if(isValidEmail(u.getEmail())) {
+                list.add(u.getEmail());
+                continue;
+            }
+            if(isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
+        }
+        return ZerofiltreUtils.partitionList(list, NUMBER_MAX_EMAILS);
+    }
+
+    private boolean isValidEmail(String email) {
+        return EmailValidator.validateEmail(email);
+    }
 }

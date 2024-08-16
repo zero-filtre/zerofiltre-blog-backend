@@ -8,9 +8,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -92,4 +94,35 @@ class DBUserProviderIT {
 
 
     }
+
+    @Test
+    void listAllEmails() {
+        //GIVEN
+        User user1 = new User();
+        user1.setEmail("u1@a.a");
+
+        userJPARepository.save(mapper.toJPA(user1));
+
+        User user2 = new User();
+        user2.setEmail("u2@a.a");
+
+        userJPARepository.save(mapper.toJPA(user2));
+
+        User user3 = new User();
+        user3.setPaymentEmail("u3@a.a");
+        userJPARepository.save(mapper.toJPA(user3));
+
+        //WHEN
+        List<UserEmail> allEmails = userJPARepository.findAllEmails();
+
+        //THEN
+        assertThat(allEmails.size()).isEqualTo(3);
+        assertThat(allEmails.get(0).getEmail()).isEqualTo("u1@a.a");
+        assertThat(allEmails.get(0).getPaymentEmail()).isNull();
+        assertThat(allEmails.get(1).getEmail()).isEqualTo("u2@a.a");
+        assertThat(allEmails.get(1).getPaymentEmail()).isNull();
+        assertThat(allEmails.get(2).getEmail()).isNull();
+        assertThat(allEmails.get(2).getPaymentEmail()).isEqualTo("u3@a.a");
+    }
+
 }
