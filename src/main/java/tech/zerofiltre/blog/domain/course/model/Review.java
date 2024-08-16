@@ -15,6 +15,8 @@ import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @NoArgsConstructor
@@ -32,6 +34,11 @@ public class Review {
     private int chapterUnderstandingScore;
     private boolean recommendCourse;
     private int overallChapterSatisfaction;
+    private String chapterImpressions;
+    private String whyRecommendingThisCourse;
+    private List<String> favoriteLearningToolOfTheChapter = new ArrayList<>();
+    private String reasonFavoriteLearningToolOfTheChapter;
+    private String improvementSuggestion;
     private long reviewAuthorId;
     private long chapterId;
     private ReviewProvider reviewProvider;
@@ -93,6 +100,10 @@ public class Review {
                 .chapterUnderstandingScore(this.chapterUnderstandingScore)
                 .recommendCourse(this.recommendCourse)
                 .overallChapterSatisfaction(this.overallChapterSatisfaction)
+                .improvementSuggestion(this.improvementSuggestion)
+                .whyRecommendingThisCourse(this.whyRecommendingThisCourse)
+                .favoriteLearningToolOfTheChapter(this.favoriteLearningToolOfTheChapter)
+                .reasonFavoriteLearningToolOfTheChapter(this.reasonFavoriteLearningToolOfTheChapter)
                 .build();
     }
 
@@ -108,7 +119,7 @@ public class Review {
         reviewProvider.deleteById(this.id);
     }
 
-    private void checkReviewAccessConditions(Review existingReview, User currentUser, boolean isDeletion) throws ResourceNotFoundException, ForbiddenActionException {
+    private void checkReviewAccessConditions(Review existingReview, User currentUser, boolean isDeletion) throws ForbiddenActionException {
         if (currentUser.isAdmin()) {
             return;
         }

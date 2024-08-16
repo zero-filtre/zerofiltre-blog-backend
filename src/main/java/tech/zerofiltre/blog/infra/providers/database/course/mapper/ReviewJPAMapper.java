@@ -5,27 +5,24 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import tech.zerofiltre.blog.domain.course.model.Review;
 import tech.zerofiltre.blog.infra.providers.database.course.model.ChapterJPA;
-import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.ReviewJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Mapper(uses = {CourseJPAMapper.class, ChapterJPAMapper.class})
 public interface ReviewJPAMapper {
 
     @Mapping(target = "chapter", source = "chapterId", qualifiedByName = "ReviewJPAMapper_chapterFromId")
     @Mapping(target = "user", source = "reviewAuthorId", qualifiedByName = "ReviewJPAMapper_userFromId")
+    @Mapping(target = "favoriteLearningToolOfTheChapter", qualifiedByName = "ReviewJPAMapper_stringFromListOfString")
     ReviewJPA toJPA(Review review);
 
     @Mapping(target = "chapterId", source = "chapter.id")
     @Mapping(target = "reviewAuthorId", source = "user.id")
+    @Mapping(target = "favoriteLearningToolOfTheChapter", qualifiedByName = "ReviewJPAMapper_stringToListOfString")
     Review fromJPA(ReviewJPA reviewJPA);
-
-    @Named("ReviewJPAMapper_courseFromId")
-    default CourseJPA courseFromId(long courseId) {
-        CourseJPA courseJPA = new CourseJPA();
-        courseJPA.setId(courseId);
-        return courseJPA;
-    }
 
     @Named("ReviewJPAMapper_chapterFromId")
     default ChapterJPA chapterFromId(long chapterId) {
@@ -39,5 +36,18 @@ public interface ReviewJPAMapper {
         UserJPA userJPA = new UserJPA();
         userJPA.setId(userId);
         return userJPA;
+    }
+
+    @Named("ReviewJPAMapper_stringFromListOfString")
+    default String stringFromListOfString(List<String> stringList) {
+        if (stringList == null || stringList.isEmpty())
+            return "";
+
+        return String.join(",", stringList);
+    }
+
+    @Named("ReviewJPAMapper_stringToListOfString")
+    default List<String> stringToListOfString(String stringsSeparatedByComma) {
+        return Arrays.asList(stringsSeparatedByComma.split(",", -1));
     }
 }

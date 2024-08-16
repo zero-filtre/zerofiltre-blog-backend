@@ -21,7 +21,9 @@ import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,6 +124,15 @@ public class ReviewIT {
         enrollment = ZerofiltreUtils.createMockEnrollment(false, chapterReviewer, course);
         enrollment = enrollmentProvider.save(enrollment);
 
+        List<String> learningTool = new ArrayList<>();
+        learningTool.add("Vidéos explicatives");
+        learningTool.add("Exercices pratiques");
+
+        String chapterImpression = "La methodologie est claire et digeste";
+        String improvementSuggestion = "Faites davantage de contenu de qualité";
+        String whyDoYouRecommendIt = "Ce cours est magnifique";
+        String reasons = "Les vidéos sont bient editées";
+
         review = Review.builder()
                 .userProvider(userProvider)
                 .reviewProvider(reviewProvider)
@@ -134,6 +145,11 @@ public class ReviewIT {
                 .chapterUnderstandingScore(5)
                 .recommendCourse(true)
                 .overallChapterSatisfaction(5)
+                .chapterImpressions(chapterImpression)
+                .whyRecommendingThisCourse(whyDoYouRecommendIt)
+                .favoriteLearningToolOfTheChapter(learningTool)
+                .improvementSuggestion(improvementSuggestion)
+                .reasonFavoriteLearningToolOfTheChapter(reasons)
                 .build()
                 .init();
 
@@ -144,6 +160,11 @@ public class ReviewIT {
         assertThat(foundReview).isNotEmpty();
         assertThat(foundReview.get().getReviewAuthorId()).isEqualTo(chapterReviewer.getId());
         assertThat(foundReview.get().getChapterExplanations()).isEqualTo("Great chapter");
+        assertThat(foundReview.get().getFavoriteLearningToolOfTheChapter()).isEqualTo(learningTool);
+        assertThat(foundReview.get().getChapterImpressions()).isEqualTo(chapterImpression);
+        assertThat(foundReview.get().getImprovementSuggestion()).isEqualTo(improvementSuggestion);
+        assertThat(foundReview.get().getWhyRecommendingThisCourse()).isEqualTo(whyDoYouRecommendIt);
+        assertThat(foundReview.get().getReasonFavoriteLearningToolOfTheChapter()).isEqualTo(reasons);
     }
 
     @Test
