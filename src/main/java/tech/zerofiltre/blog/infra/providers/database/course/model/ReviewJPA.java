@@ -2,7 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.course.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
+import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import javax.persistence.*;
@@ -22,6 +22,12 @@ public class ReviewJPA extends BaseEntityJPA {
     private int chapterUnderstandingScore;
     private String recommendCourse;
     private int overallChapterSatisfaction;
+    private String chapterImpressions;
+    private String whyRecommendingThisCourse;
+    private String reasonFavoriteLearningToolOfTheChapter;
+    private String improvementSuggestion;
+
+    private String favoriteLearningToolOfTheChapter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
