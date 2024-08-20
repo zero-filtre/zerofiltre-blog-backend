@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class ZerofiltreUtils {
@@ -358,5 +360,12 @@ public class ZerofiltreUtils {
         LocalDate startDate = endDate.minusMonths(1);
 
         return Arrays.asList(startDate, endDate);
+    }
+
+    public static <T> Collection<List<T>> partitionList(List<T> list, int n) {
+        return IntStream.range(0, list.size()).boxed()
+                .collect(Collectors.groupingBy(i -> i / n,
+                        Collectors.mapping(list::get, Collectors.toList())))
+                .values();
     }
 }

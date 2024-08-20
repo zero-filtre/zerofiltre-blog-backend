@@ -48,4 +48,13 @@ public class NotificationController {
         emailSender.send(email);
         return "Email sent";
     }
+
+    @PostMapping("all")
+    public String notifyByEmailForAllUsers(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
+            User user = securityContextManager.getAuthenticatedUser();
+            if (!user.getRoles().contains("ROLE_ADMIN"))
+                throw new ForbiddenActionException("You are not allowed to send emails", Domains.NONE.name());
+            emailSender.sendForAllUsers(email, false);
+        return "Email(s) sent for all users";
+    }
 }
