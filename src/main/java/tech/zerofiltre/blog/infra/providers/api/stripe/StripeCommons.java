@@ -128,7 +128,7 @@ public class StripeCommons {
             String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
             email.setContent(emailContent);
 
-            emailSender.send(email);
+            emailSender.send(email, true);
         } catch (Exception e) {
             log.warn("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message);
         }

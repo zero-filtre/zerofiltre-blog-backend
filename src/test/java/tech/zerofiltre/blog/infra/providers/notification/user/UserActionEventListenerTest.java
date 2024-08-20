@@ -1,16 +1,18 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.mockito.junit.jupiter.*;
-import org.springframework.context.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.UserActionApplicationEvent;
 
-import java.util.*;
+import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -34,7 +36,7 @@ class UserActionEventListenerTest {
 
         when(emailTemplateEngine.process(anyString(), any(Context.class))).thenReturn("<a href=zerofiltre.tech>Home</a>");
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        doNothing().when(mailSender).send(any());
+        doNothing().when(mailSender).send(any(), anyBoolean());
 
     }
 
@@ -54,7 +56,7 @@ class UserActionEventListenerTest {
         userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(mailSender, times(1)).send(any());
+        verify(mailSender, times(1)).send(any(), anyBoolean());
     }
 
     @Test
@@ -73,7 +75,7 @@ class UserActionEventListenerTest {
         userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(mailSender, times(1)).send(any());
+        verify(mailSender, times(1)).send(any(), anyBoolean());
     }
 
     @Test
@@ -93,6 +95,6 @@ class UserActionEventListenerTest {
         userActionEventListener.onApplicationEvent(event);
 
         //ASSERT
-        verify(mailSender, times(1)).send(any());
+        verify(mailSender, times(1)).send(any(), anyBoolean());
     }
 }

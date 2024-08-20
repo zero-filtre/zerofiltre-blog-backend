@@ -94,7 +94,7 @@ public class CheckoutStartedEventListener implements ApplicationListener<Checkou
             email.setSubject(subject);
             email.setContent(emailContent);
             email.setRecipients(Collections.singletonList(recipientAddress));
-            emailSender.send(email);
+            emailSender.send(email, true);
         }
     }
 

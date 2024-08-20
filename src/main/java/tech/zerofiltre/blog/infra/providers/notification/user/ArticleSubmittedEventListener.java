@@ -56,7 +56,7 @@ public class ArticleSubmittedEventListener implements ApplicationListener<Articl
             email.setSubject(subject);
             email.setContent(emailContent);
             email.setRecipients(Collections.singletonList(emailAddress));
-            emailSender.send(email);
+            emailSender.send(email, true);
         }
     }
 }

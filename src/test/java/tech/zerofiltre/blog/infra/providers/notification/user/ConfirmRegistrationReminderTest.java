@@ -1,24 +1,29 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.context.*;
-import org.springframework.test.context.*;
-import org.springframework.test.context.junit.jupiter.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import org.thymeleaf.spring5.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.MessageSource;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.IContext;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.VerificationToken;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -123,7 +128,7 @@ class ConfirmRegistrationReminderTest {
         ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
         Email email = new Email();
-        verify(zerofiltreEmailSender, times(3)).send(emailCaptor.capture());
+        verify(zerofiltreEmailSender, times(3)).send(emailCaptor.capture(), anyBoolean());
         List<String> capturedEmailList = new ArrayList<>();
         List<String> capturedSubjectList = new ArrayList<>();
 
@@ -171,7 +176,7 @@ class ConfirmRegistrationReminderTest {
         //ASSERT
         ArgumentCaptor<Email> emailCaptor = ArgumentCaptor.forClass(Email.class);
 
-        verify(zerofiltreEmailSender, times(2)).send(emailCaptor.capture());
+        verify(zerofiltreEmailSender, times(2)).send(emailCaptor.capture(), anyBoolean());
         List<String> capturedEmailList = new ArrayList<>();
         emailCaptor.getAllValues().forEach(value -> {
             capturedEmailList.addAll(value.getRecipients());

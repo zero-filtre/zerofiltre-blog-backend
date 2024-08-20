@@ -64,7 +64,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
             email.setSubject(subject);
             email.setContent(emailContent);
             email.setRecipients(Collections.singletonList(recipientAddress));
-            emailSender.send(email);
+            emailSender.send(email, true);
         }
     }
 

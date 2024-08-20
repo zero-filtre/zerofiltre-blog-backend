@@ -1,22 +1,22 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-import lombok.*;
-import lombok.extern.slf4j.*;
-import org.springframework.context.*;
-import org.springframework.scheduling.annotation.*;
-import org.springframework.stereotype.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import org.thymeleaf.spring5.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
-import tech.zerofiltre.blog.infra.security.config.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
+import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
 import java.util.*;
 
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
 
 @Slf4j
 @Component
@@ -64,7 +64,7 @@ public class ConfirmRegistrationReminder {
                         email.setSubject(subject);
                         email.setContent(emailContent);
                         email.setRecipients(Collections.singletonList(user.getEmail()));
-                        emailSender.send(email);
+                        emailSender.send(email, true);
                     }
                 });
         log.info("Triggered {} E-mail addresses confirmation reminders", ref.count);

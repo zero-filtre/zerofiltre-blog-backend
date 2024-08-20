@@ -1,22 +1,26 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.*;
-import org.mockito.*;
-import org.mockito.junit.jupiter.*;
-import org.springframework.context.*;
-import org.springframework.test.util.*;
-import org.thymeleaf.*;
-import org.thymeleaf.context.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.notification.user.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.notification.user.model.CheckoutStartedEvent;
 
-import java.util.*;
+import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CheckoutStartedEventListenerTest {
@@ -44,7 +48,7 @@ class CheckoutStartedEventListenerTest {
 
         lenient().when(emailTemplateEngine.process(anyString(), any(Context.class))).thenReturn("<a href=zerofiltre.tech>Home</a>");
         lenient().when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
-        lenient().doNothing().when(mailSender).send(any());
+        lenient().doNothing().when(mailSender).send(any(), anyBoolean());
 
     }
 
@@ -83,7 +87,7 @@ class CheckoutStartedEventListenerTest {
         eventListener.handleEventIfNeeded();
 
         //ASSERT
-        verify(mailSender, Mockito.times(0)).send(any());
+        verify(mailSender, Mockito.times(0)).send(any(), anyBoolean());
 
     }
 
@@ -123,7 +127,7 @@ class CheckoutStartedEventListenerTest {
         eventListener.handleEventIfNeeded();
 
         //ASSERT
-        verify(mailSender, Mockito.times(2)).send(any());
+        verify(mailSender, Mockito.times(2)).send(any(), anyBoolean());
         Assertions.assertThat(eventListener.getEvents().size()).isOne();
 
 
