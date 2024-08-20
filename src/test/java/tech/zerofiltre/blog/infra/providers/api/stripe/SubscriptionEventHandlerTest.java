@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
@@ -41,9 +40,6 @@ class SubscriptionEventHandlerTest {
 
     @Mock
     Event event;
-
-    @Mock
-    CourseProvider courseProvider;
 
     @Mock
     PurchaseProvider purchaseProvider;
@@ -79,7 +75,7 @@ class SubscriptionEventHandlerTest {
 
     @BeforeEach
     void init() {
-        eventHandler = new SubscriptionEventHandler(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider, userProvider, stripeCommons, infraProperties);
+        eventHandler = new SubscriptionEventHandler(enrollmentProvider, chapterProvider, purchaseProvider, userProvider, stripeCommons, infraProperties, null);
         ReflectionTestUtils.setField(eventHandler, "suspend", suspend);
     }
 

@@ -3,29 +3,31 @@ package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static tech.zerofiltre.blog.domain.sandbox.model.Sandbox.Type.K8S;
+
 @Slf4j
 public class Suspend {
     private final EnrollmentProvider enrollmentProvider;
-    private final CourseProvider courseProvider;
     private final ChapterProvider chapterProvider;
     private final PurchaseProvider purchaseProvider;
+    private final SandboxProvider sandboxProvider;
 
-    public Suspend(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider) {
+    public Suspend(EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, SandboxProvider sandboxProvider) {
         this.enrollmentProvider = enrollmentProvider;
-        this.courseProvider = courseProvider;
         this.chapterProvider = chapterProvider;
         this.purchaseProvider = purchaseProvider;
+        this.sandboxProvider = sandboxProvider;
     }
 
     public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
@@ -49,10 +51,6 @@ public class Suspend {
     }
 
 
-    private int getEnrolledCount(long courseId) {
-        return courseProvider.getEnrolledCount(courseId);
-    }
-
     private Enrollment doSuspend(long userId, Enrollment enrollment) throws ZerofiltreException {
         enrollment.setActive(false);
         enrollment.setSuspendedAt(LocalDateTime.now());
@@ -62,6 +60,11 @@ public class Suspend {
         purchaseProvider.delete(userId, resultCourse.getId());
         resultCourse.setLessonsCount(getLessonsCount(resultCourse.getId()));
         log.info("User {} enrollment suspended for course {}", userId, enrollment.getCourse().getId());
+
+
+        if (K8S.equals(resultCourse.getSandboxType())) {
+            sandboxProvider.destroy(result.getUser().getFullName(), result.getUser().getEmail());
+        }
         return result;
     }
 }

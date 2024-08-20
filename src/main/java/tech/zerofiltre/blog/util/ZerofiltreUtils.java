@@ -12,12 +12,12 @@ import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
 import tech.zerofiltre.blog.domain.course.model.*;
 import tech.zerofiltre.blog.domain.purchase.model.Purchase;
+import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,10 +26,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class ZerofiltreUtils {
@@ -187,8 +186,14 @@ public class ZerofiltreUtils {
         course.setPrice(3599);
         course.setSections(sections);
         course.setSummary(TEST_SUMMARY);
+        course.setSandboxType(Sandbox.Type.K8S);
         return course;
 
+    }
+    public static Course createMockCourse(Sandbox.Type sandboxType){
+        Course course = createMockCourse(false, Status.PUBLISHED, createMockUser(false), Collections.emptyList(), Collections.emptyList());
+        course.setSandboxType(sandboxType);
+        return course;
     }
 
     public static String getValidEmail(User user) {
@@ -292,10 +297,6 @@ public class ZerofiltreUtils {
         return purchase;
     }
 
-    public static String getAppURL(HttpServletRequest request) {
-        return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-    }
-
     public static String getOriginUrl(String env) {
         return env.equals("prod") ? ROOT_URL : "https://" + env + ".zerofiltre.tech";
     }
@@ -359,5 +360,12 @@ public class ZerofiltreUtils {
         LocalDate startDate = endDate.minusMonths(1);
 
         return Arrays.asList(startDate, endDate);
+    }
+
+    public static <T> Collection<List<T>> partitionList(List<T> list, int n) {
+        return IntStream.range(0, list.size()).boxed()
+                .collect(Collectors.groupingBy(i -> i / n,
+                        Collectors.mapping(list::get, Collectors.toList())))
+                .values();
     }
 }

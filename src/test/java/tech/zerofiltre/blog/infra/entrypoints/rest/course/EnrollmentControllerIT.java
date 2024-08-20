@@ -110,7 +110,10 @@ class EnrollmentControllerIT {
         when(securityContextManager.getAuthenticatedUser()).thenReturn((author));
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.of(Chapter.builder().courseId(mockCourse.getId()).build()));
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(Lesson.builder().build()));
-        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new Enrollment()));
+        Enrollment anEnrollment = new Enrollment();
+        anEnrollment.setUser(new User());
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(anEnrollment));
+        doNothing().when(sandboxProvider).destroy(anyString(), anyString());
         when(enrollmentProvider.save(any())).thenAnswer(i -> {
             Enrollment enrollment = (Enrollment) i.getArguments()[0];
             enrollment.setCourse(mockCourse);

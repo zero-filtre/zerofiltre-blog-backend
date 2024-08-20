@@ -36,7 +36,6 @@ public class StripeCommons {
     public static final String USER_ID = "userId";
     public static final String PRODUCT_ID = "productId";
     public static final String VOTRE_PAIEMENT_CHEZ_ZEROFILTRE = "Votre paiement chez Zerofiltre";
-    public static final String SIGNATURE = "\n\n L'équipe Zerofiltre";
     public static final String SUBSCRIPTION_CREATE_BILLING_REASON = "subscription_create";
     public static final String TOTAL_PAID_COUNT = "totalPaidCount";
     public static final String CANCELLED_3TIMES_PAID = "cancelled3TimesPaid";
@@ -73,7 +72,7 @@ public class StripeCommons {
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
     }
 
     public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws ZerofiltreException {

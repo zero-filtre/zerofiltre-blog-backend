@@ -47,6 +47,11 @@ public class ReviewController {
                 .chapterUnderstandingScore(reviewVM.getChapterUnderstandingScore())
                 .recommendCourse(reviewVM.isRecommendCourse())
                 .overallChapterSatisfaction(reviewVM.getOverallChapterSatisfaction())
+                .whyRecommendingThisCourse(reviewVM.getWhyRecommendingThisCourse())
+                .chapterImpressions(reviewVM.getChapterImpressions())
+                .improvementSuggestion(reviewVM.getImprovementSuggestion())
+                .reasonFavoriteLearningToolOfTheChapter(reviewVM.getReasonFavoriteLearningToolOfTheChapter())
+                .favoriteLearningToolOfTheChapter(reviewVM.getFavoriteLearningToolOfTheChapter())
                 .chapterId(reviewVM.getChapterId())
                 .reviewAuthorId(user.getId());
     }

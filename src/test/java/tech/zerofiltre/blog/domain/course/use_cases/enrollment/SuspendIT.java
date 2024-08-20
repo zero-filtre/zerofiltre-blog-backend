@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -16,6 +17,7 @@ import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.purchase.model.Purchase;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
@@ -29,6 +31,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @DataJpaTest
 @Import({DBEnrollmentProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class, DBPurchaseProvider.class})
@@ -54,12 +58,15 @@ class SuspendIT {
     PurchaseProvider purchaseProvider;
 
     FindEnrollment findEnrollment;
+    @Mock
+    SandboxProvider sandboxProvider;
 
 
     @BeforeEach
-    void init() {
-        suspend = new Suspend(enrollmentProvider, dbCourseProvider, chapterProvider, purchaseProvider);
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, null);
+    void init() throws ZerofiltreException {
+        doNothing().when(sandboxProvider).destroy(any(), any());
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, sandboxProvider, null);
         findEnrollment = new FindEnrollment(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
 

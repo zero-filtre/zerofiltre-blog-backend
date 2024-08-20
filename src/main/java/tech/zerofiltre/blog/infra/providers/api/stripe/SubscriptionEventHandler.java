@@ -7,12 +7,12 @@ import com.stripe.param.SubscriptionRetrieveParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
+import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
@@ -34,12 +34,12 @@ public class SubscriptionEventHandler {
     private final StripeCommons stripeCommons;
     private final InfraProperties infraProperties;
 
-    public SubscriptionEventHandler(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, UserProvider userProvider, StripeCommons stripeCommons, InfraProperties infraProperties) {
+    public SubscriptionEventHandler(EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, UserProvider userProvider, StripeCommons stripeCommons, InfraProperties infraProperties, SandboxProvider sandboxProvider) {
         this.userProvider = userProvider;
         this.enrollmentProvider = enrollmentProvider;
         this.stripeCommons = stripeCommons;
         this.infraProperties = infraProperties;
-        this.suspend = new Suspend(enrollmentProvider, courseProvider, chapterProvider, purchaseProvider);
+        this.suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
     }
 
     public void handleSubscriptionDeleted(Event event, Subscription subscription) throws ZerofiltreException, StripeException {

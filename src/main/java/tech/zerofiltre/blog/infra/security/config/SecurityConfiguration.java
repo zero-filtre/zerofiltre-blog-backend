@@ -139,7 +139,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/user/jwt/refreshToken",
                         "/payment/success",
                         "/payment/cancel",
-                        "/user/github/*").permitAll()
+                        "/user/github/*",
+                        "/reviews/*").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .antMatchers("/actuator/**").permitAll()
