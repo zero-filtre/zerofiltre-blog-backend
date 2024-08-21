@@ -21,4 +21,7 @@ public class Email {
     private String content;
     private String subject;
     private String replyTo;
+
+    private List<String> videosIds = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 }
