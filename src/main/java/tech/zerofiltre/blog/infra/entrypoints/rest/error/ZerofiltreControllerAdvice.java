@@ -215,13 +215,27 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage(ZBLOG_000, null, locale),
-                ZerofiltreUtils.getRootCauseMessage(exception)
+                exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ZerofiltreException.class, ServletException.class, Throwable.class})
+    @ExceptionHandler({ZerofiltreException.class})
+    public ResponseEntity<BlogError> handleGenericZerofiltreProblem(Throwable throwable, Locale locale) {
+        String errorCode = UUID.randomUUID().toString();
+        final BlogError error = new BlogError(
+                currentApiVersion,
+                Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                errorCode,
+                messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
+                throwable.getLocalizedMessage()
+        );
+        log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({ServletException.class, Throwable.class})
     public ResponseEntity<BlogError> handleGenericProblem(Throwable throwable, Locale locale) {
         String errorCode = UUID.randomUUID().toString();
         final BlogError error = new BlogError(
@@ -229,7 +243,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 errorCode,
                 messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
-                "Unknown error, get help by providing the code: " + errorCode + " to the support team"
+                ZerofiltreUtils.getRootCauseMessage(throwable)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

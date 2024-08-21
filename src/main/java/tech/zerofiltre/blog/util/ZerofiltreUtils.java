@@ -375,6 +375,6 @@ public class ZerofiltreUtils {
 
         while(null != (cause = result.getCause()) && (result != cause)) result = cause;
 
-        return result.getLocalizedMessage();
+        return result.getClass().getName() + ":" + result.getLocalizedMessage();
     }
 }
