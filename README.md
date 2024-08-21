@@ -24,7 +24,10 @@ Once you are done hitting the keyboard, submit a pull request targeting our main
 
 ### Local Setup
 
-- Fire up a local MySQL server and create a database named: `blog_api_dev`
+- Launch a local mysql Docker container using Docker-compose :
+  ```shell
+      docker-compose up
+  ```
 - As we use Redis for caching, launch a local Redis Docker container this way:
     ```shell
     docker run -p 6379:6379 --name zerofiltre-local-redis -d redis
