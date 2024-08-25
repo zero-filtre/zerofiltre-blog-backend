@@ -94,12 +94,14 @@ public class ReviewIT {
                 .chapterUnderstandingScore(5)
                 .recommendCourse(true)
                 .overallChapterSatisfaction(5)
+                .favoriteLearningToolOfTheChapter(null)
                 .build()
                 .init();
 
         assertThat(review).isNotNull();
         assertThat(review.getChapterId()).isEqualTo(chapter.getId());
         assertThat(review.getReviewAuthorId()).isEqualTo(chapterReviewer.getId());
+        assertThat(review.getFavoriteLearningToolOfTheChapter()).isNotNull();
     }
 
 

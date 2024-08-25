@@ -26,6 +26,7 @@ public class ReviewJPA extends BaseEntityJPA {
     private String whyRecommendingThisCourse;
     private String reasonFavoriteLearningToolOfTheChapter;
     private String improvementSuggestion;
+    private long courseId;
 
     private String favoriteLearningToolOfTheChapter;
 
