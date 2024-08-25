@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.model.ChapterJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.ReviewJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public interface ReviewJPAMapper {
 
     @Named("ReviewJPAMapper_stringToListOfString")
     default List<String> stringToListOfString(String stringsSeparatedByComma) {
+        if(stringsSeparatedByComma == null || stringsSeparatedByComma.isEmpty())
+            return new ArrayList<>();
+
         return Arrays.asList(stringsSeparatedByComma.split(",", -1));
     }
 }
