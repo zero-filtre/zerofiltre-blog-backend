@@ -88,6 +88,7 @@ public class NotchPayProvider implements PaymentProvider {
         String paymentReference = UUID.randomUUID().toString();
         body.setReference(paymentReference);
         body.getCustomerMeta().put("userId", user.getId());
+        body.setCallback("https://zerofiltre.tech/cours");
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Content-Type", "application/json");
@@ -157,6 +158,7 @@ public class NotchPayProvider implements PaymentProvider {
                     "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent bénéficier de nos contenus dans leur entièreté: " +
                             originURL +
                             ". Vous recevrez un rappel 5 jours avant la date de renouvellement de votre abonnement afin d'éviter toute coupure.");
+            
             return "OK";
         } catch (Exception e) {
             throw new PaymentException("Unable to process notchpay webhook", e, "payment");
