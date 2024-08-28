@@ -31,20 +31,6 @@ public class ZerofiltreEmailSender {
     private final ITemplateEngine emailTemplateEngine;
     private final DBUserProvider dbUserProvider;
 
-
-    public void send(Email email, boolean templateReady) {
-        if (!templateReady) {
-            Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("content", email.getContent());
-            Context thymeleafContext = new Context();
-            thymeleafContext.setVariables(templateModel);
-            thymeleafContext.setLocale(Locale.FRENCH);
-            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
-            email.setContent(emailContent);
-        }
-        send(email);
-    }
-
     public void sendForAllUsers(Email email) {
         email.setRecipients(Collections.singletonList(infraProperties.getContactEmail()));
         email.setCcs(new ArrayList<>());
@@ -92,6 +78,22 @@ public class ZerofiltreEmailSender {
         } catch (MessagingException e) {
             log.error("An error occurred when sending email", e);
         }
+    }
+
+    public void send(Email email, boolean templateReady) {
+        if (!templateReady) {
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("content", email.getContent());
+            templateModel.put("videosIds", email.getVideosIds());
+            templateModel.put("images", email.getImages());
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(Locale.FRENCH);
+            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
+            log.info("email content {}", emailContent);
+            email.setContent(emailContent);
+        }
+        send(email);
     }
 
     private boolean isValidEmail(String email) {

@@ -72,6 +72,55 @@
             margin-top: 100px;
         }
 
+        .visual-media-container {
+            content: "";
+            display: table;
+            clear: both;
+            width: 100%;
+        }
+
+        .visual-media {
+            float: left;
+            width: 30%;
+            margin: 1%;
+            box-sizing: border-box;
+        }
+
+        .visual-media:nth-child(4) {
+            width: 62%;
+        }
+
+        .visual-media img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .section-header {
+            width: 100%;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .visual-media {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .visual-media:nth-child(4) {
+                width: 100%;
+            }
+
+            .section-header {
+                margin: 10px 0;
+                font-size: 1.25rem;
+            }
+        }
+
 
     </style>
 </head>
@@ -84,7 +133,25 @@
         </div>
 
 
-        <p th:text="${content}"></p>
+        <p th:utext="${content}"></p>
+        </br>
+        </br>
+
+        <div class="visual-media-container">
+            <h3 th:if="${videosIds != null && videosIds.size() != 0}" class="section-header primary-color">---------- Vidéos ----------</h3>
+            <div class="visual-media" th:each="videoId : ${videosIds}">
+                <a th:href="'https://www.youtube.com/watch?v=' + ${videoId}" target="_blank">
+                    <img th:src="'https://img.youtube.com/vi/' + ${videoId} + '/hqdefault.jpg'" alt="Video Thumbnail">
+                </a>
+            </div>
+
+            <h3 th:if="${images != null && images.size() != 0 }" class="section-header primary-color">---------- Images ----------</h3>
+            <div class="visual-media" th:each="image : ${images}">
+                <img th:src="${image}" alt="Image Thumbnail">
+            </div>
+        </div>
+
+
         </br>
         </br>
         <p><em th:text="#{zerofiltre_team_signature}"></em></p>

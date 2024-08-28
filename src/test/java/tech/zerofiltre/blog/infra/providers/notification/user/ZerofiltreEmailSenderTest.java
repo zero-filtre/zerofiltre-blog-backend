@@ -68,7 +68,8 @@ class ZerofiltreEmailSenderTest {
     @Test
     void mustSend_WithProperData() throws MessagingException {
         //ARRANGE
-        Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Arrays.asList(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2), Arrays.asList(CERTIFIED_COPY1, CERTIFIED_COPY2), CONTENT, SUBJECT, REPLY_TO);
+        Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Arrays.asList(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2), Arrays.asList(CERTIFIED_COPY1, CERTIFIED_COPY2),
+                                CONTENT, SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         //ACT
         zerofiltreEmailSender.send(email, true);
@@ -86,7 +87,8 @@ class ZerofiltreEmailSenderTest {
     @Test
     void mustSend_WithDefault_replyTo() throws MessagingException {
         //ARRANGE
-        Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Collections.emptyList(), Collections.emptyList(), CONTENT, SUBJECT, null);
+        Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Collections.emptyList(), Collections.emptyList(),
+                                CONTENT, SUBJECT, null, Collections.emptyList(), Collections.emptyList());
 
         //ACT
         zerofiltreEmailSender.send(email, true);
@@ -102,7 +104,8 @@ class ZerofiltreEmailSenderTest {
     @Test
     void mustSendToAllUsers_WithProperData() throws MessagingException, IOException {
         //ARRANGE
-        Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT, SUBJECT, REPLY_TO);
+        Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT,
+                                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         UserEmail userEmail1 = new UserEmail(EMAIL_BLIND_COPY1, null);
         UserEmail userEmail2 = new UserEmail(EMAIL_BLIND_COPY2, null);
@@ -129,7 +132,8 @@ class ZerofiltreEmailSenderTest {
     @Test
     void mustSend42Emails_WithProperData() throws MessagingException, IOException {
         //ARRANGE
-        Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT, SUBJECT, REPLY_TO);
+        Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT,
+                                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         List<UserEmail> list = new ArrayList<>();
         for(int i = 0; i < 42; i++) {
