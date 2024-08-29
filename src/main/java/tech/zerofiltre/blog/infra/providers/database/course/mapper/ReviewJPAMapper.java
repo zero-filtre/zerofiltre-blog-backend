@@ -17,11 +17,13 @@ public interface ReviewJPAMapper {
 
     @Mapping(target = "chapter", source = "chapterId", qualifiedByName = "ReviewJPAMapper_chapterFromId")
     @Mapping(target = "user", source = "reviewAuthorId", qualifiedByName = "ReviewJPAMapper_userFromId")
+    @Mapping(target = "courseId")
     @Mapping(target = "favoriteLearningToolOfTheChapter", qualifiedByName = "ReviewJPAMapper_stringFromListOfString")
     ReviewJPA toJPA(Review review);
 
     @Mapping(target = "chapterId", source = "chapter.id")
     @Mapping(target = "reviewAuthorId", source = "user.id")
+    @Mapping(target = "courseId")
     @Mapping(target = "favoriteLearningToolOfTheChapter", qualifiedByName = "ReviewJPAMapper_stringToListOfString")
     Review fromJPA(ReviewJPA reviewJPA);
 
@@ -49,7 +51,7 @@ public interface ReviewJPAMapper {
 
     @Named("ReviewJPAMapper_stringToListOfString")
     default List<String> stringToListOfString(String stringsSeparatedByComma) {
-        if(stringsSeparatedByComma == null || stringsSeparatedByComma.isEmpty())
+        if(stringsSeparatedByComma.isEmpty())
             return new ArrayList<>();
 
         return Arrays.asList(stringsSeparatedByComma.split(",", -1));

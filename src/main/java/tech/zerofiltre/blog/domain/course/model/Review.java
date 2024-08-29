@@ -22,7 +22,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@JsonIgnoreProperties(value = {"reviewProvider", "userProvider", "loggerProvider", "ReviewId", "chapterId", "courseId",
+@JsonIgnoreProperties(value = {"reviewProvider", "userProvider", "loggerProvider", "ReviewId", "chapterId",
         "enrollmentProvider", "courseProvider"})
 @Builder(toBuilder = true)
 public class Review {
@@ -41,6 +41,7 @@ public class Review {
     private String improvementSuggestion;
     private long reviewAuthorId;
     private long chapterId;
+    private long courseId;
     private ReviewProvider reviewProvider;
     private UserProvider userProvider;
     private LoggerProvider loggerProvider;
@@ -63,6 +64,7 @@ public class Review {
         if (doesUserHasActiveEnrollment) {
             Optional<Review> existingReview = reviewProvider.findByAuthorIdAndChapterId(this.reviewAuthorId, this.chapterId);
             if (existingReview.isEmpty()) {
+                this.courseId = courseId;
                 return setProviders(reviewProvider.save(this));
             } else {
                 Review updatedReview = updateExistingReview(existingReview.get());
