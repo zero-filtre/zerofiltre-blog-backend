@@ -119,4 +119,9 @@ public class DBCourseProvider implements CourseProvider {
         Optional<CourseJPA> course = repository.findByChapterId(chapterId);
         return course.map(CourseJPA::getId).orElse(0L);
     }
+
+    @Override
+    public String getTitle(long courseId) {
+        return repository.getTitle(courseId);
+    }
 }

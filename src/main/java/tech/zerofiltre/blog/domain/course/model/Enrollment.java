@@ -16,6 +16,7 @@ public class Enrollment {
     private LocalDateTime lastModifiedAt = LocalDateTime.now();
     private LocalDateTime suspendedAt;
     private boolean forLife = false;
+    private String certificatePath;
 
 
     private List<CompletedLesson> completedLessons = new ArrayList<>();
@@ -95,4 +96,8 @@ public class Enrollment {
     public boolean isForLife() { return forLife; }
 
     public void setForLife(boolean forLife) { this.forLife = forLife; }
+
+    public String getCertificatePath() { return certificatePath; }
+
+    public void setCertificatePath(String certificatePath) { this.certificatePath = certificatePath; }
 }

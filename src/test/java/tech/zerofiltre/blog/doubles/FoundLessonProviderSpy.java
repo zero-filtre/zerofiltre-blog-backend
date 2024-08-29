@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.doubles;
 
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
 
 import java.util.*;
 
@@ -28,4 +29,7 @@ public class FoundLessonProviderSpy implements LessonProvider {
     public void delete(Lesson lesson) {
         deleteCalled = true;
     }
+
+    @Override
+    public List<Long> listNotCompletedLessons(long enrollmentId) { return List.of(); }
 }

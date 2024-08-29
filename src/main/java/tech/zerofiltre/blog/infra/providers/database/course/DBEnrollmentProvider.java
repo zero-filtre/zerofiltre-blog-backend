@@ -27,7 +27,6 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     private final EnrollmentJPAMapper mapper = Mappers.getMapper(EnrollmentJPAMapper.class);
     private final SpringPageMapper<Enrollment> pageMapper = new SpringPageMapper<>();
 
-
     @Override
     public void delete(long userId, long courseId) {
         repository.deleteByUserIdAndCourseId(userId, courseId);
@@ -62,4 +61,8 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
         }
     }
 
+    @Override
+    public boolean isCompleted(long userId, long courseId) {
+        return repository.getCompletedByUserIdAndCourseId(userId, courseId);
+    }
 }

@@ -377,4 +377,9 @@ public class ZerofiltreUtils {
 
         return result.getLocalizedMessage();
     }
+
+    public static String sanitizeString(String filename) {
+        return filename.replaceAll("[/\\\\:*?\"<>| ]+", "_");
+    }
+
 }

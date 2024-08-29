@@ -164,4 +164,7 @@ public class DummyLessonJPARepository implements LessonJPARepository {
     public List<LessonWithCourseIdJPA> findByKeyword(String keyword, Status status) {
         return List.of();
     }
+
+    @Override
+    public List<Long> findAllLessonIdNotCompletedByCourseIdAndEnrollmentId(long enrollmentId) { return List.of(); }
 }

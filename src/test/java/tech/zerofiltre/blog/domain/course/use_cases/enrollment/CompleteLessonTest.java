@@ -8,16 +8,20 @@ import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.model.CompletedLesson;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.doubles.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.*;
 
 
 class CompleteLessonTest {
@@ -161,6 +165,76 @@ class CompleteLessonTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> completeLesson.execute(1, 1, 1, true));
 
+    }
+
+    @Test
+    void completed_enrollment_is_true_when_I_add_a_completed_lesson_and_all_lessons_are_completed() throws ZerofiltreException {
+        //given
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
+
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(3L)
+                .build();
+
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
+        when(lessonProvider.listNotCompletedLessons(anyLong())).thenReturn(Collections.singletonList(lesson.getId()));
+
+        Enrollment enrollment = completeLesson.execute(1, lesson.getId(), 1, true);
+
+        //then
+        assertThat(enrollment.isCompleted()).isTrue();
+        verify(lessonProvider, times(1)).listNotCompletedLessons(anyLong());
+   }
+
+    @Test
+    void completed_enrollment_is_false_when_I_add_a_completed_lesson_and_one_lesson_is_not_completed() throws ZerofiltreException {
+        //given
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
+
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(3L)
+                .build();
+
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
+        when(lessonProvider.listNotCompletedLessons(anyLong())).thenReturn(Collections.singletonList(1L));
+
+        //when
+        Enrollment enrollment = completeLesson.execute(1, lesson.getId(), 1, true);
+
+        //then
+        assertThat(enrollment.isCompleted()).isFalse();
+        verify(lessonProvider, times(1)).listNotCompletedLessons(anyLong());
+    }
+
+    @Test
+    void completed_enrollment_is_false_when_I_add_a_not_completed_lesson() throws ZerofiltreException {
+        //given
+        EnrollmentProviderSpy enrollmentProviderSpy = new EnrollmentProviderSpy();
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
+        completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
+
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(3L)
+                .build();
+
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
+
+        //when
+        Enrollment enrollment = completeLesson.execute(1, lesson.getId(), 1, false);
+
+        //then
+        assertThat(enrollment.isCompleted()).isFalse();
+        verify(lessonProvider, times(0)).listNotCompletedLessons(anyLong());
     }
 
 }

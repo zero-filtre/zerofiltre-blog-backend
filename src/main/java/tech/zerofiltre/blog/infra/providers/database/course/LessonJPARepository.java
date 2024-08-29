@@ -18,4 +18,10 @@ public interface LessonJPARepository extends JpaRepository<LessonJPA, Long> {
             "LOWER(l.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(l.summary) LIKE LOWER(CONCAT('%', :keyword, '%'))) ")
     List<LessonWithCourseIdJPA> findByKeyword(String keyword, Status status);
+
+    @Query(value = "SELECT l.id FROM lesson l " +
+            "JOIN chapter c ON c.id = l.chapter_id AND c.course_id = (SELECT erl.course_id FROM enrollment erl WHERE erl.id = ?1) " +
+            "LEFT JOIN enrollment_completed_lessons ecl ON ecl.enrollment_id = ?1 AND ecl.lesson_id = l.id " +
+            "WHERE ecl.lesson_id IS NULL", nativeQuery = true)
+    List<Long> findAllLessonIdNotCompletedByCourseIdAndEnrollmentId(long enrollmentId);
 }

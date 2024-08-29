@@ -61,4 +61,7 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     public long courseIdOfChapterId(long chapterId) {
         return 0;
     }
+
+    @Override
+    public String getTitle(long courseId) { return ""; }
 }

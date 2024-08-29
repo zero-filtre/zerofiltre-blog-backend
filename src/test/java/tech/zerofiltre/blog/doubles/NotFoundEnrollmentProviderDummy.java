@@ -18,6 +18,9 @@ public class NotFoundEnrollmentProviderDummy implements EnrollmentProvider {
     }
 
     @Override
+    public boolean isCompleted(long userId, long courseId) { return false; }
+
+    @Override
     public void delete(long userId, long courseId) {
 
     }

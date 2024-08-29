@@ -60,4 +60,7 @@ public class Found_Draft_WithKnownAuthor_CourseProvider_Spy implements CoursePro
     public long courseIdOfChapterId(long chapterId) {
         return 0;
     }
+
+    @Override
+    public String getTitle(long courseId) { return ""; }
 }

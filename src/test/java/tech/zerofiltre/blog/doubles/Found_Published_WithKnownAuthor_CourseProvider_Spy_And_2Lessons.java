@@ -62,4 +62,7 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons imp
     public long courseIdOfChapterId(long chapterId) {
         return 0;
     }
+
+    @Override
+    public String getTitle(long courseId) { return ""; }
 }

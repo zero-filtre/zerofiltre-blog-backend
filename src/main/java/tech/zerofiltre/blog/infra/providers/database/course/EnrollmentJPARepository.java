@@ -15,5 +15,8 @@ public interface EnrollmentJPARepository extends JpaRepository<EnrollmentJPA, Lo
     void deleteByUserIdAndCourseId(long userId, long courseId);
 
     List<EnrollmentJPA> getAllByCompletedLessonsLesson(LessonJPA lessonJPA);
+
+    @Query(value = "select completed from enrollment where user_id = ?1 and course_id = ?2", nativeQuery = true)
+    boolean getCompletedByUserIdAndCourseId(long userId, long courseId);
 }
 

@@ -42,6 +42,11 @@ public class DBLessonProvider implements LessonProvider {
     }
 
     @Override
+    public List<Long> listNotCompletedLessons(long enrollmentId) {
+        return lessonJPARepository.findAllLessonIdNotCompletedByCourseIdAndEnrollmentId(enrollmentId);
+    }
+
+    @Override
     public List<Lesson> saveAll(List<Lesson> lessons) {
         List<LessonJPA> lessonsJPA = lessonJPAMapper.toJPAs(lessons);
         List<LessonJPA> savedLessonsJPA = lessonJPARepository.saveAll(lessonsJPA);

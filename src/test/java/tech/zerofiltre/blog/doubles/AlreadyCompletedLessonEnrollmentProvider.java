@@ -31,4 +31,7 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
     public Enrollment save(Enrollment enrollment) {
         return null;
     }
+
+    @Override
+    public boolean isCompleted(long userId, long courseId) { return false; }
 }

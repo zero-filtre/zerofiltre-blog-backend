@@ -30,6 +30,7 @@ public class EnrollmentJPA extends BaseEntityJPA {
     private LocalDateTime suspendedAt;
     private LocalDateTime lastModifiedAt;
     private boolean forLife;
+    private String certificatePath;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "enrollment", orphanRemoval = true)
     private Set<CompletedLessonJPA> completedLessons;

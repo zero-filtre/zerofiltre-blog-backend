@@ -25,4 +25,6 @@ public interface CourseProvider {
     int getLessonsCount(long courseId);
 
     long courseIdOfChapterId(long chapterId);
+
+    String getTitle(long courseId);
 }
