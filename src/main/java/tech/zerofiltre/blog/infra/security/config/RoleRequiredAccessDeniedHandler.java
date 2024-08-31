@@ -8,6 +8,7 @@ import org.springframework.security.access.*;
 import org.springframework.security.web.access.*;
 import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.error.*;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.http.*;
 import java.io.*;
@@ -31,7 +32,7 @@ public class RoleRequiredAccessDeniedHandler implements AccessDeniedHandler {
                 String.valueOf(HttpServletResponse.SC_FORBIDDEN),
                 "ZBLOG_008",
                 messageSource.getMessage("ZBLOG_008", null, request.getLocale()),
-                accessDeniedException.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(accessDeniedException)
         );
 
         final ObjectMapper mapper = new ObjectMapper();
