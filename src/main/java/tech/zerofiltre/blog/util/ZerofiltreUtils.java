@@ -368,4 +368,13 @@ public class ZerofiltreUtils {
                         Collectors.mapping(list::get, Collectors.toList())))
                 .values();
     }
+
+    public static String getRootCauseMessage(Throwable throwable) {
+        Throwable cause = null;
+        Throwable result = throwable;
+
+        while(null != (cause = result.getCause()) && (result != cause)) result = cause;
+
+        return result.getLocalizedMessage();
+    }
 }

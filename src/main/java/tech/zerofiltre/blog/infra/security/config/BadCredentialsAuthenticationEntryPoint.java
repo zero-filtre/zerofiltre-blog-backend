@@ -8,6 +8,7 @@ import org.springframework.security.core.*;
 import org.springframework.security.web.*;
 import org.springframework.stereotype.*;
 import tech.zerofiltre.blog.infra.entrypoints.rest.error.*;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.http.*;
 import java.io.*;
@@ -31,7 +32,7 @@ public class BadCredentialsAuthenticationEntryPoint implements AuthenticationEnt
                 String.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
                 "ZBLOG_009",
                 messageSource.getMessage("ZBLOG_009", null, request.getLocale()),
-                authException.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(authException)
         );
 
         final ObjectMapper mapper = new ObjectMapper();

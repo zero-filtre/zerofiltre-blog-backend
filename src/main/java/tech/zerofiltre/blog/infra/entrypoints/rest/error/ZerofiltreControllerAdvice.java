@@ -18,6 +18,7 @@ import tech.zerofiltre.blog.domain.article.use_cases.PublishOrSaveArticleExcepti
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
 import tech.zerofiltre.blog.domain.user.use_cases.InvalidTokenException;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolation;
@@ -45,7 +46,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceId()}, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
@@ -59,7 +60,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_001", new Object[]{exception.getItemId()}, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -95,7 +96,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_004", new Object[]{}, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -130,7 +131,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_005", new Object[]{exception.getUniqueIdentifier()}, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -144,7 +145,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_006", null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -158,7 +159,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_011", null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -172,7 +173,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_012", null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -186,7 +187,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_008", null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -200,7 +201,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.UNAUTHORIZED.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_007", null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
@@ -214,7 +215,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.BAD_REQUEST.value()),
                 errorCode,
                 messageSource.getMessage(ZBLOG_000, null, locale),
-                exception.getLocalizedMessage()
+                ZerofiltreUtils.getRootCauseMessage(exception)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
