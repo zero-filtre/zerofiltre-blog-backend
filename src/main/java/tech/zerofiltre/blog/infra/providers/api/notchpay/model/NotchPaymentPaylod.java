@@ -12,5 +12,6 @@ public class NotchPaymentPaylod {
     private String currency;
     private String description;
     private String reference;
+    private String callback;
     private Map<String, Object> customerMeta = new HashMap<>();
 }
