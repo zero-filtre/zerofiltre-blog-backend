@@ -15,8 +15,6 @@ ENV OTEL_SERVICE_NAME=zerofiltre-backend-${PROFILE}
 
 ENV OTEL_METRICS_EXPORTER=none
 
-ENV OTEL_LOGS_EXPORTER=none
-
 ENV OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 
 ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317
