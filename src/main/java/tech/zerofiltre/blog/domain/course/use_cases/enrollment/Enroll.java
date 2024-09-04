@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import lombok.extern.slf4j.Slf4j;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -46,7 +45,7 @@ public class Enroll {
 
     private static void checkIfCourseIsPublished(Course course) throws ForbiddenActionException {
         if (course.getStatus().compareTo(Status.PUBLISHED) < 0) {
-            throw new ForbiddenActionException("You can not get enrolled into an unpublished course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You can not get enrolled into an unpublished course");
         }
     }
 
@@ -76,16 +75,16 @@ public class Enroll {
         return userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We could not find the user with id " + userId,
-                        String.valueOf(userId),
-                        Domains.USER.name()));
+                        String.valueOf(userId)
+                ));
     }
 
     private Course getTheCourse(long courseId) throws ResourceNotFoundException {
         return courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We couldn't find the course of id " + courseId + " you are trying to enroll to",
-                        String.valueOf(courseId),
-                        Domains.COURSE.name()));
+                        String.valueOf(courseId)
+                ));
     }
 
     private Enrollment getExisting(long userId, long courseId) {
@@ -125,7 +124,7 @@ public class Enroll {
 
     private void checkIfCourseIsPurchased(long userId, long courseId) throws ForbiddenActionException {
         if (purchaseProvider.purchaseOf(userId, courseId).isEmpty()) {
-            throw new ForbiddenActionException("You must purchase this course to enroll", Domains.COURSE.name());
+            throw new ForbiddenActionException("You must purchase this course to enroll");
         }
     }
 
@@ -163,7 +162,7 @@ public class Enroll {
                 try {
                     sandboxProvider.initialize(user.getFullName(), ZerofiltreUtils.getValidEmail(user));
                 } catch (ZerofiltreException e) {
-                    throw new RuntimeException(e);
+                    log.error("Failed to initialize sandbox", e);
                 }
             }
         }, "sandbox-provisioner");

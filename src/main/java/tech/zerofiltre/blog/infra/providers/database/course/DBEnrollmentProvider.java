@@ -58,7 +58,7 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
             enrollmentJPA = repository.save(enrollmentJPA);
             return mapper.fromJPA(enrollmentJPA);
         } catch (DataIntegrityViolationException e) {
-            throw new ZerofiltreException("You are already enrolled", e, "");
+            throw new ZerofiltreException("You are already enrolled", e);
         }
     }
 

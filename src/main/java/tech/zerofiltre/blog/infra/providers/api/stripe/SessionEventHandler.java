@@ -45,16 +45,16 @@ public class SessionEventHandler {
 
         LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
         customer = session.getCustomerObject();
-        log.info("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+        log.debug("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
         userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
 
         //lineItems contains only one lineItem
         LineItem lineItem = lineItems.getData().get(0);
 
-        log.info("EventId= {}, EventType={}, Handling Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
+        log.debug("EventId= {}, EventType={}, Handling Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
         Price price = lineItem.getPrice();
-        log.info(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
+        log.debug(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
 
@@ -76,7 +76,7 @@ public class SessionEventHandler {
                                 + originURL + "/cours/" + productId
                                 + "\n\n");
             } catch (NumberFormatException e) {
-                log.info("EventId = {}, EventType = {},This is a pro subscription on product {}, the notification be handled by invoice.paid handler", event.getId(), event.getType(), PRODUCT_ID);
+                log.debug("EventId = {}, EventType = {},This is a pro subscription on product {}, the notification be handled by invoice.paid handler", event.getId(), event.getType(), PRODUCT_ID);
             }
         }
     }

@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -11,14 +10,12 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
-import tech.zerofiltre.blog.domain.logging.model.LogEntry;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static tech.zerofiltre.blog.domain.Domains.COURSE;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.THE_COURSE_WITH_ID;
 
@@ -46,7 +43,6 @@ public class Section implements Serializable {
         this.sectionProvider = sectionBuilder.sectionProvider;
         this.courseId = sectionBuilder.courseId;
         TagProvider tagProvider = sectionBuilder.tagProvider;
-        ChapterProvider chapterProvider = sectionBuilder.chapterProvider;
         this.userProvider = sectionBuilder.userProvider;
         this.courseProvider = sectionBuilder.courseProvider;
         this.loggerProvider = sectionBuilder.loggerProvider;
@@ -110,36 +106,31 @@ public class Section implements Serializable {
 
     private static void checkRoles(User currentUser, Course existingCourse) throws ForbiddenActionException {
         if (currentUser == null || (!currentUser.isAdmin() && existingCourse.getAuthor().getId() != currentUser.getId())) {
-            throw new ForbiddenActionException("You are not allowed to edit a section for this course", COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to edit a section for this course");
         }
     }
 
     public Section findById(long id) throws ResourceNotFoundException {
         return setProviders(sectionProvider.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("The section with id: " + id + " does not exist", String.valueOf(id), Domains.COURSE.name())
+                () -> new ResourceNotFoundException("The section with id: " + id + " does not exist", String.valueOf(id))
         ));
     }
 
     public void delete(User deleter) throws ResourceNotFoundException, ForbiddenActionException {
         if (deleter == null)
-            throw new ForbiddenActionException("You are not allowed to delete this section", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to delete this section");
         if (deleter.isAdmin()) {
             sectionProvider.delete(findById(id));
         } else {
-            try {
-                Section existingSection = findById(id);
-                courseService.findById(existingSection.getCourseId(), deleter);
-                sectionProvider.delete(existingSection);
-            } catch (ForbiddenActionException e) {
-                loggerProvider.log(new LogEntry(LogEntry.Level.DEBUG, "You can't delete a section belonging to a course you don't own", e, Section.class));
-                throw e;
-            }
+            Section existingSection = findById(id);
+            courseService.findById(existingSection.getCourseId(), deleter);
+            sectionProvider.delete(existingSection);
         }
     }
 
     public Section init(User currentUser) throws ResourceNotFoundException, ForbiddenActionException {
         Course existingCourse = courseProvider.courseOfId(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + courseId + DOES_NOT_EXIST, String.valueOf(courseId), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + courseId + DOES_NOT_EXIST, String.valueOf(courseId)));
 
         checkRoles(currentUser, existingCourse);
 
@@ -152,7 +143,7 @@ public class Section implements Serializable {
         Section existingSection = findById(id);
 
         Course existingCourse = courseProvider.courseOfId(existingSection.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + existingSection.getCourseId() + DOES_NOT_EXIST, String.valueOf(existingSection.getCourseId()), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + existingSection.getCourseId() + DOES_NOT_EXIST, String.valueOf(existingSection.getCourseId())));
 
         checkRoles(currentUser, existingCourse);
 

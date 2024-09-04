@@ -101,7 +101,7 @@ public class StripeProvider implements PaymentProvider {
             log.error("Error while initializing the checkout session: " + e.getLocalizedMessage(), e);
             counterSpecs.setTags(FOUND_CUSTOMER_LABEL, FALSE_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE, PROVIDER_LABEL, STRIPE_LABEL_VALUE);
             metricsProvider.incrementCounter(counterSpecs);
-            throw new PaymentException("Error while initializing the checkout session" + e.getLocalizedMessage(), "");
+            throw new PaymentException("Error while initializing the checkout session" + e.getLocalizedMessage(), e);
         }
     }
 
@@ -127,12 +127,12 @@ public class StripeProvider implements PaymentProvider {
                         .addExpand("subscription")
                         .build();
                 Invoice invoice = Invoice.retrieve(((Invoice) stripeObject).getId(), invoiceRetrieveParams, null);
-                log.info("EventId= {}, EventType={}, Invoice {}", event.getId(), event.getType(), invoice.toString().replace("\n", " "));
+                log.debug("EventId= {}, EventType={}, Invoice {}", event.getId(), event.getType(), invoice.toString().replace("\n", " "));
 
                 customer = invoice.getCustomerObject();
-                log.info("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
+                log.debug("EventId= {}, EventType={}, Customer: {}", event.getId(), event.getType(), customer != null ? customer.toString().replace("\n", " ") : "no customer provided");
                 userId = customer != null && customer.getMetadata() != null ? customer.getMetadata().get(USER_ID) : "";
-                log.info("EventId= {}, EventType={}, User id: {}", event.getId(), event.getType(), userId);
+                log.debug("EventId= {}, EventType={}, User id: {}", event.getId(), event.getType(), userId);
 
                 InvoiceLineItemCollectionListParams itemListParams = InvoiceLineItemCollectionListParams.builder()
                         .addExpand("data.price.product")
@@ -141,7 +141,7 @@ public class StripeProvider implements PaymentProvider {
                 boolean isProPlan = false;
 
                 Subscription subscription = invoice.getSubscriptionObject();
-                log.info("EventId= {}, EventType={}, Subscription: {}", event.getId(), event.getType(), subscription.toString().replace("\n", " "));
+                log.debug("EventId= {}, EventType={}, Subscription: {}", event.getId(), event.getType(), subscription.toString().replace("\n", " "));
 
                 if ("invoice.paid".equals(event.getType())) {
 
@@ -154,7 +154,7 @@ public class StripeProvider implements PaymentProvider {
             }
             return "OK";
         } catch (Exception e) {
-            throw new PaymentException("An error occurred during payment fulfillment", e, "");
+            throw new PaymentException("An error occurred during payment fulfillment", e);
         }
     }
 
@@ -164,7 +164,7 @@ public class StripeProvider implements PaymentProvider {
             cancelForPrice(paymentCustomerId, infraProperties.getProPlanPriceId());
             cancelForPrice(paymentCustomerId, infraProperties.getProPlanYearlyPriceId());
         } catch (StripeException e) {
-            throw new PaymentException("Error while cancelling the subscription", e, "");
+            throw new PaymentException("Error while cancelling the subscription", e);
         }
     }
 

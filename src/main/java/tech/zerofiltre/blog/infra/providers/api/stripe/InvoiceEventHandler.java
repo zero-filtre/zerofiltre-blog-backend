@@ -35,10 +35,10 @@ public class InvoiceEventHandler {
         }
 
         InvoiceLineItem lineItem = items.getData().get(0);
-        log.info("EventId= {}, EventType={}, Handling Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
+        log.debug("EventId= {}, EventType={}, Handling Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
         Price price = lineItem.getPrice();
-        log.info(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
+        log.debug(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
         if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO plan
@@ -60,10 +60,10 @@ public class InvoiceEventHandler {
             return;
         }
         InvoiceLineItem lineItem = items.getData().get(0);
-        log.info("EventId= {}, EventType={},Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
+        log.debug("EventId= {}, EventType={},Line item: {}", event.getId(), event.getType(), lineItem.toString().replace("\n", " "));
 
         Price price = lineItem.getPrice();
-        log.info(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
+        log.debug(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
         stripeCommons.fulfillOrder(userId, productObject, false, event, customer);
@@ -75,18 +75,18 @@ public class InvoiceEventHandler {
             subscription.getMetadata().put(CANCELLED_3TIMES_PAID, Boolean.toString(true));
             subscription.update(Map.of("metadata", subscription.getMetadata()));
             subscription.cancel();
-            log.info("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
+            log.debug("EventId= {}, EventType={}, User {} final invoice " + count + " paid and future payments cancelled {}", event.getId(), event.getType(), userId, subscription.getId());
         }
     }
 
     private tech.zerofiltre.blog.domain.Product getEnrolledProduct(Product productObject) throws ZerofiltreException {
         long id = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
 
-        log.info("Get enrolled product productId={}", id);
+        log.debug("Get enrolled product productId={}", id);
 
         return courseProvider
                 .courseOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(id), ""));
+                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(id)));
 
     }
 
@@ -104,7 +104,7 @@ public class InvoiceEventHandler {
                             + "\n Vous pouvez copier et coller le lien dans votre navigateur internet si lorsque vous cliquez dessus cela ne fonctionne pas."
                             + "\n" + customerPortalLink);
         }
-        log.info("EventId= {}, EventType={}, Invoice payment failed for User {} on subscription {}", event.getId(), event.getType(), userId, subscription.getId());
+        log.debug("EventId= {}, EventType={}, Invoice payment failed for User {} on subscription {}", event.getId(), event.getType(), userId, subscription.getId());
     }
 
 
@@ -117,7 +117,7 @@ public class InvoiceEventHandler {
                     "Merci de faire confiance à Zerofiltre.tech, retrouvez votre facture ci-dessous: "
                             + "\n\n" + invoice.getInvoicePdf());
 
-        log.info("EventId= {}, EventType={}, User {} Invoice #{} paid for subscription {}: {}", event.getId(), event.getType(), userId, billCount, billCount > 1 ? "renewal " : "creation ", subscription.getId());
+        log.debug("EventId= {}, EventType={}, User {} Invoice #{} paid for subscription {}: {}", event.getId(), event.getType(), userId, billCount, billCount > 1 ? "renewal " : "creation ", subscription.getId());
     }
 
 

@@ -3,7 +3,6 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
@@ -33,7 +32,7 @@ public class NotificationController {
     public String notifyByEmail(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         if (!user.getRoles().contains("ROLE_ADMIN"))
-            throw new ForbiddenActionException("You are not allowed to send emails", Domains.NONE.name());
+            throw new ForbiddenActionException("You are not allowed to send emails");
         emailSender.send(email, false);
         return "Email(s) sent";
     }
@@ -53,7 +52,7 @@ public class NotificationController {
     public String notifyByEmailForAllUsers(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
             User user = securityContextManager.getAuthenticatedUser();
             if (!user.getRoles().contains("ROLE_ADMIN"))
-                throw new ForbiddenActionException("You are not allowed to send emails", Domains.NONE.name());
+                throw new ForbiddenActionException("You are not allowed to send emails");
         emailSender.sendForAllUsers(email);
         return "Email(s) sent for all users";
     }

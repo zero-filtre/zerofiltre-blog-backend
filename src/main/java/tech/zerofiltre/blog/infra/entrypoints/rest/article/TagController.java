@@ -1,15 +1,15 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.*;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.article.use_cases.EditTag;
+import tech.zerofiltre.blog.domain.error.ResourceAlreadyExistException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.EditTagVM;
 
-import javax.validation.*;
-import java.util.*;
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class TagController {
@@ -30,7 +30,7 @@ public class TagController {
     @GetMapping("/tag/{id}")
     public Tag tagOfId(@PathVariable("id") long tagId) throws ResourceNotFoundException {
         return tagProvider.tagOfId(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("The tag with id: " + tagId + " does not exist", String.valueOf(tagId), Domains.TAG.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("The tag with id: " + tagId + " does not exist", String.valueOf(tagId)));
     }
 
     @PostMapping("/admin/tag")

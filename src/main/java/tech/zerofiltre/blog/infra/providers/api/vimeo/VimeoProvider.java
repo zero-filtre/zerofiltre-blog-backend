@@ -1,13 +1,17 @@
 package tech.zerofiltre.blog.infra.providers.api.vimeo;
 
-import lombok.extern.slf4j.*;
-import org.springframework.http.*;
-import org.springframework.retry.support.*;
-import org.springframework.stereotype.*;
-import org.springframework.util.*;
-import org.springframework.web.client.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import tech.zerofiltre.blog.domain.error.VideoUploadFailedException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.infra.InfraProperties;
 
 @Slf4j
 @Component
@@ -46,13 +50,13 @@ public class VimeoProvider {
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
                 String result = response.getBody();
                 if (result == null || result.isBlank() || result.contains("\"approach\": \"tus\"")) {
-                    throw new ZerofiltreException("We could not init the video at vimeo", null);
+                    throw new ZerofiltreException("We could not init the video at vimeo");
                 }
                 return result;
             });
         } catch (Exception e) {
             log.error("We couldn't init the video at vimeo", e);
-            throw new VideoUploadFailedException("We couldn't init the video at vimeo: " + e.getMessage(), e, "");
+            throw new VideoUploadFailedException("We couldn't init the video at vimeo: " + e.getMessage(), e);
         }
     }
 }

@@ -1,16 +1,15 @@
 package tech.zerofiltre.blog.domain.user.use_cases;
 
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
-import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.logging.MessageSourceProvider;
-import tech.zerofiltre.blog.domain.logging.model.LogEntry;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.UserNotificationProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.domain.user.model.Action;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
 
-import java.util.*;
-
-import static tech.zerofiltre.blog.domain.error.ErrorMessages.YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED;
+import java.util.Locale;
 
 public class InitPasswordReset {
     private final UserProvider userProvider;
@@ -30,7 +29,7 @@ public class InitPasswordReset {
                 .orElseThrow(() -> new UserNotFoundException("We were unable to find a user with the corresponding email: " + email, email));
 
         if(isSocialAccount(user)){
-            throw new ForbiddenActionException(messageSourceProvider.getMessage("ZBLOG_013", null, locale) + email, Domains.USER.name());
+            throw new ForbiddenActionException(messageSourceProvider.getMessage("ZBLOG_013", null, locale) + email);
         }
 
         String token = verificationTokenProvider.generate(user,86400).getToken();

@@ -5,7 +5,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
@@ -84,8 +83,7 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
                 user = userProvider.save(existingUser.get());
                 recordConnectionMetrics(user.getLoginFrom().toString(), existingUser.get());
             } else {
-                log.error("User already exists but we do not find it in DB");
-                throw e;
+                log.error("User already exists but we do not find it in DB", e);
             }
         }
         return user;
@@ -115,8 +113,8 @@ public class SocialTokenValidatorAndAuthenticator<L extends SocialLoginProvider>
             metricsProvider.incrementCounter(counterSpecs);
 
             throw new UnAuthenticatedActionException(
-                    String.format("The user %s has been deactivated, not allowing connection until activation", foundUser.getFullName()),
-                    Domains.NONE.name());
+                    String.format("The user %s has been deactivated, not allowing connection until activation", foundUser.getFullName())
+            );
         }
     }
 }

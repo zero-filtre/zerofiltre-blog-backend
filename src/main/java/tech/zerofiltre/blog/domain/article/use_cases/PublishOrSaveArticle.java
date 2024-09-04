@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.article.ArticleProvider;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Article;
@@ -38,7 +37,7 @@ public class PublishOrSaveArticle {
 
         User author = existingArticle.getAuthor();
         if (!isAuthor(currentEditor, author) && !currentEditor.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to edit this article", Domains.ARTICLE.name());
+            throw new ForbiddenActionException("You are not allowed to edit this article");
 
         checkTags(tags);
         existingArticle.setTags(tags);

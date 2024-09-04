@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.ReviewProvider;
@@ -28,6 +27,8 @@ import java.util.Optional;
 public class Review {
 
     private static final String USER_DOES_NOT_EXIST = "User does not exist";
+    public static final String DOES_NOT_EXIST = " does not exist";
+    public static final String THE_REVIEW_WITH_ID = "The review with id: ";
     private long id;
     private String chapterExplanations;
     private int chapterSatisfactionScore;
@@ -50,14 +51,14 @@ public class Review {
 
     public Review findById(long id) throws ResourceNotFoundException {
         return setProviders(reviewProvider.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("The review with id: " + this.id + " does not exist", String.valueOf(id), Domains.COURSE.name())
+                () -> new ResourceNotFoundException(THE_REVIEW_WITH_ID + this.id + DOES_NOT_EXIST, String.valueOf(id))
         ));
     }
 
     public Review init() throws ResourceNotFoundException, ForbiddenActionException {
         Optional<User> reviewer = userProvider.userOfId(this.reviewAuthorId);
         if (reviewer.isEmpty())
-            throw new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId), Domains.COURSE.name());
+            throw new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId));
 
         long courseId = courseProvider.courseIdOfChapterId(this.chapterId);
         boolean doesUserHasActiveEnrollment = userHasActiveEnrollmentInCourse(reviewer.get().getId(), courseId);
@@ -71,18 +72,18 @@ public class Review {
                 return setProviders(reviewProvider.save(updatedReview));
             }
         } else {
-            throw new ForbiddenActionException("User is not enrolled to this course, so you cannot review it", Domains.COURSE.name());
+            throw new ForbiddenActionException("User is not enrolled to this course, so you cannot review it");
         }
 
     }
 
     public Review update() throws ForbiddenActionException, ResourceNotFoundException {
         User currentUser = userProvider.userOfId(this.reviewAuthorId)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId)));
 
         Optional<Review> existingReview = reviewProvider.findById(this.id);
         if (existingReview.isEmpty())
-            throw (new ResourceNotFoundException("The review with id: " + id + " does not exist", String.valueOf(id), Domains.COURSE.name()));
+            throw (new ResourceNotFoundException(THE_REVIEW_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
         checkReviewAccessConditions(existingReview.get(), currentUser, false);
         long courseId = courseProvider.courseIdOfChapterId(this.chapterId);
@@ -91,7 +92,7 @@ public class Review {
             Review updatedReview = updateExistingReview(existingReview.get());
             return setProviders(reviewProvider.save(updatedReview));
         } else {
-            throw new ForbiddenActionException("User is not authorized to update this review", Domains.COURSE.name());
+            throw new ForbiddenActionException("User is not authorized to update this review");
         }
     }
 
@@ -111,11 +112,11 @@ public class Review {
 
     public void delete() throws ForbiddenActionException, ResourceNotFoundException {
         User currentUser = userProvider.userOfId(this.reviewAuthorId)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(this.reviewAuthorId)));
 
         Optional<Review> existingReview = reviewProvider.findById(this.id);
         if (existingReview.isEmpty())
-            throw (new ResourceNotFoundException("The review with id: " + id + " does not exist", String.valueOf(id), Domains.COURSE.name()));
+            throw (new ResourceNotFoundException(THE_REVIEW_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
         checkReviewAccessConditions(existingReview.get(), currentUser, true);
         reviewProvider.deleteById(this.id);
@@ -128,11 +129,11 @@ public class Review {
 
         boolean isNotAuthor = currentUser.getId() != existingReview.getReviewAuthorId();
         if (!isDeletion && isNotAuthor) {
-            throw new ForbiddenActionException("You are not allowed to update this review", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to update this review");
         }
 
         if (isDeletion) {
-            throw new ForbiddenActionException("You are not allowed to delete this review", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to delete this review");
         }
     }
 

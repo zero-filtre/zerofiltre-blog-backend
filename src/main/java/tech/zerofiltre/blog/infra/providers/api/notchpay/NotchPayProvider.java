@@ -122,14 +122,14 @@ public class NotchPayProvider implements PaymentProvider {
                 } else {
                     counterSpecs.setTags(PROVIDER_LABEL, NOTCHPAY_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE);
                     metricsProvider.incrementCounter(counterSpecs);
-                    throw new PaymentException("We couldn't initialize the payment due to : " + responseBody, "payment");
+                    throw new PaymentException("We couldn't initialize the payment due to : " + responseBody);
                 }
             });
         } catch (Exception e) {
             log.error("We couldn't initialize the payment", e);
             counterSpecs.setTags(PROVIDER_LABEL, NOTCHPAY_LABEL_VALUE, SUCCESS_LABEL, FALSE_LABEL_VALUE);
             metricsProvider.incrementCounter(counterSpecs);
-            throw new PaymentException("We couldn't initialize the payment", e, "payment");
+            throw new PaymentException("We couldn't initialize the payment", e);
         }
     }
 
@@ -137,18 +137,18 @@ public class NotchPayProvider implements PaymentProvider {
     public String handleWebhook(String payload, String signature) throws PaymentException {
         try {
             String computedHash = new HmacUtils("HmacSHA256", infraProperties.getNotchPayHash()).hmacHex(payload);
-            if (!computedHash.equals(signature)) throw new PaymentException("Invalid notchpay signature", "payment");
+            if (!computedHash.equals(signature)) throw new PaymentException("Invalid notchpay signature");
             WebhookPayload webhookPayload = new ObjectMapper().readValue(payload, WebhookPayload.class);
             if (!"payment.complete".equals(webhookPayload.getEvent()))
                 return "Nothing was done as payment was not completed";
             String paymentReference = webhookPayload.getData().getMerchantReference();
             Optional<Payment> payment = paymentOf(paymentReference);
-            if (payment.isEmpty()) throw new PaymentException("Initialized payment not found in db", "payment");
+            if (payment.isEmpty()) throw new PaymentException("Initialized payment not found in db");
             Payment foundPayment = payment.get();
             foundPayment.setStatus(Payment.COMPLETED);
             foundPayment.setAt(LocalDateTime.now());
             save(foundPayment);
-            User user = userProvider.userOfId(foundPayment.getUser().getId()).orElseThrow(() -> new PaymentException("Unable to find the user of the payment", "payment"));
+            User user = userProvider.userOfId(foundPayment.getUser().getId()).orElseThrow(() -> new PaymentException("Unable to find the user of the payment"));
             user.setPlan(User.Plan.PRO);
             userProvider.save(user);
             String originURL = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
@@ -161,12 +161,13 @@ public class NotchPayProvider implements PaymentProvider {
             
             return "OK";
         } catch (Exception e) {
-            throw new PaymentException("Unable to process notchpay webhook", e, "payment");
+            throw new PaymentException("Unable to process notchpay webhook", e);
         }
     }
 
     @Override
     public void cancelSubscription(String paymentCustomerId) throws PaymentException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public Optional<tech.zerofiltre.blog.domain.payment.model.Payment> paymentOf(String reference) {

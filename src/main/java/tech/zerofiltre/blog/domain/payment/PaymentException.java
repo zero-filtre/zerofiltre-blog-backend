@@ -1,14 +1,14 @@
 package tech.zerofiltre.blog.domain.payment;
 
-import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 
 public class PaymentException extends ZerofiltreException {
 
-    public PaymentException(String message, String domain) {
-        super(message, domain);
+    public PaymentException(String message) {
+        super(message);
     }
 
-    public PaymentException(String message, Throwable cause, String domain) {
-        super(message, cause, domain);
+    public PaymentException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

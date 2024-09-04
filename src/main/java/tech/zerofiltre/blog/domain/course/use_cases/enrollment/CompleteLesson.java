@@ -1,9 +1,13 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 
 import java.time.LocalDateTime;
 
@@ -23,15 +27,15 @@ public class CompleteLesson {
 
     public Enrollment execute(long courseId, long lessonId, long currentUserId, boolean completeLesson) throws ZerofiltreException {
         Enrollment existingEnrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true)
-                .orElseThrow(() -> new ResourceNotFoundException("There is no enrollment regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId, Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no enrollment regarding the courseId and userId you submit", "Course Id = " + courseId + " " + "UserId = " + currentUserId));
 
         if (existingEnrollment.getCompletedLessons().stream().anyMatch(lesson -> lesson.getLessonId() == lessonId) == completeLesson && completeLesson)
             return computeCounts(existingEnrollment);
 
         Lesson lesson = lessonProvider.lessonOfId(lessonId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson of id " + lessonId + " does not exist", String.valueOf(lessonId), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson of id " + lessonId + " does not exist", String.valueOf(lessonId)));
 
-        ForbiddenActionException forbiddenActionException = new ForbiddenActionException("Lesson not part of this enrollment", Domains.COURSE.name());
+        ForbiddenActionException forbiddenActionException = new ForbiddenActionException("Lesson not part of this enrollment");
 
         Chapter chapter = chapterProvider.chapterOfId(lesson.getChapterId())
                 .orElseThrow(() -> forbiddenActionException);

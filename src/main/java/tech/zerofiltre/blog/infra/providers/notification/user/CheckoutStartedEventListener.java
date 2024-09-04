@@ -26,7 +26,7 @@ public class CheckoutStartedEventListener implements ApplicationListener<Checkou
     private final long checkoutReminderDelayMs;
     private final long checkoutReminderCheckFrequencyMs;
 
-    public CheckoutStartedEventListener(MessageSource messages, ZerofiltreEmailSender emailSender, ITemplateEngine emailTemplateEngine,InfraProperties infraProperties) {
+    public CheckoutStartedEventListener(MessageSource messages, ZerofiltreEmailSender emailSender, ITemplateEngine emailTemplateEngine, InfraProperties infraProperties) {
         this.messages = messages;
         this.emailSender = emailSender;
         this.emailTemplateEngine = emailTemplateEngine;
@@ -38,7 +38,8 @@ public class CheckoutStartedEventListener implements ApplicationListener<Checkou
                 try {
                     Thread.sleep(checkoutReminderCheckFrequencyMs);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    log.error("CheckoutStartedEventListener got interrupted", e);
+                    Thread.currentThread().interrupt();
                 }
             }
 

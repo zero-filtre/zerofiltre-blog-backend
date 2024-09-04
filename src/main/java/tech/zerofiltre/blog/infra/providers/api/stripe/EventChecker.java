@@ -23,7 +23,7 @@ public class EventChecker {
 
         Event event = checkSignature(payload, sigHeader);
 
-        log.info("Handling Event: id = {},type = {}", event.getId(), event.getType());
+        log.debug("Handling Event: id = {},type = {}", event.getId(), event.getType());
         return event;
     }
 

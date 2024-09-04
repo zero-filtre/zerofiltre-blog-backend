@@ -44,14 +44,13 @@ public class K8sSandboxProvider implements SandboxProvider {
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "*/*");
 
-        log.info("Token init : {} ", infraProperties.getK8sProvisionerToken());
         Body body = new Body();
         body.setFullName(fullName);
         body.setEmail(email);
 
         try {
             String bodyAsJson = new ObjectMapper().writeValueAsString(body);
-            log.info("Initializing a k8s sandbox for user {} with request body: \n {}", fullName, bodyAsJson);
+            log.debug("Initializing a k8s sandbox for user {} with request body: \n {}", fullName, bodyAsJson);
             String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
             HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
             ResponseEntity<Sandbox> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Sandbox.class);
@@ -60,7 +59,7 @@ public class K8sSandboxProvider implements SandboxProvider {
             log.info("K8s sandbox for user {} initialized: {}", fullName, result);
             return result;
         } catch (Exception e) {
-            throw new ZerofiltreException("We couldn't init k8s sandbox for user " + fullName + "/" + email, e, null);
+            throw new ZerofiltreException("We couldn't init k8s sandbox for user " + fullName + "/" + email, e);
         }
     }
 
@@ -90,7 +89,7 @@ public class K8sSandboxProvider implements SandboxProvider {
 
         try {
             String bodyAsJson = new ObjectMapper().writeValueAsString(body);
-            log.info("Body as json: {}", bodyAsJson);
+            log.debug("Body as json: {}", bodyAsJson);
 
             String url = infraProperties.getK8sProvisionerUrl() + "/provisioner";
             HttpEntity<String> requestEntity = new HttpEntity<>(bodyAsJson, headers);
@@ -98,7 +97,7 @@ public class K8sSandboxProvider implements SandboxProvider {
             Sandbox result = response.getBody();
             log.info("K8s sandbox for user {} destroyed: {}", fullName, result);
         } catch (Exception e) {
-            throw new ZerofiltreException("We couldn't delete k8s sandbox for user " + fullName, e, null);
+            throw new ZerofiltreException("We couldn't delete k8s sandbox for user " + fullName, e);
         }
     }
 

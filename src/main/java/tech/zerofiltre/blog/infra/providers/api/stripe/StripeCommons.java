@@ -77,23 +77,23 @@ public class StripeCommons {
 
     public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws ZerofiltreException {
         if (productObject == null) return;
-        log.info("EventId= {}, EventType={}, Product object: {}", event.getId(), event.getType(), productObject.toString().replace("\n", " "));
+        log.debug("EventId= {}, EventType={}, Product object: {}", event.getId(), event.getType(), productObject.toString().replace("\n", " "));
 
-        log.info("EventId= {}, EventType={},User id: {}", event.getId(), event.getType(), userId);
+        log.debug("EventId= {}, EventType={},User id: {}", event.getId(), event.getType(), userId);
 
         if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO
-            log.info("EventId= {}, EventType={}, Handling User {} pro plan subscription", event.getId(), event.getType(), userId);
+            log.debug("EventId= {}, EventType={}, Handling User {} pro plan subscription", event.getId(), event.getType(), userId);
             updateUserInfo(userId, paymentSuccess, event, customer, true);
-            log.info("EventId= {}, EventType={}, Handled User {} pro plan subscription", event.getId(), event.getType(), userId);
+            log.debug("EventId= {}, EventType={}, Handled User {} pro plan subscription", event.getId(), event.getType(), userId);
         } else {
             long productId = Long.parseLong(productObject.getMetadata().get(PRODUCT_ID));
-            log.info("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
+            log.debug("EventId= {}, EventType={}, Product id: {}", event.getId(), event.getType(), productId);
             if (paymentSuccess) {
                 purchase(userId, event, productId);
-                log.info("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(), userId, productId);
+                log.debug("EventId= {}, EventType={}, User of id={} enrolled in Product id: {}", event.getId(), event.getType(), userId, productId);
             } else {
                 suspend.execute(Long.parseLong(userId), productId);
-                log.info("EventId= {}, EventType={}, User of id={} suspended from Product id: {}", event.getId(), event.getType(), userId, productId);
+                log.debug("EventId= {}, EventType={}, User of id={} suspended from Product id: {}", event.getId(), event.getType(), userId, productId);
             }
             updateUserInfo(userId, paymentSuccess, event, customer, false);
         }
@@ -105,7 +105,7 @@ public class StripeCommons {
             User user = userProvider.userOfId(Long.parseLong(userId))
                     .orElseThrow(() -> new UserNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the user " + userId + TO_EDIT, userId));
             Course course = courseProvider.courseOfId(productId)
-                    .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId), null));
+                    .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId)));
             Purchase purchase = new Purchase(user, course);
             purchase = purchaseProvider.save(purchase);
             if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId);
@@ -130,7 +130,7 @@ public class StripeCommons {
 
             emailSender.send(email, true);
         } catch (Exception e) {
-            log.warn("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message);
+            log.error("Failed to notify user {} about payment with this subject {} with message {}", customer != null ? customer.getEmail() : "unknown user", subject, message, e);
         }
     }
 

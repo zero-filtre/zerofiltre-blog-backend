@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.ArticleProvider;
@@ -35,7 +34,7 @@ public class FindArticle {
 
     public Article byId(long id, User viewer) throws ResourceNotFoundException {
         Article result = articleProvider.articleOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id), Domains.ARTICLE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException("The article with id: " + id + " does not exist", String.valueOf(id)));
 
         CounterSpecs counterSpecs = new CounterSpecs();
         counterSpecs.setName(CounterSpecs.ZEROFILTRE_ARTICLE_VIEWS);
@@ -67,7 +66,7 @@ public class FindArticle {
         if (!PUBLISHED.equals(request.getStatus())
                 && user == null
                 && !request.isYours()) {
-            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ", Domains.ARTICLE.name());
+            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ");
         }
 
         //NON ADMIN USER TRYING TO GET NON PUBLISHED ARTICLES
@@ -75,7 +74,7 @@ public class FindArticle {
                 && (user == null || !user.getRoles().contains("ROLE_ADMIN"))
                 && !request.isYours()) {
             throw new ForbiddenActionException("You are not authorize to request articles other than the published ones with this API. " +
-                    "Please request with status=published or try /user/* API resources", Domains.ARTICLE.name());
+                    "Please request with status=published or try /user/* API resources");
         }
 
         long authorId = request.isYours() ? request.getUser().getId() : 0;

@@ -101,7 +101,7 @@ public class PaymentController {
 
         return courseProvider
                 .courseOfId(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(productId), ""));
+                .orElseThrow(() -> new ResourceNotFoundException("Product nof found", String.valueOf(productId)));
     }
 
     private boolean supportedProduct(ChargeRequest.ProductType productType) {

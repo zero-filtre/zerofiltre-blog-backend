@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.course.use_cases.enrollment;
 
 import lombok.extern.slf4j.Slf4j;
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -32,7 +31,7 @@ public class Suspend {
 
     public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
         Enrollment enrollment = enrollmentProvider.enrollmentOf(userId, courseId, true)
-                .orElseThrow(() -> new ForbiddenActionException("You are not enrolled in the course of id " + courseId, Domains.COURSE.name()));
+                .orElseThrow(() -> new ForbiddenActionException("You are not enrolled in the course of id " + courseId));
         return doSuspend(userId, enrollment);
     }
 

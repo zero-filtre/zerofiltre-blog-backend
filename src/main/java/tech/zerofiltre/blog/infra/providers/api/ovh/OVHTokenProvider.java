@@ -1,17 +1,23 @@
 package tech.zerofiltre.blog.infra.providers.api.ovh;
 
-import com.fasterxml.jackson.databind.*;
-import lombok.*;
-import lombok.extern.slf4j.*;
-import org.springframework.http.*;
-import org.springframework.retry.support.*;
-import org.springframework.stereotype.*;
-import org.springframework.util.*;
-import org.springframework.web.client.*;
-import tech.zerofiltre.blog.infra.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.api.ovh.model.*;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -23,7 +29,7 @@ public class OVHTokenProvider {
     private final RetryTemplate retryTemplate;
 
 
-    public OVHToken getToken() throws Exception {
+    public OVHToken getToken() throws ZerofiltreException {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Content-Type", "application/json");
@@ -68,8 +74,7 @@ public class OVHTokenProvider {
                 return token;
             });
         } catch (Exception e) {
-            log.error("We couldn't get the OVH token", e);
-            throw e;
+            throw new ZerofiltreException("We couldn't get the OVH token", e);
         }
     }
 

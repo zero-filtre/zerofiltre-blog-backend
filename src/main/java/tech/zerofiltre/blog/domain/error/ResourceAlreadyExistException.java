@@ -4,8 +4,8 @@ public class ResourceAlreadyExistException extends ZerofiltreException {
 
     private final String uniqueIdentifier;
 
-    public ResourceAlreadyExistException(String message, String uniqueIdentifier, String domain) {
-        super(message, domain);
+    public ResourceAlreadyExistException(String message, String uniqueIdentifier) {
+        super(message);
         this.uniqueIdentifier = uniqueIdentifier;
     }
 

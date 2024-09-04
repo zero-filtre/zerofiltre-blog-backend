@@ -1,9 +1,9 @@
 package tech.zerofiltre.blog.domain.article.use_cases;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.error.ResourceAlreadyExistException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 
 public class EditTag {
 
@@ -15,13 +15,13 @@ public class EditTag {
 
     public Tag create(Tag tag) throws ResourceAlreadyExistException {
         if (tagProvider.tagOfName(tag.getName()).isPresent())
-            throw new ResourceAlreadyExistException("A tag with this name already exist.", tag.getName(), Domains.TAG.name());
+            throw new ResourceAlreadyExistException("A tag with this name already exist.", tag.getName());
         return tagProvider.save(tag);
     }
 
     public Tag update(Tag tag) throws ResourceNotFoundException {
         if (tagProvider.tagOfId(tag.getId()).isEmpty()) {
-            throw new ResourceNotFoundException("We couldn't find a tag of id: " + tag.getId() + " to save", String.valueOf(tag.getId()), Domains.TAG.name());
+            throw new ResourceNotFoundException("We couldn't find a tag of id: " + tag.getId() + " to save", String.valueOf(tag.getId()));
         }
         return tagProvider.save(tag);
     }

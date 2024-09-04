@@ -4,8 +4,8 @@ public class ResourceNotFoundException extends ZerofiltreException {
 
     private final String resourceId;
 
-    public ResourceNotFoundException(String message, String resourceId, String domain) {
-        super(message, domain);
+    public ResourceNotFoundException(String message, String resourceId) {
+        super(message);
         this.resourceId = resourceId;
     }
 

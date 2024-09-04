@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.user.use_cases;
 
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -16,7 +15,7 @@ public class UpdateUser {
     public User patch(User currentUser, User user) throws ForbiddenActionException, UserNotFoundException {
 
         if (currentUser.getId() != user.getId() && !currentUser.getRoles().contains("ROLE_ADMIN"))
-            throw new ForbiddenActionException("You can only save your own account", Domains.USER.name());
+            throw new ForbiddenActionException("You can only save your own account");
 
         User foundUser = userProvider.userOfId(user.getId())
                 .orElseThrow(() -> new UserNotFoundException("We could not find the user you want to save", String.valueOf(user.getId())));

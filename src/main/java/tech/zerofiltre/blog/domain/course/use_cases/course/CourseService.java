@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.course.use_cases.course;
 
-import tech.zerofiltre.blog.domain.Domains;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.TagProvider;
@@ -49,12 +48,12 @@ public class CourseService {
 
     public Course findById(long id, User viewer) throws ResourceNotFoundException, ForbiddenActionException {
         Course foundCourse = courseProvider.courseOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
 
         if ((viewer == null && Status.PUBLISHED != foundCourse.getStatus())
                 || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
-            throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
         }
         return foundCourse;
     }
@@ -66,9 +65,9 @@ public class CourseService {
 
         long updatedCourseId = updatedCourse.getId();
         Course existingCourse = courseProvider.courseOfId(updatedCourseId)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + updatedCourseId + DOES_NOT_EXIST, String.valueOf(updatedCourseId), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + updatedCourseId + DOES_NOT_EXIST, String.valueOf(updatedCourseId)));
         if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to edit this course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to edit this course");
 
         if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
             existingCourse.setStatus(Status.IN_REVIEW);
@@ -96,16 +95,16 @@ public class CourseService {
     public void delete(long id, User deleter) throws ResourceNotFoundException, ForbiddenActionException {
 
         Course existingCourse = courseProvider.courseOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id), Domains.COURSE.name()));
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
         if (existingCourse.getStatus().equals(Status.PUBLISHED))
-            throw new ForbiddenActionException("You are not allowed to delete this course as it is published", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to delete this course as it is published");
 
         if (existingCourse.getEnrolledCount() > 0)
-            throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users");
 
         if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to delete this course", Domains.COURSE.name());
+            throw new ForbiddenActionException("You are not allowed to delete this course");
         courseProvider.delete(existingCourse);
 
         LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting course " + id + " for done", null, Course.class);
@@ -120,7 +119,7 @@ public class CourseService {
                 && !request.isYours();
 
         if (unAuthenticatedUserGettingNonPublishedCourses) {
-            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ", Domains.ARTICLE.name());
+            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ");
         }
 
         boolean nonAdminGettingNonPublishedCourses = !PUBLISHED.equals(request.getStatus())
@@ -129,7 +128,7 @@ public class CourseService {
 
         if (nonAdminGettingNonPublishedCourses) {
             throw new ForbiddenActionException("You are not authorize to request courses other than the published ones with this API. " +
-                    "Please request with status=published or try /user/courses/* API resources", Domains.COURSE.name());
+                    "Please request with status=published or try /user/courses/* API resources");
         }
 
         long authorId = request.isYours() ? request.getUser().getId() : 0;
@@ -153,16 +152,7 @@ public class CourseService {
     private void checkTags(List<Tag> tags) throws ResourceNotFoundException {
         for (Tag tag : tags) {
             if (tagProvider.tagOfId(tag.getId()).isEmpty())
-                throw new ResourceNotFoundException("We can not publish this course. Could not find the related tag with id: " + tag.getId(), String.valueOf(tag.getId()), Domains.COURSE.name());
+                throw new ResourceNotFoundException("We can not publish this course. Could not find the related tag with id: " + tag.getId(), String.valueOf(tag.getId()));
         }
     }
-
-//    public int getLessonsCount(long courseId) {
-//        return courseProvider.getLessonsCount(courseId);
-//    }
-//
-//
-//    public int getEnrolledCount(long courseId) {
-//        return courseProvider.getEnrolledCount(courseId);
-//    }
 }

@@ -1,8 +1,7 @@
 package tech.zerofiltre.blog.domain.user.use_cases;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
 
 public class RetrieveSocialToken {
 
@@ -15,7 +14,7 @@ public class RetrieveSocialToken {
     public String execute(String code) throws ResourceNotFoundException {
         String token = socialLoginProvider.tokenFromCode(code);
         if (token == null)
-            throw new ResourceNotFoundException("We couldn't retrieve the token with the code you've provided: " + code, code, Domains.NONE.name());
+            throw new ResourceNotFoundException("We couldn't retrieve the token with the code you've provided: " + code, code);
         return token;
     }
 }
