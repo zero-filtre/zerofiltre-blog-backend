@@ -10,6 +10,15 @@ services:
       MYSQL_PASSWORD: blog_api_dev
 
 
+  redis:
+    image: redis
+    container_name: zerofiltre-local-redis
+    port :
+      - "6379:6379"
+    restart: unless-stopped
+
+
+
     ports:
       - "3306:3306"
     volumes:
