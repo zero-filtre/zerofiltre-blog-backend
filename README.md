@@ -28,10 +28,6 @@ Once you are done hitting the keyboard, submit a pull request targeting our main
   ```shell
       docker-compose up
   ```
-- As we use Redis for caching, launch a local Redis Docker container this way:
-    ```shell
-    docker run -p 6379:6379 --name zerofiltre-local-redis -d redis
-    ```
 - Build and run the app, then check the startup went successfully:
     ```shell
     cd blog/
