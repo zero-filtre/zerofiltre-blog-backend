@@ -1,19 +1,24 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
-import lombok.*;
-import lombok.extern.slf4j.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.Chapter;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SaveChapterVM;
 
-import javax.validation.*;
-import javax.validation.constraints.*;
-import java.util.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -65,7 +70,7 @@ public class ChapterController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted chapter", e);
+            log.debug("We did not find a connected user but we can still return the wanted chapter");
         }
         return chapter.get();
     }
@@ -110,7 +115,7 @@ public class ChapterController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted chapters", e);
+            log.debug("We did not find a connected user but we can still return the wanted chapters");
         }
         return chapter.getByCourseId(user);
     }

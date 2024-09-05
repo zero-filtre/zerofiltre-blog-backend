@@ -65,7 +65,7 @@ public class ArticleController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted article", e);
+            log.debug("We did not find a connected user but we can still return the wanted article");
         }
         return findArticle.byId(articleId, user);
     }
@@ -82,7 +82,7 @@ public class ArticleController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return published articles", e);
+            log.debug("We did not find a connected user but we can still return published articles");
         }
 
 

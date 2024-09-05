@@ -49,7 +49,7 @@ public class CourseController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted course", e);
+            log.debug("We did not find a connected user but we can still return the wanted course");
         }
         return courseService.findById(courseId, user);
     }
@@ -77,7 +77,7 @@ public class CourseController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return published courses", e);
+            log.debug("We did not find a connected user but we can still return published courses");
         }
 
         FinderRequest request = new FinderRequest();
