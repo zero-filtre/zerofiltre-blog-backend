@@ -1,17 +1,23 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
-import lombok.extern.slf4j.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SaveLessonVM;
 
-import javax.validation.*;
-import javax.validation.constraints.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Slf4j
 @RestController
@@ -78,7 +84,7 @@ public class LessonController {
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return wanted lesson if it's free", e);
+            log.debug("We did not find a connected user but we can still return wanted lesson if it's free");
         }
         return lesson.get(user == null ? 0 : user.getId());
     }
