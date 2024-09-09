@@ -55,9 +55,8 @@ jobs:
     - name: Build and run unit tests with Maven
       run: mvn -B package --file pom.xml
       
-#     - name: Run Integration tests if releasing
-#       if: github.ref == 'refs/heads/main'
-#       run: mvn failsafe:integration-test
+    - name: Run Integration tests if releasing
+      run: mvn failsafe:integration-test
  
 #     - name: SonarCloud Scan
 #       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
