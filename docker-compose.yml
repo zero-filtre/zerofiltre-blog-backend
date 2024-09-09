@@ -16,5 +16,14 @@ services:
       - mysql-data:/var/lib/mysql
       - ./initV.sql:/docker-entrypoint-initdb.d/initV.sql
 
+
+  redis:
+    image: redis
+    container_name: zerofiltre-local-redis
+    ports :
+      - "6379:6379"
+    restart: unless-stopped
+
+
 volumes:
   mysql-data:
