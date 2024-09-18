@@ -36,3 +36,4 @@ build/
 /src/main/resources/jmeter/results/
 
 test-docker-compose.yml
+opentelemetry-javaagent.jar
