@@ -10,6 +10,7 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CompleteLesson {
 
@@ -42,12 +43,19 @@ public class CompleteLesson {
 
         if (chapter.getCourseId() != courseId) throw forbiddenActionException;
 
+        existingEnrollment.setCompleted(false);
+
         if (completeLesson) {
             CompletedLesson completedLesson = new CompletedLesson();
             completedLesson.setLessonId(lesson.getId());
             completedLesson.setCompletedAt(LocalDateTime.now());
             completedLesson.setEnrollmentId(existingEnrollment.getId());
             existingEnrollment.getCompletedLessons().add(completedLesson);
+
+            List<Long> allLessonIdNotCompleted = lessonProvider.listNotCompletedLessons(existingEnrollment.getId());
+            if (allLessonIdNotCompleted.size() == 1 && allLessonIdNotCompleted.get(0) == lessonId) {
+                existingEnrollment.setCompleted(true);
+            }
         } else {
             existingEnrollment.getCompletedLessons().removeIf(existingLesson -> existingLesson.getLessonId() == lesson.getId());
         }

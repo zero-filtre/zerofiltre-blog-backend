@@ -23,6 +23,7 @@ import tech.zerofiltre.blog.domain.course.model.Lesson;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.storage.CertificatesStorageProvider;
 import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -77,6 +78,8 @@ class EnrollmentControllerIT {
     EnrollmentProvider enrollmentProvider;
     @MockBean
     UserJPARepository userJPARepository;
+    @MockBean
+    CertificatesStorageProvider certificatesStorageProvider;
     @MockBean
     StackOverflowLoginProvider stackOverflowLoginProvider;
     @MockBean

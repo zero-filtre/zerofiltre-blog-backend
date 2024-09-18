@@ -4,6 +4,7 @@ import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -53,5 +54,21 @@ class ZerofiltreUtilsTest {
 
         //ASSERT
         AssertionsForClassTypes.assertThat(rootCause).isEqualTo("exception1");
+    }
+
+    @Test
+    void sanitizeFilename() {
+        //ARRANGE
+        List<String> fileNamesList = Arrays.asList("a&&a", "bééb", "c//c", "d\\\\d", "e::e", "f**f", "g??g", "h\"\"h", "i<<i", "j>>j", "k||k", "l  l");
+        List<String> expectedFileNamesList = Arrays.asList("a&&a", "bééb", "c_c", "d_d", "e_e", "f_f", "g_g", "h_h", "i_i", "j_j", "k_k", "l_l");
+
+        //ACT
+        List<String> responses = new ArrayList<>();
+        for (String s : fileNamesList) {
+            responses.add(ZerofiltreUtils.sanitizeString(s));
+        }
+
+        //ASSERT
+        AssertionsForClassTypes.assertThat(responses).isEqualTo(expectedFileNamesList);
     }
 }

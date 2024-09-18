@@ -62,8 +62,8 @@ public class FindEnrollment {
                 .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
     }
 
-
     private int getEnrolledCount(long courseId) {
         return courseProvider.getEnrolledCount(courseId);
     }
+
 }

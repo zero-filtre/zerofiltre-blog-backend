@@ -57,4 +57,7 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
     public long courseIdOfChapterId(long chapterId) {
         return 0;
     }
+
+    @Override
+    public String getTitle(long courseId) { return ""; }
 }

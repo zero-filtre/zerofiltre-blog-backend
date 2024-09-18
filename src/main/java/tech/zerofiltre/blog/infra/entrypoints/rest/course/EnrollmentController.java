@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.ITemplateEngine;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
@@ -19,10 +20,15 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
+import tech.zerofiltre.blog.domain.storage.CertificatesStorageProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Certificate;
+
+import java.io.File;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -34,6 +40,8 @@ public class EnrollmentController {
     private final CompleteLesson completeLesson;
     private final FindEnrollment findEnrollment;
 
+    private Certificate certificate;
+
 
     public EnrollmentController(
             EnrollmentProvider enrollmentProvider,
@@ -43,12 +51,15 @@ public class EnrollmentController {
             LessonProvider lessonProvider,
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
-            PurchaseProvider purchaseProvider) {
+            PurchaseProvider purchaseProvider,
+            ITemplateEngine templateEngine,
+            CertificatesStorageProvider certificatesStorageProvider) {
         this.securityContextManager = securityContextManager;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
+        certificate = new Certificate(enrollmentProvider, certificatesStorageProvider, courseProvider, templateEngine);
     }
 
 
@@ -102,4 +113,11 @@ public class EnrollmentController {
         }
         return findEnrollment.of(request);
     }
+
+    @GetMapping("/certificate")
+    public File giveCertificateByCourseId(@RequestParam long courseId) throws IOException, ZerofiltreException {
+        User user = securityContextManager.getAuthenticatedUser();
+        return certificate.giveCertificate(user, courseId);
+    }
+
 }

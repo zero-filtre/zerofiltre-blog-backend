@@ -27,6 +27,9 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
     }
 
     @Override
+    public boolean isCompleted(long userId, long courseId) { return false; }
+
+    @Override
     public void delete(long userId, long courseId) {
 
     }

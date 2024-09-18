@@ -58,4 +58,7 @@ public class Found_InReview_WithKnownAuthor_CourseProvider_Spy implements Course
     public long courseIdOfChapterId(long chapterId) {
         return 0;
     }
+
+    @Override
+    public String getTitle(long courseId) { return ""; }
 }

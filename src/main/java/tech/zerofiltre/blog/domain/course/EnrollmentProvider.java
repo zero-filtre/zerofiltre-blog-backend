@@ -16,4 +16,5 @@ public interface EnrollmentProvider {
 
     Enrollment save(Enrollment enrollment) throws ZerofiltreException;
 
+    boolean isCompleted(long userId, long courseId);
 }
