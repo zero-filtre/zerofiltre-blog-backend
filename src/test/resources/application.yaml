@@ -88,6 +88,8 @@ zerofiltre:
         username: ff
         password: ff
         auth-url: ff
+        bucket-url: ff
+
       k8s-provisioner:
         url: https://provisioner-dev.zerofiltre.tech
         token: yy

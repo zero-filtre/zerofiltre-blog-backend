@@ -1,14 +1,18 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvider {
 
@@ -28,6 +32,11 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
 
     @Override
     public boolean isCompleted(long userId, long courseId) { return false; }
+
+    @Override
+    public void setCertificatePath(String path, long id, long courseId) {
+
+    }
 
     @Override
     public void delete(long userId, long courseId) {

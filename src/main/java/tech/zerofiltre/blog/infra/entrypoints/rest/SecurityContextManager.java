@@ -1,12 +1,12 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest;
 
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
-import org.springframework.stereotype.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
+import tech.zerofiltre.blog.domain.user.model.User;
 
 @Component
 public class SecurityContextManager {

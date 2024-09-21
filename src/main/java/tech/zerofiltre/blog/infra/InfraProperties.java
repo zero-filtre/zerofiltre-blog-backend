@@ -41,6 +41,10 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.ovh.auth-url}")
     private String ovhAuthUrl;
 
+    @Value("${zerofiltre.infra.api.ovh.bucket-url}")
+    private String ovhBucketUrl;
+
+
     @Value("${zerofiltre.infra.api.ovh.username}")
     private String ovhUsername;
 

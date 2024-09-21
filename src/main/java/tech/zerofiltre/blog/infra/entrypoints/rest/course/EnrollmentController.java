@@ -1,34 +1,29 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.ITemplateEngine;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.course.ChapterProvider;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
-import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.course.features.enrollment.*;
+import tech.zerofiltre.blog.domain.course.model.Certificate;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.CompleteLesson;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Enroll;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.FindEnrollment;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
-import tech.zerofiltre.blog.domain.storage.CertificatesStorageProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Certificate;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -40,7 +35,7 @@ public class EnrollmentController {
     private final CompleteLesson completeLesson;
     private final FindEnrollment findEnrollment;
 
-    private Certificate certificate;
+    private final GenerateCertificate generateCertificate;
 
 
     public EnrollmentController(
@@ -52,14 +47,13 @@ public class EnrollmentController {
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
-            ITemplateEngine templateEngine,
-            CertificatesStorageProvider certificatesStorageProvider) {
+            CertificateProvider certificateProvider) {
         this.securityContextManager = securityContextManager;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
-        certificate = new Certificate(enrollmentProvider, certificatesStorageProvider, courseProvider, templateEngine);
+        generateCertificate = new GenerateCertificate(enrollmentProvider, certificateProvider);
     }
 
 
@@ -115,9 +109,21 @@ public class EnrollmentController {
     }
 
     @GetMapping("/certificate")
-    public File giveCertificateByCourseId(@RequestParam long courseId) throws IOException, ZerofiltreException {
+    public ResponseEntity<InputStreamResource> giveCertificateByCourseId(@RequestParam long courseId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return certificate.giveCertificate(user, courseId);
+        Certificate certificate = generateCertificate.get(user, courseId);
+
+        byte[] content = certificate.getContent();
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + certificate.getName());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(content.length)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(byteArrayInputStream));
     }
 
 }

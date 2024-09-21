@@ -10,8 +10,8 @@ import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.domain.user.use_cases.UserNotFoundException;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 
 import java.util.Optional;

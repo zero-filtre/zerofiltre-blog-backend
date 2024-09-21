@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
-import tech.zerofiltre.blog.domain.course.use_cases.course.CourseService;
+import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;

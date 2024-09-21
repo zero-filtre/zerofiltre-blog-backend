@@ -65,4 +65,9 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     public boolean isCompleted(long userId, long courseId) {
         return repository.getCompletedByUserIdAndCourseId(userId, courseId);
     }
+
+    @Override
+    public void setCertificatePath(String certificatePath, long userId, long courseId) {
+        repository.updateCertificatePathByUserIdAndCourseId(certificatePath, userId, courseId);
+    }
 }

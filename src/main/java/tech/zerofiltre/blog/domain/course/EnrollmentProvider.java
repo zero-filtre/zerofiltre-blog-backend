@@ -1,10 +1,11 @@
 package tech.zerofiltre.blog.domain.course;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 
-import java.util.*;
+import java.util.Optional;
 
 public interface EnrollmentProvider {
 
@@ -17,4 +18,6 @@ public interface EnrollmentProvider {
     Enrollment save(Enrollment enrollment) throws ZerofiltreException;
 
     boolean isCompleted(long userId, long courseId);
+
+    void setCertificatePath(String path, long id, long courseId);
 }

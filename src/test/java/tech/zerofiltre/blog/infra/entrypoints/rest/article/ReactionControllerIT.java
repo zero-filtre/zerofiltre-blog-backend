@@ -1,39 +1,46 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
-import org.junit.jupiter.api.*;
-import org.mockito.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.web.servlet.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.context.annotation.*;
-import org.springframework.http.*;
-import org.springframework.http.converter.json.*;
-import org.springframework.security.test.context.support.*;
-import org.springframework.test.web.servlet.*;
-import org.springframework.test.web.servlet.request.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.article.use_cases.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.metrics.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.config.*;
-import tech.zerofiltre.blog.infra.providers.api.config.*;
-import tech.zerofiltre.blog.infra.providers.api.github.*;
-import tech.zerofiltre.blog.infra.providers.api.so.*;
-import tech.zerofiltre.blog.infra.providers.database.course.*;
-import tech.zerofiltre.blog.infra.security.config.*;
-import tech.zerofiltre.blog.infra.security.model.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tech.zerofiltre.blog.domain.article.ArticleProvider;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
+import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.config.PasswordEncoderConfiguration;
+import tech.zerofiltre.blog.infra.providers.api.config.APIClientConfiguration;
+import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
+import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
+import tech.zerofiltre.blog.infra.security.config.DBUserDetailsService;
+import tech.zerofiltre.blog.infra.security.config.LoginFirstAuthenticationEntryPoint;
+import tech.zerofiltre.blog.infra.security.config.RoleRequiredAccessDeniedHandler;
+import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
 
-import java.util.*;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ReactionController.class)
 @Import({Jackson2ObjectMapperBuilder.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,

@@ -1,10 +1,14 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.CompletedLesson;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 
-import java.util.*;
+import java.util.Optional;
 
 public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvider {
 
@@ -34,4 +38,9 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
 
     @Override
     public boolean isCompleted(long userId, long courseId) { return false; }
+
+    @Override
+    public void setCertificatePath(String path, long id, long courseId) {
+
+    }
 }

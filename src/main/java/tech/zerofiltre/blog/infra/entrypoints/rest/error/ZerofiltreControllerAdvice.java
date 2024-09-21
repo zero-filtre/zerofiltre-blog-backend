@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import tech.zerofiltre.blog.domain.article.use_cases.PublishOrSaveArticleException;
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
-import tech.zerofiltre.blog.domain.user.use_cases.InvalidTokenException;
+import tech.zerofiltre.blog.domain.user.features.InvalidTokenException;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.ServletException;
