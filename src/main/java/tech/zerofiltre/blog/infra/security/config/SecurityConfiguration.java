@@ -143,7 +143,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/reviews/**").permitAll()
                 .antMatchers("/anonymous*").anonymous()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                .antMatchers("/actuator/**").permitAll()
+                .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/actuator/prometheus").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
