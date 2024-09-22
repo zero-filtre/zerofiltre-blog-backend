@@ -31,6 +31,7 @@ spec:
             export PRO_PLAN_PRICE_ID='{{ .Data.data.pro_plan_price_id }}'
             export PRO_PLAN_YEARLY_PRICE_ID='{{ .Data.data.pro_plan_yearly_price_id }}'
             export OVH_PASSWORD='{{ .Data.data.ovh_password }}'
+            export OVH_BUCKET_URL='{{ .Data.data.ovh_bucket_url }}'
             export K8S_PROVISIONER_TOKEN='{{ .Data.data.k8s_provisioner_token }}'
             export NOTCHPAY_PRIVATE_KEY='{{ .Data.data.notchpay_private_key }}'
             export NOTCHPAY_HASH='{{ .Data.data.notchpay_hash }}'

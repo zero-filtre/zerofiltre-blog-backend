@@ -141,6 +141,7 @@ zerofiltre:
         username: ${OVH_USERNAME:noneed}
         password: ${OVH_PASSWORD:noneed}
         auth-url: ${OVH_AUTH_URL:noneed}
+        bucket-url: ${OVH_BUCKET_URL:noneed}
       k8s-provisioner:
         url: https://provisioner-dev.zerofiltre.tech
         token: ${K8S_PROVISIONER_TOKEN:noneed}

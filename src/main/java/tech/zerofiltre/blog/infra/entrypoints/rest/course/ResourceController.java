@@ -1,15 +1,19 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
-import lombok.extern.slf4j.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.domain.course.use_cases.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.*;
-import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.ResourceProvider;
+import tech.zerofiltre.blog.domain.course.features.course.ResourceService;
+import tech.zerofiltre.blog.domain.course.model.Resource;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.ResourceVM;
 
-import javax.validation.*;
+import javax.validation.Valid;
 
 @Slf4j
 @RestController

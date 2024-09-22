@@ -23,7 +23,7 @@ import tech.zerofiltre.blog.domain.course.model.Lesson;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
-import tech.zerofiltre.blog.domain.storage.CertificatesStorageProvider;
+import tech.zerofiltre.blog.domain.storage.StorageProvider;
 import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -34,6 +34,8 @@ import tech.zerofiltre.blog.infra.providers.api.config.APIClientConfiguration;
 import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.api.k8sprovisioner.K8sSandboxProvider;
 import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
+import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateEngine;
+import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
@@ -60,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, K8sSandboxProvider.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
-        APIClientConfiguration.class, DBPurchaseProvider.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class})
+        APIClientConfiguration.class, DBPurchaseProvider.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class, PDFCertificateProvider.class, PDFCertificateEngine.class})
 class EnrollmentControllerIT {
     @MockBean
     SecurityContextManager securityContextManager;
@@ -79,7 +81,7 @@ class EnrollmentControllerIT {
     @MockBean
     UserJPARepository userJPARepository;
     @MockBean
-    CertificatesStorageProvider certificatesStorageProvider;
+    StorageProvider storageProvider;
     @MockBean
     StackOverflowLoginProvider stackOverflowLoginProvider;
     @MockBean

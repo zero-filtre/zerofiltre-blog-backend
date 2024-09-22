@@ -1,24 +1,32 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
-import static tech.zerofiltre.blog.domain.course.model.Lesson.*;
+import static tech.zerofiltre.blog.domain.course.model.Lesson.THE_LESSON_OF_ID;
 
 class ChapterTest {
 

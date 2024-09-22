@@ -17,6 +17,8 @@ import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.api.ovh.model.*;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -28,8 +30,15 @@ public class OVHTokenProvider {
     private final InfraProperties infraProperties;
     private final RetryTemplate retryTemplate;
 
+    private OVHToken token;
+
 
     public OVHToken getToken() throws ZerofiltreException {
+
+        if (token != null) {
+            ZonedDateTime expirationTime = ZonedDateTime.parse(token.getExpiresAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            if (ZonedDateTime.now().isAfter(expirationTime)) return token;
+        }
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Content-Type", "application/json");
@@ -62,15 +71,16 @@ public class OVHTokenProvider {
             return retryTemplate.execute(retryContext -> {
                 HttpEntity<Payload> requestEntity = new HttpEntity<>(body, headers);
                 ResponseEntity<String> response = restTemplate.exchange(infraProperties.getOvhAuthUrl(), HttpMethod.POST, requestEntity, String.class);
-                OVHToken token = new OVHToken();
+                OVHToken result = new OVHToken();
                 HttpHeaders responseHeaders = response.getHeaders();
                 String responseBody = response.getBody();
 
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode rootNode = mapper.readTree(responseBody);
                 JsonNode root = rootNode.get("token");
-                token.setExpiresAt(root.get("expires_at").asText());
-                token.setAccessToken(responseHeaders.get("x-subject-token").get(0));
+                result.setExpiresAt(root.get("expires_at").asText());
+                result.setAccessToken(responseHeaders.get("x-subject-token").get(0));
+                token = result;
                 return token;
             });
         } catch (Exception e) {

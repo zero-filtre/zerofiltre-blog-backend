@@ -34,6 +34,11 @@ public class MentoredEnrollmentProviderSpy implements EnrollmentProvider {
     public boolean isCompleted(long userId, long courseId) { return false; }
 
     @Override
+    public void setCertificatePath(String path, long id, long courseId) {
+
+    }
+
+    @Override
     public void delete(long userId, long courseId) {
 
     }

@@ -8,7 +8,7 @@ import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.Suspend;
+import tech.zerofiltre.blog.domain.course.features.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.payment.PaymentException;

@@ -2,8 +2,8 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.article;
 
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.article.features.EditTag;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.article.use_cases.EditTag;
 import tech.zerofiltre.blog.domain.error.ResourceAlreadyExistException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.infra.entrypoints.rest.article.model.EditTagVM;

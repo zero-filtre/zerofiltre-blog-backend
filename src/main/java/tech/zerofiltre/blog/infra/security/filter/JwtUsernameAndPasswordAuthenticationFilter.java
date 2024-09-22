@@ -1,20 +1,27 @@
 package tech.zerofiltre.blog.infra.security.filter;
 
-import com.fasterxml.jackson.databind.*;
-import lombok.*;
-import org.springframework.http.converter.json.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.web.authentication.*;
-import org.springframework.security.web.util.matcher.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.use_cases.*;
-import tech.zerofiltre.blog.infra.security.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.VerificationTokenProvider;
+import tech.zerofiltre.blog.domain.user.features.GenerateToken;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
+import tech.zerofiltre.blog.infra.security.model.Token;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collections;
 
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 

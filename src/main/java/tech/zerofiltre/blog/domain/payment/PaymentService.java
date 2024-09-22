@@ -1,11 +1,11 @@
 package tech.zerofiltre.blog.domain.payment;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.use_cases.enrollment.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.payment.model.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.Product;
+import tech.zerofiltre.blog.domain.course.features.enrollment.Suspend;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 
 public class PaymentService {
 

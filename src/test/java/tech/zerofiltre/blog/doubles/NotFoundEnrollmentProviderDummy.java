@@ -1,10 +1,11 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
 
-import java.util.*;
+import java.util.Optional;
 
 public class NotFoundEnrollmentProviderDummy implements EnrollmentProvider {
 
@@ -19,6 +20,11 @@ public class NotFoundEnrollmentProviderDummy implements EnrollmentProvider {
 
     @Override
     public boolean isCompleted(long userId, long courseId) { return false; }
+
+    @Override
+    public void setCertificatePath(String path, long id, long courseId) {
+
+    }
 
     @Override
     public void delete(long userId, long courseId) {
