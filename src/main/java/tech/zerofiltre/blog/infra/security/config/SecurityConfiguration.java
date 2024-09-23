@@ -146,6 +146,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/actuator/prometheus").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
+                .antMatchers("/actuator/**").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
