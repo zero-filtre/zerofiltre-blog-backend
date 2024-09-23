@@ -145,6 +145,11 @@ zerofiltre:
       k8s-provisioner:
         url: https://provisioner-dev.zerofiltre.tech
         token: ${K8S_PROVISIONER_TOKEN:noneed}
+      openai:
+        url: https://api.openai.com/v1/chat/completions
+        api-key: ${OPENAI_API_KEY:noneed}
+        organization-id: ${OPENAI_ORGANIZATION_ID:noneed}
+        project-id: ${OPENAI_PROJECT_ID:noneed}
     entrypoints:
       rest:
         api-version: 1.0

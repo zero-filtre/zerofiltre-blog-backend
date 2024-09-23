@@ -44,7 +44,6 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.ovh.bucket-url}")
     private String ovhBucketUrl;
 
-
     @Value("${zerofiltre.infra.api.ovh.username}")
     private String ovhUsername;
 
@@ -56,6 +55,18 @@ public class InfraProperties {
 
     @Value("${zerofiltre.infra.api.stripe.webhook-secret}")
     private String stripeWebhookSecret;
+
+    @Value("${zerofiltre.infra.api.openai.url}")
+    private String openaiUrl;
+
+    @Value("${zerofiltre.infra.api.openai.api-key}")
+    private String openaiApiKey;
+
+    @Value("${zerofiltre.infra.api.openai.organization-id}")
+    private String openaiOrganizationId;
+
+    @Value("${zerofiltre.infra.api.openai.project-id}")
+    private String openaiProjectId;
 
     @Value("${zerofiltre.infra.api.stripe.customer-portal-link}")
     private String customerPortalLink;
