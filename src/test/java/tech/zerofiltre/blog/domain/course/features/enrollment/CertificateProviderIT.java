@@ -2,10 +2,11 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.course.model.Certificate;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
@@ -13,11 +14,10 @@ import tech.zerofiltre.blog.domain.storage.StorageProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateEngine;
 import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.CourseJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBLessonProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -28,28 +28,19 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@DataJpaTest
+@ExtendWith(MockitoExtension.class)
 class CertificateProviderIT {
 
     PDFCertificateProvider pdfCertificateProvider;
-
-    @Autowired
-    SpringTemplateEngine templateEngine;
-
-    @Autowired
     DBUserProvider dbUserProvider;
-
-    @Autowired
     DBCourseProvider dbCourseProvider;
 
     @Autowired
-    DBChapterProvider dbChapterProvider;
+    UserJPARepository userJPARepository;
 
     @Autowired
-    DBLessonProvider dbLessonProvider;
-
-    @Autowired
-    DBEnrollmentProvider dbEnrollmentProvider;
+    CourseJPARepository courseJPARepository;
 
     @Mock
     StorageProvider storageProvider;
@@ -59,6 +50,8 @@ class CertificateProviderIT {
 
     @BeforeEach
     void init() {
+        dbUserProvider = new DBUserProvider(userJPARepository);
+        dbCourseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
         pdfCertificateProvider = new PDFCertificateProvider(storageProvider, dbCourseProvider, certificateEngine);
     }
 
