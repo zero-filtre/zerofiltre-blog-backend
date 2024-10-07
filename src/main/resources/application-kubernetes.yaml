@@ -133,6 +133,11 @@ zerofiltre:
       k8s-provisioner:
         url: ${K8S_PROVISIONER_URL}
         token: ${K8S_PROVISIONER_TOKEN}
+      openai:
+        url: ${OPENAI_URL:noneed}
+        api-key: ${OPENAI_API_KEY}
+        organization-id: ${OPENAI_ORGANIZATION_ID}
+        project-id: ${OPENAI_PROJECT_ID}
     entrypoints:
       rest:
         api-version: 1.0

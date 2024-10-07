@@ -35,6 +35,10 @@ spec:
             export K8S_PROVISIONER_TOKEN='{{ .Data.data.k8s_provisioner_token }}'
             export NOTCHPAY_PRIVATE_KEY='{{ .Data.data.notchpay_private_key }}'
             export NOTCHPAY_HASH='{{ .Data.data.notchpay_hash }}'
+            export OPENAI_URL='{{ .Data.data.openai_url }}'
+            export OPENAI_API_KEY='{{ .Data.data.openai_api_key }}'
+            export OPENAI_ORGANIZATION_ID='{{ .Data.data.openai_organization_id }}'
+            export OPENAI_PROJECT_ID='{{ .Data.data.openai_project_id }}'
           {{- end -}}
     spec:
       serviceAccountName: internal-app
