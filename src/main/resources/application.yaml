@@ -146,7 +146,7 @@ zerofiltre:
         url: https://provisioner-dev.zerofiltre.tech
         token: ${K8S_PROVISIONER_TOKEN:noneed}
       openai:
-        url: https://api.openai.com/v1/chat/completions
+        url: ${OPENAI_URL:noneed}
         api-key: ${OPENAI_API_KEY:noneed}
         organization-id: ${OPENAI_ORGANIZATION_ID:noneed}
         project-id: ${OPENAI_PROJECT_ID:noneed}
