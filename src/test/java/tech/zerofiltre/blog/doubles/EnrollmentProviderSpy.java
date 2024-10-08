@@ -30,15 +30,18 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     }
 
     @Override
-    public boolean isCompleted(long userId, long courseId) { return false; }
+    public boolean isCompleted(long userId, long courseId) {
+        return false;
+    }
 
     @Override
     public void setCertificatePath(String path, long id, long courseId) {
-
+        //no need to implement
     }
 
     @Override
     public void delete(long userId, long courseId) {
+        //no need to implement
 
     }
 

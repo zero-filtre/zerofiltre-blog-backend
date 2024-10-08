@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -97,10 +98,32 @@ public class ZerofiltreUtils {
         return filename.replaceAll("[/\\\\:*?\"<>| ]+", "_");
     }
 
-    public static Optional<String> getValidEmailForBroadcast(UserForBroadcast user) {
-        if(user.getEmail() != null && EmailValidator.validateEmail(user.getEmail())) return Optional.of(user.getEmail());
+    public static String convertToHash(String data) throws NoSuchAlgorithmException {
 
-        if(user.getPaymentEmail() != null && EmailValidator.validateEmail(user.getPaymentEmail())) return Optional.of(user.getPaymentEmail());
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedHash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : encodedHash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+
+    public static String generateHash(String fullName, String courseTitle) throws NoSuchAlgorithmException {
+        String dataToHash = fullName + ":" + courseTitle;
+        return convertToHash(dataToHash);
+    }
+
+    public static Optional<String> getValidEmailForBroadcast(UserForBroadcast user) {
+        if (user.getEmail() != null && EmailValidator.validateEmail(user.getEmail()))
+            return Optional.of(user.getEmail());
+
+        if (user.getPaymentEmail() != null && EmailValidator.validateEmail(user.getPaymentEmail()))
+            return Optional.of(user.getPaymentEmail());
 
         return Optional.empty();
     }
