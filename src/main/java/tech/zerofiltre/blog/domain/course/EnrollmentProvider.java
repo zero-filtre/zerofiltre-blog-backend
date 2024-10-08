@@ -30,4 +30,5 @@ public interface EnrollmentProvider {
 
     void setCertificatePath(String path, long id, long courseId);
 
+    Enrollment enrollmentOf(String uuid);
 }
