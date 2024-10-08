@@ -22,7 +22,7 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
     @Query("select a from CourseJPA a WHERE a.status=?1 ORDER BY size(a.reactions) desc ")
     Page<CourseJPA> findByReactionsDesc(Pageable pageable, Status status);
 
-    @Query("select a from CourseJPA a WHERE a.status=?1 ORDER BY enrolledCount desc ")
+    @Query("select a from CourseJPA a WHERE a.status=?1 ORDER BY a.enrolledCount desc ")
     Page<CourseJPA> findByEnrolledDesc(Pageable pageable, Status status);
 
     Page<CourseJPA> findByStatusAndTagsName(Pageable pageable, Status status, String tag);
@@ -32,7 +32,7 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
     @Query("select a from CourseJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY size(a.reactions) desc ")
     Page<CourseJPA> findByReactionsAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
 
-    @Query("select a from CourseJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY enrolledCount desc ")
+    @Query("select a from CourseJPA a WHERE a.status=?1 AND a.author.id=?2 ORDER BY a.enrolledCount desc ")
     Page<CourseJPA> findByEnrolledAndAuthorIdDesc(Pageable pageable, Status status, long authorId);
 
     @Query("select count(a) from CourseJPA a JOIN EnrollmentJPA s ON a.id=s.course.id WHERE a.id=?1")
