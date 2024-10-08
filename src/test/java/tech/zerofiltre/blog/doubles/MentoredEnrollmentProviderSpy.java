@@ -33,11 +33,13 @@ public class MentoredEnrollmentProviderSpy implements EnrollmentProvider {
 
     @Override
     public void setCertificatePath(String path, long id, long courseId) {
+        //no need to implement
 
     }
 
     @Override
     public void delete(long userId, long courseId) {
+        //no need to implement
 
     }
 
