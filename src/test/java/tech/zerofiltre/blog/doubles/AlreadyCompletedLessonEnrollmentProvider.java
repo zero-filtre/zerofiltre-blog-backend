@@ -16,7 +16,7 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
 
 
     public void delete(long userId, long courseId) {
-
+        //no need to implement
     }
 
     public Page<Enrollment> of(int pageNumber, int pageSize, long userId, FinderRequest.Filter filter, String tag) {
@@ -64,6 +64,6 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
 
     @Override
     public void setCertificatePath(String path, long id, long courseId) {
-
+        //no need to implement
     }
 }
