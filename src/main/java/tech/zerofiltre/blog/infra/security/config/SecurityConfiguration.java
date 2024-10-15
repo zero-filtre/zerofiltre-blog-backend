@@ -1,9 +1,12 @@
 package tech.zerofiltre.blog.infra.security.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -11,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
@@ -116,6 +120,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, new SocialTokenValidatorAndAuthenticator(stackOverflowLoginProvider, userProvider, metricsProvider, securityContextManager)), JwtTokenAuthenticationCheckerFilter.class)
                 .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, new SocialTokenValidatorAndAuthenticator(githubLoginProvider, userProvider, metricsProvider, securityContextManager)), StackOverflowAuthenticationCheckerFilter.class)
                 .authorizeRequests()
+                .expressionHandler(customWebSecurityExpressionHandler())
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST,
                         "/auth",
@@ -149,8 +154,31 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // must be an admin if trying to access admin area (authentication is also required here)
                 .antMatchers("/actuator/**").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/roleAdmin/**").hasRole("ADMIN")
+                .antMatchers("/user/roleUser/**").hasRole("USER")
+                .antMatchers("/user/roleCompanyAdmin/**").hasRole("COMPANY_ADMIN")
+                .antMatchers("/user/roleCompanyEditor/**").hasRole("COMPANY_EDITOR")
+                .antMatchers("/user/roleCompanyViewer/**").hasRole("COMPANY_VIEWER")
                 .anyRequest().authenticated();
 
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        String hierarchy = "ROLE_ADMIN > ROLE_USER \n ROLE_ADMIN > ROLE_COMPANY_ADMIN \n " +
+                "ROLE_COMPANY_ADMIN > ROLE_COMPANY_EDITOR \n ROLE_COMPANY_EDITOR > ROLE_COMPANY_VIEWER";
+        roleHierarchy.setHierarchy(hierarchy);
+
+        return roleHierarchy;
+    }
+
+    @Bean
+    public DefaultWebSecurityExpressionHandler customWebSecurityExpressionHandler() {
+        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
+        expressionHandler.setRoleHierarchy(roleHierarchy());
+
+        return expressionHandler;
     }
 }
 

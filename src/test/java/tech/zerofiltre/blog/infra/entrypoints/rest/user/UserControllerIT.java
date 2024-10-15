@@ -500,4 +500,279 @@ class UserControllerIT {
     public String asJsonString(final Object obj) throws JsonProcessingException {
         return objectMapperBuilder.build().writeValueAsString(obj);
     }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenUserWithRoleAdmin_whenRoleAdmin_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenUserWithRoleAdmin_whenRoleUser_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleUser");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenUserWithRoleAdmin_whenRoleCompanyAdmin_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenUserWithRoleAdmin_whenRoleCompanyEditor_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyEditor");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenUserWithRoleAdmin_whenRoleCompanyViewer_thenReturn200() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyViewer");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserWithRoleUser_whenRoleAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserWithRoleUser_whenRoleUser_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleUser");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserWithRoleUser_whenRoleCompanyAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserWithRoleUser_whenRoleCompanyEditor_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyEditor");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void givenUserWithRoleUser_whenRoleCompanyViewer_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyViewer");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void givenUserWithRoleCompanyAdmin_whenRoleAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void givenUserWithRoleCompanyAdmin_whenRoleUser_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleUser");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void givenUserWithRoleCompanyAdmin_whenRoleCompanyAdmin_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void givenUserWithRoleCompanyAdmin_whenRoleCompanyEditor_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyEditor");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void givenUserWithRoleCompanyAdmin_whenRoleCompanyViewer_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyViewer");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_EDITOR")
+    void givenUserWithRoleCompanyEditor_whenRoleAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_EDITOR")
+    void givenUserWithRoleCompanyEditor_whenRoleUser_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleUser");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_EDITOR")
+    void givenUserWithRoleCompanyEditor_whenRoleCompanyAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_EDITOR")
+    void givenUserWithRoleCompanyEditor_whenRoleCompanyEditor_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyEditor");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_EDITOR")
+    void givenUserWithRoleCompanyEditor_whenRoleCompanyViewer_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyViewer");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_VIEWER")
+    void givenUserWithRoleCompanyViewer_whenRoleAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_VIEWER")
+    void givenUserWithRoleCompanyViewer_whenRoleUser_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleUser");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_VIEWER")
+    void givenUserWithRoleCompanyViewer_whenRoleCompanyAdmin_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyAdmin");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_VIEWER")
+    void givenUserWithRoleCompanyViewer_whenRoleCompanyEditor_thenReturn403() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyEditor");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser(roles = "COMPANY_VIEWER")
+    void givenUserWithRoleCompanyViewer_whenRoleCompanyViewer_thenReturnOK() throws Exception {
+        //ACT
+        RequestBuilder request = MockMvcRequestBuilders.get("/user/roleCompanyViewer");
+
+        //ASSERT
+        mockMvc.perform(request)
+                .andExpect(status().is2xxSuccessful());
+    }
 }

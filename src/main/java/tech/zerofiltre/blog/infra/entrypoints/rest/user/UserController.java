@@ -254,4 +254,29 @@ public class UserController {
     public Token refreshJwtToken(@RequestParam(name = "refreshToken") String refreshingToken) throws InvalidTokenException {
         return this.generateToken.byRefreshToken(refreshingToken);
     }
+
+    @GetMapping("/user/roleAdmin")
+    public String roleAdmin() {
+        return "OK";
+    }
+
+    @GetMapping("/user/roleUser")
+    public String roleUser() {
+        return "OK";
+    }
+
+    @GetMapping("/user/roleCompanyAdmin")
+    public String roleCompanyAdmin() {
+        return "OK";
+    }
+
+    @GetMapping("/user/roleCompanyEditor")
+    public String roleCompanyEditor() {
+        return "OK";
+    }
+
+    @GetMapping("/user/roleCompanyViewer")
+    public String roleCompanyViewer() {
+        return "OK";
+    }
 }

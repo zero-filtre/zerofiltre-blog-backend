@@ -217,6 +217,22 @@ public class User implements Serializable {
         return roles.contains("ROLE_ADMIN");
     }
 
+    public boolean isUser() {
+        return roles.contains("ROLE_USER");
+    }
+
+    public boolean isCompanyAdmin() {
+        return roles.contains("ROLE_COMPANY_ADMIN");
+    }
+
+    public boolean isCompanyEditor() {
+        return roles.contains("ROLE_COMPANY_EDITOR");
+    }
+
+    public boolean isCompanyViewer() {
+        return roles.contains("ROLE_COMPANY_VIEWER");
+    }
+
     public boolean isPro() {
         return plan.equals(Plan.PRO);
     }

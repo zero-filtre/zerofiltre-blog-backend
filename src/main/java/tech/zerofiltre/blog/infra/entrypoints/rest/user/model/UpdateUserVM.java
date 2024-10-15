@@ -29,6 +29,8 @@ public class UpdateUserVM {
 
     private Set<SocialLink> socialLinks = new HashSet<>();
 
+    private Set<String> roles = new HashSet<>(Collections.singletonList("ROLE_USER"));
+
     private String website;
 
 
