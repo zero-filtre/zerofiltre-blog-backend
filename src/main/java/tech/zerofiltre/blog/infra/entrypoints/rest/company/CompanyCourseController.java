@@ -36,8 +36,8 @@ public class CompanyCourseController {
         companyCourseService.link(user, companyId, courseId);
     }
 
-    @PostMapping("/activeAllCourses")
-    public void activeAllCoursesByCompanyId(@RequestParam long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    @PostMapping("/activeAll")
+    public void activeAllByCompanyId(@RequestParam long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         companyCourseService.activeAllByCompanyId(user, companyId);
     }
@@ -58,7 +58,7 @@ public class CompanyCourseController {
     }
 
     @DeleteMapping
-    public void unLink(@RequestParam long companyId, @RequestParam long courseId, @RequestParam boolean delete) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlink(@RequestParam long companyId, @RequestParam long courseId, @RequestParam boolean delete) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         companyCourseService.unlink(user, companyId, courseId, delete);
     }

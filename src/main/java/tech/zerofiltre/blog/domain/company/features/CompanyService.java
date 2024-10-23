@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.company.features;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
@@ -13,6 +14,7 @@ import tech.zerofiltre.blog.util.DataChecker;
 
 import java.util.Optional;
 
+@Service
 @RequiredArgsConstructor
 public class CompanyService {
 
@@ -40,10 +42,16 @@ public class CompanyService {
         return companyProvider.findById(id);
     }
 
-    public Page<Company> findAll(User user, int pageNumber, int pageSize) throws ForbiddenActionException {
+    public Page<Company> findAll(int pageNumber, int pageSize, User user, long userId) throws ForbiddenActionException, ResourceNotFoundException {
+        if(userId == 0) {
+            if(user.isAdmin()) {
+                return companyProvider.findAll(pageNumber, pageSize);
+            }
+            return companyProvider.findAllByUserId(pageNumber, pageSize, user.getId());
+        }
         checker.isAdminUser(user);
-
-        return companyProvider.findAll(pageNumber, pageSize);
+        checker.userExists(userId);
+        return companyProvider.findAllByUserId(pageNumber, pageSize, userId);
     }
 
     public void delete(User user, Company company) throws ForbiddenActionException, ResourceNotFoundException {

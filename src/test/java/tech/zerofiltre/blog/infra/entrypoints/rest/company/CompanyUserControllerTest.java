@@ -36,13 +36,13 @@ class CompanyUserControllerTest {
     }
 
     @Test
-    void givenCompanyIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyUserService_unlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenCompanyIdAndDelete_whenUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyUserService).unlinkAllByCompanyId(any(User.class), anyLong());
 
         //ACT
-        controller.unLinkAll(1L, null);
+        controller.unlinkAll(1L, null);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
@@ -50,13 +50,13 @@ class CompanyUserControllerTest {
     }
 
     @Test
-    void givenCompanyIdAndUserIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyUserService_unlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenCompanyIdAndUserIdAndDelete_whenUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyUserService).unlinkAllByCompanyId(any(User.class), anyLong());
 
         //ACT
-        controller.unLinkAll(1L, 1L);
+        controller.unlinkAll(1L, 1L);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
@@ -64,13 +64,13 @@ class CompanyUserControllerTest {
     }
 
     @Test
-    void givenUserIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyUserService_unLinkAllByUserId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenUserIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyUserService_unlinkAllByUserId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyUserService).unlinkAllByUserId(any(User.class), anyLong());
 
         //ACT
-        controller.unLinkAll(null, 1L);
+        controller.unlinkAll(null, 1L);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
@@ -78,12 +78,12 @@ class CompanyUserControllerTest {
     }
 
     @Test
-    void givenDelete_whenUnLinkAll_thenVerifyNotCallCompanyUserService() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenDelete_whenUnlinkAll_thenVerifyNotCallCompanyUserService() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 
         //ACT
-        controller.unLinkAll(null, null);
+        controller.unlinkAll(null, null);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();

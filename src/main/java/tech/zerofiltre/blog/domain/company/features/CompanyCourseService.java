@@ -85,7 +85,6 @@ public class CompanyCourseService {
     }
 
     public void unlinkAllByCompanyId(User user, long companyId, boolean delete) throws ForbiddenActionException, ResourceNotFoundException {
-        System.out.println("méthode: unLinkAllByCompanyId");
         checker.isAdminOrCompanyAdmin(user, companyId);
         checker.companyExists(companyId);
 

@@ -64,7 +64,7 @@ class CompanyCourseControllerTest {
     }
 
     @Test
-    void givenCourseIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyCourseService_unlinkAllByCourseId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenCourseIdAndDelete_whenUnlinkAll_thenVerifyCallCompanyCourseService_unlinkAllByCourseId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyCourseService).unlinkAllByCourseId(any(User.class), anyLong(), anyBoolean());
