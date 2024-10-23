@@ -16,6 +16,8 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.features.FindArticle;
 import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -67,7 +69,7 @@ public class UserController {
     private final CourseService courseService;
 
 
-    public UserController(UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ArticleViewProvider articleViewProvider) {
+    public UserController(UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ArticleViewProvider articleViewProvider, DataChecker checker, CompanyCourseService companyCourseService) {
         this.userProvider = userProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator, metricsProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
@@ -86,7 +88,7 @@ public class UserController {
         this.retrieveSocialToken = new RetrieveSocialToken(githubLoginProvider);
         this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
-        this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
     }
 

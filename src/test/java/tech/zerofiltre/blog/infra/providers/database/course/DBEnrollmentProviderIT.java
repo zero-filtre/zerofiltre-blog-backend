@@ -269,4 +269,59 @@ class DBEnrollmentProviderIT {
         assertThat(updatedEnrollment.get().getCertificatePath()).isEqualTo("certificates/a_b_c.pdf");
 
     }
+
+    @Test
+    void findByCompanyCourseId_AndActive_Properly() throws ZerofiltreException {
+        //GIVEN
+        User user = new User();
+        user.setFullName("Testeur Humain");
+
+        user = userProvider.save(user);
+
+        Course course = new Course();
+        course.setTitle("Cours sur les tests");
+        course.setStatus(Status.PUBLISHED);
+        course.setAuthor(user);
+
+        course = courseProvider.save(course);
+
+        Chapter chapter = new Chapter.ChapterBuilder()
+                .courseId(course.getId())
+                .build();
+
+        chapter = chapterProvider.save(chapter);
+
+        Lesson lesson1 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
+
+        Lesson lesson2 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
+
+        lesson1 = lessonProvider.save(lesson1);
+        lesson2 = lessonProvider.save(lesson2);
+
+        chapter.getLessons().add(lesson1);
+        chapter.getLessons().add(lesson2);
+
+        chapterProvider.save(chapter);
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setUser(user);
+        enrollment.setCourse(course);
+        enrollment.setActive(true);
+        enrollment.setCompanyCourseId(1);
+
+        dbEnrollmentProvider.save(enrollment);
+
+        //WHEN
+        Optional<Enrollment> response = dbEnrollmentProvider.findByCompanyCourseIdAndActive(enrollment.getCompanyCourseId(), true);
+
+        //THEN
+        assertThat(response).isPresent();
+        assertThat(response.get().getCompanyCourseId()).isEqualTo(enrollment.getCompanyCourseId());
+
+    }
+
 }

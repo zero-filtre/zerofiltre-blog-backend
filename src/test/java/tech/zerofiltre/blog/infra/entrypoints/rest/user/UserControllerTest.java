@@ -18,6 +18,8 @@ import tech.zerofiltre.blog.domain.article.ReactionProvider;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.features.FindArticle;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
@@ -125,6 +127,12 @@ class UserControllerTest {
     @MockBean
     private ArticleViewProvider articleViewProvider;
 
+    @MockBean
+    private DataChecker checker;
+
+    @MockBean
+    private CompanyCourseService companyCourseService;
+
     @Mock
     private CourseService courseService;
 
@@ -136,7 +144,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, metricsProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, articleViewProvider);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, articleViewProvider, checker, companyCourseService);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }

@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Import;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -19,11 +23,15 @@ import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.purchase.model.Purchase;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
@@ -35,12 +43,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
 @DataJpaTest
-@Import({DBEnrollmentProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class, DBPurchaseProvider.class})
+@Import({DBEnrollmentProvider.class, DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBCourseProvider.class, DBPurchaseProvider.class, DBCompanyProvider.class, DBCompanyCourseProvider.class, DBCompanyUserProvider.class})
 class SuspendIT {
 
     Suspend suspend;
 
     Enroll enroll;
+
+    FindEnrollment findEnrollment;
 
     @Autowired
     EnrollmentProvider enrollmentProvider;
@@ -57,16 +67,29 @@ class SuspendIT {
     @Autowired
     PurchaseProvider purchaseProvider;
 
-    FindEnrollment findEnrollment;
+    @Autowired
+    CompanyProvider companyProvider;
+
+    @Autowired
+    CompanyUserProvider companyUserProvider;
+
+    @Autowired
+    CompanyCourseProvider companyCourseProvider;
+
     @Mock
     SandboxProvider sandboxProvider;
 
+    @Mock
+    DataChecker checker;
+
+    @Mock
+    CompanyCourseService companyCourseService;
 
     @BeforeEach
     void init() throws ZerofiltreException {
         doNothing().when(sandboxProvider).destroy(any(), any());
-        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, sandboxProvider, null);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, dbCourseProvider);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, sandboxProvider, null, checker, companyCourseService);
         findEnrollment = new FindEnrollment(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
 
@@ -82,7 +105,7 @@ class SuspendIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
-        enroll.execute(user.getId(), course.getId());
+        enroll.execute(user.getId(), course.getId(), 0);
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Enrollment enrollment = suspend.execute(user.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();
@@ -95,10 +118,10 @@ class SuspendIT {
 
         assertThat(enrollment.getId()).isNotZero();
 
-        org.assertj.core.api.Assertions.assertThat(enrollment.getSuspendedAt()).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(enrollment.getSuspendedAt()).isAfterOrEqualTo(beforeSuspend);
-        org.assertj.core.api.Assertions.assertThat(enrollment.getEnrolledAt()).isBefore(enrollment.getSuspendedAt());
-        org.assertj.core.api.Assertions.assertThat(enrollment.getSuspendedAt()).isBeforeOrEqualTo(afterSuspend);
+        assertThat(enrollment.getSuspendedAt()).isNotNull();
+        assertThat(enrollment.getSuspendedAt()).isAfterOrEqualTo(beforeSuspend);
+        assertThat(enrollment.getEnrolledAt()).isBefore(enrollment.getSuspendedAt());
+        assertThat(enrollment.getSuspendedAt()).isBeforeOrEqualTo(afterSuspend);
         Assertions.assertThat(enrollment.isActive()).isFalse();
     }
 

@@ -5,9 +5,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
-import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Section;
@@ -15,7 +13,6 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
-import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.PublishOrSaveCourseVM;
@@ -27,6 +24,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -37,10 +35,11 @@ public class CourseController {
     private final CourseService courseService;
     private final MessageSource sources;
 
-    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, MessageSource sources) {
+
+    public CourseController(SecurityContextManager securityContextManager, CourseService courseService, MessageSource sources) {
         this.securityContextManager = securityContextManager;
+        this.courseService = courseService;
         this.sources = sources;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
     }
 
     @GetMapping("/{id}")
@@ -52,6 +51,17 @@ public class CourseController {
             log.debug("We did not find a connected user but we can still return the wanted course");
         }
         return courseService.findById(courseId, user);
+    }
+
+    @GetMapping("/{id}/{companyId}")
+    public Course courseByIdAndCompanyId(@PathVariable("id") long courseId, @PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+        User user = null;
+        try {
+            user = securityContextManager.getAuthenticatedUser();
+        } catch (ZerofiltreException e) {
+            log.debug("We did not find a connected user but we can still return the wanted course");
+        }
+        return courseService.findByIdAndCompanyId(courseId, user, companyId);
     }
 
     @PatchMapping
@@ -98,9 +108,9 @@ public class CourseController {
 
 
     @PostMapping
-    public Course init(@RequestParam @NotNull @NotEmpty String title) throws ZerofiltreException {
+    public Course init(@RequestParam @NotNull @NotEmpty String title, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return courseService.init(title, user);
+        return courseService.init(title, user, Objects.isNull(companyId) ? 0 : companyId.intValue());
     }
 
     @DeleteMapping("/{id}")
