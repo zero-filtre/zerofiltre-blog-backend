@@ -1,15 +1,17 @@
 package tech.zerofiltre.blog.domain.course.model;
 
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Enrollment {
 
     private long id;
     private User user;
     private Course course;
+    private long companyCourseId;
     private boolean completed;
     private boolean active = true;
     private LocalDateTime enrolledAt = LocalDateTime.now();
@@ -43,6 +45,14 @@ public class Enrollment {
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    public long getCompanyCourseId() {
+        return companyCourseId;
+    }
+
+    public void setCompanyCourseId(long companyCourseId) {
+        this.companyCourseId = companyCourseId;
     }
 
     public boolean isCompleted() {
@@ -100,4 +110,5 @@ public class Enrollment {
     public String getCertificatePath() { return certificatePath; }
 
     public void setCertificatePath(String certificatePath) { this.certificatePath = certificatePath; }
+
 }

@@ -5,6 +5,10 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -29,15 +33,29 @@ public class CourseService {
     private final TagProvider tagProvider;
     private final LoggerProvider loggerProvider;
 
+    private final IsCompanyExists isCompanyExists;
+    private final IsAdminOrCompanyUser isAdminOrCompanyUser;
+    private final IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+    private final CompanyCourseService companyCourseService;
 
-    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider) {
+    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, IsCompanyExists isCompanyExists, IsAdminOrCompanyUser isAdminOrCompanyUser, IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor, CompanyCourseService companyCourseService) {
         this.courseProvider = courseProvider;
         this.tagProvider = tagProvider;
         this.loggerProvider = loggerProvider;
+        this.isCompanyExists = isCompanyExists;
+        this.isAdminOrCompanyUser = isAdminOrCompanyUser;
+        this.isCompanyAdminOrCompanyEditor = isCompanyAdminOrCompanyEditor;
+        this.companyCourseService = companyCourseService;
     }
 
 
-    public Course init(String title, User author) {
+    public Course init(String title, User author, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+        if(companyId > 0) {
+            isCompanyExists.execute(companyId);
+            isAdminOrCompanyUser.execute(author, companyId);
+            isCompanyAdminOrCompanyEditor.execute(author, companyId);
+        }
+
         Course course = new Course();
         course.setTitle(title);
         course.setAuthor(author);
@@ -50,9 +68,18 @@ public class CourseService {
         Course foundCourse = courseProvider.courseOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
-
         if ((viewer == null && Status.PUBLISHED != foundCourse.getStatus())
                 || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
+            throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
+        }
+        return foundCourse;
+    }
+
+    public Course findByIdAndCompanyId(long id, User viewer, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+        Course foundCourse = courseProvider.courseOfId(id)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
+
+        if(companyCourseService.find(viewer, companyId, id).isEmpty()) {
             throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
         }
         return foundCourse;

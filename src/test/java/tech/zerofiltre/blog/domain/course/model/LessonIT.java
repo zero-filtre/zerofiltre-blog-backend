@@ -4,10 +4,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
@@ -55,7 +60,14 @@ class LessonIT {
     private LoggerProvider loggerProvider;
     @Autowired
     private TagProvider tagProvider;
-
+    @MockBean
+    private IsCompanyExists isCompanyExists;
+    @MockBean
+    private IsAdminOrCompanyUser isAdminOrCompanyUser;
+    @MockBean
+    private IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+    @MockBean
+    private CompanyCourseService companyCourseService;
 
     private Chapter chapter;
     private User author;
@@ -183,8 +195,8 @@ class LessonIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
-        Course course = courseService.init("A course", author);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, isCompanyExists, isAdminOrCompanyUser, isCompanyAdminOrCompanyEditor, companyCourseService);
+        Course course = courseService.init("A course", author, 0);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         Chapter chapter2 = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());

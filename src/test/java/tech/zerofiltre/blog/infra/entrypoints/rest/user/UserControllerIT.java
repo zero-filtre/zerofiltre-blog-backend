@@ -20,6 +20,12 @@ import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
 import tech.zerofiltre.blog.domain.article.ReactionProvider;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
@@ -44,6 +50,7 @@ import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBArticleViewProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.infra.providers.notification.user.AppPublisherNotificationProvider;
 import tech.zerofiltre.blog.infra.security.config.DBUserDetailsService;
@@ -68,7 +75,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
         AppPublisherNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class,
-        DBTagProvider.class, DBChapterProvider.class, DBArticleViewProvider.class})
+        DBTagProvider.class, DBChapterProvider.class, DBArticleViewProvider.class, DBCourseProvider.class, CompanyCourseService.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -126,6 +133,24 @@ class UserControllerIT {
     @MockBean
     ChapterProvider chapterProvider;
 
+    @MockBean
+    CompanyProvider companyProvider;
+
+    @MockBean
+    CompanyUserProvider companyUserProvider;
+
+    @MockBean
+    IsCompanyExists isCompanyExists;
+
+    @MockBean
+    IsAdminOrCompanyUser isAdminOrCompanyUser;
+
+    @MockBean
+    IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+
+    @MockBean
+    CompanyCourseService companyCourseService;
+
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 
     @Autowired
@@ -148,8 +173,6 @@ class UserControllerIT {
         when(verificationTokenProvider.generate(any(), anyLong())).thenReturn(t);
         JwtToken jwtToken = new JwtToken(TOKEN, 864252546);
         when(jwtTokenProvider.generate(any())).thenReturn(jwtToken);
-
-
     }
 
 

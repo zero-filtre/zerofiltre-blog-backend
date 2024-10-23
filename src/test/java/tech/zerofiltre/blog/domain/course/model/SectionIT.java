@@ -3,11 +3,16 @@ package tech.zerofiltre.blog.domain.course.model;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -53,6 +58,18 @@ class SectionIT {
 
     @Autowired
     LoggerProvider loggerProvider;
+
+    @MockBean
+    private IsCompanyExists isCompanyExists;
+
+    @MockBean
+    private IsAdminOrCompanyUser isAdminOrCompanyUser;
+
+    @MockBean
+    private IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+
+    @MockBean
+    private CompanyCourseService companyCourseService;
 
     public static final String UPDATED_TITLE = "updated title";
     public static final String UPDATED_CONTENT = "updated content";
@@ -278,9 +295,9 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, isCompanyExists, isAdminOrCompanyUser, isCompanyAdminOrCompanyEditor, companyCourseService);
 
-        Course course = courseService.init("", user);
+        Course course = courseService.init("", user, 0);
 
         section = new Section.SectionBuilder()
                 .position(0)
@@ -309,9 +326,9 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, isCompanyExists, isAdminOrCompanyUser, isCompanyAdminOrCompanyEditor, companyCourseService);
 
-        Course course = courseService.init("", user);
+        Course course = courseService.init("", user, 0);
 
         section = new Section.SectionBuilder()
                 .position(0)

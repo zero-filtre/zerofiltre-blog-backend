@@ -16,7 +16,9 @@ import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.EnrollmentJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.model.EnrollmentJPA;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional
@@ -48,6 +50,16 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     public Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive) {
         return repository.findByUserIdAndCourseIdAndActive(userId, courseId, isActive)
                 .map(mapper::fromJPA);
+    }
+
+    @Override
+    public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return repository.findByCompanyCourseIdAndActive(companyCourseId, isActive).map(mapper::fromJPA);
+    }
+
+    @Override
+    public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return repository.findAllByCompanyCourseIdAndActive(companyCourseId, isActive).stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
     @Override
