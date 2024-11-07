@@ -28,11 +28,15 @@ import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.CertificateVerificationResponseVM;
+import tech.zerofiltre.blog.infra.providers.certificate.CertificateDigitalSignature;
+import tech.zerofiltre.blog.infra.providers.database.CertificateRepository;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -46,6 +50,8 @@ public class EnrollmentController {
 
     private final CertificateService certificateService;
     private final MessageSource messageSource;
+    private final CertificateRepository certificateRepository;
+    private final CertificateDigitalSignature certificateDigitalSignature;
 
     public EnrollmentController(
             EnrollmentProvider enrollmentProvider,
@@ -56,12 +62,15 @@ public class EnrollmentController {
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
+            CertificateProvider certificateProvider, MessageSource messageSource, CertificateRepository certificateRepository, CertificateDigitalSignature certificateDigitalSignature) {
             CertificateProvider certificateProvider, MessageSource messageSource) {
             CertificateProvider certificateProvider,
             DataChecker checker, CompanyProvider companyProvider,
             CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider) {
         this.securityContextManager = securityContextManager;
         this.messageSource = messageSource;
+        this.certificateRepository = certificateRepository;
+        this.certificateDigitalSignature = certificateDigitalSignature;
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyProvider, companyCourseProvider, companyUserProvider, checker);
@@ -121,7 +130,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/certificate")
-    public ResponseEntity<InputStreamResource> giveCertificateByCourseId(@RequestParam long courseId) throws ZerofiltreException {
+    public ResponseEntity<InputStreamResource> giveCertificateByCourseId(@RequestParam long courseId) throws ZerofiltreException, NoSuchAlgorithmException {
         User user = securityContextManager.getAuthenticatedUser();
         Certificate certificate = certificateService.get(user, courseId);
 
@@ -130,6 +139,15 @@ public class EnrollmentController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + certificate.getPath());
+
+        // Générer un UUID unique pour le certificat
+        certificateDigitalSignature.generateUuid(certificate);
+
+        // Combiner les données du certificat pour générer le hachage
+        certificateDigitalSignature.generateHash(certificate);
+
+        // Sauvegarder le certificat dans la base de données
+        certificateRepository.save(certificate);
 
         return ResponseEntity.ok()
                 .headers(headers)
