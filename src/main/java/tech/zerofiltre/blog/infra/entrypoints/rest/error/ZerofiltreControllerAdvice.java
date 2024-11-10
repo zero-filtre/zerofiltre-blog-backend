@@ -17,13 +17,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import tech.zerofiltre.blog.domain.error.*;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
 import tech.zerofiltre.blog.domain.user.features.InvalidTokenException;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Locale;
 import java.util.UUID;
+
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 @Slf4j
 @RestControllerAdvice
@@ -228,7 +229,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 errorCode,
                 messageSource.getMessage(ZBLOG_000, new Object[]{}, locale),
-                ZerofiltreUtils.getRootCauseMessage(throwable)
+                getRootCauseMessage(throwable)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

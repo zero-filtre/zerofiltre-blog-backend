@@ -13,9 +13,9 @@ COPY ${JAR_FILE} blog.jar
 
 ENV OTEL_SERVICE_NAME=zerofiltre-backend-${PROFILE}
 
-ENV OTEL_METRICS_EXPORTER=none
-
 ENV OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+
+#ENV OTEL_JMX_TARGET_SYSTEM=tomcat,jetty
 
 ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol-opentelemetry-collector.monitoring.svc.cluster.local:4317
 
