@@ -1,17 +1,20 @@
 package tech.zerofiltre.blog.infra.security.filter;
 
-import io.jsonwebtoken.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.authority.*;
-import org.springframework.security.core.context.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.infra.security.model.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
+import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
-import java.util.stream.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class JwtTokenAuthenticationCheckerFilter extends AuthenticationCheckerFilter<JwtAuthenticationTokenProperties, SocialLoginProvider> {
 
@@ -67,7 +70,7 @@ public class JwtTokenAuthenticationCheckerFilter extends AuthenticationCheckerFi
 
         } catch (Exception e) {
             // In case of failure. Make sure it's clear; so guarantee user won't be authenticated
-            logger.error("Token is invalid (token = " + token + " )", e);
+            logger.warn("Token is invalid", e);
             SecurityContextHolder.clearContext();
         }
 

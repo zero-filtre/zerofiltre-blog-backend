@@ -10,11 +10,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.infra.entrypoints.rest.error.BlogError;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 @Slf4j
 @Component
@@ -39,7 +40,7 @@ public class LoginFirstAuthenticationEntryPoint implements AuthenticationEntryPo
                 String.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
                 code,
                 messageSource.getMessage(code, null, request.getLocale()),
-                ZerofiltreUtils.getRootCauseMessage(authException)
+                getRootCauseMessage(authException)
         );
 
         final ObjectMapper mapper = new ObjectMapper();
