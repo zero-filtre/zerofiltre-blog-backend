@@ -57,6 +57,9 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
     @Query("select a.title from CourseJPA a WHERE a.id=?1")
     String getTitle(long courseId);
 
+    @Query("select a.id from CourseJPA a WHERE a.title=:courseTitle")
+    long getCourseByCourseTitle(String courseTitle);
+
     @Query("SELECT a FROM CourseJPA a WHERE a.lastPublishedAt >= ?1 AND a.lastPublishedAt < ?2")
     List<CourseJPA> findNewCoursesBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

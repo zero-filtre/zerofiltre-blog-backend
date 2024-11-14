@@ -201,4 +201,24 @@ public class EnrollmentController {
         return findEnrollment.of(courseId, userId, 0, true);
     }
 
+    @GetMapping("/certificate/verification")
+    public CertificateVerificationResponseVM verifyCertificate1(){
+
+        /*
+        Exposer l’endpoint du QRCODE permettant de vérifier le certificat
+
+        stocker les données du certificat (fullname,courseTitle) en paramètre de l’url du QRCODE du certificat
+
+        stocker le uuid en paramètre  de l’url du QRCODE du certificat
+                /certificate/verification?fullname=philippe simo&courseTitle=DDD&uuid=xxxxxxxxx
+
+        à l’appel de l’endpoint, récupérer les données du certificat, les hasher, récupérer l’uuid du QRcode,
+        aller rechercher le hash en bd, comparer les deux hashs, si ok, renvoyer les infos du certificat avec OK,
+        sinon renvoyer KO
+
+
+         */
+        return null;
+    }
+
 }
