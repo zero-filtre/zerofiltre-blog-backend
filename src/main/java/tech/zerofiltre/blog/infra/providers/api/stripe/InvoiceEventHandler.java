@@ -44,7 +44,8 @@ public class InvoiceEventHandler {
         if (infraProperties.getProPlanProductId().equals(productObject.getId())) { //subscription to PRO plan
             isProPlan = true;
         }
-        stripeCommons.fulfillOrder(userId, productObject, true, event, customer);
+        if (productBelongsToThePlatform(productObject))
+            stripeCommons.fulfillOrder(userId, productObject, true, event, customer);
 
         int totalPaidCount = Integer.parseInt(subscription.getMetadata().get(TOTAL_PAID_COUNT));
         int count = totalPaidCount + 1;
@@ -66,12 +67,13 @@ public class InvoiceEventHandler {
         log.debug(EVENT_ID_EVENT_TYPE_PRICE, event.getId(), event.getType(), price.toString().replace("\n", " "));
 
         com.stripe.model.Product productObject = price.getProductObject();
-        stripeCommons.fulfillOrder(userId, productObject, false, event, customer);
+        if (productBelongsToThePlatform(productObject))
+            stripeCommons.fulfillOrder(userId, productObject, false, event, customer);
         notifyFailure(event, customer, userId, subscription, customerPortalLink);
     }
 
     void cancelFor3TimesPayment(Event event, String userId, boolean isProPlan, Subscription subscription, int count, Product productObject) throws StripeException, ZerofiltreException {
-        if (shouldCancel3TimesPayment(isProPlan, count, productObject)) {
+        if (productBelongsToThePlatform(productObject) && shouldCancel3TimesPayment(isProPlan, count, productObject)) {
             subscription.getMetadata().put(CANCELLED_3TIMES_PAID, Boolean.toString(true));
             subscription.update(Map.of("metadata", subscription.getMetadata()));
             subscription.cancel();
@@ -118,6 +120,11 @@ public class InvoiceEventHandler {
                             + "\n\n" + invoice.getInvoicePdf());
 
         log.debug("EventId= {}, EventType={}, User {} Invoice #{} paid for subscription {}: {}", event.getId(), event.getType(), userId, billCount, billCount > 1 ? "renewal " : "creation ", subscription.getId());
+    }
+
+    private boolean productBelongsToThePlatform(Product productObject) {
+        String productIdAsString = productObject.getMetadata().get(PRODUCT_ID);
+        return productIdAsString != null && !productIdAsString.isBlank();
     }
 
 
