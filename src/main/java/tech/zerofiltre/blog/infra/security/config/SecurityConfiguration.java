@@ -113,8 +113,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 )
                 // Add a filter to validate the tokens with every request
                 .addFilterAfter(new JwtTokenAuthenticationCheckerFilter(jwTokenConfiguration), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, new SocialTokenValidatorAndAuthenticator(stackOverflowLoginProvider, userProvider, metricsProvider, securityContextManager)), JwtTokenAuthenticationCheckerFilter.class)
-                .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, new SocialTokenValidatorAndAuthenticator(githubLoginProvider, userProvider, metricsProvider, securityContextManager)), StackOverflowAuthenticationCheckerFilter.class)
+                .addFilterAfter(new StackOverflowAuthenticationCheckerFilter(stackOverflowTokenConfiguration, new SocialTokenValidatorAndAuthenticator<>(stackOverflowLoginProvider, userProvider, metricsProvider, securityContextManager)), JwtTokenAuthenticationCheckerFilter.class)
+                .addFilterAfter(new GithubAuthenticationCheckerFilter(githubTokenConfiguration, new SocialTokenValidatorAndAuthenticator<>(githubLoginProvider, userProvider, metricsProvider, securityContextManager)), StackOverflowAuthenticationCheckerFilter.class)
                 .authorizeRequests()
                 // allow some specific request to access without being authenticated
                 .antMatchers(HttpMethod.POST,

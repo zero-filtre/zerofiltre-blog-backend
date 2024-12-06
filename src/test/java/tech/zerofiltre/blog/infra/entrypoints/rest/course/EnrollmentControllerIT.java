@@ -12,6 +12,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -36,7 +40,9 @@ import tech.zerofiltre.blog.infra.providers.api.k8sprovisioner.K8sSandboxProvide
 import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
 import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateEngine;
 import tech.zerofiltre.blog.infra.providers.certificate.PDFCertificateProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBVerificationTokenProvider;
@@ -62,7 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({Jackson2ObjectMapperBuilder.class, K8sSandboxProvider.class, DBUserDetailsService.class, JwtAuthenticationTokenProperties.class,
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, StackOverflowAuthenticationTokenProperties.class, DBUserProvider.class,
-        APIClientConfiguration.class, DBPurchaseProvider.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class, PDFCertificateProvider.class, PDFCertificateEngine.class})
+        APIClientConfiguration.class, DBPurchaseProvider.class, GithubAuthenticationTokenProperties.class, Slf4jLoggerProvider.class, DBChapterProvider.class, PDFCertificateProvider.class, PDFCertificateEngine.class, DBEnrollmentProvider.class, DBCompanyCourseProvider.class})
 class EnrollmentControllerIT {
     @MockBean
     SecurityContextManager securityContextManager;
@@ -78,6 +84,10 @@ class EnrollmentControllerIT {
     LoggerProvider loggerProvider;
     @MockBean
     EnrollmentProvider enrollmentProvider;
+    @MockBean
+    CompanyUserProvider companyUserProvider;
+    @MockBean
+    CompanyCourseProvider companyCourseProvider;
     @MockBean
     UserJPARepository userJPARepository;
     @MockBean
@@ -131,9 +141,11 @@ class EnrollmentControllerIT {
     @Test
     @WithMockUser
     void onEnroll_whenValidInput_thenReturns200() throws Exception {
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyUser()));
+        when(companyCourseProvider.linkOf(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyCourse()));
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.post("/enrollment?courseId=1")
+        mockMvc.perform(MockMvcRequestBuilders.post("/enrollment?courseId=1&companyId=1")
                         .contentType(MediaType.APPLICATION_JSON))
                 //then
                 .andExpect(status().isOk());

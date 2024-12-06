@@ -2,6 +2,12 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -19,7 +25,7 @@ import java.util.List;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.THE_COURSE_WITH_ID;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "courseService"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "companyUserProvider", "courseService"})
 public class Section implements Serializable {
 
     private long id;
@@ -33,6 +39,11 @@ public class Section implements Serializable {
     private CourseProvider courseProvider;
     private CourseService courseService;
     private LoggerProvider loggerProvider;
+    private IsCompanyExists isCompanyExists;
+    private CompanyUserProvider companyUserProvider;
+    private IsAdminOrCompanyUser isAdminOrCompanyUser;
+    private IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+    private CompanyCourseService companyCourseService;
 
     private Section(SectionBuilder sectionBuilder) {
         this.id = sectionBuilder.id;
@@ -46,7 +57,9 @@ public class Section implements Serializable {
         this.userProvider = sectionBuilder.userProvider;
         this.courseProvider = sectionBuilder.courseProvider;
         this.loggerProvider = sectionBuilder.loggerProvider;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        this.companyUserProvider = sectionBuilder.companyUserProvider;
+        this.isCompanyAdminOrCompanyEditor = sectionBuilder.isCompanyAdminOrCompanyEditor;
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, isCompanyExists, isAdminOrCompanyUser, isCompanyAdminOrCompanyEditor, companyCourseService);
     }
 
     public static SectionBuilder builder() {
@@ -196,6 +209,9 @@ public class Section implements Serializable {
         private UserProvider userProvider;
         private CourseProvider courseProvider;
         private LoggerProvider loggerProvider;
+        private CompanyUserProvider companyUserProvider;
+        private IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor;
+        private CompanyCourseService companyCourseService;
         private long id;
         private int position;
         private String title;

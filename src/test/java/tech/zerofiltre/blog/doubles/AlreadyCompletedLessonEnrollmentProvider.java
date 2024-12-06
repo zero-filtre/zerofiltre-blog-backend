@@ -8,6 +8,8 @@ import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.course.model.Lesson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvider {
@@ -30,6 +32,16 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
         completedLesson.setLessonId(lesson.getId());
         enrollment1.getCompletedLessons().add(completedLesson);
         return Optional.of(enrollment1);
+    }
+
+    @Override
+    public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return new ArrayList<>();
     }
 
     public Enrollment save(Enrollment enrollment) {

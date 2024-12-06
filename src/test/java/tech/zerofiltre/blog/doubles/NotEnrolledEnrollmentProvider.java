@@ -5,6 +5,8 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class NotEnrolledEnrollmentProvider implements EnrollmentProvider {
@@ -22,6 +24,16 @@ public class NotEnrolledEnrollmentProvider implements EnrollmentProvider {
     @Override
     public Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive) {
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return new ArrayList<>();
     }
 
     @Override

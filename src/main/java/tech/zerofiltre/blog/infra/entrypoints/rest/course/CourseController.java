@@ -7,6 +7,12 @@ import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.IsAdminOrCompanyUser;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyAdminOrCompanyEditor;
+import tech.zerofiltre.blog.domain.company.features.IsCompanyExists;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -37,10 +43,14 @@ public class CourseController {
     private final CourseService courseService;
     private final MessageSource sources;
 
-    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, MessageSource sources) {
+
+    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, MessageSource sources, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseService companyCourseService) {
         this.securityContextManager = securityContextManager;
         this.sources = sources;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        IsCompanyExists isCompanyExists = new IsCompanyExists(companyProvider);
+        IsAdminOrCompanyUser isAdminOrCompanyUser = new IsAdminOrCompanyUser(companyUserProvider);
+        IsCompanyAdminOrCompanyEditor isCompanyAdminOrCompanyEditor = new IsCompanyAdminOrCompanyEditor(companyUserProvider);
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, isCompanyExists, isAdminOrCompanyUser, isCompanyAdminOrCompanyEditor, companyCourseService);
     }
 
     @GetMapping("/{id}")
@@ -52,6 +62,17 @@ public class CourseController {
             log.debug("We did not find a connected user but we can still return the wanted course");
         }
         return courseService.findById(courseId, user);
+    }
+
+    @GetMapping("/{id}/{companyId}")
+    public Course courseByIdAndCompanyId(@PathVariable("id") long courseId, @PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+        User user = null;
+        try {
+            user = securityContextManager.getAuthenticatedUser();
+        } catch (ZerofiltreException e) {
+            log.debug("We did not find a connected user but we can still return the wanted course");
+        }
+        return courseService.findByIdAndCompanyId(courseId, user, companyId);
     }
 
     @PatchMapping
@@ -98,9 +119,9 @@ public class CourseController {
 
 
     @PostMapping
-    public Course init(@RequestParam @NotNull @NotEmpty String title) throws ZerofiltreException {
+    public Course init(@RequestParam @NotNull @NotEmpty String title, @RequestParam long companyId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return courseService.init(title, user);
+        return courseService.init(title, user, companyId);
     }
 
     @DeleteMapping("/{id}")

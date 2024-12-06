@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.features.enrollment.*;
 import tech.zerofiltre.blog.domain.course.model.Certificate;
@@ -47,10 +49,12 @@ public class EnrollmentController {
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
-            CertificateProvider certificateProvider) {
+            CertificateProvider certificateProvider,
+            CompanyUserProvider companyUserProvider,
+            CompanyCourseProvider companyCourseProvider) {
         this.securityContextManager = securityContextManager;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyUserProvider, companyCourseProvider);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         generateCertificate = new GenerateCertificate(enrollmentProvider, certificateProvider);
@@ -58,8 +62,8 @@ public class EnrollmentController {
 
 
     @PostMapping
-    public Enrollment enroll(@RequestParam long courseId) throws ZerofiltreException {
-        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
+    public Enrollment enroll(@RequestParam long courseId, @RequestParam long companyId) throws ZerofiltreException {
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, companyId);
 
     }
 
