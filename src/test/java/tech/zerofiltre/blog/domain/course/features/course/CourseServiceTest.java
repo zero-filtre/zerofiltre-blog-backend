@@ -2,10 +2,15 @@ package tech.zerofiltre.blog.domain.course.features.course;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
-import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.util.DataChecker;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -27,37 +32,73 @@ import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_COURSE_TITLE;
 
+@ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
 
     public static final String THIS_IS_MY_TITLE = "This is my title";
 
     private CourseProvider courseProvider;
     private TagProvider tagProvider;
-    private ChapterProvider chapterProvider;
     private LoggerProvider loggerProvider;
     private Course course;
     private User editor;
+
+    @Mock
+    DataChecker checker;
+
+    @Mock
+    CompanyCourseService companyCourseService;
 
     @BeforeEach
     void init() {
         course = new Course();
         editor = ZerofiltreUtils.createMockUser(false);
-        chapterProvider = new FoundChapterProviderSpy();
     }
 
 
     @Test
-    void should_init_course_properly() {
+    void should_init_course_properly() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         User user = ZerofiltreUtils.createMockUser(false);
         user.setId(1);
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course course = courseService.init(THIS_IS_MY_TITLE, user);
+        Course course = courseService.init(THIS_IS_MY_TITLE, user, 0);
+
+        //THEN
+        assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
+        assertThat(course.getStatus()).isEqualTo(DRAFT);
+        LocalDateTime createdAt = course.getCreatedAt();
+        assertThat(createdAt).isAfterOrEqualTo(beforeSave);
+        assertThat(course.getLastSavedAt()).isEqualTo(createdAt);
+        assertThat(course.getLastPublishedAt()).isNull();
+        assertThat(course.getPublishedAt()).isNull();
+        assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
+    }
+
+    @Test
+    void should_init_course_for_existing_company_properly() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        User user = ZerofiltreUtils.createMockUser(false);
+        user.setId(1);
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
+        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
+
+        LocalDateTime beforeSave = LocalDateTime.now();
+
+        //WHEN
+        Course course = courseService.init(THIS_IS_MY_TITLE, user, 1);
 
         //THEN
         assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
@@ -76,9 +117,8 @@ class CourseServiceTest {
     void should_find_the_corresponding_courseBy_Id() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
-        chapterProvider = new FoundChapterProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         User user = ZerofiltreUtils.createMockUser(false);
 
         //WHEN
@@ -98,7 +138,7 @@ class CourseServiceTest {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -109,12 +149,62 @@ class CourseServiceTest {
     }
 
     @Test
+    void should_find_the_corresponding_courseBy_Id_for_company() throws ResourceNotFoundException, ForbiddenActionException {
+        //GIVEN
+        courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+
+        when(companyCourseService.find(any(User.class), anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyCourse()));
+
+        //WHEN
+        Course found = courseService.findByIdAndCompanyId(1, new User(), 1);
+
+        //THEN
+        assertThat(((Found_Published_WithUnknownAuthor_CourseProviderSpy) courseProvider).courseOfIdCalled).isTrue();
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(45);
+        assertThat(found.getTitle()).isEqualTo(TEST_COURSE_TITLE);
+        assertThat(found.getStatus()).isEqualTo(PUBLISHED);
+        assertThat(found.getAuthor().getId()).isEqualTo(21);
+    }
+
+    @Test
+    void should_ThrowException_WhenCourseNotFound2() {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+
+        //WHEN
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> courseService.findByIdAndCompanyId(1, editor, 1));
+
+        //THEN
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).courseOfIdCalled).isTrue();
+    }
+
+    @Test
+    void should_ThrowException_WhenCompanyCourseNotFound() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+
+        when(companyCourseService.find(any(User.class), anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.findByIdAndCompanyId(1, editor, 1));
+    }
+
+    @Test
     void publishOrSave_should_ThrowForbiddenActionException_when_UserIsNotAuthorNorAdmin() {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
 
         tagProvider = new FoundTagProviderSpy();
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -131,7 +221,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
 
         //WHEN
@@ -147,7 +237,7 @@ class CourseServiceTest {
         courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
         editor.getRoles().add("ROLE_ADMIN");
 
@@ -166,7 +256,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
         editor.getRoles().add("ROLE_ADMIN");
 
@@ -187,7 +277,7 @@ class CourseServiceTest {
 
         tagProvider = new NotFoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
         course.setTags(List.of(new Tag(1, "tag1"), new Tag(2, "tag2")));
 
@@ -207,7 +297,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
 
         LocalDateTime beforeSave = LocalDateTime.now();
@@ -231,7 +321,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
 
 
@@ -256,7 +346,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(IN_REVIEW);
 
         LocalDateTime beforeSave = LocalDateTime.now();
@@ -280,7 +370,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(DRAFT);
 
         //WHEN
@@ -298,7 +388,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(PUBLISHED);
 
         //WHEN
@@ -317,7 +407,7 @@ class CourseServiceTest {
         tagProvider = new FoundTagProviderSpy();
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setStatus(DRAFT);
 
         //WHEN
@@ -336,7 +426,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         Course result = courseService.save(course, editor);
@@ -354,7 +444,7 @@ class CourseServiceTest {
 
         tagProvider = new NotFoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         course.setTags(List.of(new Tag(15, "tag")));
 
         //WHEN
@@ -371,7 +461,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         ZerofiltreUtils.createMockUser(true);
 
@@ -389,7 +479,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -409,7 +499,7 @@ class CourseServiceTest {
         tagProvider = new FoundTagProviderSpy();
         loggerProvider = new LoggerProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         courseService.delete(15, editor);
@@ -426,7 +516,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -440,7 +530,7 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> courseService.findById(15, new User()));
@@ -451,9 +541,8 @@ class CourseServiceTest {
         //GIVEN
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         tagProvider = new FoundTagProviderSpy();
-        chapterProvider = new FoundChapterProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         Course result = courseService.findById(15, null);
@@ -467,7 +556,7 @@ class CourseServiceTest {
         courseProvider = new Found_InReview_WithUnknownAuthor_CourseProviderSpy();
         tagProvider = new FoundTagProviderSpy();
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN & THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -482,7 +571,7 @@ class CourseServiceTest {
         editor.getRoles().add("ROLE_ADMIN");
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -497,7 +586,7 @@ class CourseServiceTest {
         editor.getRoles().add("ROLE_ADMIN");
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)

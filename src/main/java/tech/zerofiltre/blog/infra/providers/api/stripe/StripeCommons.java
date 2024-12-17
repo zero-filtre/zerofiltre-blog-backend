@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -63,7 +65,9 @@ public class StripeCommons {
             InfraProperties infraProperties,
             ITemplateEngine emailTemplateEngine,
             PurchaseProvider purchaseProvider,
-            SandboxProvider sandboxProvider) {
+            SandboxProvider sandboxProvider,
+            DataChecker checker,
+            CompanyCourseService companyCourseService) {
 
         this.userProvider = userProvider;
         this.emailSender = emailSender;
@@ -71,8 +75,8 @@ public class StripeCommons {
         this.emailTemplateEngine = emailTemplateEngine;
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseService);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
     }
 
     public void fulfillOrder(String userId, com.stripe.model.Product productObject, boolean paymentSuccess, Event event, Customer customer) throws ZerofiltreException {
@@ -108,7 +112,7 @@ public class StripeCommons {
                     .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId)));
             Purchase purchase = new Purchase(user, course);
             purchase = purchaseProvider.save(purchase);
-            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId);
+            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId, 0);
         }
     }
 

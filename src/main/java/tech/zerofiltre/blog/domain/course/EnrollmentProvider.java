@@ -5,6 +5,7 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface EnrollmentProvider {
@@ -15,9 +16,14 @@ public interface EnrollmentProvider {
 
     Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive);
 
+    Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
+
+    List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
+
     Enrollment save(Enrollment enrollment) throws ZerofiltreException;
 
     boolean isCompleted(long userId, long courseId);
 
     void setCertificatePath(String path, long id, long courseId);
+
 }

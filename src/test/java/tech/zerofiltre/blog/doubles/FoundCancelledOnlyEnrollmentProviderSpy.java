@@ -10,9 +10,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvider {
 
@@ -93,5 +91,15 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
                 Collections.emptyList(), Collections.emptyList()));
         enrollmentOfCalled = true;
         return Optional.of(value);
+    }
+
+    @Override
+    public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+        return new ArrayList<>();
     }
 }

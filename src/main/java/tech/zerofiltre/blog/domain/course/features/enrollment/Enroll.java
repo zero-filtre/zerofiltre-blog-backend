@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -15,6 +16,7 @@ import tech.zerofiltre.blog.domain.purchase.PurchaseProvider;
 import tech.zerofiltre.blog.domain.sandbox.SandboxProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
@@ -33,14 +35,18 @@ public class Enroll {
     private final ChapterProvider chapterProvider;
     private final SandboxProvider sandboxProvider;
     private final PurchaseProvider purchaseProvider;
+    private final DataChecker checker;
+    private final CompanyCourseService companyCourseService;
 
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider) {
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseService companyCourseService) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
         this.chapterProvider = chapterProvider;
         this.sandboxProvider = sandboxProvider;
         this.purchaseProvider = purchaseProvider;
+        this.checker = checker;
+        this.companyCourseService = companyCourseService;
     }
 
     private static void checkIfCourseIsPublished(Course course) throws ForbiddenActionException {
@@ -49,7 +55,14 @@ public class Enroll {
         }
     }
 
-    public Enrollment execute(long userId, long courseId) throws ZerofiltreException {
+    public Enrollment execute(long userId, long courseId, long companyId) throws ZerofiltreException {
+        long companyCourseId = 0;
+
+        if(companyId > 0) {
+            checker.companyUserExists(companyId, userId);
+            companyCourseId = companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(companyId, courseId);
+        }
+
         User user = getTheUser(userId);
         Course course = getTheCourse(courseId);
         checkIfCourseIsPublished(course);
@@ -57,11 +70,11 @@ public class Enroll {
         Enrollment existingEnrollment = getExisting(userId, courseId);
         if (existingEnrollment != null) return existingEnrollment;
 
-        if(!hasFreeAccess(user, course)) {
+        if(companyId == 0 && !hasFreeAccess(user, course)) {
             checkIfCourseIsPurchased(userId, courseId);
         }
 
-        Enrollment enrollment = buildAndSaveEnrollment(userId, courseId, course, user);
+        Enrollment enrollment = buildAndSaveEnrollment(userId, courseId, companyCourseId, course, user);
 
         Course resultCourse = enrollment.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
@@ -71,7 +84,7 @@ public class Enroll {
         return enrollment;
     }
 
-    private User getTheUser(long userId) throws ResourceNotFoundException {
+    /*private */User getTheUser(long userId) throws ResourceNotFoundException {
         return userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We could not find the user with id " + userId,
@@ -128,7 +141,7 @@ public class Enroll {
         }
     }
 
-    private Enrollment buildAndSaveEnrollment(long userId, long courseId, Course course, User user) throws ZerofiltreException {
+    private Enrollment buildAndSaveEnrollment(long userId, long courseId, long companyCourseId, Course course, User user) throws ZerofiltreException {
         Enrollment enrollment = new Enrollment();
         LocalDateTime lastModifiedAt = LocalDateTime.now();
         Optional<Enrollment> cancelledEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, false);
@@ -142,7 +155,11 @@ public class Enroll {
             lastModifiedAt = enrollment.getEnrolledAt();
         }
         enrollment.setLastModifiedAt(lastModifiedAt);
-        enrollment.setForLife(!user.isPro() || course.isMentored());
+        enrollment.setCompanyCourseId(companyCourseId);
+
+        if(companyCourseId == 0) {
+            enrollment.setForLife(!user.isPro() || course.isMentored());
+        }
 
         return enrollmentProvider.save(enrollment);
     }

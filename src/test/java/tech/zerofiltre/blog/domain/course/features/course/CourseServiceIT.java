@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -29,6 +31,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider
 import tech.zerofiltre.blog.infra.providers.database.course.DBSectionProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.ArrayList;
@@ -38,8 +41,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class,
-        Slf4jLoggerProvider.class, DBEnrollmentProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class})
 class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -69,6 +71,12 @@ class CourseServiceIT {
     @Autowired
     private ChapterProvider chapterProvider;
 
+    @MockBean
+    private DataChecker checker;
+
+    @MockBean
+    private CompanyCourseService companyCourseService;
+
     private Course course;
 
     private User author;
@@ -91,9 +99,52 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
 
-        course = courseService.init("some title", author);
+        course = courseService.init("some title", author, 0);
+
+        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, courseProvider, false);
+        section1.init(author);
+
+        course.setTags(tags);
+        course.setSections(List.of(section1));
+        course.setTitle(UPDATED_TITLE);
+        course.setStatus(Status.PUBLISHED);
+        course.setThumbnail(UPDATED_THUMBNAIL);
+        course.setVideo(UPDATED_VIDEO);
+        course.setSummary(UPDATED_SUMMARY);
+        course.setSubTitle(UPDATED_SUB_TITLE);
+
+        course = courseService.save(course, author);
+
+        assertThat(course.getId()).isNotZero();
+        assertThat(course.getTitle()).isEqualTo(UPDATED_TITLE);
+        assertThat(course.getSubTitle()).isEqualTo(UPDATED_SUB_TITLE);
+        assertThat(course.getSummary()).isEqualTo(UPDATED_SUMMARY);
+        assertThat(course.getVideo()).isEqualTo(UPDATED_VIDEO);
+        assertThat(course.getThumbnail()).isEqualTo(UPDATED_THUMBNAIL);
+        assertThat(course.getStatus()).isEqualTo(Status.IN_REVIEW);
+
+        assertThat(
+                course.getSections().stream().allMatch(section -> sections.stream().anyMatch(s -> s.getId() == section.getId()))
+        ).isTrue();
+
+        assertThat(
+                course.getTags().stream().allMatch(tag -> tags.stream().anyMatch(tag1 -> tag1.getId() == tag.getId()))
+        ).isTrue();
+    }
+
+    @Test
+    void save_and_init_company_course_are_OK() throws ForbiddenActionException, ResourceNotFoundException {
+        author = ZerofiltreUtils.createMockUser(false);
+        author = userProvider.save(author);
+
+        ZerofiltreUtils.createMockTags(false)
+                .forEach(tag -> tags.add(tagProvider.save(tag)));
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+
+        course = courseService.init("some title", author, 1);
 
         Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, courseProvider, false);
         section1.init(author);
@@ -132,8 +183,8 @@ class CourseServiceIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
-        Course course = courseService.init("some title", author);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        Course course = courseService.init("some title", author, 0);
 
         assertThat(courseService.findById(course.getId(), author)).isNotNull();
     }
@@ -150,8 +201,8 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
-        course = courseService.init("some title", author);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        course = courseService.init("some title", author, 0);
 
         courseService.delete(course.getId(), author);
 
@@ -179,8 +230,8 @@ class CourseServiceIT {
         student3.setPseudoName("zulu");
         student3 = userProvider.save(student3);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider);
-        course = courseService.init("some title", author);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        course = courseService.init("some title", author, 0);
         course.setStatus(Status.PUBLISHED);
         course = courseService.save(course, author);
 

@@ -27,5 +27,10 @@ public interface EnrollmentJPARepository extends JpaRepository<EnrollmentJPA, Lo
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update EnrollmentJPA set certificatePath=?1 where user.id=?2 and course.id=?3")
     void updateCertificatePathByUserIdAndCourseId(String certificatePath, long userId, long courseId);
+
+   Optional<EnrollmentJPA> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
+
+    List<EnrollmentJPA> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
+
 }
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.*;
 import tech.zerofiltre.blog.domain.course.features.enrollment.*;
 import tech.zerofiltre.blog.domain.course.model.Certificate;
@@ -22,8 +23,10 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import java.io.ByteArrayInputStream;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -47,19 +50,20 @@ public class EnrollmentController {
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
-            CertificateProvider certificateProvider) {
+            CertificateProvider certificateProvider,
+            DataChecker checker,
+            CompanyCourseService companyCourseService) {
         this.securityContextManager = securityContextManager;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseService);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         generateCertificate = new GenerateCertificate(enrollmentProvider, certificateProvider);
     }
 
-
     @PostMapping
-    public Enrollment enroll(@RequestParam long courseId) throws ZerofiltreException {
-        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId);
+    public Enrollment enroll(@RequestParam long courseId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, Objects.isNull(companyId) ? 0 : companyId.intValue());
 
     }
 

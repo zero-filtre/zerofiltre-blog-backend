@@ -7,6 +7,7 @@ import com.stripe.param.SubscriptionRetrieveParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.features.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
@@ -34,12 +35,12 @@ public class SubscriptionEventHandler {
     private final StripeCommons stripeCommons;
     private final InfraProperties infraProperties;
 
-    public SubscriptionEventHandler(EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, UserProvider userProvider, StripeCommons stripeCommons, InfraProperties infraProperties, SandboxProvider sandboxProvider) {
+    public SubscriptionEventHandler(EnrollmentProvider enrollmentProvider, ChapterProvider chapterProvider, PurchaseProvider purchaseProvider, UserProvider userProvider, StripeCommons stripeCommons, InfraProperties infraProperties, SandboxProvider sandboxProvider, CourseProvider courseProvider) {
         this.userProvider = userProvider;
         this.enrollmentProvider = enrollmentProvider;
         this.stripeCommons = stripeCommons;
         this.infraProperties = infraProperties;
-        this.suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
+        this.suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
     }
 
     public void handleSubscriptionDeleted(Event event, Subscription subscription) throws ZerofiltreException, StripeException {
