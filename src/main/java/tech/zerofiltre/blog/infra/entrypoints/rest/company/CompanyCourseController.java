@@ -12,11 +12,10 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/company/course")
+//@RequestMapping("/company/course")
 public class CompanyCourseController {
 
     private final SecurityContextManager securityContextManager;
@@ -29,21 +28,21 @@ public class CompanyCourseController {
         this.sources = sources;
     }
 
-    @PostMapping
-    public void link(@RequestParam long companyId, @RequestParam long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    @PostMapping("/company/{companyId}/course/{courseId}")
+    public void link(@PathVariable long companyId, @PathVariable long courseId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
 
         companyCourseService.link(user, companyId, courseId);
     }
 
-    @PostMapping("/activeAllCourses")
-    public void activeAllCoursesByCompanyId(@RequestParam long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    @PostMapping("/company/{companyId}/course/active")
+    public void activeAllCoursesByCompanyId(@PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         companyCourseService.activeAllByCompanyId(user, companyId);
     }
 
-    @GetMapping
-    public ResponseEntity<LinkCompanyCourse> find(@RequestParam long companyId, @RequestParam long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    @GetMapping("/company/{companyId}/course/{courseId}")
+    public ResponseEntity<LinkCompanyCourse> find(@PathVariable long companyId, @PathVariable long courseId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         Optional<LinkCompanyCourse> course = companyCourseService.find(user, companyId, courseId);
 
@@ -51,26 +50,28 @@ public class CompanyCourseController {
 
     }
 
-    @GetMapping("/all")
-    public Page<LinkCompanyCourse> findAllByCompanyId(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    @GetMapping("/company/{companyId}/course")
+    public Page<LinkCompanyCourse> findAllByCompanyId(@RequestParam int pageNumber, @RequestParam int pageSize, @PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         return companyCourseService.findAllByCompanyId(user, pageNumber, pageSize, companyId);
     }
 
-    @DeleteMapping
-    public void unLink(@RequestParam long companyId, @RequestParam long courseId, @RequestParam boolean delete) throws ResourceNotFoundException, ForbiddenActionException {
+    @DeleteMapping("/company/{companyId}/course/{courseId}")
+    public void unLink(@PathVariable long companyId, @PathVariable long courseId, @RequestParam boolean hard) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
-        companyCourseService.unlink(user, companyId, courseId, delete);
+        companyCourseService.unlink(user, companyId, courseId, hard);
     }
 
-    @DeleteMapping("/all")
-    public void unlinkAll(@RequestParam(required = false) Long companyId, @RequestParam(required = false) Long courseId, @RequestParam boolean delete) throws ResourceNotFoundException, ForbiddenActionException {
+    @DeleteMapping("/company/{companyId}/course/{courseId}/all")
+    public void unlinkAll(@PathVariable long companyId, @PathVariable long courseId, @RequestParam boolean hard) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
 
-        if(!Objects.isNull(companyId)) {
-            companyCourseService.unlinkAllByCompanyId(user, companyId.intValue(), delete);
-        } else if(!Objects.isNull(courseId)) {
-            companyCourseService.unlinkAllByCourseId(user, courseId.intValue(), delete);
+        if (companyId != 0) {
+            companyCourseService.unlinkAllByCompanyId(user, companyId, hard);
+        } else if (courseId != 0) {
+            companyCourseService.unlinkAllByCourseId(user, courseId, hard);
+        } else {
+            throw new ForbiddenActionException("You must at least set a company id or a course id");
         }
     }
 

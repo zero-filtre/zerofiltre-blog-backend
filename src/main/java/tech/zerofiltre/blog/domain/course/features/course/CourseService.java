@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.domain.course.features.course;
 
-import org.springframework.stereotype.Service;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.TagProvider;
@@ -22,7 +21,6 @@ import java.util.List;
 
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
-@Service
 public class CourseService {
 
     public static final String DOES_NOT_EXIST = " does not exist";
@@ -46,7 +44,7 @@ public class CourseService {
 
 
     public Course init(String title, User author, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
-        if(companyId > 0) {
+        if (companyId > 0) {
             checker.companyExists(companyId);
             checker.isAdminOrCompanyUser(author, companyId);
             checker.isCompanyAdminOrCompanyEditor(author, companyId);
@@ -75,7 +73,7 @@ public class CourseService {
         Course foundCourse = courseProvider.courseOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
-        if(companyCourseService.find(viewer, companyId, id).isEmpty()) {
+        if (companyCourseService.find(viewer, companyId, id).isEmpty()) {
             throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
         }
         return foundCourse;

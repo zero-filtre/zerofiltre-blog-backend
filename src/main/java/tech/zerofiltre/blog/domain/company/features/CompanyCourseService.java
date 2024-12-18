@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 public class CompanyCourseService {
 
