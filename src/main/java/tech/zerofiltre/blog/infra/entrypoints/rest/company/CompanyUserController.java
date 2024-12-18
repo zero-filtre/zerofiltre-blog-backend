@@ -31,7 +31,7 @@ public class CompanyUserController {
     }
 
     @PostMapping
-    public void link(@RequestParam long companyId, @RequestParam long userId, @RequestParam @Pattern(regexp = "ROLE_COMPANY_ADMIN|ROLE_COMPANY_EDITOR|ROLE_COMPANY_VIEWER") String role) throws ResourceNotFoundException, ForbiddenActionException {
+    public void link(@RequestParam long companyId, @RequestParam long userId, @RequestParam @Pattern(regexp = "ADMIN|EDITOR|VIEWER") String role) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
 
         companyUserService.link(user, companyId, userId, LinkCompanyUser.Role.valueOf(role));
@@ -58,13 +58,13 @@ public class CompanyUserController {
     }
 
     @DeleteMapping("/all")
-    public void unLinkAll(@RequestParam(required = false) Long companyId, @RequestParam(required = false) Long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAll(@RequestParam(required = false) Long companyId, @RequestParam(required = false) Long userId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
 
         if(!Objects.isNull(companyId)) {
             companyUserService.unlinkAllByCompanyId(user, companyId.intValue());
-        } else if(!Objects.isNull(courseId)) {
-            companyUserService.unlinkAllByUserId(user, courseId.intValue());
+        } else if(!Objects.isNull(userId)) {
+            companyUserService.unlinkAllByUserId(user, userId.intValue());
         }
     }
 

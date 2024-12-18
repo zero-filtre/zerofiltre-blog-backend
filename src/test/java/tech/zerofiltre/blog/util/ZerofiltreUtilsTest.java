@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.util;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -54,6 +53,6 @@ class ZerofiltreUtilsTest {
         }
 
         //ASSERT
-        AssertionsForClassTypes.assertThat(responses).isEqualTo(expectedFileNamesList);
+        assertThat(responses).isEqualTo(expectedFileNamesList);
     }
 }
