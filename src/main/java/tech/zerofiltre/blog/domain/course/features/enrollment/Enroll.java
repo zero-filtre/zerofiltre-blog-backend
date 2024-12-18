@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -38,7 +39,7 @@ public class Enroll {
     private final DataChecker checker;
     private final CompanyCourseService companyCourseService;
 
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseService companyCourseService) {
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
@@ -46,7 +47,7 @@ public class Enroll {
         this.sandboxProvider = sandboxProvider;
         this.purchaseProvider = purchaseProvider;
         this.checker = checker;
-        this.companyCourseService = companyCourseService;
+        this.companyCourseService = new CompanyCourseService(companyCourseProvider, checker);
     }
 
     private static void checkIfCourseIsPublished(Course course) throws ForbiddenActionException {

@@ -1,10 +1,10 @@
 package tech.zerofiltre.blog.domain.company.features;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 public class CompanyCourseService {
 
@@ -66,16 +65,23 @@ public class CompanyCourseService {
         return companyCourseProvider.findAllByCompanyIdByPage(pageNumber, pageSize, companyId);
     }
 
+    public Page<Course> findAllCoursesByCompanyId(User user, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+        checker.isAdminOrCompanyUser(user, companyId);
+        checker.companyExists(companyId);
+
+        return companyCourseProvider.findAllCoursesByCompanyIdByPage(pageNumber, pageSize, companyId);
+    }
+
     public long getLinkCompanyCourseIdIfCourseIsActive(long companyId, long courseId) throws ResourceNotFoundException {
         checker.companyCourseExists(companyId, courseId);
 
         return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).get().getId();
     }
 
-    public void unlink(User user, long companyId, long courseId, boolean delete) throws ForbiddenActionException {
+    public void unlink(User user, long companyId, long courseId, boolean hard) throws ForbiddenActionException {
         checker.isAdminOrCompanyAdmin(user, companyId);
 
-        if(delete) {
+        if(hard) {
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
             companyCourse.ifPresent(companyCourseProvider::delete);
         } else { // suspend
@@ -84,27 +90,26 @@ public class CompanyCourseService {
         }
     }
 
-    public void unlinkAllByCompanyId(User user, long companyId, boolean delete) throws ForbiddenActionException, ResourceNotFoundException {
-        System.out.println("méthode: unLinkAllByCompanyId");
+    public void unlinkAllByCompanyId(User user, long companyId, boolean hard) throws ForbiddenActionException, ResourceNotFoundException {
         checker.isAdminOrCompanyAdmin(user, companyId);
         checker.companyExists(companyId);
 
-        if(delete) {
+        if(hard) {
             companyCourseProvider.deleteAllByCompanyId(companyId);
-        } else { // suspend
+        } else {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
                 suspendLink(c);
             }
         }
     }
 
-    public void unlinkAllByCourseId(User user, long courseId, boolean delete) throws ForbiddenActionException, ResourceNotFoundException {
+    public void unlinkAllByCourseId(User user, long courseId, boolean hard) throws ForbiddenActionException, ResourceNotFoundException {
         checker.isAdminUser(user);
         checker.courseExists(courseId);
 
-        if(delete) {
+        if(hard) {
             companyCourseProvider.deleteAllByCourseId(courseId);
-        } else { // suspend
+        } else {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
                 suspendLink(c);
             }

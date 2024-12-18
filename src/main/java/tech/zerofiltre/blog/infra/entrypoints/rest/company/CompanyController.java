@@ -5,16 +5,15 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyService;
 import tech.zerofiltre.blog.domain.company.model.Company;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
-import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
@@ -26,6 +25,7 @@ import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -38,9 +38,8 @@ public class CompanyController {
     private final CompanyVMMapper companyVMMapper = Mappers.getMapper(CompanyVMMapper.class);
     private final MessageSource sources;
 
-    public CompanyController(UserProvider userProvider, SecurityContextManager securityContextManager, CourseProvider courseProvider, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseProvider companyCourseProvider, MessageSource sources) {
+    public CompanyController(SecurityContextManager securityContextManager, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseProvider companyCourseProvider, DataChecker checker, MessageSource sources) {
         this.securityContextManager = securityContextManager;
-        DataChecker checker = new DataChecker(userProvider, courseProvider, companyProvider, companyUserProvider, companyCourseProvider);
         this.companyService = new CompanyService(companyProvider, companyUserProvider, companyCourseProvider, checker);
         this.sources = sources;
     }
@@ -62,12 +61,18 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getById(@PathVariable("id") long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    public ResponseEntity<Company> findById(@PathVariable("id") long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         Optional<Company> company = companyService.findById(user, companyId);
 
         return company.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
 
+    }
+
+    @GetMapping("/all")
+    public Page<Company> findAll(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam(required = false) Long userId) throws ResourceNotFoundException, ForbiddenActionException {
+        User user = securityContextManager.getAuthenticatedUser();
+        return companyService.findAll(pageNumber, pageSize, user, Objects.isNull(userId) ? 0 : userId.intValue());
     }
 
     @DeleteMapping

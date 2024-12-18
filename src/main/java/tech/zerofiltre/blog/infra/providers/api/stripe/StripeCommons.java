@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
-import tech.zerofiltre.blog.util.DataChecker;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -25,6 +24,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.notification.user.ZerofiltreEmailSender;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import java.util.*;
 
@@ -67,7 +67,7 @@ public class StripeCommons {
             PurchaseProvider purchaseProvider,
             SandboxProvider sandboxProvider,
             DataChecker checker,
-            CompanyCourseService companyCourseService) {
+            CompanyCourseProvider companyCourseProvider) {
 
         this.userProvider = userProvider;
         this.emailSender = emailSender;
@@ -75,7 +75,7 @@ public class StripeCommons {
         this.emailTemplateEngine = emailTemplateEngine;
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseService);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
     }
 

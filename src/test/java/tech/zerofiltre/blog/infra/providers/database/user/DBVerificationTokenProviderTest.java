@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.mockito.*;
 import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.test.context.*;
 import org.springframework.test.context.junit.jupiter.*;
 import org.springframework.test.util.*;
 import tech.zerofiltre.blog.domain.user.model.*;
@@ -13,7 +12,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.model.*;
 import java.time.*;
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)

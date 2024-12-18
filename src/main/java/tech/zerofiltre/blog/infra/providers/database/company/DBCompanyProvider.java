@@ -40,6 +40,12 @@ public class DBCompanyProvider implements CompanyProvider {
     }
 
     @Override
+    public Page<Company> findAllByUserId(int pageNumber, int pageSize, long userId) {
+        org.springframework.data.domain.Page<CompanyJPA> pageJpa = repository.findAllByUserId(PageRequest.of(pageNumber, pageSize), userId);
+        return pageMapper.fromSpringPage(pageJpa.map(mapper::fromJPA));
+    }
+
+    @Override
     public void delete(Company company) {
         repository.delete(mapper.toJPA(company));
     }

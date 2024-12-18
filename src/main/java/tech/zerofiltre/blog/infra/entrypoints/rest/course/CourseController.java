@@ -5,7 +5,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Section;
@@ -13,10 +16,12 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.PublishOrSaveCourseVM;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SectionVM;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -36,9 +41,9 @@ public class CourseController {
     private final MessageSource sources;
 
 
-    public CourseController(SecurityContextManager securityContextManager, CourseService courseService, MessageSource sources) {
+    public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, MessageSource sources) {
         this.securityContextManager = securityContextManager;
-        this.courseService = courseService;
+        this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
         this.sources = sources;
     }
 

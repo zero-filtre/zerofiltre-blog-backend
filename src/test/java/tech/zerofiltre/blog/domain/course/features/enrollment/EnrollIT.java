@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
@@ -33,10 +33,10 @@ import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -79,12 +79,12 @@ class EnrollIT {
     private DataChecker checker;
 
     @Mock
-    private CompanyCourseService companyCourseService;
+    private CompanyCourseProvider companyCourseProvider;
 
     @BeforeEach
     void init() throws ZerofiltreException {
         doNothing().when(sandboxProvider).destroy(any(), any());
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider, checker, companyCourseService);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider, checker, companyCourseProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, dbPurchaseProvider, sandboxProvider, dbCourseProvider);
     }
 
@@ -211,7 +211,7 @@ class EnrollIT {
         assertThat(linkCompanyCourse).isNotNull();
         assertThat(linkCompanyCourse.getId()).isEqualTo(linkCompanyCourse.getId());
 
-        when(companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(anyLong(), anyLong())).thenReturn(linkCompanyCourse.getId());
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
         Enrollment enrollment = enroll.execute(user.getId(), course.getId(), company.getId());

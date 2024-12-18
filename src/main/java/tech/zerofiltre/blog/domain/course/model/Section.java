@@ -2,8 +2,8 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tech.zerofiltre.blog.domain.article.TagProvider;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -38,7 +38,7 @@ public class Section implements Serializable {
     private LoggerProvider loggerProvider;
     private DataChecker checker;
     private CompanyUserProvider companyUserProvider;
-    private CompanyCourseService companyCourseService;
+    private CompanyCourseProvider companyCourseProvider;
 
     private Section(SectionBuilder sectionBuilder) {
         this.id = sectionBuilder.id;
@@ -53,7 +53,7 @@ public class Section implements Serializable {
         this.courseProvider = sectionBuilder.courseProvider;
         this.loggerProvider = sectionBuilder.loggerProvider;
         this.companyUserProvider = sectionBuilder.companyUserProvider;
-        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
     }
 
     public static SectionBuilder builder() {
@@ -204,7 +204,7 @@ public class Section implements Serializable {
         private CourseProvider courseProvider;
         private LoggerProvider loggerProvider;
         private CompanyUserProvider companyUserProvider;
-            private CompanyCourseService companyCourseService;
+        private CompanyCourseProvider companyCourseProvider;
         private long id;
         private int position;
         private String title;

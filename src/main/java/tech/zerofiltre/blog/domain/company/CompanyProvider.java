@@ -12,6 +12,8 @@ public interface CompanyProvider {
 
     Page<Company> findAll(int pageNumber, int pageSize);
 
+    Page<Company> findAllByUserId(int pageNumber, int pageSize, long userId);
+
     void delete(Company company);
 
 }

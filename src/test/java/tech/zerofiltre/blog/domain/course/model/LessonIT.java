@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.article.TagProvider;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
@@ -61,7 +61,7 @@ class LessonIT {
     @MockBean
     private DataChecker checker;
     @MockBean
-    private CompanyCourseService companyCourseService;
+    private CompanyCourseProvider companyCourseProvider;
 
     private Chapter chapter;
     private User author;
@@ -189,7 +189,7 @@ class LessonIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
         Course course = courseService.init("A course", author, 0);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());

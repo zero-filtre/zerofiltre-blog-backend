@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -118,7 +119,7 @@ class EnrollmentControllerIT {
     @MockBean
     DataChecker checker;
 
-    @MockBean
+    @Mock
     CompanyCourseService companyCourseService;
 
     User author = ZerofiltreUtils.createMockUser(true);
@@ -169,7 +170,7 @@ class EnrollmentControllerIT {
         when(checker.companyUserExists(anyLong(), anyLong())).thenReturn(true);
         when(companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(anyLong(), anyLong())).thenReturn(1L);
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyUser()));
-        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyCourse()));
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyCourse()));
 
         //when
         mockMvc.perform(MockMvcRequestBuilders.post("/enrollment?courseId=1&companyId=1")

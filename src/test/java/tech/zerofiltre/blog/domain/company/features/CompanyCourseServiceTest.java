@@ -21,14 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LinkCompanyCourseServiceTest {
+class CompanyCourseServiceTest {
 
     private static User adminUser;
     private static User userWithRoleUser;
@@ -68,6 +68,9 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.link(adminUser, 1L, 1L);
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -93,6 +96,9 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.link(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId());
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -112,6 +118,9 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.link(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId());
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -134,6 +143,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.link(userWithRoleUser, 2L, 2L));
 
+        verify(checker).isAdminUser(any(User.class));
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -149,6 +159,8 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.link(adminUser, 2L, 2L));
 
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -165,6 +177,9 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.link(adminUser, 2L, 2L));
 
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -187,6 +202,9 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.activeAllByCompanyId(adminUser, 1L);
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
+
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
         verify(companyCourseProvider, times(2)).save(captor.capture());
         List<LinkCompanyCourse> listCaptured = captor.getAllValues();
@@ -213,6 +231,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.activeAllByCompanyId(userWithRoleUser, 2L));
 
+        verify(checker).isAdminUser(any(User.class));
         verify(companyCourseProvider, never()).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -227,6 +246,8 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.activeAllByCompanyId(adminUser, 2L));
 
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider, never()).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -243,6 +264,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.activeAllByCompanyId(adminUser, 2L);
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -259,6 +282,9 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.find(adminUser, 1L, 1L);
 
         //THEN
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
     }
 
@@ -272,6 +298,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
 
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
     }
 
@@ -286,6 +313,8 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
 
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
     }
 
@@ -301,11 +330,14 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
 
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
     }
 
     @Test
-    @DisplayName("given good user and existing company and existing course when findAllByCompanyId then verify call companyCourseProvider findAllByCompanyIdByPage")
+    @DisplayName("given good user and existing company when findAllByCompanyId then verify call companyCourseProvider findAllByCompanyIdByPage")
     void whenFindAllByCompanyId_thenVerifyCallCompanyCourseProviderFindAllByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
@@ -315,6 +347,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.findAllByCompanyId(adminUser, 0, 0, 1L);
 
         //THEN
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
     }
 
@@ -328,6 +362,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L));
 
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider, never()).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
     }
 
@@ -342,7 +377,41 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L));
 
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider, never()).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+    }
+
+    @Test
+    @DisplayName("given good user and existing company when findAllCoursesByCompanyId then verify call companyCourseProvider findAllCoursesByCompanyIdByPage")
+    void whenFindAllCoursesByCompanyId_thenVerifyCallCompanyCourseProviderFindAllCoursesByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
+        when(checker.companyExists(anyLong())).thenReturn(true);
+
+        //WHEN
+        companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L);
+
+        //THEN
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
+        verify(companyCourseProvider).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+    }
+
+    @Test
+    @DisplayName("given bad user when findAllCoursesByCompanyId then throw ForbiddenActionException")
+    void givenBadUser_whenFindAllCoursesByCompanyId_thenThrowForbiddenActionException() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L));
+
+        //THEN
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker, never()).companyExists(anyLong());
+        verify(companyCourseProvider, never()).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong());
     }
 
     @Test
@@ -356,6 +425,7 @@ class LinkCompanyCourseServiceTest {
 
         //THEN
         assertThat(response).isEqualTo(linkCompanyCourse.getId());
+        verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -367,6 +437,8 @@ class LinkCompanyCourseServiceTest {
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(1, 1));
+
+        verify(checker).companyCourseExists(anyLong(), anyLong());
     }
 
     @Test
@@ -384,6 +456,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, 1L, 1L, true);
 
         //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider).delete(any(LinkCompanyCourse.class));
     }
 
@@ -400,6 +474,7 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId(), false);
 
         //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -420,6 +495,7 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, 1L, 1L, false);
 
         //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -434,6 +510,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 2L, true));
 
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
     }
 
@@ -448,6 +525,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlinkAllByCompanyId(adminUser, 1L, true);
 
         //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider).deleteAllByCompanyId(anyLong());
     }
 
@@ -467,6 +546,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlinkAllByCompanyId(adminUser, 1L, false);
 
         //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
         verify(companyCourseProvider).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, times(2)).save(any(LinkCompanyCourse.class));
     }
@@ -481,6 +562,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCompanyId(userWithRoleUser, 2L, true));
 
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).deleteAllByCompanyId(anyLong());
     }
 
@@ -495,6 +577,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCompanyId(adminUser, 2L, true));
 
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).deleteAllByCompanyId(anyLong());
     }
 
@@ -509,6 +592,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlinkAllByCourseId(userWithRoleUser, 1L, true);
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).deleteAllByCourseId(anyLong());
     }
 
@@ -528,6 +613,8 @@ class LinkCompanyCourseServiceTest {
         companyCourseService.unlinkAllByCourseId(adminUser, 1L, false);
 
         //THEN
+        verify(checker).isAdminUser(any(User.class));
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider).findAllByCourseId(anyLong());
         verify(companyCourseProvider, times(2)).save(any(LinkCompanyCourse.class));
     }
@@ -542,6 +629,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCourseId(userWithRoleUser, 2L, true));
 
+        verify(checker).isAdminUser(any(User.class));
         verify(companyCourseProvider, never()).deleteAllByCourseId(anyLong());
     }
 
@@ -555,6 +643,7 @@ class LinkCompanyCourseServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCourseId(adminUser, 2L, true));
 
+        verify(checker).courseExists(anyLong());
         verify(companyCourseProvider, never()).deleteAllByCourseId(anyLong());
     }
 

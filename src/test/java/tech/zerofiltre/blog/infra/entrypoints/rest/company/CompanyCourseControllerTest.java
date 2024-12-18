@@ -1,17 +1,21 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.company;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
+import org.springframework.test.util.ReflectionTestUtils;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.util.DataChecker;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -28,21 +32,26 @@ class CompanyCourseControllerTest {
     CompanyCourseService companyCourseService;
 
     @Mock
-    MessageSource sources;
+    CompanyCourseProvider companyCourseProvider;
+
+    @Mock
+    DataChecker checker;
 
     @BeforeEach
     void setUp() {
-        controller = new CompanyCourseController(securityContextManager, companyCourseService, sources);
+        controller = new CompanyCourseController(securityContextManager, companyCourseProvider, checker);
+        ReflectionTestUtils.setField(controller, "companyCourseService", companyCourseService);
     }
 
     @Test
-    void givenCompanyIdAndDelete_whenUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("given companyId and hard when unlinkAllByCompanyId then verify call companyCourseService unlinkAllByCompanyId")
+    void givenCompanyIdAndHard_whenUnlinkAllByCompanyId_thenVerifyCallCompanyCourseServiceUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyCourseService).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
 
         //ACT
-        controller.unlinkAll(1L, null, true);
+        controller.unlinkAllByCompanyId(1L, true);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
@@ -50,27 +59,29 @@ class CompanyCourseControllerTest {
     }
 
     @Test
-    void givenCompanyIdAndCourseIdAndDelete_whenUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("given bad companyId when unlinkAllByCompanyId then throw ForbiddenActionException")
+    void givenBadCompanyId_whenUnlinkAllByCompanyId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
-        doNothing().when(companyCourseService).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
 
         //ACT
-        controller.unlinkAll(1L, 1L, true);
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> controller.unlinkAllByCompanyId(-1L, true));
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
-        verify(companyCourseService).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
+        verify(companyCourseService, never()).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
     }
 
     @Test
-    void givenCourseIdAndDelete_whenUnLinkAll_thenVerifyCallCompanyCourseService_unlinkAllByCourseId() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("given courseId and hard when unlinkAllByCourseId then verify call companyCourseService unlinkAllByCourseId")
+    void givenCourseIdAndHard_whenUnlinkAllByCourseId_thenVerifyCallCompanyCourseServiceUnlinkAllByCourseId() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyCourseService).unlinkAllByCourseId(any(User.class), anyLong(), anyBoolean());
 
         //ACT
-        controller.unlinkAll(null, 1L, true);
+        controller.unlinkAllByCourseId(1L, true);
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
@@ -78,17 +89,18 @@ class CompanyCourseControllerTest {
     }
 
     @Test
-    void givenDelete_whenUnlinkAll_thenVerifyNotCallCompanyCourseService() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("given bad courseId when unlinkAllByCourseId then throw ForbiddenActionException")
+    void givenBadCourseId_whenUnlinkAllByCourseId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 
         //ACT
-        controller.unlinkAll(null, null, true);
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> controller.unlinkAllByCompanyId(-1L, true));
 
         //ASSERT
         verify(securityContextManager).getAuthenticatedUser();
         verify(companyCourseService, never()).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
-        verify(companyCourseService, never()).unlinkAllByCourseId(any(User.class), anyLong(), anyBoolean());
     }
 
 }
