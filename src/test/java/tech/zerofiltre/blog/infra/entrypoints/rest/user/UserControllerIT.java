@@ -20,10 +20,8 @@ import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
 import tech.zerofiltre.blog.domain.article.ReactionProvider;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
-import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
-import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
@@ -47,6 +45,7 @@ import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.api.so.StackOverflowLoginProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBArticleViewProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
@@ -57,6 +56,7 @@ import tech.zerofiltre.blog.infra.security.config.RoleRequiredAccessDeniedHandle
 import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
@@ -73,7 +73,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         LoginFirstAuthenticationEntryPoint.class, RoleRequiredAccessDeniedHandler.class, PasswordEncoderConfiguration.class,
         InfraProperties.class, SecurityContextManager.class, BasicPasswordVerifierProvider.class, StackOverflowAuthenticationTokenProperties.class,
         AppPublisherNotificationProvider.class, APIClientConfiguration.class, Slf4jLoggerProvider.class, GithubAuthenticationTokenProperties.class,
-        DBTagProvider.class, DBChapterProvider.class, DBArticleViewProvider.class, DBCourseProvider.class, CompanyCourseService.class})
+        DBTagProvider.class, DBChapterProvider.class, DBArticleViewProvider.class, DBCourseProvider.class, DBCompanyCourseProvider.class})
 class UserControllerIT {
 
     public static final String EMAIL = "email@toto.fr";
@@ -135,13 +135,10 @@ class UserControllerIT {
     CompanyProvider companyProvider;
 
     @MockBean
-    CompanyUserProvider companyUserProvider;
+    CompanyCourseProvider companyCourseProvider;
 
     @MockBean
     DataChecker checker;
-
-    @MockBean
-    CompanyCourseService companyCourseService;
 
     LocalDateTime expiryDate = LocalDateTime.now().plusDays(1);
 

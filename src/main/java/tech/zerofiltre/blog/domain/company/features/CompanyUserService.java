@@ -1,7 +1,6 @@
 package tech.zerofiltre.blog.domain.company.features;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
@@ -12,7 +11,6 @@ import tech.zerofiltre.blog.util.DataChecker;
 
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 public class CompanyUserService {
 

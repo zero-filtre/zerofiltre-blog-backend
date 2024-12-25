@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -61,7 +61,7 @@ class SectionIT {
     private DataChecker checker;
 
     @MockBean
-    private CompanyCourseService companyCourseService;
+    private CompanyCourseProvider companyCourseProvider;
 
     public static final String UPDATED_TITLE = "updated title";
     public static final String UPDATED_CONTENT = "updated content";
@@ -287,7 +287,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
 
         Course course = courseService.init("", user, 0);
 
@@ -318,7 +318,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseService);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
 
         Course course = courseService.init("", user, 0);
 

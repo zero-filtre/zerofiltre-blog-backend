@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
@@ -14,6 +15,7 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,27 +130,68 @@ class CompanyServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when findAll then verify call companyProvider findAll")
-    void _whenFindALl_thenVerifyCallCompanyProviderFindAll() throws ForbiddenActionException {
+    @DisplayName("given admin user and not userId when findAll then verify call companyProvider findAll")
+    void givenAdminAndNotUserId_whenFindAll_thenVerifyCallCompanyProviderFindAll() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
+        User user = ZerofiltreUtils.createMockUser(true);
+        when(companyProvider.findAll(anyInt(), anyInt())).thenReturn(new Page<>());
 
         //WHEN
-        companyService.findAll(new User(), 0, 10);
+        companyService.findAll(0, 10, user, 0);
 
         //THEN
-        verify(companyProvider).findAll(0, 10);
+        verify(companyProvider).findAll(anyInt(), anyInt());
     }
 
     @Test
-    @DisplayName("given admin user when findAll then throw ForbiddenActionException")
-    void givenBadUser_whenFindAll_thenThrowForbiddenActionException() throws ForbiddenActionException {
+    @DisplayName("given user not admin and not userId when findAll then verify call companyProvider findAllByUserId")
+    void givenUserNotAdminAndNotUserId_whenFindAll_thenVerifyCallCompanyProviderFindAllByUserId() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        when(companyProvider.findAllByUserId(anyInt(), anyInt(), anyLong())).thenReturn(new Page<>());
+
+        //WHEN
+        companyService.findAll(0, 10, new User(), 0);
+
+        //THEN
+        verify(companyProvider).findAllByUserId(anyInt(), anyInt(), anyLong());
+    }
+
+    @Test
+    @DisplayName("given admin user and userId when findAll then verify call companyProvider findAllByUserId")
+    void givenAdminUser_whenFindAll_thenVerifyCallCompanyProviderFindAllByUserId() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        when(checker.isAdminUser(any(User.class))).thenReturn(true);
+        when(checker.userExists(anyLong())).thenReturn(true);
+        when(companyProvider.findAllByUserId(anyInt(), anyInt(), anyLong())).thenReturn(new Page<>());
+
+        //WHEN
+        companyService.findAll(0, 10, new User(), 1);
+
+        //THEN
+        verify(companyProvider).findAllByUserId(anyInt(), anyInt(), anyLong());
+    }
+
+    @Test
+    @DisplayName("given not admin user and userId when findAll then throw ForbiddenActionException")
+    void givenNotAdminUserAndUserId_whenFindAll_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyService.findAll(new User(), 0,10));
+                .isThrownBy(() -> companyService.findAll(0,10, new User(), 1));
+    }
+
+    @Test
+    @DisplayName("given admin user and not existing userId when findAll then throw ResourceNotFoundException")
+    void givenAdminUserAndNotExistingUserId_whenFindAll_thenThrowResourceNotFoundException() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        when(checker.isAdminUser(any(User.class))).thenReturn(true);
+        when(checker.userExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
+
+        //THEN
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> companyService.findAll(0,10, new User(), 1));
     }
 
     @Test

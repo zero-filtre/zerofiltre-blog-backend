@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LinkCompanyUserServiceTest {
+class CompanyUserServiceTest {
 
     private static User adminUser;
     private static User userWithUserRole;

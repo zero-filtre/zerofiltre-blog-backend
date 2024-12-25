@@ -5,27 +5,27 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyService;
 import tech.zerofiltre.blog.domain.company.model.Company;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
-import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.CompanyVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.RegisterCompanyVMMapper;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.CompanyVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UpdateCompanyVM;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.RegisterCompanyVM;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -38,9 +38,8 @@ public class CompanyController {
     private final CompanyVMMapper companyVMMapper = Mappers.getMapper(CompanyVMMapper.class);
     private final MessageSource sources;
 
-    public CompanyController(UserProvider userProvider, SecurityContextManager securityContextManager, CourseProvider courseProvider, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseProvider companyCourseProvider, MessageSource sources) {
+    public CompanyController(SecurityContextManager securityContextManager, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseProvider companyCourseProvider, DataChecker checker, MessageSource sources) {
         this.securityContextManager = securityContextManager;
-        DataChecker checker = new DataChecker(userProvider, courseProvider, companyProvider, companyUserProvider, companyCourseProvider);
         this.companyService = new CompanyService(companyProvider, companyUserProvider, companyCourseProvider, checker);
         this.sources = sources;
     }
@@ -54,15 +53,15 @@ public class CompanyController {
     }
 
     @PatchMapping
-    public Company patch(@RequestBody @Valid CompanyVM companyVM) throws ZerofiltreException {
+    public Company patch(@RequestBody @Valid UpdateCompanyVM updateCompanyVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        Company company = companyVMMapper.fromVM(companyVM);
+        Company company = companyVMMapper.fromVM(updateCompanyVM);
 
         return companyService.patch(user, company);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getById(@PathVariable("id") long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    public ResponseEntity<Company> findById(@PathVariable("id") long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
         Optional<Company> company = companyService.findById(user, companyId);
 
@@ -70,10 +69,16 @@ public class CompanyController {
 
     }
 
-    @DeleteMapping
-    public String delete(@RequestBody @Valid CompanyVM companyVM, HttpServletRequest request) throws ResourceNotFoundException, ForbiddenActionException {
+    @GetMapping("/all")
+    public Page<Company> findAll(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam(required = false) Long userId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
-        Company company = companyVMMapper.fromVM(companyVM);
+        return companyService.findAll(pageNumber, pageSize, user, null == userId ? 0 : userId);
+    }
+
+    @DeleteMapping
+    public String delete(@RequestBody @Valid UpdateCompanyVM updateCompanyVM, HttpServletRequest request) throws ResourceNotFoundException, ForbiddenActionException {
+        User user = securityContextManager.getAuthenticatedUser();
+        Company company = companyVMMapper.fromVM(updateCompanyVM);
         companyService.delete(user, company);
 
         return sources.getMessage("message.delete.company.success", null, request.getLocale());

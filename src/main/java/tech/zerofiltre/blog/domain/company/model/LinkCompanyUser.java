@@ -11,14 +11,10 @@ public class LinkCompanyUser {
     private long userId;
     private Role role = Role.VIEWER;
 
-    @Getter
-    @AllArgsConstructor
     public enum Role {
-        ADMIN("ROLE_COMPANY_ADMIN"),
-        EDITOR("ROLE_COMPANY_EDITOR"),
-        VIEWER("ROLE_COMPANY_VIEWER");
-
-        private final String value;
+        ADMIN,
+        EDITOR,
+        VIEWER
     }
 
 }

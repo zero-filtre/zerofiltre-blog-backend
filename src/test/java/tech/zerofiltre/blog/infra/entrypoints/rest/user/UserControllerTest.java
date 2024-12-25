@@ -18,8 +18,7 @@ import tech.zerofiltre.blog.domain.article.ReactionProvider;
 import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.features.FindArticle;
 import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
-import tech.zerofiltre.blog.util.DataChecker;
+import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
@@ -44,6 +43,7 @@ import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.Token;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -131,7 +131,7 @@ class UserControllerTest {
     private DataChecker checker;
 
     @MockBean
-    private CompanyCourseService companyCourseService;
+    private CompanyCourseProvider companyCourseProvider;
 
     @Mock
     private CourseService courseService;
@@ -144,7 +144,7 @@ class UserControllerTest {
         userController = new UserController(
                 userProvider, metricsProvider, userNotificationProvider, articleProvider, verificationTokenProvider, sources,
                 passwordEncoder, securityContextManager, passwordVerifierProvider,
-                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, articleViewProvider, checker, companyCourseService);
+                infraProperties, githubLoginProvider, profilePictureGenerator, verificationTokenProvider, reactionProvider, jwtTokenProvider, loggerProvider, tagProvider, courseProvider, articleViewProvider, checker, companyCourseProvider);
 
         when(infraProperties.getEnv()).thenReturn("dev");
     }
