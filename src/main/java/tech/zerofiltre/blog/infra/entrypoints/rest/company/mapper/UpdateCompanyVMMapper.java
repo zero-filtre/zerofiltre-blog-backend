@@ -5,7 +5,7 @@ import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UpdateCompanyVM;
 
 @Mapper
-public interface CompanyVMMapper {
+public interface UpdateCompanyVMMapper {
 
     Company fromVM(UpdateCompanyVM updateCompanyVM);
 

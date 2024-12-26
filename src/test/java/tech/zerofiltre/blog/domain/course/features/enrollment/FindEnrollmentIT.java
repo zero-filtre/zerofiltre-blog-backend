@@ -36,6 +36,7 @@ class FindEnrollmentIT {
 
     @Autowired
     private CourseJPARepository courseJPARepository;
+
     @Autowired
     private ChapterJPARepository chapterJPARepository;
 

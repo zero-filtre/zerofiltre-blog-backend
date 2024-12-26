@@ -18,29 +18,31 @@ public class CompanyUserService {
     private final DataChecker checker;
 
     public LinkCompanyUser link(User connectedUser, long companyId, long userId, LinkCompanyUser.Role role) throws ForbiddenActionException, ResourceNotFoundException {
+        checker.hasPermission(connectedUser, isCompanyAdmin(connectedUser, companyId), role);
         checker.companyExists(companyId);
         checker.userExists(userId);
-        checker.hasPermission(connectedUser, isCompanyAdmin(connectedUser, companyId), role);
 
         return companyUserProvider.save(new LinkCompanyUser(companyId, userId, role));
     }
 
     public Optional<LinkCompanyUser> find(User connectedUser, long companyId, long userId) throws ForbiddenActionException, ResourceNotFoundException {
+        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
         checker.companyExists(companyId);
         checker.userExists(userId);
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
 
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
     }
 
     public Page<LinkCompanyUser> findAllByCompanyId(User connectedUser, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.companyExists(companyId);
         checker.isAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.companyExists(companyId);
 
         return companyUserProvider.findAllByCompanyId(pageNumber, pageSize, companyId);
     }
 
     public void unlink(User connectedUser, long companyId, long userId) throws ForbiddenActionException {
+        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
+
         Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
         if(companyUser.isPresent()) {
@@ -49,21 +51,19 @@ public class CompanyUserService {
         }
     }
 
-    public void unlinkAllByCompanyId(User connectedUser, long companyId) throws ResourceNotFoundException {
+    public void unlinkAllByCompanyId(User connectedUser, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
         checker.companyExists(companyId);
 
         if(connectedUser.isAdmin()) {
             companyUserProvider.deleteAllByCompanyId(companyId);
-        }
-
-        if(isCompanyAdmin(connectedUser, companyId)) {
+        } else if(isCompanyAdmin(connectedUser, companyId)) {
             companyUserProvider.deleteAllByCompanyIdExceptAdminRole(companyId);
         }
     }
 
-    public void unlinkAllByUserId(User connectedUser, long userId) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAllByUserId(User connectedUser, long userId) throws ForbiddenActionException {
         checker.isAdminUser(connectedUser);
-        checker.userExists(userId);
 
         companyUserProvider.deleteAllByUserId(userId);
     }

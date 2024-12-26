@@ -136,6 +136,58 @@ class SuspendTest {
     }
 
     @Test
+    void suspendDontDeleteAsAdminUser() throws ZerofiltreException {
+        //GIVEN
+        User user = ZerofiltreUtils.createMockUser(false);
+        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.NONE);
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));
+        enrollment.setLastModifiedAt(enrollment.getEnrolledAt());
+        enrollment.setSuspendedAt(LocalDateTime.now().minusDays(1));
+        enrollment.setActive(true);
+        enrollment.setUser(user);
+        enrollment.setCourse(course);
+
+        when(enrollmentProvider.enrollmentOf(user.getId(), course.getId(), true)).thenReturn(Optional.of(enrollment));
+        when(enrollmentProvider.save(any())).thenReturn(enrollment);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
+
+        //WHEN
+        suspend.execute(user.getId(), course.getId());
+
+        //THEN
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
+        verify(enrollmentProvider).save(any(Enrollment.class));
+    }
+
+    @Test
+    void suspendDontDeleteAsAdminUserForCompanyUser() throws ZerofiltreException {
+        //GIVEN
+        User user = ZerofiltreUtils.createMockUser(false);
+        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.NONE);
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));
+        enrollment.setLastModifiedAt(enrollment.getEnrolledAt());
+        enrollment.setSuspendedAt(LocalDateTime.now().minusDays(1));
+        enrollment.setActive(true);
+        enrollment.setUser(user);
+        enrollment.setCourse(course);
+
+        when(enrollmentProvider.enrollmentOf(user.getId(), course.getId(), true)).thenReturn(Optional.of(enrollment));
+        when(enrollmentProvider.save(any())).thenReturn(enrollment);
+        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
+
+        //WHEN
+        suspend.execute(user.getId(), course.getId());
+
+        //THEN
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
+        verify(enrollmentProvider).save(any(Enrollment.class));
+    }
+
+    @Test
     void suspendAllEnrollments() throws ZerofiltreException {
         //GIVEN
         Course course = new Course();

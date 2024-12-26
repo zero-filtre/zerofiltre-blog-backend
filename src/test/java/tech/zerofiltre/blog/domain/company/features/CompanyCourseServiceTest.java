@@ -56,8 +56,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and existing course and non existent companyCourse when link then verify call companyCourseProvider link")
-    void whenLink_thenVerifyCallCompanyCourseProviderLink() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When link a course to a company as an admin user, then verify that the link is saved with the correct parameters")
+    void saveAsAdminUser_linkACourseToCompany_withCorrectParameters() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -82,8 +82,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given same existent companyCourse when link then verify not call companyCourseProvider link")
-    void givenSameCompanyCourse_whenLink_thenVerifyNotCallCompanyCourseProviderLink() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When link the course to the company and the link already exists, then return that link")
+    void whenLink_alreadyExistsLink_returnLink() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
 
@@ -104,8 +104,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given suspended companyCourse when link then verify call companyCourseProvider link")
-    void givenSuspendedCompanyCourse_whenLink_thenVerifyCallCompanyCourseProviderLink() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("As an admin, when link a suspended link, then verify that the link is saved with the correct parameters")
+    void save_asAdminUser_linkASuspendedLink_withCorrectParameters() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
 
@@ -134,8 +134,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given user with role user when link then throw ForbiddenActionException")
-    void userWithRoleUser_whenLink_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When link a course to a company as an non-admin user, a forbidden action exception is returned.")
+    void whenLink_asNonAdminUser_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
 
@@ -149,8 +149,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and not existing company when link then throw ResourceNotFoundException")
-    void givenNotExistingCompany_whenLink_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When link a course to a company as an admin user and the company does not exist, a resource not found exception is returned.")
+    void whenLink_asAdminUser_notExistingCompany_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
@@ -166,8 +166,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and not existing course when link then throw ResourceNotFoundException")
-    void notExistingCourse_whenLink_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When link a course to a company as an admin user and the course does not exist, a resource not found exception is returned.")
+    void whenLink_asAdminUser_notExistingCourse_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -185,8 +185,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company when activeAllByCompanyId then verify call companyCourseProvider link")
-    void whenActiveAllByCompanyId_thenVerifyCallCompanyCourseProviderLink() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When active all links of a company as an admin user then verify that the links are saved with the correct parameters")
+    void whenActiveAllByCompanyId_asAdminUser_thenSaveAllLinks_withCorrectParameters() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, LocalDateTime.now().minusMonths(2), LocalDateTime.now().minusWeeks(2));
@@ -222,8 +222,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given not admin user when activeAllByCompanyId then throw ForbiddenActionException")
-    void givenNotAdminUser_whenActiveAllByCompanyId_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When active all links of a company as a non-admin user, a forbidden action exception is returned.")
+    void whenActiveAllByCompanyId_asNotAdminUser_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
 
@@ -237,8 +237,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and not existing company when activeAllByCompanyId then throw ResourceNotFoundException")
-    void givenNotExitingCompany_whenActiveAllByCompanyId_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When active all links of a company as an admin user and the company does not exist, a resource not found exception is returned.")
+    void whenActiveAllByCompanyId_asAdminUser_forNotExitingCompany_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
@@ -253,7 +253,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and not companyCourse when activeAllByCompanyId then verify not call companyCourseProvider link")
+    @DisplayName("When active all links of a company as an admin user and the links do not exist, then verify that the method to save is not called")
     void emptyListCompanyCourse_whenActiveAllByCompanyId_thenVerifyNotCallCompanyCourseProviderLink() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
@@ -271,8 +271,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given good user and existing company and existing course when find then verify call companyCourseProvider find")
-    void whenFind_thenVerifyCallCompanyCourseProviderFind() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to find a link between a course and a company as the platform or company admin, then verify that the method to find by the company id and course id is called")
+    void whenFindLink_asPlatformOrCompanyAdmin_thenVerifyCallFindByCompanyIdAndCourseId() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -289,8 +289,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given bad user when find then throw ForbiddenActionException")
-    void givenBadUser_whenFind_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When want to find a link between a course and a company as a non-admin user of the platform or the company, a forbidden action exception is returned.")
+    void whenFindLink_asNonAdminUserPlatformOrCompany_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
 
@@ -303,8 +303,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given non existent company when find then throw ForbiddenActionException")
-    void givenNonExistentCompany_whenFind_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to find a link between a course and a company and the company does not exist, a resource not found exception is returned.")
+    void whenFindLinkForNonExistingCompany_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
@@ -319,8 +319,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given non existent course when find then throw ForbiddenActionException")
-    void givenNonExistentCourse_whenFind_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to find a link between a course and a company and the course does not exist, a resource not found exception is returned.")
+    void whenFindLinkForNonExistingCourse_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -337,8 +337,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given good user and existing company when findAllByCompanyId then verify call companyCourseProvider findAllByCompanyIdByPage")
-    void whenFindAllByCompanyId_thenVerifyCallCompanyCourseProviderFindAllByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want find all links of a company then verify call find all by company id by page")
+    void whenFindAllLinksByCompany_thenVerifyCallFindAllByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -353,8 +353,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given bad user when findAllByCompanyId then throw ForbiddenActionException")
-    void givenBadUser_whenFindAllByCompanyId_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When want find all links of a company as a non-admin user of the platform or the company, a forbidden action exception is returned.")
+    void whenFindAllLinksByCompany_asNonAdminUserOfPlatformOrCompany_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
 
@@ -367,8 +367,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given company user and bad company id when findAllByCompanyId then throw ForbiddenActionException")
-    void givenCompanyUserAndBadCompanyId_whenFindAllByCompanyId_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want find all links of a company and the company does not exist, a resource not found exception is returned.")
+    void whenFindAllLinksByCompany_andNotExistingCompany_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
@@ -383,8 +383,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given good user and existing company when findAllCoursesByCompanyId then verify call companyCourseProvider findAllCoursesByCompanyIdByPage")
-    void whenFindAllCoursesByCompanyId_thenVerifyCallCompanyCourseProviderFindAllCoursesByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want find all links of a course then verify call find all courses by company id by page")
+    void whenFindAllLinksByCourse_thenVerifyCallFindAllCoursesByCompanyIdByPage() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -399,8 +399,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given bad user when findAllCoursesByCompanyId then throw ForbiddenActionException")
-    void givenBadUser_whenFindAllCoursesByCompanyId_thenThrowForbiddenActionException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want find all links of a course as a non-admin user of the platform or the company, a forbidden action exception is returned.")
+    void whenFindAllLinksByCourse_asNonAdminUserOfPlatformOrCompany_thenThrowForbiddenActionException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
 
@@ -415,8 +415,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given existing company when getCompanyCourseIdIfCourseIsActive then return companyCourseId")
-    void givenExistingCompany_whenGetCompanyCourseId_thenReturnCompanyCourseIdIfCourseIsActive() throws ResourceNotFoundException {
+    @DisplayName("When searching a company course id, then verify call find by company id and course id")
+    void searchCompanyCourseId_thenVerifyCallFindByCompanyIdAndCourseId() throws ResourceNotFoundException {
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1, 2L, 3L, true, LocalDateTime.now(), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
 
@@ -442,8 +442,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when unlink and delete action then verify call companyCourseProvider unlink")
-    void whenUnlink_thenVerifyCallCompanyCourseProviderUnlink() throws ForbiddenActionException {
+    @DisplayName("When want to delete a link between a course and a company as the platform or company admin, then verify call delete")
+    void whenDeleteLink_asPlatformOrCompanyAdmin_thenVerifyCallDelete() throws ForbiddenActionException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
         Enrollment enrollment = new Enrollment();
@@ -462,8 +462,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when unlink and suspend action then verify call companyCourseProvider link")
-    void whenUnlink_thenVerifyCallCompanyCourseProviderLink() throws ForbiddenActionException {
+    @DisplayName("When want to suspend a link between a course and a company as the platform or company admin, then verify call save with correct parameters")
+    void whenSuspendLink_asPlatformOrCompanyAdmin_thenVerifyCallSave() throws ForbiddenActionException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
 
@@ -485,8 +485,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and existing course when unlink and suspend action then verify not call companyCourseProvider link")
-    void whenUnlinkNotExitingCompanyCourse_thenVerifyNotCallCompanyCourseProviderLink() throws ForbiddenActionException {
+    @DisplayName("When want to suspend a link between a course and a company as the platform or company admin and link does not exist, then verify not call save")
+    void whenSuspendLink_asPlatformOrCompanyAdmin_andNotExistingLink_thenVerifyNotCallSave() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
@@ -501,22 +501,22 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given user with role user when unlink then throw ForbiddenActionException")
-    void userWithRoleUser_whenUnlink_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When want to suspend a link between a course and a company as a non-admin user of the platform or the company, a forbidden action exception is returned.")
+    void whenSuspendLink_asNonAdminPlatformOrCompany_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 2L, true));
+                .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 2L, false));
 
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
     }
 
     @Test
-    @DisplayName("given admin user and existing company and existing course when unLinkAllByCompanyId and delete action then verify call companyCourseProvider deleteAllByCompanyId")
-    void whenUnlinkAllByCompanyId_thenVerifyCallCompanyCourseProviderUnlinkAllByCompanyId() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to delete all links of a company as the platform or company admin, then verify call delete all by company id")
+    void whenDeleteAllLinksOfCompany_thenVerifyCallDeleteAllByCompanyId() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -531,8 +531,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and 2 existing courses when unLinkAllByCompanyId and suspend action then verify 2 call companyCourseProvider save")
-    void whenUnlinkAllByCompanyId_thenVerify2CallCompanyCourseProviderSave() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When suspend all links between courses and a company, then verify that the save method is called 2 times.")
+    void whenUnlinkAllCoursesByCompanyId_thenVerify2CallSave() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         List<LinkCompanyCourse> list = new ArrayList<>();
         list.add(new LinkCompanyCourse(1L, 1L, 1L, true, null, null));
@@ -553,8 +553,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given user with role user when unLinkAllByCompanyId then throw ForbiddenActionException")
-    void userWithRoleUser_whenUnlinkAllByCompanyId_ByCompanyId_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When want to delete all links of a company as a non-admin user of the platform or the company, a forbidden action exception is returned.")
+    void whenDeleteAllLinksOfCompany_asNonAdminPlatformOrCompany_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
 
@@ -567,8 +567,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and not existing company when unLinkAllByCompanyId then throw ResourceNotFoundException")
-    void notExistingCompany_whenUnlinkAllByCompanyId_ByCompanyId_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to delete all links of a company as the platform or company admin and the company does not exist,a resource not found exception is returned.")
+    void whenDeleteAllLinksOfCompany_forNotExistingCompany_thenThrowException() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
@@ -582,8 +582,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing course when unlinkAllByCourseId then verify call companyCourseProvider deleteAllByCourseId")
-    void whenUnlinkAllByCourseId_thenVerifyCallCompanyCourseProviderUnlinkAllByCourseId() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When want to delete all links of a course as an admin user, then verify call delete all by course id")
+    void whenDeleteAllLinksOfCourse_asAdminUser_thenVerifyCallDeleteAllByCourseId() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.courseExists(anyLong())).thenReturn(true);
@@ -598,8 +598,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and existing company and 2 existing courses when unLinkAllByCourseId and suspend action then verify 2 call companyCourseProvider save")
-    void whenUnlinkAllByCourseId_thenVerify2CallCompanyCourseProviderSave() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When suspend a link between a course and all companies, then verify that the save method is called 2 times.")
+    void whenUnlinkACourseOfAllCompanies_thenVerify2CallSave() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         List<LinkCompanyCourse> list = new ArrayList<>();
         list.add(new LinkCompanyCourse(1L, 1L, 1L, true, null, null));
@@ -620,8 +620,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given user with role user when unlinkAllByCourseId then throw ForbiddenActionException")
-    void givenUserWithRoleUser_whenUnlinkAllByCourseId_thenThrowException() throws ForbiddenActionException {
+    @DisplayName("When want to delete all links of a course as an non-admin user, a forbidden action exception is returned.")
+    void whenDeleteAllLinksOfCourse_asNonAdminUser_thenThrowException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
 
@@ -634,8 +634,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user and not existing company when unlinkAllByCourseId then throw ResourceNotFoundException")
-    void givenNotExistingCompany_whenUnlinkAllByCourseId_ByCompanyId_thenThrowException() throws ResourceNotFoundException {
+    @DisplayName("When want to delete all links of a course and course does not exist, a resource not found exception is returned.")
+    void whenDeleteAllLinksOfCourse_forNotExistingCourse_thenThrowException() throws ResourceNotFoundException {
         //GIVEN
         when(checker.courseExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
@@ -648,8 +648,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when suspendLink then verify call companyCourseProvider link")
-    void userAdminUser_whenSuspendLink_thenVerifyCallLink() {
+    @DisplayName("When suspend link of a course to a company, then verify that the link is saved with the correct parameters")
+    void whenSuspendLink_thenVerifyCallSave() {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
 
@@ -665,8 +665,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when suspendLink then nothing")
-    void userAdminUser_whenSuspendLink_thenNothing() {
+    @DisplayName("When suspend link of a course to the company and the link is inactive, then verify do not call save")
+    void whenSuspendLinkInactive_thenVerifyNotCallSave() {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L,1L, 1L, false, LocalDateTime.now(), LocalDateTime.now());
 

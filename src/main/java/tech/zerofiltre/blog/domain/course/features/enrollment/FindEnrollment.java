@@ -9,7 +9,6 @@ import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
-import tech.zerofiltre.blog.domain.user.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,16 +44,26 @@ public class FindEnrollment {
         return result;
     }
 
-    public Enrollment of(long courseId, long userId, User executor) throws ResourceNotFoundException, ForbiddenActionException {
-        if (!executor.isAdmin() && executor.getId() != userId) {
+    public Enrollment of(long courseId, long userId, long executorId, boolean fromAdmin) throws ResourceNotFoundException, ForbiddenActionException {
+        if (!fromAdmin && executorId != userId) {
             throw new ForbiddenActionException("You are only allow to look for your enrollments");
         }
-        return enrollmentProvider.enrollmentOf(userId, courseId, true)
-                .map(enrollment -> {
-                    enrollment.getCourse().setEnrolledCount(getEnrolledCount(courseId));
-                    enrollment.getCourse().setLessonsCount(getLessonsCount(courseId));
-                    return enrollment;
-                }).orElseThrow(() -> new ResourceNotFoundException("Enrollment not found", courseId + "/" + userId));
+
+        if(!fromAdmin) {
+            return enrollmentProvider.enrollmentOf(userId, courseId, true)
+                    .map(enrollment -> {
+                        enrollment.getCourse().setEnrolledCount(getEnrolledCount(courseId));
+                        enrollment.getCourse().setLessonsCount(getLessonsCount(courseId));
+                        return enrollment;
+                    }).orElseThrow(() -> new ResourceNotFoundException("Enrollment not found", courseId + "/" + userId));
+        } else {
+            return enrollmentProvider.enrollmentOf(userId, courseId)
+                    .map(enrollment -> {
+                        enrollment.getCourse().setEnrolledCount(getEnrolledCount(courseId));
+                        enrollment.getCourse().setLessonsCount(getLessonsCount(courseId));
+                        return enrollment;
+                    }).orElseThrow(() -> new ResourceNotFoundException("Enrollment not found", courseId + "/" + userId));
+        }
     }
 
     private int getLessonsCount(long courseId) {

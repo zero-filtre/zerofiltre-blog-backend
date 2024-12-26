@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

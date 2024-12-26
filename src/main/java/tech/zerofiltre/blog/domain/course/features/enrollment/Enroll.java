@@ -56,22 +56,24 @@ public class Enroll {
         }
     }
 
-    public Enrollment execute(long userId, long courseId, long companyId) throws ZerofiltreException {
-        long companyCourseId = 0;
-
-        if(companyId > 0) {
-            checker.companyUserExists(companyId, userId);
-            companyCourseId = companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(companyId, courseId);
-        }
-
+    public Enrollment execute(long userId, long courseId, long companyId, boolean fromAdmin) throws ZerofiltreException {
         User user = getTheUser(userId);
         Course course = getTheCourse(courseId);
         checkIfCourseIsPublished(course);
 
+        long companyCourseId = 0;
+
+        if(companyId > 0) {
+            checker.companyExists(companyId);
+            checker.companyUserExists(companyId, userId);
+            checker.companyCourseExists(companyId, courseId);
+            companyCourseId = companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(companyId, courseId);
+        }
+
         Enrollment existingEnrollment = getExisting(userId, courseId);
         if (existingEnrollment != null) return existingEnrollment;
 
-        if(companyId == 0 && !hasFreeAccess(user, course)) {
+        if(!fromAdmin && companyId == 0 && !hasFreeAccess(user, course)) {
             checkIfCourseIsPurchased(userId, courseId);
         }
 
@@ -85,7 +87,7 @@ public class Enroll {
         return enrollment;
     }
 
-    /*private */User getTheUser(long userId) throws ResourceNotFoundException {
+    private User getTheUser(long userId) throws ResourceNotFoundException {
         return userProvider.userOfId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "We could not find the user with id " + userId,
