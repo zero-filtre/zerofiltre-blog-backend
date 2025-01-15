@@ -12,6 +12,8 @@ public interface CompanyUserJPARepository extends JpaRepository<LinkCompanyUserJ
 
     Optional<LinkCompanyUserJPA> findByCompanyIdAndUserId(long companyId, long userId);
 
+    Optional<LinkCompanyUserJPA> findByCompanyIdAndUserIdAndActive(long companyId, long userId, boolean active);
+
     Page<LinkCompanyUserJPA> findAllByCompanyId(Pageable pageable, long companyId);
 
     @Modifying

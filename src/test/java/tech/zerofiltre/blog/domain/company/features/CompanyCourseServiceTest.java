@@ -61,7 +61,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I link a course to a company as a platform admin, then the link is created")
+    @DisplayName("When a platform admin links a course to a company, then the link is created")
     void shouldCreatesLink_whenLinkCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
@@ -87,7 +87,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I link a course to a company and the link already exists as a platform admin, then there is nothing")
+    @DisplayName("When a platform admin links a course to a company and the link already exists, then there is nothing")
     void shouldDoNothing_whenLinkCourseToCompany_IfLinkExists_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
@@ -109,7 +109,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When a link between a course and a company is suspended and I link them again as a platform admin, then the link is activated")
+    @DisplayName("When a link between a course and a company is suspended and a platform admin links them again, then the link is activated")
     void shouldActivatesLink_whenSuspendLinkBetweenCourseAndCompany_LinkAgain_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
@@ -139,7 +139,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I link a course to a company as a non-platform admin, then it is forbidden")
+    @DisplayName("When a non-platform admin links a course to a company, then it is forbidden")
     void shouldForbidden_whenLinkCourseToCompany_asNonPlatformAdmin() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
@@ -154,7 +154,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I link a course to a company that does not exist as a platform admin, then the course and the company are not linked")
+    @DisplayName("When a platform admin links a course to a company that does not exist, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkCourseToNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
@@ -171,7 +171,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I link a course that does not exist to a company as a platform admin, then the course and the company are not linked")
+    @DisplayName("When a platform admin links a course that does not exist to a company, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkNotExistingCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
@@ -190,7 +190,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I activate all links between courses and a company as a platform admin, then all the links are activated")
+    @DisplayName("When a platform admin activates all links between courses and a company, then all the links are activated")
     void shouldActivatesAllLinks_whenActivateAllLinksBetweenCoursesAndCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
@@ -227,7 +227,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I activate all links between courses and a company as a non-platform admin, then it is forbidden.")
+    @DisplayName("When a non-platform admin activates all links between courses and a company, then it is forbidden.")
     void shouldForbidden_whenActivateAllLinksBetweenCoursesAndCompany_asNonPlatformAdmin() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
@@ -242,7 +242,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I activate all links between courses and a company that does not exist as a platform admin, then the links are not activated")
+    @DisplayName("When a platform admin activates all links between courses and a company that does not exist, then the links are not activated")
     void shouldNotActivatedLinks_whenActivateAllLinksBetweenCoursesAndNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
@@ -258,7 +258,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I activate all links between courses and a company and the links do not exist as a platform admin, then there is nothing")
+    @DisplayName("When a platform admin activates all links between courses and a company and the links do not exist, then there is nothing")
     void shouldDoNothing_whenActivateAllLinksBetweenCoursesAndCompany_IfLinksDoNotExist_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
@@ -276,7 +276,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for a link between a course and a company as a platform admin or a company user, then I find the link")
+    @DisplayName("When a platform admin or a company user searches for a link between a course and a company, then he finds the link")
     void shouldFindsLink_whenSearchForLinkBetweenCourseAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
@@ -294,7 +294,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for a link between a course and a company as a user who is neither a platform admin nor part of the company, then it is forbidden")
+    @DisplayName("When a user who is neither a platform admin nor part of the company searches for a link between a course and a company, then it is forbidden")
     void shouldForbidden_whenSearchForLinkBetweenCourseAndCompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
@@ -308,7 +308,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for a link between a course and a company that does not exist as a platform admin or a company user, then I find nothing")
+    @DisplayName("When a platform admin or a company user searches for a link between a course and a company that does not exist, then he finds nothing")
     void shouldFindNothing_whenSearchForLinkBetweenCourseAndNotExistingCompany_asAdminOrCompanyUser() throws
     ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
@@ -325,7 +325,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for a link between a course that does not exist and a company as a platform admin or a company user, then I find nothing")
+    @DisplayName("When a platform admin or a company user searches for a link between a course that does not exist and a company, then he finds nothing")
     void shouldFindNothing_whenSearchForLinkBetweenNotExistingCourseAndCompany_asAdminOrCompanyUser() throws
     ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
@@ -344,8 +344,8 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for all the links between courses and a company as a platform admin or a company user, then I get part of the list of links")
-    void shouldReturnPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a platform admin or a company user searches for all the links between courses and a company, then he finds a part of the list of links")
+    void shouldFindPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -360,7 +360,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for all the links between courses and a company as a user who is neither a platform admin nor part of the company, then it is forbidden")
+    @DisplayName("When a user who is neither a platform admin nor part of the company searches for all the links between courses and a company, then it is forbidden")
     void shouldForbidden_whenSearchingForAllLinksBetweenCoursesAndCompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
@@ -374,7 +374,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for all the links between courses and a company that does not exist as a platform admin or a company user, then I find nothing")
+    @DisplayName("When a platform admin or a company user search for all the links between courses and a non-existent company, then he finds nothing")
     void shouldFindNothing_whenSearchingForAllLinksBetweenCoursesAndNotExistingCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
@@ -390,7 +390,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for all the courses of a company as a platform admin or a company user, I get part of the list of courses")
+    @DisplayName("When a platform admin or a company user searches for all the courses of a company, he finds a part of the list of courses")
     void shouldReturnPartOfCourseList_whenSearchingForAllCoursesOfACompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
@@ -406,7 +406,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I search for all the courses of a company as a user who is neither a platform admin nor part of the company, then it is forbidden")
+    @DisplayName("When a user who is neither a platform admin nor part of the company searches for all the courses of a company, then it is forbidden")
     void shouldForbidden_whenSearchingForAllCoursesOfACompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
@@ -449,7 +449,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete the link between a course and a company as a platform or company admin, the link is deleted and the enrollments related to this link are suspended")
+    @DisplayName("When a platform or company admin deletes the link between a course and a company, the link is deleted and the enrollments related to this link are suspended")
     void shouldDeleteLinkAndSuspendEnrollments_whenLinkBetweenCourseAndCompanyIsDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
@@ -497,7 +497,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete a non-existent link between a course and a company as a platform or company admin, then there is nothing")
+    @DisplayName("When a platform or company admin deletes a non-existent link between a course and a company, then there is nothing")
     void shouldDoNothing_whenDeleteNotExistingLink_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
@@ -514,7 +514,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I suspend the link between a course and a company as a platform or company admin, the link is suspended and the enrollments related to this link are suspended")
+    @DisplayName("When a platform or company admin suspend the link between a course and a company, the link is suspended and the enrollments related to this link are suspended")
     void shouldSuspendLinkAndEnrollments_whenLinkBetweenCourseAndCompanyIsSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
@@ -557,7 +557,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I suspend a non-existent link between a course and a company as a platform or company admin, then there is nothing")
+    @DisplayName("When a platform or company admin suspend a non-existent link between a course and a company, then there is nothing")
     void shouldDoNothing_whenSuspendNotExistingLinkBetweenCourseAndCompany_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
@@ -574,7 +574,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I suspend a link between a course and a company as a platform or company non-admin, then it is forbidden")
+    @DisplayName("When a non-admin user of the platform or company suspends a link between a course and a company, then it is forbidden")
     void shouldForbidden_whenSuspendLink_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
@@ -588,7 +588,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete all links between courses and a company as a platform or company admin, then the links are deleted and the enrollments related to these links are suspended")
+    @DisplayName("When a platform or company admin deletes all links between courses and a company, then the links are deleted and the enrollments related to these links are suspended")
     void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
@@ -661,7 +661,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I suspend all links between courses and a company as a platform or company admin, then the links are suspended and the enrollments related to these links are suspended")
+    @DisplayName("When a platform or company admin suspends all links between courses and a company, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
@@ -735,7 +735,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete all links between courses and a company as a platform or company non-admin, then it is forbidden")
+    @DisplayName("When a non-admin user of the platform or company deletes all links between courses and a company, then it is forbidden")
     void shouldForbidden_whenDeleteAllLinksBetweenCoursesAndCompany_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
@@ -749,7 +749,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete all links between courses and a company that does not exist as a platform or company admin, then all links are not deleted")
+    @DisplayName("When a platform or company admin deletes all links between courses and a company that does not exist, then all links are not deleted")
     void shouldLinksNotDeleted_whenDeleteAllLinksOfNotExistingCompany_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
@@ -837,7 +837,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I suspend all links between a course and companies as a platform or company admin, then the links are suspended and the enrollments related to these links are suspended")
+    @DisplayName("When a platform or company admin suspends all links between a course and companies, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCourseAndCompaniesAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, true, LocalDateTime.now().minusMonths(1), null);
@@ -911,7 +911,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete all links between a course and companies as a platform or company non-admin, then it is forbidden")
+    @DisplayName("When a non-admin user of the platform or company deletes all links between a course and companies, then it is forbidden")
     void shouldForbidden_whenDeleteAllLinksBetweenCourseAndCompanies_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
@@ -925,7 +925,7 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When I delete all links between a course that does not exist and companies as a platform or company admin, then all links are not deleted")
+    @DisplayName("When a platform or company admin deletes all links between a course that does not exist and companies, then all links are not deleted")
     void shouldLinksNotDeleted_whenDeleteAllLinksBetweenNotExistingCourseAndCompanies_asPlatformOrCompanyAdmin() throws ResourceNotFoundException {
         //GIVEN
         when(checker.courseExists(anyLong())).thenThrow(ResourceNotFoundException.class);

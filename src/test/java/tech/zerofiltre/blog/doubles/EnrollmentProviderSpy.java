@@ -116,4 +116,9 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Enrollment> findAllByCompanyUserId(long companyCourseId, boolean isActive) {
+        return List.of();
+    }
+
 }

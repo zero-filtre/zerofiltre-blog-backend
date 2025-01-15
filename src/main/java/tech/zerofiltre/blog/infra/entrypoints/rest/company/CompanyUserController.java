@@ -8,8 +8,10 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyUserService;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.util.DataChecker;
@@ -24,9 +26,9 @@ public class CompanyUserController {
     private final CompanyUserService companyUserService;
     private final MessageSource sources;
 
-    public CompanyUserController(SecurityContextManager securityContextManager, MessageSource sources, CompanyUserProvider companyUserProvider, DataChecker checker) {
+    public CompanyUserController(SecurityContextManager securityContextManager, MessageSource sources, CompanyUserProvider companyUserProvider, EnrollmentProvider enrollmentProvider, DataChecker checker) {
         this.securityContextManager = securityContextManager;
-        this.companyUserService = new CompanyUserService(companyUserProvider, checker);
+        this.companyUserService = new CompanyUserService(companyUserProvider, enrollmentProvider, checker);
         this.sources = sources;
     }
 
@@ -52,7 +54,7 @@ public class CompanyUserController {
     }
 
     @DeleteMapping("/company/{companyId}/user/{userId}")
-    public void unlink(@PathVariable long companyId, @PathVariable long userId) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlink(@PathVariable long companyId, @PathVariable long userId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         companyUserService.unlink(user, companyId, userId);
     }

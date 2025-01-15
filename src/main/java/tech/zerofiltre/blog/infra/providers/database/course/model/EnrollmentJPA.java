@@ -24,6 +24,7 @@ public class EnrollmentJPA extends BaseEntityJPA {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "course_id")
     private CourseJPA course;
+    private long companyUserId;
     private long companyCourseId;
     private boolean completed;
     private boolean active;

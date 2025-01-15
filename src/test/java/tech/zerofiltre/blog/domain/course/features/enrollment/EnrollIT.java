@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
@@ -81,10 +82,13 @@ class EnrollIT {
     @Mock
     private CompanyCourseProvider companyCourseProvider;
 
+    @Mock
+    private CompanyUserProvider companyUserProvider;
+
     @BeforeEach
     void init() throws ZerofiltreException {
         doNothing().when(sandboxProvider).destroy(any(), any());
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, null, dbPurchaseProvider, checker, companyCourseProvider, companyUserProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, dbPurchaseProvider, sandboxProvider, dbCourseProvider);
     }
 
@@ -204,7 +208,7 @@ class EnrollIT {
         Company company = dbCompanyProvider.save(new Company(0, "company 1", "000000001"));
         assertThat(company).isNotNull();
 
-        LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN));
+        LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
         assertThat(linkCompanyUser).isNotNull();
 
         LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));

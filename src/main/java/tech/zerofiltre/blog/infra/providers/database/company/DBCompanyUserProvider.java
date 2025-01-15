@@ -34,6 +34,11 @@ public class DBCompanyUserProvider implements CompanyUserProvider {
     }
 
     @Override
+    public Optional<LinkCompanyUser> findByCompanyIdAndUserId(long companyId, long userId, boolean active) {
+        return repository.findByCompanyIdAndUserIdAndActive(companyId, userId, active).map(mapper::fromJPA);
+    }
+
+    @Override
     public Page<LinkCompanyUser> findAllByCompanyId(int pageNumber, int pageSize, long companyId) {
         org.springframework.data.domain.Page<LinkCompanyUserJPA> pageJpa = repository.findAllByCompanyId(PageRequest.of(pageNumber, pageSize), companyId);
         return pageMapper.fromSpringPage(pageJpa.map(mapper::fromJPA));

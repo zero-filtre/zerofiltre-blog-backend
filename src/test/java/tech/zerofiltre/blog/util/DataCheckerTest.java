@@ -72,9 +72,9 @@ class DataCheckerTest {
         userWithUserRole.setId(1L);
         userWithUserRole.getRoles().add("ROLE_USER");
 
-        linkCompanyUserRoleAdmin = new LinkCompanyUser(1L, 1L, LinkCompanyUser.Role.ADMIN);
-        linkCompanyUserRoleEditor = new LinkCompanyUser(1L, 1L, LinkCompanyUser.Role.EDITOR);
-        linkCompanyUserRoleViewer = new LinkCompanyUser(1L, 1L, LinkCompanyUser.Role.VIEWER);
+        linkCompanyUserRoleAdmin = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
+        linkCompanyUserRoleEditor = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null);
+        linkCompanyUserRoleViewer = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null);
     }
 
     @BeforeEach

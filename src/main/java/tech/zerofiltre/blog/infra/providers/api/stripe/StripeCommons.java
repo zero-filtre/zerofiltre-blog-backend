@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -67,7 +68,8 @@ public class StripeCommons {
             PurchaseProvider purchaseProvider,
             SandboxProvider sandboxProvider,
             DataChecker checker,
-            CompanyCourseProvider companyCourseProvider) {
+            CompanyCourseProvider companyCourseProvider,
+            CompanyUserProvider companyUserProvider) {
 
         this.userProvider = userProvider;
         this.emailSender = emailSender;
@@ -75,7 +77,7 @@ public class StripeCommons {
         this.emailTemplateEngine = emailTemplateEngine;
         this.courseProvider = courseProvider;
         this.purchaseProvider = purchaseProvider;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
     }
 

@@ -11,8 +11,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.CompanyUserService;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -48,8 +51,10 @@ class EnrollTest {
     private SandboxProvider sandboxProvider;
     private PurchaseProvider purchaseProvider;
     private CompanyCourseProvider companyCourseProvider;
+    private CompanyUserProvider companyUserProvider;
     private DataChecker checker;
     private CompanyCourseService companyCourseService;
+    private CompanyUserService companyUserService;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +63,7 @@ class EnrollTest {
         companyCourseProvider = mock(CompanyCourseProvider.class);
         checker = mock(DataChecker.class);
         companyCourseService = mock(CompanyCourseService.class);
+        companyUserService = mock(CompanyUserService.class);
     }
 
     @Test
@@ -125,7 +131,7 @@ class EnrollTest {
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //act
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
         Enrollment result = enroll.execute(user.getId(), relatedCourse.getId(), 0, false);
 
         //assert
@@ -152,7 +158,7 @@ class EnrollTest {
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, null, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, null, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
 
         User user = ZerofiltreUtils.createMockUser(false);
@@ -192,7 +198,7 @@ class EnrollTest {
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(1, 1, 0, false);
@@ -224,7 +230,7 @@ class EnrollTest {
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(1, 1, 0, false);
@@ -250,7 +256,7 @@ class EnrollTest {
         when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(1, 1, 0, false);
@@ -269,7 +275,7 @@ class EnrollTest {
         UserProvider userProvider = new NotFoundUserProviderSpy();
 
         //act
-        enroll = new Enroll(null, null, userProvider, null, null, null, checker, companyCourseProvider);
+        enroll = new Enroll(null, null, userProvider, null, null, null, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -295,7 +301,7 @@ class EnrollTest {
         course.setStatus(Status.PUBLISHED);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(user.getId(), course.getId(), 0, false);
@@ -329,7 +335,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(user.getId(), course.getId(), 0, false);
@@ -357,7 +363,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(1, course.getId(), 0, false);
@@ -392,7 +398,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(user.getId(), course.getId(), 0, false);
@@ -421,7 +427,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(1, course.getId(), 0, false);
@@ -456,7 +462,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong())).thenReturn(new ArrayList<>());
         when(courseProvider.getEnrolledCount(anyLong())).thenReturn(0);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment result = enroll.execute(user.getId(), course.getId(), 0, false);
@@ -472,7 +478,7 @@ class EnrollTest {
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         CourseProvider courseProvider = new NotFoundCourseProviderSpy();
 
-        enroll = new Enroll(null, courseProvider, userProvider, null, null, null, checker, companyCourseProvider);
+        enroll = new Enroll(null, courseProvider, userProvider, null, null, null, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -487,7 +493,7 @@ class EnrollTest {
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         CourseProvider courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
 
-        enroll = new Enroll(null, courseProvider, userProvider, null, null, null, checker, companyCourseProvider);
+        enroll = new Enroll(null, courseProvider, userProvider, null, null, null, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
@@ -503,7 +509,7 @@ class EnrollTest {
         Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
 
@@ -545,7 +551,7 @@ class EnrollTest {
         Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         UserProvider userProvider = new FoundAdminUserProviderSpy();
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, null, checker, companyCourseProvider, companyUserProvider);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
 
@@ -578,7 +584,7 @@ class EnrollTest {
 
         when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), eq(true))).thenReturn(Optional.of(new Enrollment()));
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, null, null, null, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, null, null, null, checker, companyCourseProvider, companyUserProvider);
 
         //act
         Enrollment enrollment = enroll.execute(1, 1, 0, false);
@@ -600,7 +606,7 @@ class EnrollTest {
 
         sandboxProvider = mock(SandboxProvider.class);
 
-        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, null, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProviderDummy, courseProvider, userProvider, chapterProvider, sandboxProvider, null, checker, companyCourseProvider, companyUserProvider);
 
         //act
         enroll.execute(1, 1, 0, false);
@@ -634,7 +640,7 @@ class EnrollTest {
         sandboxProvider = mock(SandboxProvider.class);
         when(sandboxProvider.initialize(any(), anyString())).thenReturn(new Sandbox());
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //act
         enroll.execute(1, 1, 0, false);
@@ -646,8 +652,8 @@ class EnrollTest {
     }
 
     @Test
-    @DisplayName("Given an existing company user and company course when execute then enroll")
-    void givenExistingCompanyUserAndCompanyCourse_whenExecute_thenEnroll() throws ZerofiltreException {
+    @DisplayName("When a company user enrolls in a company course, the enrollment is created")
+    void shouldCreateEnrollment_whenEnrollCompanyUserToCompanyCourse() throws ZerofiltreException {
         //arrange
         CourseProvider courseProvider = mock(CourseProvider.class);
         EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
@@ -656,6 +662,9 @@ class EnrollTest {
 
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(12, 1, 1, true, LocalDateTime.now(), null);
         when(companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(anyLong(), anyLong())).thenReturn(linkCompanyCourse.getId());
+
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(23, 1, 1, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null);
+        when(companyUserService.getLinkCompanyUserIdIfUserIsActive(anyLong(), anyLong())).thenReturn(linkCompanyUser.getId());
 
         // Build user's previous enrollment
         Course course = new Course();
@@ -705,8 +714,9 @@ class EnrollTest {
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
         //act
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
         ReflectionTestUtils.setField(enroll, "companyCourseService", companyCourseService);
+        ReflectionTestUtils.setField(enroll, "companyUserService", companyUserService);
         Enrollment result = enroll.execute(user.getId(), course.getId(), 1L, false);
 
         //assert
@@ -716,6 +726,7 @@ class EnrollTest {
         assertThat(result.getCourse()).isEqualTo(course);
         assertThat(result.isForLife()).isFalse();
         assertThat(result.getCompanyCourseId()).isEqualTo(linkCompanyCourse.getId());
+        assertThat(result.getCompanyUserId()).isEqualTo(linkCompanyUser.getId());
     }
 
     @Test
@@ -740,7 +751,7 @@ class EnrollTest {
         when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
 
         //act
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -771,7 +782,7 @@ class EnrollTest {
         when(checker.companyUserExists(anyLong(), anyLong())).thenThrow(ResourceNotFoundException.class);
 
         //act
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -800,7 +811,7 @@ class EnrollTest {
         when(checker.companyCourseExists(anyLong(), anyLong())).thenThrow(ResourceNotFoundException.class);
 
         //act
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         //assert
         Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -818,7 +829,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         Course course = new Course();
         course.setStatus(Status.PUBLISHED);
@@ -860,7 +871,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider);
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
         Course course = new Course();
         course.setStatus(Status.PUBLISHED);

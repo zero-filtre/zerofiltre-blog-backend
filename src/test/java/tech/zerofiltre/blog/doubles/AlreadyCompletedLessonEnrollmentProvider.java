@@ -49,6 +49,11 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Enrollment> findAllByCompanyUserId(long companyCourseId, boolean isActive) {
+        return List.of();
+    }
+
     public Enrollment save(Enrollment enrollment) {
         return null;
     }
