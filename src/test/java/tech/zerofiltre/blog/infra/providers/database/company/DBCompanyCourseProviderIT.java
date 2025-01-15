@@ -164,11 +164,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        LinkCompanyCourse linkCompanyCourse1 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
 
         //WHEN
         Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId());

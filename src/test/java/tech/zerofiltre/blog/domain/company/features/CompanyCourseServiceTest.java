@@ -10,9 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
 
@@ -39,6 +41,9 @@ class CompanyCourseServiceTest {
     CompanyCourseProvider companyCourseProvider;
 
     @Mock
+    EnrollmentProvider enrollmentProvider;
+
+    @Mock
     DataChecker checker;
 
     @BeforeAll
@@ -52,7 +57,7 @@ class CompanyCourseServiceTest {
 
     @BeforeEach
     void init() {
-        companyCourseService = new CompanyCourseService(companyCourseProvider, checker);
+        companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
     }
 
     @Test
@@ -442,15 +447,17 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When want to delete a link between a course and a company as the platform or company admin, then verify call delete")
-    void whenDeleteLink_asPlatformOrCompanyAdmin_thenVerifyCallDelete() throws ForbiddenActionException {
+    @DisplayName("When want to delete a link between a course and a company as the platform or company admin, then verify call delete and save enrollment")
+    void whenDeleteLink_asPlatformOrCompanyAdmin_thenVerifyCallDelete_AndSuspendEnrollments() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+
         Enrollment enrollment = new Enrollment();
         enrollment.setCompanyCourseId(linkCompanyCourse.getId());
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
+        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(List.of(enrollment));
 
         //WHEN
         companyCourseService.unlink(adminUser, 1L, 1L, true);
@@ -459,11 +466,28 @@ class CompanyCourseServiceTest {
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider).delete(any(LinkCompanyCourse.class));
+        verify(enrollmentProvider).save(any(Enrollment.class));
+    }
+
+    @Test
+    @DisplayName("When want to delete a link between a course and a company as the platform or company admin and link does not exist, then verify not call delete")
+    void whenDeleteLink_asPlatformOrCompanyAdmin_andNotExistingLink_thenVerifyNotCallSave() throws ZerofiltreException {
+        //GIVEN
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        //WHEN
+        companyCourseService.unlink(adminUser, 1L, 1L, true);
+
+        //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
+        verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
     }
 
     @Test
     @DisplayName("When want to suspend a link between a course and a company as the platform or company admin, then verify call save with correct parameters")
-    void whenSuspendLink_asPlatformOrCompanyAdmin_thenVerifyCallSave() throws ForbiddenActionException {
+    void whenSuspendLink_asPlatformOrCompanyAdmin_thenVerifyCallSave_AndSuspendEnrollments() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
 
@@ -486,7 +510,7 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When want to suspend a link between a course and a company as the platform or company admin and link does not exist, then verify not call save")
-    void whenSuspendLink_asPlatformOrCompanyAdmin_andNotExistingLink_thenVerifyNotCallSave() throws ForbiddenActionException {
+    void whenSuspendLink_asPlatformOrCompanyAdmin_andNotExistingLink_thenVerifyNotCallSave() throws ZerofiltreException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
@@ -516,7 +540,7 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When want to delete all links of a company as the platform or company admin, then verify call delete all by company id")
-    void whenDeleteAllLinksOfCompany_thenVerifyCallDeleteAllByCompanyId() throws ForbiddenActionException, ResourceNotFoundException {
+    void whenDeleteAllLinksOfCompany_thenVerifyCallDeleteAllByCompanyId() throws ZerofiltreException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -532,7 +556,7 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When suspend all links between courses and a company, then verify that the save method is called 2 times.")
-    void whenUnlinkAllCoursesByCompanyId_thenVerify2CallSave() throws ForbiddenActionException, ResourceNotFoundException {
+    void whenUnlinkAllCoursesByCompanyId_thenVerify2CallSave() throws ZerofiltreException {
         //GIVEN
         List<LinkCompanyCourse> list = new ArrayList<>();
         list.add(new LinkCompanyCourse(1L, 1L, 1L, true, null, null));
@@ -583,7 +607,7 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When want to delete all links of a course as an admin user, then verify call delete all by course id")
-    void whenDeleteAllLinksOfCourse_asAdminUser_thenVerifyCallDeleteAllByCourseId() throws ForbiddenActionException, ResourceNotFoundException {
+    void whenDeleteAllLinksOfCourse_asAdminUser_thenVerifyCallDeleteAllByCourseId() throws ZerofiltreException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.courseExists(anyLong())).thenReturn(true);
@@ -599,7 +623,7 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When suspend a link between a course and all companies, then verify that the save method is called 2 times.")
-    void whenUnlinkACourseOfAllCompanies_thenVerify2CallSave() throws ForbiddenActionException, ResourceNotFoundException {
+    void whenUnlinkACourseOfAllCompanies_thenVerify2CallSave() throws ZerofiltreException {
         //GIVEN
         List<LinkCompanyCourse> list = new ArrayList<>();
         list.add(new LinkCompanyCourse(1L, 1L, 1L, true, null, null));
@@ -648,10 +672,15 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When suspend link of a course to a company, then verify that the link is saved with the correct parameters")
-    void whenSuspendLink_thenVerifyCallSave() {
+    @DisplayName("When suspend link of a course to a company, then verify that the link is saved with the correct parameters and save enrollment")
+    void whenSuspendLink_thenVerifyCallSave() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCompanyCourseId(linkCompanyCourse.getId());
+
+        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(List.of(enrollment));
 
         //WHEN
         companyCourseService.suspendLink(linkCompanyCourse);
@@ -662,19 +691,57 @@ class CompanyCourseServiceTest {
         LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
         assertThat(linkCompanyCourseCaptured.isActive()).isFalse();
         assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+
+        verify(enrollmentProvider).save(any(Enrollment.class));
     }
 
     @Test
-    @DisplayName("When suspend link of a course to the company and the link is inactive, then verify do not call save")
-    void whenSuspendLinkInactive_thenVerifyNotCallSave() {
+    @DisplayName("When suspend link of a course to the company and the link is inactive, then verify do not call save and save enrollment")
+    void whenSuspendLinkInactive_thenVerifyNotCallSave_andSaveEnrollment() throws ZerofiltreException {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L,1L, 1L, false, LocalDateTime.now(), LocalDateTime.now());
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setCompanyCourseId(linkCompanyCourse.getId());
+
+        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(List.of(enrollment));
 
         //WHEN
         companyCourseService.suspendLink(linkCompanyCourse);
 
         //THEN
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
+        verify(enrollmentProvider).save(any(Enrollment.class));
+    }
+
+    @Test
+    @DisplayName("When suspend all enrollments of a course to a company, then verify that the enrollment is saved with the correct parameters")
+    void whenSuspendEnrollment_thenVerifyCallSaveEnrollments() throws ZerofiltreException {
+        //GIVEN
+        long companyCourseId = 1;
+
+        Enrollment enrollment1 = new Enrollment();
+        enrollment1.setCompanyCourseId(companyCourseId);
+        Enrollment enrollment2 = new Enrollment();
+        enrollment2.setCompanyCourseId(companyCourseId);
+
+        List<Enrollment> enrollmentList = List.of(enrollment1, enrollment2);
+
+        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(companyCourseId, true)).thenReturn(enrollmentList);
+
+        //WHEN
+        companyCourseService.suspendEnrollments(1L);
+
+        //THEN
+        ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
+        verify(enrollmentProvider, times(2)).save(captor.capture());
+        List<Enrollment> enrollmentsCaptured = captor.getAllValues();
+        assertThat(enrollmentsCaptured.size()).isEqualTo(2);
+        assertThat(enrollmentsCaptured.get(0).isActive()).isFalse();
+        assertThat(enrollmentsCaptured.get(0).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+
+        assertThat(enrollmentsCaptured.get(1).isActive()).isFalse();
+        assertThat(enrollmentsCaptured.get(1).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
 }

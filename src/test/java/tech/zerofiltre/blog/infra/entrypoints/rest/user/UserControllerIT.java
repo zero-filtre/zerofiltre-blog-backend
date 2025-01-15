@@ -24,6 +24,7 @@ import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.user.AvatarProvider;
 import tech.zerofiltre.blog.domain.user.JwtTokenProvider;
@@ -136,6 +137,9 @@ class UserControllerIT {
 
     @MockBean
     CompanyCourseProvider companyCourseProvider;
+
+    @MockBean
+    EnrollmentProvider enrollmentProvider;
 
     @MockBean
     DataChecker checker;
