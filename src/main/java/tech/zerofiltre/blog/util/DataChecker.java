@@ -70,7 +70,7 @@ public class DataChecker {
         Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
         if(companyUser.isEmpty()) {
-            throw new ResourceNotFoundException("We could not find the company user", "");
+            throw new ResourceNotFoundException("We could not find the company user", String.valueOf(userId));
         }
         return true;
     }
@@ -79,10 +79,10 @@ public class DataChecker {
         Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
 
         if(companyCourse.isEmpty()) {
-            throw new ResourceNotFoundException("We could not find the company course", "");
+            throw new ResourceNotFoundException("We could not find the company course", String.valueOf(courseId));
         }
         if(!companyCourse.get().isActive()) {
-            throw new ResourceNotFoundException("This course is not active", "");
+            throw new ResourceNotFoundException("This course is not active", String.valueOf(courseId));
         }
         return true;
     }

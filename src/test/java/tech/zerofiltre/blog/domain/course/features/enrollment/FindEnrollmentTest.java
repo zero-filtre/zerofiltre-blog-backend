@@ -1,6 +1,9 @@
 package tech.zerofiltre.blog.domain.course.features.enrollment;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
@@ -15,7 +18,6 @@ import tech.zerofiltre.blog.doubles.EnrollmentProviderSpy;
 import tech.zerofiltre.blog.doubles.FoundChapterProviderSpy;
 import tech.zerofiltre.blog.doubles.Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons;
 import tech.zerofiltre.blog.doubles.NotFoundEnrollmentProviderDummy;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -23,7 +25,7 @@ import static tech.zerofiltre.blog.domain.FinderRequest.Filter.COMPLETED;
 import static tech.zerofiltre.blog.domain.FinderRequest.Filter.INACTIVE;
 import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 
-
+@ExtendWith(MockitoExtension.class)
 class FindEnrollmentTest {
 
     @Test
@@ -92,50 +94,70 @@ class FindEnrollmentTest {
     }
 
     @Test
-    void findAEnrollment_returns_theProperOne() throws ResourceNotFoundException, ForbiddenActionException {
+    void findAEnrollmentForUser_returns_theProperOne() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
         FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
-        User executor = ZerofiltreUtils.createMockUser(true);
         //when
-        Enrollment enrollment = findEnrollment.of(0, 1, executor);
+        Enrollment enrollment = findEnrollment.of(1, 1, 1, false);
         //then
         assertThat(enrollment).isNotNull();
-
     }
 
     @Test
-    void findAnEnrollment_throwsResourceNotFoundException() {
+    @DisplayName("When performing a search for an enrollment as a non-admin user for another user, a forbidden action exception is returned.")
+    void searchEnrollment_AsNonAdmin_ForAnotherUser_ShouldReturn_ForbiddenException() {
+        //given
+        FindEnrollment findEnrollment = new FindEnrollment(null, null, null);
+
+        //then
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> findEnrollment.of(1, 1, 2, false))
+                .withMessage("You are only allow to look for your enrollments");
+    }
+
+    @Test
+    @DisplayName("When searching for a user's enrollment in a course then throw an exception")
+    void searchUserEnrollment_InCourse_ShouldThrow_ResourceNotFoundException() {
         //given
         EnrollmentProvider enrollmentProvider = new NotFoundEnrollmentProviderDummy();
-        CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
-        ChapterProvider chapterProvider = new FoundChapterProviderSpy();
-        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
-        User executor = ZerofiltreUtils.createMockUser(true);
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, null, null);
 
-        //when
         //then
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> findEnrollment.of(1, 1, executor))
+                .isThrownBy(() -> findEnrollment.of(1, 1, 1, false))
                 .withMessage("Enrollment not found");
     }
 
     @Test
-    void findAnEnrollment_throwsForbiddenActionException_ifExecutor_isNotAdmin_NorInvolved() {
+    @DisplayName("When searching as an admin for a user's enrollment in a course, return an enrollment")
+    void searchAsAdmin_ForUserEnrollment_InCourse_ShouldReturnEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
-        EnrollmentProvider enrollmentProvider = new EnrollmentProviderSpy();
+        EnrollmentProviderSpy enrollmentProvider = new EnrollmentProviderSpy();
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         ChapterProvider chapterProvider = new FoundChapterProviderSpy();
         FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
-        User executor = ZerofiltreUtils.createMockUser(false);
 
         //when
+        Enrollment enrollment = findEnrollment.of(1, 1, 0, true);
+
         //then
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> findEnrollment.of(1, 1, executor))
-                .withMessage("You are only allow to look for your enrollments");
+        assertThat(enrollment).isNotNull();
+    }
+
+    @Test
+    @DisplayName("When searching for a user's enrollment in a course and this enrollment does not exist, a resource not found exception is returned.")
+    void findAnEnrollment_throwsResourceNotFoundException() {
+        //given
+        EnrollmentProvider enrollmentProvider = new NotFoundEnrollmentProviderDummy();
+        FindEnrollment findEnrollment = new FindEnrollment(enrollmentProvider, null, null);
+
+        //then
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> findEnrollment.of(1, 1, 1, true))
+                .withMessage("Enrollment not found");
     }
 
 }

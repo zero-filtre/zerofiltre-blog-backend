@@ -102,7 +102,7 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0, false);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
@@ -142,7 +142,7 @@ class EnrollIT {
         dbPurchaseProvider.save(purchase);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0, false);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();
@@ -175,12 +175,12 @@ class EnrollIT {
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        enroll.execute(user.getId(), course.getId(), 0);
+        enroll.execute(user.getId(), course.getId(), 0, false);
 
         Enrollment suspendedEnrollment = suspend.execute(user.getId(), course.getId());
         assertThat(suspendedEnrollment.getSuspendedAt()).isNotNull();
 
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0);
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0, false);
 
         assertThat(enrollment.getSuspendedAt()).isNull();
         assertThat(enrollment.getId()).isEqualTo(suspendedEnrollment.getId());
@@ -214,7 +214,7 @@ class EnrollIT {
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
-        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), company.getId());
+        Enrollment enrollment = enroll.execute(user.getId(), course.getId(), company.getId(), false);
         LocalDateTime afterEnroll = LocalDateTime.now();
 
         assertThat(enrollment).isNotNull();

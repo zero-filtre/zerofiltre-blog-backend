@@ -45,6 +45,11 @@ public class NotFoundEnrollmentProviderDummy implements EnrollmentProvider {
     }
 
     @Override
+    public Optional<Enrollment> enrollmentOf(long userId, long courseId) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
         return Optional.empty();
     }
@@ -53,4 +58,5 @@ public class NotFoundEnrollmentProviderDummy implements EnrollmentProvider {
     public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
         return new ArrayList<>();
     }
+
 }

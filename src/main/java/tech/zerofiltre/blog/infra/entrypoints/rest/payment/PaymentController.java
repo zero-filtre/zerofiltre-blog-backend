@@ -35,7 +35,6 @@ public class PaymentController {
     private final PaymentService stripePaymentService;
     private final PaymentService notchPaymentService;
 
-
     public PaymentController(SecurityContextManager securityContextManager,
                              CourseProvider courseProvider,
                              InfraProperties infraProperties,

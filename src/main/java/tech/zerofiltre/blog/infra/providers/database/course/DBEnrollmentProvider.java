@@ -53,6 +53,12 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     }
 
     @Override
+    public Optional<Enrollment> enrollmentOf(long userId, long courseId) {
+        return repository.findByUserIdAndCourseId(userId, courseId)
+                .map(mapper::fromJPA);
+    }
+
+    @Override
     public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
         return repository.findByCompanyCourseIdAndActive(companyCourseId, isActive).map(mapper::fromJPA);
     }

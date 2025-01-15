@@ -16,6 +16,8 @@ public interface EnrollmentProvider {
 
     Optional<Enrollment> enrollmentOf(long userId, long courseId, boolean isActive);
 
+    Optional<Enrollment> enrollmentOf(long userId, long courseId);
+
     Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
 
     List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);

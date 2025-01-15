@@ -112,7 +112,7 @@ public class StripeCommons {
                     .orElseThrow(() -> new ResourceNotFoundException(EVENT_ID + event.getId() + EVENT_TYPE + event.getType() + " We couldn't find the course " + productId + TO_EDIT, String.valueOf(productId)));
             Purchase purchase = new Purchase(user, course);
             purchase = purchaseProvider.save(purchase);
-            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId, 0);
+            if (purchase.getId() != 0) enroll.execute(Long.parseLong(userId), productId, 0, false);
         }
     }
 
