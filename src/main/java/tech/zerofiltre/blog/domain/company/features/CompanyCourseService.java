@@ -4,20 +4,23 @@ import lombok.RequiredArgsConstructor;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public class CompanyCourseService {
 
     private final CompanyCourseProvider companyCourseProvider;
+    private final EnrollmentProvider enrollmentProvider;
     private final DataChecker checker;
 
     public LinkCompanyCourse link(User currentUser, long companyId, long courseId) throws ForbiddenActionException, ResourceNotFoundException {
@@ -77,24 +80,32 @@ public class CompanyCourseService {
         return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).map(LinkCompanyCourse::getId).orElse(0L);
     }
 
-    public void unlink(User user, long companyId, long courseId, boolean hard) throws ForbiddenActionException {
+    public void unlink(User user, long companyId, long courseId, boolean hard) throws ZerofiltreException {
         checker.isAdminOrCompanyAdmin(user, companyId);
 
         if(hard) {
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
-            companyCourse.ifPresent(companyCourseProvider::delete);
+            if(companyCourse.isPresent()) {
+                companyCourseProvider.delete(companyCourse.get());
+                suspendEnrollments(companyCourse.get().getId());
+            }
         } else { // suspend
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true);
-            companyCourse.ifPresent(this::suspendLink);
+            if(companyCourse.isPresent()) {
+                suspendLink(companyCourse.get());
+            }
         }
     }
 
-    public void unlinkAllByCompanyId(User user, long companyId, boolean hard) throws ForbiddenActionException, ResourceNotFoundException {
+    public void unlinkAllByCompanyId(User user, long companyId, boolean hard) throws ZerofiltreException {
         checker.isAdminOrCompanyAdmin(user, companyId);
         checker.companyExists(companyId);
 
         if(hard) {
-            companyCourseProvider.deleteAllByCompanyId(companyId);
+            for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
+                companyCourseProvider.delete(c);
+                suspendEnrollments(c.getId());
+            }
         } else {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
                 suspendLink(c);
@@ -102,12 +113,15 @@ public class CompanyCourseService {
         }
     }
 
-    public void unlinkAllByCourseId(User user, long courseId, boolean hard) throws ForbiddenActionException, ResourceNotFoundException {
+    public void unlinkAllByCourseId(User user, long courseId, boolean hard) throws ZerofiltreException {
         checker.isAdminUser(user);
         checker.courseExists(courseId);
 
         if(hard) {
-            companyCourseProvider.deleteAllByCourseId(courseId);
+            for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
+                companyCourseProvider.delete(c);
+                suspendEnrollments(c.getId());
+            }
         } else {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
                 suspendLink(c);
@@ -115,12 +129,20 @@ public class CompanyCourseService {
         }
     }
 
-    void suspendLink(LinkCompanyCourse linkCompanyCourse) {
-        if(Objects.isNull(linkCompanyCourse.getSuspendedAt())) {
+    void suspendLink(LinkCompanyCourse linkCompanyCourse) throws ZerofiltreException {
+        if(null == linkCompanyCourse.getSuspendedAt()) {
             linkCompanyCourse.setActive(false);
             linkCompanyCourse.setSuspendedAt(LocalDateTime.now());
             companyCourseProvider.save(linkCompanyCourse);
         }
+        suspendEnrollments(linkCompanyCourse.getId());
     }
 
+    public void suspendEnrollments(long companyCourseId) throws ZerofiltreException {
+        for(Enrollment e : enrollmentProvider.findAll(companyCourseId, true)) {
+            e.setActive(false);
+            e.setSuspendedAt(LocalDateTime.now());
+            enrollmentProvider.save(e);
+        }
+    }
 }

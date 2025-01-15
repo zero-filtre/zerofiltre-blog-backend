@@ -40,12 +40,12 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
     }
 
     @Override
-    public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+    public Optional<Enrollment> find(long companyCourseId, boolean isActive) {
         return Optional.empty();
     }
 
     @Override
-    public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
+    public List<Enrollment> findAll(long companyCourseId, boolean isActive) {
         return new ArrayList<>();
     }
 

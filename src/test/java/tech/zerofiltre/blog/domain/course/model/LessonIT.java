@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -62,6 +63,8 @@ class LessonIT {
     private DataChecker checker;
     @MockBean
     private CompanyCourseProvider companyCourseProvider;
+    @MockBean
+    private EnrollmentProvider enrollmentProvider;
 
     private Chapter chapter;
     private User author;
@@ -189,7 +192,7 @@ class LessonIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         Course course = courseService.init("A course", author, 0);
 
         chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());

@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
@@ -35,12 +36,12 @@ public class CourseService {
     private final DataChecker checker;
     private final CompanyCourseService companyCourseService;
 
-    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider) {
+    public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider) {
         this.courseProvider = courseProvider;
         this.tagProvider = tagProvider;
         this.loggerProvider = loggerProvider;
         this.checker = checker;
-        this.companyCourseService = new CompanyCourseService(companyCourseProvider, checker);
+        this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
     }
 
 

@@ -316,7 +316,7 @@ class DBEnrollmentProviderIT {
         dbEnrollmentProvider.save(enrollment);
 
         //WHEN
-        Optional<Enrollment> response = dbEnrollmentProvider.findByCompanyCourseIdAndActive(enrollment.getCompanyCourseId(), true);
+        Optional<Enrollment> response = dbEnrollmentProvider.find(enrollment.getCompanyCourseId(), true);
 
         //THEN
         assertThat(response).isPresent();
