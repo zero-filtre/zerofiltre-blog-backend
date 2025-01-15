@@ -65,10 +65,8 @@ public class K8sSandboxProvider implements SandboxProvider {
 
     private void notifyUser(String email, Sandbox result) {
         if (result != null) {
-            //TODO API SHOULD RETURN SANDBOX TYPE IN BODY
             result.setType(Sandbox.Type.K8S);
             Optional<User> user = userProvider.userOfEmail(email);
-            //TODO if user if empty try to find him by payment email
             user.ifPresent(foundUser -> {
                 String appUrl = ZerofiltreUtils.getOriginUrl(infraProperties.getEnv());
                 UserActionEvent event = new SandboxCreatedEvent(appUrl, Locale.forLanguageTag(foundUser.getLanguage()), foundUser, result);

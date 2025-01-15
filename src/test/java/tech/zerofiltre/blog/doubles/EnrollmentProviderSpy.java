@@ -92,6 +92,21 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     }
 
     @Override
+    public Optional<Enrollment> enrollmentOf(long userId, long courseId) {
+        Enrollment value = new Enrollment();
+        value.setId(ID);
+        value.setEnrolledAt(LocalDateTime.now().minusDays(2));
+        value.setLastModifiedAt(value.getEnrolledAt());
+        value.setSuspendedAt(LocalDateTime.now().minusDays(1));
+        value.setActive(true);
+        value.setUser(ZerofiltreUtils.createMockUser(false));
+        value.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+                Collections.emptyList(), Collections.emptyList()));
+        enrollmentOfCalled = true;
+        return Optional.of(value);
+    }
+
+    @Override
     public Optional<Enrollment> findByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
         return Optional.empty();
     }
@@ -100,4 +115,5 @@ public class EnrollmentProviderSpy implements EnrollmentProvider {
     public List<Enrollment> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive) {
         return new ArrayList<>();
     }
+
 }

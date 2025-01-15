@@ -11,8 +11,6 @@ import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
-import tech.zerofiltre.blog.domain.company.CompanyProvider;
-import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -67,12 +65,6 @@ class SuspendIT {
     PurchaseProvider purchaseProvider;
 
     @Autowired
-    CompanyProvider companyProvider;
-
-    @Autowired
-    CompanyUserProvider companyUserProvider;
-
-    @Autowired
     CompanyCourseProvider companyCourseProvider;
 
     @Mock
@@ -101,7 +93,7 @@ class SuspendIT {
 
         Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
-        enroll.execute(user.getId(), course.getId(), 0);
+        enroll.execute(user.getId(), course.getId(), 0, false);
         LocalDateTime beforeSuspend = LocalDateTime.now();
         Enrollment enrollment = suspend.execute(user.getId(), course.getId());
         LocalDateTime afterSuspend = LocalDateTime.now();

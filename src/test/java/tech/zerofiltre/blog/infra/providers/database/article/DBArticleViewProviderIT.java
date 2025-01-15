@@ -51,8 +51,8 @@ class DBArticleViewProviderIT {
 
         //ARRANGE
         // -- dates
-        LocalDateTime lastMonth = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().minusMonths(1).getMonthValue(), 10, 0, 0);
-        LocalDateTime threeMonthsBack = lastMonth.minusMonths(2);
+        LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
+        LocalDateTime threeMonthsBack = LocalDateTime.now().minusMonths(3);
         List<LocalDate> listDates = ZerofiltreUtils.defineStartDateAndEndDate();
 
         // -- Users

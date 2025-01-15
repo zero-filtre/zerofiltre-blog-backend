@@ -64,7 +64,7 @@ class CompanyUserControllerTest {
 
     @Test
     @DisplayName("given bad companyId when unlinkAllByCompanyId then throw ForbiddenActionException")
-    void givenBadCompanyId_whenUnlinkAllByCompanyId_thenThrowException() throws ResourceNotFoundException {
+    void givenBadCompanyId_whenUnlinkAllByCompanyId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 
@@ -94,7 +94,7 @@ class CompanyUserControllerTest {
 
     @Test
     @DisplayName("given bad userId when unlinkAllByUserId then throw ForbiddenActionException")
-    void givenBadUserId_whenUnlinkAllByUserId_thenThrowException() throws ResourceNotFoundException {
+    void givenBadUserId_whenUnlinkAllByUserId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 

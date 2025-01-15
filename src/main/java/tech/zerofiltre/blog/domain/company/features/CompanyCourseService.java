@@ -29,7 +29,7 @@ public class CompanyCourseService {
         if(existingCompanyCourse.isEmpty()) {
             LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, companyId, courseId, true, LocalDateTime.now(), null);
             return companyCourseProvider.save(linkCompanyCourse);
-        } else if(!Objects.isNull(existingCompanyCourse.get().getSuspendedAt())) {
+        } else if(null != existingCompanyCourse.get().getSuspendedAt()) {
             existingCompanyCourse.get().setActive(true);
             existingCompanyCourse.get().setSuspendedAt(null);
 
@@ -74,8 +74,7 @@ public class CompanyCourseService {
 
     public long getLinkCompanyCourseIdIfCourseIsActive(long companyId, long courseId) throws ResourceNotFoundException {
         checker.companyCourseExists(companyId, courseId);
-
-        return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).get().getId();
+        return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).map(LinkCompanyCourse::getId).orElse(0L);
     }
 
     public void unlink(User user, long companyId, long courseId, boolean hard) throws ForbiddenActionException {

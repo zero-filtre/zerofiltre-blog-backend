@@ -71,7 +71,6 @@ public class Suspend {
                 .stream().mapToInt(chapter -> chapter.getLessons() == null ? 0 : chapter.getLessons().size()).sum();
     }
 
-
     private Enrollment doSuspend(long userId, Enrollment enrollment) throws ZerofiltreException {
         enrollment.setActive(false);
         enrollment.setSuspendedAt(LocalDateTime.now());

@@ -17,15 +17,14 @@ import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.CompanyVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.RegisterCompanyVMMapper;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UpdateCompanyVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.UpdateCompanyVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.RegisterCompanyVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UpdateCompanyVM;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -35,7 +34,7 @@ public class CompanyController {
     private final SecurityContextManager securityContextManager;
     private final CompanyService companyService;
     private final RegisterCompanyVMMapper registerCompanyVMMapper = Mappers.getMapper(RegisterCompanyVMMapper.class);
-    private final CompanyVMMapper companyVMMapper = Mappers.getMapper(CompanyVMMapper.class);
+    private final UpdateCompanyVMMapper updateCompanyVMMapper = Mappers.getMapper(UpdateCompanyVMMapper.class);
     private final MessageSource sources;
 
     public CompanyController(SecurityContextManager securityContextManager, CompanyProvider companyProvider, CompanyUserProvider companyUserProvider, CompanyCourseProvider companyCourseProvider, DataChecker checker, MessageSource sources) {
@@ -55,7 +54,7 @@ public class CompanyController {
     @PatchMapping
     public Company patch(@RequestBody @Valid UpdateCompanyVM updateCompanyVM) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        Company company = companyVMMapper.fromVM(updateCompanyVM);
+        Company company = updateCompanyVMMapper.fromVM(updateCompanyVM);
 
         return companyService.patch(user, company);
     }
@@ -78,7 +77,7 @@ public class CompanyController {
     @DeleteMapping
     public String delete(@RequestBody @Valid UpdateCompanyVM updateCompanyVM, HttpServletRequest request) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
-        Company company = companyVMMapper.fromVM(updateCompanyVM);
+        Company company = updateCompanyVMMapper.fromVM(updateCompanyVM);
         companyService.delete(user, company);
 
         return sources.getMessage("message.delete.company.success", null, request.getLocale());

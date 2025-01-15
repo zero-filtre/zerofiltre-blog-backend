@@ -26,7 +26,6 @@ import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import java.io.ByteArrayInputStream;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -37,9 +36,7 @@ public class EnrollmentController {
     private final Suspend suspend;
     private final CompleteLesson completeLesson;
     private final FindEnrollment findEnrollment;
-
     private final GenerateCertificate generateCertificate;
-
 
     public EnrollmentController(
             EnrollmentProvider enrollmentProvider,
@@ -63,8 +60,7 @@ public class EnrollmentController {
 
     @PostMapping
     public Enrollment enroll(@RequestParam long courseId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
-        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, Objects.isNull(companyId) ? 0 : companyId.intValue());
-
+        return enroll.execute(securityContextManager.getAuthenticatedUser().getId(), courseId, null == companyId ? 0 : companyId, false);
     }
 
     @DeleteMapping
@@ -86,7 +82,7 @@ public class EnrollmentController {
     @GetMapping
     public Enrollment getEnrollment(@RequestParam long courseId, @RequestParam long userId) throws ResourceNotFoundException, ForbiddenActionException {
         User executor = securityContextManager.getAuthenticatedUser();
-        return findEnrollment.of(courseId, userId, executor);
+        return findEnrollment.of(courseId, userId, executor.getId(), executor.isAdmin());
     }
 
     @GetMapping("/user")
@@ -128,6 +124,21 @@ public class EnrollmentController {
                 .contentLength(content.length)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(new InputStreamResource(byteArrayInputStream));
+    }
+
+    @PostMapping("/admin")
+    public Enrollment enrollAUser(@RequestParam long courseId, @RequestParam long userId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
+        return enroll.execute(userId, courseId, null == companyId ? 0 : companyId, true);
+    }
+
+    @DeleteMapping("/admin")
+    public void unEnrollAUser(@RequestParam long courseId, @RequestParam long userId) throws ZerofiltreException {
+        suspend.execute(userId, courseId);
+    }
+
+    @GetMapping("/admin")
+    public Enrollment getEnrollmentForUser(@RequestParam long courseId, @RequestParam long userId) throws ZerofiltreException {
+        return findEnrollment.of(courseId, userId, 0, true);
     }
 
 }
