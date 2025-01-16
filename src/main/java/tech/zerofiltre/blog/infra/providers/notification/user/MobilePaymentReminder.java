@@ -59,7 +59,7 @@ public class MobilePaymentReminder {
         }
     }
 
-    private void notify(Payment payment, long daysBeforeRenewal) throws PaymentException {
+    protected void notify(Payment payment, long daysBeforeRenewal) throws PaymentException {
         if (daysBeforeRenewal >= 5) return;
         User user = payment.getUser();
         ChargeRequest chargeRequest = new ChargeRequest();

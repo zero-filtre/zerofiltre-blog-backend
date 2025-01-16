@@ -82,6 +82,10 @@ public class EnrollmentController {
         return completeLesson.execute(courseId, lessonId, securityContextManager.getAuthenticatedUser().getId(), false);
     }
 
+    @PostMapping("/admin")
+    public Enrollment enrollAUser(@RequestParam long courseId,@RequestParam long userId,@RequestParam long companyId) throws ZerofiltreException {
+        return enroll.execute(userId, courseId, companyId);
+    }
 
     @GetMapping
     public Enrollment getEnrollment(@RequestParam long courseId, @RequestParam long userId) throws ResourceNotFoundException, ForbiddenActionException {

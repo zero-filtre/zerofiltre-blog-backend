@@ -24,5 +24,6 @@ public class Payment {
     private LocalDateTime at = LocalDateTime.now();
     private String status = INITIALIZED;
     private String recurringInterval = MONTH;
+    private boolean expired;
 
 }
