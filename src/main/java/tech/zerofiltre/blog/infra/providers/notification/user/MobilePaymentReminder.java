@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import tech.zerofiltre.blog.domain.payment.PaymentException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
 import tech.zerofiltre.blog.domain.payment.model.Payment;
 import tech.zerofiltre.blog.domain.user.UserProvider;
@@ -29,16 +29,16 @@ public class MobilePaymentReminder {
     private final UserProvider userProvider;
     private final ZerofiltreEmailSender emailSender;
     private final NotchPayProvider notchPayProvider;
-
+    private List<Payment> payments;
 
     @Scheduled(cron = "${zerofiltre.infra.mobile.payments.reminder.cron}")
-    public void sendStats() throws PaymentException {
+    public void sendStats() throws ZerofiltreException {
 
-        List<Payment> payments = notchPayProvider.payments();
+        payments = notchPayProvider.payments();
 
         for (Payment payment : payments) {
             User user = payment.getUser();
-            if (!user.isPro()) continue;
+            if (!user.isPro() || userHasAValidPayment(user)) continue;
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime monthlyRenewDate = payment.getAt().plusMonths(1);
@@ -48,18 +48,17 @@ public class MobilePaymentReminder {
                 Duration between = Duration.between(now, monthlyRenewDate);
                 long daysBeforeRenewal = between.toDays();
                 notify(payment, daysBeforeRenewal);
-
             }
-            if (YEAR.equals(payment.getRecurringInterval()) && now.isAfter(yearlyRenewDate)) {
-                Duration between = Duration.between(now, monthlyRenewDate);
+            if (YEAR.equals(payment.getRecurringInterval())) {
+                Duration between = Duration.between(now, yearlyRenewDate);
                 long daysBeforeRenewal = between.toDays();
                 notify(payment, daysBeforeRenewal);
             }
-            sleep(10_000);
+            sleep(1000);
         }
     }
 
-    private void notify(Payment payment, long daysBeforeRenewal) throws PaymentException {
+    protected void notify(Payment payment, long daysBeforeRenewal) throws ZerofiltreException {
         if (daysBeforeRenewal >= 5) return;
         User user = payment.getUser();
         ChargeRequest chargeRequest = new ChargeRequest();
@@ -79,12 +78,30 @@ public class MobilePaymentReminder {
                     "Afin de continuer à bénéficier de nos parcours et articles premium, cliquez sur le lien suivant: "
                     + paymentLink;
             String subject = "[Urgent] Votre accès a été suspendu ";
-            notifyUser(user, subject, message);
             user.setPlan(User.Plan.BASIC);
             userProvider.save(user);
+            notifyUser(user, subject, message);
         }
 
 
+    }
+
+    private boolean userHasAValidPayment(User user) {
+        return payments.stream().anyMatch(payment -> {
+            if (payment.getUser() != null && payment.getUser().getId() != user.getId()) return false;
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime monthlyRenewDate = payment.getAt().plusMonths(1);
+            LocalDateTime yearlyRenewDate = payment.getAt().plusYears(1);
+            Duration between = Duration.ZERO;
+            if (MONTH.equals(payment.getRecurringInterval())) {
+                between = Duration.between(now, monthlyRenewDate);
+
+            }
+            if (YEAR.equals(payment.getRecurringInterval())) {
+                between = Duration.between(now, yearlyRenewDate);
+            }
+            return between.toDays() > 5;
+        });
     }
 
     void notifyUser(User user, String subject, String message) {

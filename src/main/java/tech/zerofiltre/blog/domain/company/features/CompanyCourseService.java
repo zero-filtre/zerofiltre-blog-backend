@@ -35,7 +35,6 @@ public class CompanyCourseService {
         } else if(null != existingCompanyCourse.get().getSuspendedAt()) {
             existingCompanyCourse.get().setActive(true);
             existingCompanyCourse.get().setSuspendedAt(null);
-
             return companyCourseProvider.save(existingCompanyCourse.get());
         } else {
             return existingCompanyCourse.get();

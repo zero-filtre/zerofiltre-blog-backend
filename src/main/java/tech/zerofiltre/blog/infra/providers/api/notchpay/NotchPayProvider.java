@@ -14,7 +14,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import tech.zerofiltre.blog.domain.Product;
-import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.metrics.model.CounterSpecs;
 import tech.zerofiltre.blog.domain.payment.PaymentException;
@@ -158,7 +157,7 @@ public class NotchPayProvider implements PaymentProvider {
                     "Merci de faire confiance à Zerofiltre.tech, vous pouvez dès à présent bénéficier de nos contenus dans leur entièreté: " +
                             originURL +
                             ". Vous recevrez un rappel 5 jours avant la date de renouvellement de votre abonnement afin d'éviter toute coupure.");
-            
+
             return "OK";
         } catch (Exception e) {
             throw new PaymentException("Unable to process notchpay webhook", e);
@@ -166,7 +165,7 @@ public class NotchPayProvider implements PaymentProvider {
     }
 
     @Override
-    public void cancelSubscription(String paymentCustomerId) throws PaymentException {
+    public void cancelSubscription(String paymentCustomerId) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -174,7 +173,7 @@ public class NotchPayProvider implements PaymentProvider {
         return dbNotchPayProvider.paymentOf(reference);
     }
 
-    public tech.zerofiltre.blog.domain.payment.model.Payment save(tech.zerofiltre.blog.domain.payment.model.Payment payment) throws ZerofiltreException {
+    public tech.zerofiltre.blog.domain.payment.model.Payment save(tech.zerofiltre.blog.domain.payment.model.Payment payment) {
         return dbNotchPayProvider.save(payment);
     }
 
@@ -198,4 +197,5 @@ public class NotchPayProvider implements PaymentProvider {
     public void delete(String status, long userId) {
         dbNotchPayProvider.delete(status, userId);
     }
+
 }
