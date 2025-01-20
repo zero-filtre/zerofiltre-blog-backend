@@ -20,6 +20,7 @@ import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
@@ -117,6 +118,9 @@ class CourseControllerIT {
 
     @MockBean
     CompanyCourseProvider companyCourseProvider;
+
+    @MockBean
+    EnrollmentProvider enrollmentProvider;
 
     @MockBean
     DataChecker checker;

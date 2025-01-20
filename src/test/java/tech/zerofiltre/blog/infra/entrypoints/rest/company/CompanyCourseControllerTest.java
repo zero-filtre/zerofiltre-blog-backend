@@ -9,8 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
-import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.util.DataChecker;
@@ -35,17 +36,20 @@ class CompanyCourseControllerTest {
     CompanyCourseProvider companyCourseProvider;
 
     @Mock
+    EnrollmentProvider enrollmentProvider;
+
+    @Mock
     DataChecker checker;
 
     @BeforeEach
     void setUp() {
-        controller = new CompanyCourseController(securityContextManager, companyCourseProvider, checker);
+        controller = new CompanyCourseController(securityContextManager, companyCourseProvider, enrollmentProvider, checker);
         ReflectionTestUtils.setField(controller, "companyCourseService", companyCourseService);
     }
 
     @Test
     @DisplayName("given companyId and hard when unlinkAllByCompanyId then verify call companyCourseService unlinkAllByCompanyId")
-    void givenCompanyIdAndHard_whenUnlinkAllByCompanyId_thenVerifyCallCompanyCourseServiceUnlinkAllByCompanyId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenCompanyIdAndHard_whenUnlinkAllByCompanyId_thenVerifyCallCompanyCourseServiceUnlinkAllByCompanyId() throws ZerofiltreException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyCourseService).unlinkAllByCompanyId(any(User.class), anyLong(), anyBoolean());
@@ -60,7 +64,7 @@ class CompanyCourseControllerTest {
 
     @Test
     @DisplayName("given bad companyId when unlinkAllByCompanyId then throw ForbiddenActionException")
-    void givenBadCompanyId_whenUnlinkAllByCompanyId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenBadCompanyId_whenUnlinkAllByCompanyId_thenThrowException() throws ZerofiltreException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 
@@ -75,7 +79,7 @@ class CompanyCourseControllerTest {
 
     @Test
     @DisplayName("given courseId and hard when unlinkAllByCourseId then verify call companyCourseService unlinkAllByCourseId")
-    void givenCourseIdAndHard_whenUnlinkAllByCourseId_thenVerifyCallCompanyCourseServiceUnlinkAllByCourseId() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenCourseIdAndHard_whenUnlinkAllByCourseId_thenVerifyCallCompanyCourseServiceUnlinkAllByCourseId() throws ZerofiltreException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
         doNothing().when(companyCourseService).unlinkAllByCourseId(any(User.class), anyLong(), anyBoolean());
@@ -90,7 +94,7 @@ class CompanyCourseControllerTest {
 
     @Test
     @DisplayName("given bad courseId when unlinkAllByCourseId then throw ForbiddenActionException")
-    void givenBadCourseId_whenUnlinkAllByCourseId_thenThrowException() throws ResourceNotFoundException, ForbiddenActionException {
+    void givenBadCourseId_whenUnlinkAllByCourseId_thenThrowException() throws ZerofiltreException {
         //ARRANGE
         when(securityContextManager.getAuthenticatedUser()).thenReturn(new User());
 

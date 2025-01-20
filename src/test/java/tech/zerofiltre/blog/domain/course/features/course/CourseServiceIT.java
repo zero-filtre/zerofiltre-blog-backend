@@ -11,8 +11,6 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
-import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
-import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -69,17 +67,11 @@ class CourseServiceIT {
     @Autowired
     private LoggerProvider loggerProvider;
 
-    @Autowired
-    private ChapterProvider chapterProvider;
-
     @MockBean
     private DataChecker checker;
 
     @MockBean
     private CompanyCourseProvider companyCourseProvider;
-
-    @MockBean
-    private CompanyCourseService companyCourseService;
 
     private Course course;
 
@@ -103,7 +95,7 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         course = courseService.init("some title", author, 0);
 
@@ -146,7 +138,7 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         course = courseService.init("some title", author, 1);
 
@@ -187,7 +179,7 @@ class CourseServiceIT {
         author = userProvider.save(author);
 
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         Course course = courseService.init("some title", author, 0);
 
         assertThat(courseService.findById(course.getId(), author)).isNotNull();
@@ -205,7 +197,7 @@ class CourseServiceIT {
         ZerofiltreUtils.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         course = courseService.init("some title", author, 0);
 
         courseService.delete(course.getId(), author);
@@ -234,7 +226,7 @@ class CourseServiceIT {
         student3.setPseudoName("zulu");
         student3 = userProvider.save(student3);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         course = courseService.init("some title", author, 0);
         course.setStatus(Status.PUBLISHED);
         course = courseService.save(course, author);
