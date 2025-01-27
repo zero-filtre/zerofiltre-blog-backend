@@ -37,6 +37,11 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
     }
 
     @Override
+    public Enrollment enrollmentOf(String uuid) {
+        return null;
+    }
+
+    @Override
     public void delete(long userId, long courseId) {
 
     }
