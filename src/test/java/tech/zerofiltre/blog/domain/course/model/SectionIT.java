@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -23,6 +24,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBSectionProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
@@ -36,7 +38,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
 
 @DataJpaTest
-@Import({DBSectionProvider.class, Slf4jLoggerProvider.class, DBCourseProvider.class, DBUserProvider.class, DBTagProvider.class, DBChapterProvider.class})
+@Import({DBSectionProvider.class, Slf4jLoggerProvider.class, DBCourseProvider.class, DBUserProvider.class, DBTagProvider.class, DBChapterProvider.class, DBEnrollmentProvider.class})
 class SectionIT {
 
     private Section section;
@@ -44,7 +46,8 @@ class SectionIT {
     private SectionProvider sectionProvider;
     @Autowired
     private CourseProvider courseProvider;
-
+    @Autowired
+    private EnrollmentProvider enrollmentProvider;
     @Autowired
     TagProvider tagProvider;
 
@@ -287,7 +290,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         Course course = courseService.init("", user, 0);
 
@@ -318,7 +321,7 @@ class SectionIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = userProvider.save(user);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider);
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         Course course = courseService.init("", user, 0);
 

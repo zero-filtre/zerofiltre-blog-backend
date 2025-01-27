@@ -8,9 +8,11 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.util.DataChecker;
@@ -24,9 +26,9 @@ public class CompanyCourseController {
     private final SecurityContextManager securityContextManager;
     private final CompanyCourseService companyCourseService;
 
-    public CompanyCourseController(SecurityContextManager securityContextManager, CompanyCourseProvider companyCourseProvider, DataChecker checker) {
+    public CompanyCourseController(SecurityContextManager securityContextManager, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider, DataChecker checker) {
         this.securityContextManager = securityContextManager;
-        this.companyCourseService = new CompanyCourseService(companyCourseProvider, checker);
+        this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
     }
 
     @PostMapping("/company/{companyId}/course/{courseId}")
@@ -58,13 +60,13 @@ public class CompanyCourseController {
     }
 
     @DeleteMapping("/company/{companyId}/course/{courseId}")
-    public void unlink(@PathVariable long companyId, @PathVariable long courseId, @RequestParam boolean hard) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlink(@PathVariable long companyId, @PathVariable long courseId, @RequestParam boolean hard) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
         companyCourseService.unlink(user, companyId, courseId, hard);
     }
 
     @DeleteMapping("/company/{companyId}/course/all")
-    public void unlinkAllByCompanyId(@PathVariable long companyId, @RequestParam boolean hard) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAllByCompanyId(@PathVariable long companyId, @RequestParam boolean hard) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
 
         if(companyId < 1){
@@ -75,7 +77,7 @@ public class CompanyCourseController {
     }
 
     @DeleteMapping("/company/course/{courseId}/all")
-    public void unlinkAllByCourseId(@PathVariable long courseId, @RequestParam boolean hard) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAllByCourseId(@PathVariable long courseId, @RequestParam boolean hard) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
 
         if(courseId < 1){

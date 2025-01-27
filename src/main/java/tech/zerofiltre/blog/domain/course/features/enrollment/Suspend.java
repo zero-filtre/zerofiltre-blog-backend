@@ -48,7 +48,7 @@ public class Suspend {
     }
 
     public void byLinkId(long linkId) throws ZerofiltreException {
-        List<Enrollment> list = enrollmentProvider.findAllByCompanyCourseIdAndActive(linkId, true);
+        List<Enrollment> list = enrollmentProvider.findAll(linkId, true);
 
         for(Enrollment enrollment : list) {
             enrollment.setActive(false);

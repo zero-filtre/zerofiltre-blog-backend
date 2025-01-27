@@ -47,7 +47,7 @@ public class Enroll {
         this.sandboxProvider = sandboxProvider;
         this.purchaseProvider = purchaseProvider;
         this.checker = checker;
-        this.companyCourseService = new CompanyCourseService(companyCourseProvider, checker);
+        this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
     }
 
     private static void checkIfCourseIsPublished(Course course) throws ForbiddenActionException {

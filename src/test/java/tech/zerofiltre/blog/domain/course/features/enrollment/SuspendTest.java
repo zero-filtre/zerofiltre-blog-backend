@@ -294,7 +294,7 @@ class SuspendTest {
         Enrollment enrollment2 = new Enrollment();
         enrollment2.setCourse(course);
 
-        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
+        when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
         when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment1).thenReturn(enrollment2);
 
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
@@ -303,7 +303,7 @@ class SuspendTest {
         suspend.byLinkId(1);
 
         //THEN
-        verify(enrollmentProvider, times(1)).findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean());
+        verify(enrollmentProvider, times(1)).findAll(anyLong(), anyBoolean());
 
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
@@ -341,7 +341,7 @@ class SuspendTest {
         enrollment2.setCourse(course);
         enrollment2.setUser(user2);
 
-        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
+        when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
         when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment1).thenReturn(enrollment2);
 
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
@@ -350,7 +350,7 @@ class SuspendTest {
         suspend.byLinkId(1);
 
         //THEN
-        verify(enrollmentProvider, times(1)).findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean());
+        verify(enrollmentProvider, times(1)).findAll(anyLong(), anyBoolean());
 
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
@@ -369,7 +369,7 @@ class SuspendTest {
     @Test
     void suspendNothingByLinkId() throws ZerofiltreException {
         //GIVEN
-        when(enrollmentProvider.findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean())).thenReturn(new ArrayList<>());
+        when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(new ArrayList<>());
 
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
 
@@ -377,7 +377,7 @@ class SuspendTest {
         suspend.byLinkId(1);
 
         //THEN
-        verify(enrollmentProvider, times(1)).findAllByCompanyCourseIdAndActive(anyLong(), anyBoolean());
+        verify(enrollmentProvider, times(1)).findAll(anyLong(), anyBoolean());
         verify(enrollmentProvider, never()).save(any(Enrollment.class));
         verify(sandboxProvider, never()).destroy(anyString(), anyString());
         verify(courseProvider, never()).getEnrolledCount(anyLong());
