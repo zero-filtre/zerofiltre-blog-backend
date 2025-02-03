@@ -28,13 +28,13 @@ class SectionTest {
     @Test
     void init_isOK() throws ForbiddenActionException, ResourceNotFoundException {
         sectionProvider = new SectionProviderSpy();
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         CourseProvider courseProvider = mock(CourseProvider.class);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false).get(0);
-        User user = ZerofiltreUtils.createMockUser(true);
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, false).get(0);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
 
 
         section = section.init(user);
@@ -47,7 +47,7 @@ class SectionTest {
         SectionProvider mockSectionProvider = mock(SectionProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
 
         section = new Section.SectionBuilder()
                 .title("TEST_SECTION_TITLE_1")
@@ -59,7 +59,7 @@ class SectionTest {
                 .position(1)
                 .build();
 
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, List.of(section), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, List.of(section), Collections.emptyList());
         when(mockSectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(section));
         when(mockSectionProvider.save(any())).thenReturn(section);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
@@ -78,7 +78,7 @@ class SectionTest {
         SectionProvider mockSectionProvider = mock(SectionProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
 
         section = new Section.SectionBuilder()
                 .title("TEST_SECTION_TITLE_1")
@@ -104,7 +104,7 @@ class SectionTest {
         SectionProvider mockSectionProvider = mock(SectionProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
 
         section = new Section.SectionBuilder()
                 .title("TEST_SECTION_TITLE_1")
@@ -137,7 +137,7 @@ class SectionTest {
                 .build();
 
 
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, List.of(section, section2, section3), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, List.of(section, section2, section3), Collections.emptyList());
         when(mockSectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(section));
         when(mockSectionProvider.save(any())).thenReturn(section);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
@@ -160,7 +160,7 @@ class SectionTest {
     void update_DoesNotReorderSections_IfPositionIsSame() throws ZerofiltreException {
         SectionProvider mockSectionProvider = mock(SectionProvider.class);
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         section = new Section.SectionBuilder()
                 .title("TEST_SECTION_TITLE_1")
                 .content("TEST_SECTION_CONTENT_1")
@@ -192,7 +192,7 @@ class SectionTest {
                 .build();
 
 
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, List.of(section, section2, section3), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, List.of(section, section2, section3), Collections.emptyList());
         when(mockSectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(section));
         when(mockSectionProvider.save(any())).thenReturn(section);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
@@ -212,11 +212,11 @@ class SectionTest {
     @Test
     void findById_isOK() throws ResourceNotFoundException {
         sectionProvider = new FoundSectionProviderSpy();
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         CourseProvider courseProvider = mock(CourseProvider.class);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true).get(0);
 
         section = section.findById(45);
 
@@ -226,11 +226,11 @@ class SectionTest {
     @Test
     void findById_ThrowsResourceNotFoundException_whenSectionNotFound() {
         sectionProvider = new SectionProviderSpy();
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         CourseProvider courseProvider = mock(CourseProvider.class);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true).get(0);
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> section.findById(45));
@@ -239,12 +239,12 @@ class SectionTest {
     @Test
     void delete_isOK_ifUserNotNull() throws ForbiddenActionException, ResourceNotFoundException {
         sectionProvider = new FoundSectionProviderSpy();
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         CourseProvider courseProvider = mock(CourseProvider.class);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
-        User user = ZerofiltreUtils.createMockUser(true);
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true).get(0);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         section.delete(user);
 
         assertThat(((FoundSectionProviderSpy) sectionProvider).deleteCalled).isTrue();
@@ -253,11 +253,11 @@ class SectionTest {
     @Test
     void delete_ThrowsForbiddenActionExceptionIfDeleterIsNull() {
         sectionProvider = new FoundSectionProviderSpy();
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         CourseProvider courseProvider = mock(CourseProvider.class);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true).get(0);
         User user = null;
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> section.delete(user));
@@ -273,7 +273,7 @@ class SectionTest {
                 .userProvider(new FoundNonAdminUserProviderSpy())
                 .loggerProvider(new Slf4jLoggerProvider())
                 .build();
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> section.delete(user));
     }
@@ -289,7 +289,7 @@ class SectionTest {
                 .userProvider(new FoundNonAdminUserProviderSpy())
                 .loggerProvider(new Slf4jLoggerProvider())
                 .build();
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> section.delete(user))
                 .withMessage("The section with id: 45 does not exist");
@@ -304,7 +304,7 @@ class SectionTest {
                 .userProvider(new FoundAdminUserProviderSpy())
                 .loggerProvider(new Slf4jLoggerProvider())
                 .build();
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         section.delete(user);
         assertThat(((FoundSectionProviderSpy) sectionProvider).deleteCalled).isTrue();
     }

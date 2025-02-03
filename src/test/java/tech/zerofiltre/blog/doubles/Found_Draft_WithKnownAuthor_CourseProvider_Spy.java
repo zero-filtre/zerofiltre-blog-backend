@@ -6,7 +6,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +21,8 @@ public class Found_Draft_WithKnownAuthor_CourseProvider_Spy implements CoursePro
     @Override
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
-        User author = ZerofiltreUtils.createMockUser(false);
-        return Optional.of(ZerofiltreUtils.createMockCourse(true,Status.DRAFT, author, Collections.emptyList(),Collections.emptyList()));
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        return Optional.of(ZerofiltreUtilsTest.createMockCourse(true,Status.DRAFT, author, Collections.emptyList(),Collections.emptyList()));
     }
 
     @Override

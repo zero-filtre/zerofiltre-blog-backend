@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.EnrollmentJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.model.EnrollmentJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -54,13 +54,13 @@ class DBEnrollmentProviderIT {
     @Test
     void of_returns_ProperPageOfEnrollment() throws ZerofiltreException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        Course course1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course1 = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course1 = courseProvider.save(course1);
 
         Enrollment enrollment = new Enrollment();
@@ -93,10 +93,10 @@ class DBEnrollmentProviderIT {
     @Test
     void saveEnrollment_savesCompletedLessons_Properly() throws ZerofiltreException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Enrollment enrollment = new Enrollment();
@@ -138,13 +138,13 @@ class DBEnrollmentProviderIT {
     @Test
     void of_does_not_return_inactive_enrollments() throws ZerofiltreException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        Course course1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course1 = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course1 = courseProvider.save(course1);
 
         Enrollment enrollment = new Enrollment();

@@ -43,12 +43,12 @@ class ChapterIT {
 
     @Test
     void init_chapter_is_OK() throws ForbiddenActionException, ResourceNotFoundException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("test@mail.uk");
         author.setPseudoName("pseudo");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
 
@@ -70,12 +70,12 @@ class ChapterIT {
 
     @Test
     void save_chapter_is_OK() throws ZerofiltreException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("save_chapter_is_OK@mail.uk");
         author.setPseudoName("save_chapter_is_OK");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -107,12 +107,12 @@ class ChapterIT {
 
     @Test
     void delete_chapter_is_OK() throws ZerofiltreException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("delete_chapter_is_OK@mail.uk");
         author.setPseudoName("delete_chapter_is_OK");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -130,12 +130,12 @@ class ChapterIT {
 
     @Test
     void getAllChaptersByCourseId_isOK() throws ForbiddenActionException, ResourceNotFoundException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("getAllChaptersByCourseId_isOK@mail.uk");
         author.setPseudoName("getAllChaptersByCourseId_isOK");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -166,12 +166,12 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveLessonUPIsOk() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("moveLessonUPIsOk@mail.uk");
         author.setPseudoName("moveLessonUPIsOk");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -239,10 +239,10 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveLessonDownIsOk() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -310,12 +310,12 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveLessonAtTheSamePositionIsOk() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("moveLessonAtTheSamePositionIsOk@mail.fr");
         author.setPseudoName("moveLessonAtTheSamePositionIsOk");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         chapter = Chapter.builder()
@@ -383,12 +383,12 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveChapterAtTheSamePositionIsOk() throws ZerofiltreException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("moveChapterAtTheSamePositionIsOk@mail.fr");
         author.setPseudoName("moveChapterAtTheSamePositionIsOk");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Chapter chapter1 = Chapter.builder()
@@ -447,12 +447,12 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveChapterUpIsOk() throws ZerofiltreException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("moveChapterUpIsOk@mail.fr");
         author.setPseudoName("moveChapterUpIsOk");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Chapter chapter1 = Chapter.builder()
@@ -509,12 +509,12 @@ class ChapterIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void moveChapterDownIsOk() throws ZerofiltreException {
         //given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("moveChapterDownIsOk@mail.fr");
         author.setPseudoName("moveChapterDownIsOk");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Chapter chapter1 = Chapter.builder()

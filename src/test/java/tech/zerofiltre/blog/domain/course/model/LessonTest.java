@@ -99,7 +99,7 @@ class LessonTest {
         //given
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
@@ -114,7 +114,7 @@ class LessonTest {
         when(lessonProvider.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserProvider userProvider = mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         Lesson lesson = Lesson.builder()
@@ -296,7 +296,7 @@ class LessonTest {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
@@ -332,7 +332,7 @@ class LessonTest {
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
@@ -388,7 +388,7 @@ class LessonTest {
     void get_throws_ForbiddenActionException_if_not_connected_and_course_not_published() {
         //given
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
@@ -466,8 +466,8 @@ class LessonTest {
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -509,8 +509,8 @@ class LessonTest {
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -542,7 +542,7 @@ class LessonTest {
     void get_freeLesson_returns_fullContent_evenNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         UserProvider userProvider = mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -553,8 +553,8 @@ class LessonTest {
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).free(true).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -591,8 +591,8 @@ class LessonTest {
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).free(true).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
@@ -630,8 +630,8 @@ class LessonTest {
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         mockCourse.setId(18);
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));

@@ -21,7 +21,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.ChapterProviderSpy;
 import tech.zerofiltre.blog.doubles.EnrollmentProviderSpy;
 import tech.zerofiltre.blog.doubles.NotEnrolledEnrollmentProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -93,8 +93,8 @@ class SuspendTest {
 
     @Test
     void suspendDelete_sandbox_if_there_is_any() throws ZerofiltreException {
-        User user = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.K8S);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = ZerofiltreUtilsTest.createMockCourse(Sandbox.Type.K8S);
 
         Enrollment enrollment = new Enrollment();
         enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));
@@ -115,8 +115,8 @@ class SuspendTest {
 
     @Test
     void suspendDontDelete_sandbox_if_there_is_not() throws ZerofiltreException {
-        User user = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.NONE);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = ZerofiltreUtilsTest.createMockCourse(Sandbox.Type.NONE);
 
         Enrollment enrollment = new Enrollment();
         enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));
@@ -138,8 +138,8 @@ class SuspendTest {
     @Test
     void suspendDontDeleteAsAdminUser() throws ZerofiltreException {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.NONE);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = ZerofiltreUtilsTest.createMockCourse(Sandbox.Type.NONE);
 
         Enrollment enrollment = new Enrollment();
         enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));
@@ -164,8 +164,8 @@ class SuspendTest {
     @Test
     void suspendDontDeleteAsAdminUserForCompanyUser() throws ZerofiltreException {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(Sandbox.Type.NONE);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = ZerofiltreUtilsTest.createMockCourse(Sandbox.Type.NONE);
 
         Enrollment enrollment = new Enrollment();
         enrollment.setEnrolledAt(LocalDateTime.now().minusDays(2));

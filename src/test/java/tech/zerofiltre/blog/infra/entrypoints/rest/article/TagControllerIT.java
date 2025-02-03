@@ -64,7 +64,7 @@ class TagControllerIT {
     MetricsProvider metricsProvider;
 
 
-    List<Tag> tags = ZerofiltreUtils.createMockTags(true);
+    List<Tag> tags = ZerofiltreUtilsTest.createMockTags(true);
 
     @Autowired
     Jackson2ObjectMapperBuilder objectMapperBuilder;

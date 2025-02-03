@@ -30,7 +30,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -87,15 +87,15 @@ class SuspendIT {
 
     @Test
     void suspendSavesEnrollmentProperly() throws ZerofiltreException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setEmail("test@gmail.grok");
         user.setPseudoName("tester");
         user = dbUserProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         enroll.execute(user.getId(), course.getId(), 0, false);
         LocalDateTime beforeSuspend = LocalDateTime.now();
@@ -119,8 +119,8 @@ class SuspendIT {
 
     @Test
     void suspendAllDeactivatesTheProperEnrollments() throws ZerofiltreException {
-        User user = ZerofiltreUtils.createMockUser(false);
-        User author = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user = dbUserProvider.save(user);
 
@@ -128,13 +128,13 @@ class SuspendIT {
         author.setPseudoName("test@mail.com");
         author = dbUserProvider.save(author);
 
-        Course courseBasic = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course courseBasic = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         courseBasic = dbCourseProvider.save(courseBasic);
 
-        Course coursePro1 = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course coursePro1 = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         coursePro1 = dbCourseProvider.save(coursePro1);
 
-        Course coursePro2 = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course coursePro2 = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         coursePro2 = dbCourseProvider.save(coursePro2);
 
 
@@ -179,15 +179,15 @@ class SuspendIT {
 
     @Test
     void suspendAllDeletesPurchaseProperly() throws ZerofiltreException {
-        User user = ZerofiltreUtils.createMockUser(false);
-        User author = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         user = dbUserProvider.save(user);
 
         author.setEmail("test@mail.com");
         author.setPseudoName("test@mail.com");
         author = dbUserProvider.save(author);
 
-        Course courseBasic = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
+        Course courseBasic = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
         courseBasic = dbCourseProvider.save(courseBasic);
 
         Enrollment enrollmentForLife = new Enrollment();

@@ -7,7 +7,7 @@ import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -23,7 +23,7 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
     public Enrollment save(Enrollment enrollment) {
         saveCalled = true;
         enrollment.setId(1);
-        enrollment.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+        enrollment.setCourse(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, ZerofiltreUtilsTest.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
         return enrollment;
     }
@@ -44,10 +44,10 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
     @Override
     public Page<Enrollment> of(int pageNumber, int pageSize, long userId, FinderRequest.Filter filter, String tag) {
         ofFilter = filter;
-        User mockUser = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse2 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
+        User mockUser = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse2 = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, mockUser,
                 Collections.emptyList(), Collections.emptyList());
-        Course mockCourse1 = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,
+        Course mockCourse1 = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, mockUser,
                 Collections.emptyList(), Collections.emptyList());
 
         Enrollment enrollment = new Enrollment();
@@ -86,8 +86,8 @@ public class FoundCancelledOnlyEnrollmentProviderSpy implements EnrollmentProvid
         value.setLastModifiedAt(value.getEnrolledAt());
         value.setSuspendedAt(LocalDateTime.now().minusDays(1));
         value.setActive(false);
-        value.setUser(ZerofiltreUtils.createMockUser(false));
-        value.setCourse(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, ZerofiltreUtils.createMockUser(false),
+        value.setUser(ZerofiltreUtilsTest.createMockUser(false));
+        value.setCourse(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, ZerofiltreUtilsTest.createMockUser(false),
                 Collections.emptyList(), Collections.emptyList()));
         enrollmentOfCalled = true;
         return Optional.of(value);

@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.storage.StorageProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -48,7 +48,7 @@ class PDFCertificateProviderTest {
         when(courseProvider.getTitle(anyLong())).thenReturn("title");
 
         //when
-        certificateProvider.get(ZerofiltreUtils.createMockUser(false), 3);
+        certificateProvider.get(ZerofiltreUtilsTest.createMockUser(false), 3);
 
 
         //then
@@ -66,7 +66,7 @@ class PDFCertificateProviderTest {
 
 
         //when
-        certificateProvider.get(ZerofiltreUtils.createMockUser(false), 3);
+        certificateProvider.get(ZerofiltreUtilsTest.createMockUser(false), 3);
 
 
         //then

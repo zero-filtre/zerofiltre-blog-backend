@@ -26,7 +26,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBVerificationTokenProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -72,9 +72,9 @@ class DeleteUserIT {
     @DisplayName("Deleting a user that has articles deactivates the user")
     void deleteUser_WithArticles_deactivatesHim() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
-        Article draftArticle = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article draftArticle = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         articleProvider.save(draftArticle);
 
         //ACT
@@ -91,16 +91,16 @@ class DeleteUserIT {
     @DisplayName("Deleting a user that does not have articles deletes him with his token from the DB")
     void deleteUser_WithNoArticles() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        Article draftArticle = ZerofiltreUtils.createMockArticle(author, Collections.emptyList(), Collections.emptyList());
+        Article draftArticle = ZerofiltreUtilsTest.createMockArticle(author, Collections.emptyList(), Collections.emptyList());
         draftArticle = articleProvider.save(draftArticle);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setEmail("another");
         user.setPseudoName("another");
         user = userProvider.save(user);

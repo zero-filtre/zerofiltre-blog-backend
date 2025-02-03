@@ -17,7 +17,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBArticleProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -54,7 +54,7 @@ class InitArticleIT {
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeCreation = LocalDateTime.now();
-        User mockUser = userProvider.save(ZerofiltreUtils.createMockUser(false));
+        User mockUser = userProvider.save(ZerofiltreUtilsTest.createMockUser(false));
 
         //ACT
         Article initializedArticle = initArticle.execute(TITLE, mockUser);

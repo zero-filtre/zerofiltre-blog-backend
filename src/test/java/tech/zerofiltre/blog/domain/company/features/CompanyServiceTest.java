@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -133,7 +133,7 @@ class CompanyServiceTest {
     @DisplayName("given admin user and not userId when findAll then verify call companyProvider findAll")
     void givenAdminAndNotUserId_whenFindAll_thenVerifyCallCompanyProviderFindAll() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(companyProvider.findAll(anyInt(), anyInt())).thenReturn(new Page<>());
 
         //WHEN

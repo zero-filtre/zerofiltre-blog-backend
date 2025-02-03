@@ -18,7 +18,7 @@ import tech.zerofiltre.blog.doubles.Found_Draft_WithKnownAuthor_CourseProvider_S
 import tech.zerofiltre.blog.doubles.Found_Published_With49Reactions_CourseProvider_Spy;
 import tech.zerofiltre.blog.doubles.Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons;
 import tech.zerofiltre.blog.doubles.NotFoundCourseProviderSpy;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,9 +49,9 @@ class AddReactionTest {
     @Test
     void execute_mustAddReactionAndUserInfoProperly_onArticle() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(2);
-        Article mockArticle = ZerofiltreUtils.createMockArticle(null, new ArrayList<>(), new ArrayList<>());
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(null, new ArrayList<>(), new ArrayList<>());
         mockArticle.setStatus(Status.PUBLISHED);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         Reaction reaction = new Reaction();
@@ -78,7 +78,7 @@ class AddReactionTest {
     @Test
     void execute_mustAddReactionAndUserInfoProperly_onCourse() throws ResourceNotFoundException, ForbiddenActionException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(2);
         Reaction reaction = new Reaction();
         reaction.setAuthorId(currentUser.getId());
@@ -107,7 +107,7 @@ class AddReactionTest {
     @DisplayName("A user can not react more than 50 times no the same article")
     void execute_mustThrowException_IfUserAlreadyHas50Reactions() {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         List<Reaction> currentUserReactions = new ArrayList<>();
 
         for (int i = 0; i < 48; i++) {
@@ -126,7 +126,7 @@ class AddReactionTest {
         fireFromAnotherUser.setAction(FIRE);
         currentUserReactions.add(fireFromAnotherUser);
 
-        Article mockArticle = ZerofiltreUtils.createMockArticle(null, new ArrayList<>(), currentUserReactions);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(null, new ArrayList<>(), currentUserReactions);
 
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
 
@@ -145,7 +145,7 @@ class AddReactionTest {
     @DisplayName("A user can not react more than 50 times no the same course")
     void execute_mustThrowException_IfUserAlreadyHas50Reactions_onACourse() {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
 
         Reaction reactionOfTooMany = new Reaction();
         reactionOfTooMany.setAuthorId(currentUser.getId());
@@ -164,7 +164,7 @@ class AddReactionTest {
     @Test
     void execute_ThrowsExceptionIfArticleIsNotFound() {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.empty());
         Reaction reaction = new Reaction();
         reaction.setAuthorId(currentUser.getId());
@@ -179,8 +179,8 @@ class AddReactionTest {
     @Test
     void execute_ThrowsExceptionIfCourseIsNotFound() {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, currentUser, Collections.emptyList(), Collections.emptyList());
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, currentUser, Collections.emptyList(), Collections.emptyList());
         Reaction reaction = new Reaction();
         reaction.setAuthorId(currentUser.getId());
         reaction.setCourseId(course.getId());
@@ -214,7 +214,7 @@ class AddReactionTest {
     @Test
     void canNotReactOnAnUnpublishedCourse() {
         //ARRANGE
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Reaction reaction = new Reaction();
         reaction.setCourseId(course.getId());
 

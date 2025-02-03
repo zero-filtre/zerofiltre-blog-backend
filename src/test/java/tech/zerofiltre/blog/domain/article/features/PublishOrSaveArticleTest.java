@@ -21,7 +21,7 @@ import tech.zerofiltre.blog.domain.user.model.Action;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.domain.user.model.UserActionEvent;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -68,7 +68,7 @@ class PublishOrSaveArticleTest {
     void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         mockArticle.getAuthor().setRoles(Collections.singleton("ROLE_ADMIN"));
 
         mockArticle.setId(45);
@@ -155,7 +155,7 @@ class PublishOrSaveArticleTest {
     @DisplayName("Must not draft an already published article")
     void save_MustNotDraft_AnAlreadyPublishArticle() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         mockArticle.setId(45);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
@@ -185,7 +185,7 @@ class PublishOrSaveArticleTest {
     void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
 
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         mockArticle.setId(45);
         when(articleProvider.articleOfId(45)).thenReturn(Optional.of(mockArticle));
 
@@ -288,7 +288,7 @@ class PublishOrSaveArticleTest {
     @DisplayName("Must throw ForbiddenActionException if editor is neither the author nor an admin ")
     void mustThrowForbiddenActionExceptionOnNotAuthor() {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         User editor = new User();
         editor.setEmail("email");
@@ -303,7 +303,7 @@ class PublishOrSaveArticleTest {
 
     @Test
     void mustNotThrowExceptionIfNotOwnerButAdmin() {
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         User editor = new User();
         editor.setEmail("email");
@@ -318,7 +318,7 @@ class PublishOrSaveArticleTest {
     @DisplayName("Must throw PublishArticleException if tags are not saved")
     void mustThrowExceptionOnNoTags() {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.empty());
         User editor = new User();
@@ -334,7 +334,7 @@ class PublishOrSaveArticleTest {
     @DisplayName("Author but non admin can only submit to validation")
     void execute_PutInReview_OnAuthorButNotAdmin() throws ForbiddenActionException, PublishOrSaveArticleException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(newTag));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -351,7 +351,7 @@ class PublishOrSaveArticleTest {
     @DisplayName("Publishing an article as non admin sends an email to the author")
     void execute_PutInReview_andSendNotification_OnAuthorButNotAdmin() throws ForbiddenActionException, PublishOrSaveArticleException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(mockArticle));
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(newTag));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));

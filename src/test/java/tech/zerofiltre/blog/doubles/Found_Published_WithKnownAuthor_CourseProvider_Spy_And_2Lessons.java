@@ -6,7 +6,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +22,8 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons imp
     @Override
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
-        User author = ZerofiltreUtils.createMockUser(false);
-        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>()));
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        return Optional.of(ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>()));
     }
 
     @Override

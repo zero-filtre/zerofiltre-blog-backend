@@ -40,7 +40,7 @@ import tech.zerofiltre.blog.infra.security.config.RoleRequiredAccessDeniedHandle
 import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -95,7 +95,7 @@ class ArticleControllerIT {
     UserNotificationProvider userNotificationProvider;
 
 
-    Article mockArticle = ZerofiltreUtils.createMockArticle(true);
+    Article mockArticle = ZerofiltreUtilsTest.createMockArticle(true);
     PublishOrSaveArticleVM publishOrSaveArticleVM = new PublishOrSaveArticleVM(
             mockArticle.getId(),
             mockArticle.getTitle(),

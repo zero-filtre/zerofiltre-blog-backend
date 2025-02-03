@@ -14,7 +14,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,7 +106,7 @@ class ChapterTest {
     void init_defines_chapter_number() throws ForbiddenActionException, ResourceNotFoundException {
         //given
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
 
@@ -119,7 +119,7 @@ class ChapterTest {
 
 
         UserProvider userProvider = mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         Chapter chapter = Chapter.builder()
@@ -303,7 +303,7 @@ class ChapterTest {
     @Test
     void delete_throws_ForbiddenActionException_if_chapter_course_isPublished_andAuthorNotAdmin() {
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         UserProvider userProvider = mock(UserProvider.class);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
 
@@ -311,7 +311,7 @@ class ChapterTest {
         Mockito.when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(1).courseId(1).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         Mockito.when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         //given
@@ -429,7 +429,7 @@ class ChapterTest {
                 .build();
 
         //when
-        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtils.createMockUser(true));
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(true));
 
         //then
         Assertions.assertThat(result).isNotEmpty();
@@ -445,7 +445,7 @@ class ChapterTest {
                 .build();
 
         //when
-        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtils.createMockUser(false));
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(false));
 
         //then
         Assertions.assertThat(result).isNotEmpty();
@@ -476,7 +476,7 @@ class ChapterTest {
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
 
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         Lesson firstLesson = Lesson.builder().id(1).number(1).build();
@@ -484,7 +484,7 @@ class ChapterTest {
         Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Chapter chapter = Chapter.builder()
@@ -511,14 +511,14 @@ class ChapterTest {
     @Test
     void moveLessonUpIsOk() throws ResourceNotFoundException, ForbiddenActionException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         LessonProvider lessonProvider = Mockito.mock(LessonProvider.class);
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Lesson firstLesson = Lesson.builder().id(1).number(1).build();
@@ -550,7 +550,7 @@ class ChapterTest {
     @Test
     void moveLessonToTheSamePosition() throws ResourceNotFoundException, ForbiddenActionException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         LessonProvider lessonProvider = Mockito.mock(LessonProvider.class);
@@ -559,7 +559,7 @@ class ChapterTest {
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Lesson firstLesson = Lesson.builder().id(1).number(1).build();
@@ -592,7 +592,7 @@ class ChapterTest {
     void moveLessonDown_throws_ResourceNotFoundException_if_chapter_not_found() {
 
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
@@ -610,12 +610,12 @@ class ChapterTest {
     @Test
     void moveLessonDown_throws_ResourceNotFoundException_if_lesson_not_found() {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Chapter chapter = Chapter.builder()
@@ -640,9 +640,9 @@ class ChapterTest {
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
         UserProvider userProvider = Mockito.mock(UserProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
 
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
@@ -675,7 +675,7 @@ class ChapterTest {
     void moveChapter_throws_ResourceNotFoundException_if_course_not_found() {
 
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
@@ -700,7 +700,7 @@ class ChapterTest {
     void moveChapter_throws_ResourceNotFoundException_if_chapter_not_found() {
 
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         ChapterProvider chapterProvider = Mockito.mock(ChapterProvider.class);
@@ -721,9 +721,9 @@ class ChapterTest {
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
         UserProvider userProvider = Mockito.mock(UserProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
 
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
@@ -743,11 +743,11 @@ class ChapterTest {
     @Test
     void moveChapterUpIsOK() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Chapter firstChapter = Chapter.builder().id(1).number(1).build();
@@ -783,11 +783,11 @@ class ChapterTest {
     @Test
     void moveChapterToTheSamePosition_isOK() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Chapter firstChapter = Chapter.builder().id(1).number(1).build();
@@ -823,11 +823,11 @@ class ChapterTest {
     @Test
     void moveChapterDown_isOk() throws ZerofiltreException {
         UserProvider userProvider = Mockito.mock(UserProvider.class);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         Chapter firstChapter = Chapter.builder().id(1).number(1).build();

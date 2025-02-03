@@ -51,7 +51,7 @@ import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProper
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -131,8 +131,8 @@ class CourseControllerIT {
     PublishOrSaveCourseVM publishOrSaveCourseVM = new PublishOrSaveCourseVM();
 
 
-    User author = ZerofiltreUtils.createMockUser(false);
-    Course mockCourse = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(),Collections.emptyList());
+    User author = ZerofiltreUtilsTest.createMockUser(false);
+    Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(),Collections.emptyList());
 
     @BeforeEach
     void setUp() {

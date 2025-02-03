@@ -18,7 +18,7 @@ import tech.zerofiltre.blog.domain.course.model.Resource;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -62,10 +62,10 @@ class ResourceServiceTest {
     @Test
     void createResource_isForbidden_whenUserIsNotAuthor_NorAdmin() {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -86,10 +86,10 @@ class ResourceServiceTest {
     @Test
     void createResourceIsOk_ifUserIsAdmin_ButNotAuthor() {
         //given
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -110,10 +110,10 @@ class ResourceServiceTest {
     @Test
     void createResourceIsOk_ifUserIsAuthor_ButNotAdmin() {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -134,10 +134,10 @@ class ResourceServiceTest {
     @Test
     void createResource_SavesResource_properly() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -170,10 +170,10 @@ class ResourceServiceTest {
     @Test
     void deleteResource_isForbidden_whenUserIsNotAuthor_NorAdmin() {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -195,10 +195,10 @@ class ResourceServiceTest {
     @Test
     void deleteResource_isOk_whenUserIsAuthor() {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())
@@ -220,10 +220,10 @@ class ResourceServiceTest {
     @Test
     void deleteResource_isOk_whenUserIsAdmin() {
         //given
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(999);
-        Course course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
-        Chapter chapter = ZerofiltreUtils.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
         Lesson lesson = Lesson.builder()
                 .id(1L)
                 .chapterId(chapter.getId())

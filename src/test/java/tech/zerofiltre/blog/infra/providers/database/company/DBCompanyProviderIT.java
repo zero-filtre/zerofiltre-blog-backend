@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -105,7 +105,7 @@ class DBCompanyProviderIT {
     @DisplayName("given userId when findAllByUserId then return page Company by userId")
     void findAllByUserId() {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = dbUserProvider.save(user);
 
         Company company1 = new Company(0, "Company1", "000000001");

@@ -23,7 +23,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.ReactionCourseJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -33,8 +33,8 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_FULL_NAME;
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_PROFILE_PICTURE;
+import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_FULL_NAME;
+import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_PROFILE_PICTURE;
 
 @DataJpaTest
 class DBCourseProviderIT {
@@ -78,10 +78,10 @@ class DBCourseProviderIT {
 
     @Test
     void savingACourse_isOK() {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course.setMentored(true);
         course = courseProvider.save(course);
 
@@ -91,10 +91,10 @@ class DBCourseProviderIT {
 
     @Test
     void getACourseByItsId_isOk() {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Optional<Course> courseOptional = courseProvider.courseOfId(course.getId());
@@ -173,18 +173,18 @@ class DBCourseProviderIT {
     }
 
     private List<Reaction> initCourseWithReactions() {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setFullName("first");
         author.setProfilePicture("picture");
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course.setPublishedAt(LocalDateTime.now());
         course.setEnrolledCount(0);
         course = courseProvider.save(course);
 
         reactionProvider = new DBReactionProvider(null, reactionRepository);
-        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(false, 0, course.getId(), author);
+        List<Reaction> reactions = ZerofiltreUtilsTest.createMockReactions(false, 0, course.getId(), author);
         for (Reaction reaction : reactions) {
             reactionProvider.save(reaction);
         }
@@ -198,14 +198,14 @@ class DBCourseProviderIT {
         CourseProvider courseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
 
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setPseudoName("author");
         author.setEmail("author@gmail.fr");
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPseudoName("enrolled");
         user.setEmail("susbscriber@gamil.fr");
 
-        User secondUser = ZerofiltreUtils.createMockUser(false);
+        User secondUser = ZerofiltreUtilsTest.createMockUser(false);
         secondUser.setPseudoName("enrolledSecond");
         secondUser.setEmail("susbscriberSecond@gamil.fr");
 
@@ -214,14 +214,14 @@ class DBCourseProviderIT {
         user = userProvider.save(user);
         secondUser = userProvider.save(secondUser);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course.setPublishedAt(LocalDateTime.now());
         course = courseProvider.save(course);
 
-        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, user, course);
+        Enrollment enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, user, course);
         enrollmentProvider.save(enrollment);
 
-        Enrollment sencondEnrollment = ZerofiltreUtils.createMockEnrollment(false, secondUser, course);
+        Enrollment sencondEnrollment = ZerofiltreUtilsTest.createMockEnrollment(false, secondUser, course);
         sencondEnrollment.setActive(!withThe2ndOneInactive);
         sencondEnrollment.setCompleted(withThe2ndOneCompleted);
         enrollmentProvider.save(sencondEnrollment);
@@ -229,16 +229,16 @@ class DBCourseProviderIT {
     }
 
     private Course initCourseWith2Lessons() throws ForbiddenActionException, ResourceNotFoundException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setPseudoName("author");
         author.setEmail("author@gmail.fr");
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, userProvider, lessonProvider, courseProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, userProvider, lessonProvider, courseProvider, Collections.emptyList(), course.getId());
         chapter = chapter.init("new chapter", course.getId(), author.getId());
 
         Lesson lesson1 = Lesson.builder()

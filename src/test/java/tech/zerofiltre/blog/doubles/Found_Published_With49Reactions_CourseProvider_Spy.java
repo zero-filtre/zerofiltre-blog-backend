@@ -7,7 +7,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
     @Override
     public Optional<Course> courseOfId(long id) {
         courseOfIdCalled = true;
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         List<Reaction> currentUserReactions = new ArrayList<>();
         for (int i = 0; i < 49; i++) {
             Reaction reaction = new Reaction();
@@ -32,7 +32,7 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
             reaction.setAction(CLAP);
             currentUserReactions.add(reaction);
         }
-        return Optional.of(ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), currentUserReactions));
+        return Optional.of(ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), currentUserReactions));
     }
 
     @Override

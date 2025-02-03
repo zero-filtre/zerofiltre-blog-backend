@@ -21,7 +21,7 @@ import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.article.model.Status.*;
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.TEST_COURSE_TITLE;
+import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_COURSE_TITLE;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
@@ -61,7 +61,7 @@ class CourseServiceTest {
     @BeforeEach
     void init() {
         course = new Course();
-        editor = ZerofiltreUtils.createMockUser(false);
+        editor = ZerofiltreUtilsTest.createMockUser(false);
     }
 
 
@@ -71,7 +71,7 @@ class CourseServiceTest {
         courseProvider = new NotFoundCourseProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
         LocalDateTime beforeSave = LocalDateTime.now();
 
@@ -97,7 +97,7 @@ class CourseServiceTest {
         courseProvider = new NotFoundCourseProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -128,7 +128,7 @@ class CourseServiceTest {
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
 
         //WHEN
         Course found = courseService.findById(1, user);
@@ -422,7 +422,7 @@ class CourseServiceTest {
         course.setStatus(DRAFT);
 
         //WHEN
-        Course result = courseService.save(course, ZerofiltreUtils.createMockUser(false));
+        Course result = courseService.save(course, ZerofiltreUtilsTest.createMockUser(false));
 
 
         //THEN
@@ -474,7 +474,7 @@ class CourseServiceTest {
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
-        ZerofiltreUtils.createMockUser(true);
+        ZerofiltreUtilsTest.createMockUser(true);
 
 
         //WHEN
@@ -503,7 +503,7 @@ class CourseServiceTest {
         courseProvider = mock(CourseProvider.class);
         User author = new User();
         author.setEmail(editor.getEmail());
-        course = ZerofiltreUtils.createMockCourse(true, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course.setEnrolledCount(0);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.ofNullable(course));
 

@@ -37,7 +37,7 @@ class DBVerificationTokenProviderIT {
     @Test
     void shouldGenerate_withConfigured_value() {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         LocalDateTime beforeSavePlus7d = LocalDateTime.now().plusDays(7).minusSeconds(30);
 
         //when

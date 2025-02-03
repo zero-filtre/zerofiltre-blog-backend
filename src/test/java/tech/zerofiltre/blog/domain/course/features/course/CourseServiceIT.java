@@ -31,7 +31,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBSectionProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,17 +89,17 @@ class CourseServiceIT {
 
     @Test
     void save_and_init_are_OK() throws ForbiddenActionException, ResourceNotFoundException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockTags(false)
+        ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         course = courseService.init("some title", author, 0);
 
-        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, courseProvider, false);
+        Section section1 = ZerofiltreUtilsTest.createMockSection(course.getId(), sectionProvider, courseProvider, false);
         section1.init(author);
 
         course.setTags(tags);
@@ -132,17 +132,17 @@ class CourseServiceIT {
 
     @Test
     void save_and_init_company_course_are_OK() throws ForbiddenActionException, ResourceNotFoundException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockTags(false)
+        ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         course = courseService.init("some title", author, 1);
 
-        Section section1 = ZerofiltreUtils.createMockSection(course.getId(), sectionProvider, courseProvider, false);
+        Section section1 = ZerofiltreUtilsTest.createMockSection(course.getId(), sectionProvider, courseProvider, false);
         section1.init(author);
 
         course.setTags(tags);
@@ -175,7 +175,7 @@ class CourseServiceIT {
 
     @Test
     void getCourseById_isOK() throws ResourceNotFoundException, ForbiddenActionException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
 
@@ -188,13 +188,13 @@ class CourseServiceIT {
     @Test
     @Disabled("to fix")
     void deleteCourse_isOK() throws ResourceNotFoundException, ForbiddenActionException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false)
+        ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, false)
                 .forEach(section -> sections.add(sectionProvider.save(section)));
 
-        ZerofiltreUtils.createMockTags(false)
+        ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
@@ -208,20 +208,20 @@ class CourseServiceIT {
 
     @Test
     void enroll_increases_EnrolledCount() throws ZerofiltreException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        User student1 = ZerofiltreUtils.createMockUser(false);
+        User student1 = ZerofiltreUtilsTest.createMockUser(false);
         student1.setEmail("bable@gma.fr");
         student1.setPseudoName("bable");
         student1 = userProvider.save(student1);
 
-        User student2 = ZerofiltreUtils.createMockUser(false);
+        User student2 = ZerofiltreUtilsTest.createMockUser(false);
         student2.setEmail("poseidon@gma.fr");
         student2.setPseudoName("poseidon");
         student2 = userProvider.save(student2);
 
-        User student3 = ZerofiltreUtils.createMockUser(false);
+        User student3 = ZerofiltreUtilsTest.createMockUser(false);
         student3.setEmail("chaka@gma.fr");
         student3.setPseudoName("zulu");
         student3 = userProvider.save(student3);
