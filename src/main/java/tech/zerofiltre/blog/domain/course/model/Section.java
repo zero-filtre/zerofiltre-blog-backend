@@ -22,7 +22,7 @@ import java.util.List;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.THE_COURSE_WITH_ID;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "courseService", "enrollmentProvider"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "loggerProvider", "sectionProvider", "courseService"})
 public class Section implements Serializable {
 
     private long id;

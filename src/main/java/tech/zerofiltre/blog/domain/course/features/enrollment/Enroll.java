@@ -3,7 +3,9 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.CompanyUserService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -38,8 +40,9 @@ public class Enroll {
     private final PurchaseProvider purchaseProvider;
     private final DataChecker checker;
     private final CompanyCourseService companyCourseService;
+    private final CompanyUserService companyUserService;
 
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider) {
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
@@ -48,6 +51,7 @@ public class Enroll {
         this.purchaseProvider = purchaseProvider;
         this.checker = checker;
         this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
+        this.companyUserService = new CompanyUserService(companyUserProvider, enrollmentProvider, checker);
     }
 
     private static void checkIfCourseIsPublished(Course course) throws ForbiddenActionException {
@@ -62,12 +66,14 @@ public class Enroll {
         checkIfCourseIsPublished(course);
 
         long companyCourseId = 0;
+        long companyUserId = 0;
 
         if(companyId > 0) {
             checker.companyExists(companyId);
             checker.companyUserExists(companyId, userId);
             checker.companyCourseExists(companyId, courseId);
             companyCourseId = companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(companyId, courseId);
+            companyUserId = companyUserService.getLinkCompanyUserIdIfUserIsActive(companyId, userId);
         }
 
         Enrollment existingEnrollment = getExisting(userId, courseId);
@@ -77,7 +83,7 @@ public class Enroll {
             checkIfCourseIsPurchased(userId, courseId);
         }
 
-        Enrollment enrollment = buildAndSaveEnrollment(userId, courseId, companyCourseId, course, user);
+        Enrollment enrollment = buildAndSaveEnrollment(userId, courseId, companyCourseId, companyUserId, course, user);
 
         Course resultCourse = enrollment.getCourse();
         resultCourse.setEnrolledCount(getEnrolledCount(resultCourse.getId()));
@@ -144,7 +150,7 @@ public class Enroll {
         }
     }
 
-    private Enrollment buildAndSaveEnrollment(long userId, long courseId, long companyCourseId, Course course, User user) throws ZerofiltreException {
+    private Enrollment buildAndSaveEnrollment(long userId, long courseId, long companyCourseId, long companyUserId, Course course, User user) throws ZerofiltreException {
         Enrollment enrollment = new Enrollment();
         LocalDateTime lastModifiedAt = LocalDateTime.now();
         Optional<Enrollment> cancelledEnrollment = enrollmentProvider.enrollmentOf(userId, courseId, false);
@@ -159,6 +165,7 @@ public class Enroll {
         }
         enrollment.setLastModifiedAt(lastModifiedAt);
         enrollment.setCompanyCourseId(companyCourseId);
+        enrollment.setCompanyUserId(companyUserId);
 
         if(companyCourseId == 0) {
             enrollment.setForLife(!user.isPro() || course.isMentored());

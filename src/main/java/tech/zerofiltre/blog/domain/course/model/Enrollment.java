@@ -11,6 +11,7 @@ public class Enrollment {
     private long id;
     private User user;
     private Course course;
+    private long companyUserId;
     private long companyCourseId;
     private boolean completed;
     private boolean active = true;
@@ -47,6 +48,13 @@ public class Enrollment {
         this.course = course;
     }
 
+    public long getCompanyUserId() {
+        return companyUserId;
+    }
+
+    public void setCompanyUserId(long companyUserId) {
+        this.companyUserId = companyUserId;
+    }
     public long getCompanyCourseId() {
         return companyCourseId;
     }

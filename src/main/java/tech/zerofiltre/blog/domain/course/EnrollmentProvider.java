@@ -22,6 +22,8 @@ public interface EnrollmentProvider {
 
     List<Enrollment> findAll(long companyCourseId, boolean isActive);
 
+    List<Enrollment> findAllByCompanyUserId(long companyCourseId, boolean isActive);
+
     Enrollment save(Enrollment enrollment) throws ZerofiltreException;
 
     boolean isCompleted(long userId, long courseId);

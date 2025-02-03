@@ -69,6 +69,11 @@ public class DBEnrollmentProvider implements EnrollmentProvider {
     }
 
     @Override
+    public List<Enrollment> findAllByCompanyUserId(long companyCourseId, boolean isActive) {
+        return repository.findAllByCompanyUserIdAndActive(companyCourseId, isActive).stream().map(mapper::fromJPA).collect(Collectors.toList());
+    }
+
+    @Override
     public Enrollment save(Enrollment enrollment) throws ZerofiltreException {
         try {
             EnrollmentJPA enrollmentJPA = mapper.toJPA(enrollment);

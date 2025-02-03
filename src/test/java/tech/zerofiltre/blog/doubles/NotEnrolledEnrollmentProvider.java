@@ -42,6 +42,11 @@ public class NotEnrolledEnrollmentProvider implements EnrollmentProvider {
     }
 
     @Override
+    public List<Enrollment> findAllByCompanyUserId(long companyCourseId, boolean isActive) {
+        return List.of();
+    }
+
+    @Override
     public Enrollment save(Enrollment enrollment) {
         return null;
     }

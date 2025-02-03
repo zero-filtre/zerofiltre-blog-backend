@@ -10,6 +10,8 @@ public interface CompanyUserProvider {
 
     Optional<LinkCompanyUser> findByCompanyIdAndUserId(long companyId, long userId);
 
+    Optional<LinkCompanyUser> findByCompanyIdAndUserId(long companyId, long userId, boolean active);
+
     Page<LinkCompanyUser> findAllByCompanyId(int pageNumber, int pageSize, long companyId);
 
     void delete(LinkCompanyUser linkCompanyUser);

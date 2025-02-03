@@ -13,6 +13,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ class DBCompanyUserProviderIT {
     @DisplayName("given a LinkCompanyUser when save then return a LinkCompanyUser")
     void save() {
         //GIVEN
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, 1, LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, 1, 1, LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
 
         //WHEN
         LinkCompanyUser response = dbCompanyUserProvider.save(linkCompanyUser);
@@ -64,10 +65,30 @@ class DBCompanyUserProviderIT {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        dbCompanyUserProvider.save(new LinkCompanyUser(company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
 
         //WHEN
         Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user.getId());
+
+        //THEN
+        assertThat(response).isPresent();
+        assertThat(response.get().getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get().getUserId()).isEqualTo(user.getId());
+        assertThat(response.get().getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN);
+    }
+
+    @Test
+    @DisplayName("When search a active link between a company and a user, then verify that the link exists")
+    void findByCompanyIdAndUserIdAndActiveIsTrue() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
+        LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+
+        assertThat(linkCompanyUser).isNotNull();
+
+        //WHEN
+        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user.getId(), true);
 
         //THEN
         assertThat(response).isPresent();
@@ -86,7 +107,7 @@ class DBCompanyUserProviderIT {
         User user1 = ZerofiltreUtils.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
-        LinkCompanyUser linkCompanyUser1 = new LinkCompanyUser(company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser1 = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         linkCompanyUser1 = dbCompanyUserProvider.save(linkCompanyUser1);
 
         User user2 = new User();
@@ -94,7 +115,7 @@ class DBCompanyUserProviderIT {
         user2.setPseudoName("user2");
         user2 = dbUserProvider.save(user2);
 
-        LinkCompanyUser linkCompanyUser2 = new LinkCompanyUser(company.getId(), user2.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser2 = new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         linkCompanyUser2 = dbCompanyUserProvider.save(linkCompanyUser2);
 
         //WHEN
@@ -123,16 +144,18 @@ class DBCompanyUserProviderIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = dbUserProvider.save(user);
 
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN);
-        linkCompanyUser = dbCompanyUserProvider.save(linkCompanyUser);
+        LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+
+        Optional<LinkCompanyUser> cu = dbCompanyUserProvider.findByCompanyIdAndUserId(linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId(), true);
+        assertThat(cu).isPresent();
 
         //WHEN
         dbCompanyUserProvider.delete(linkCompanyUser);
 
         //THEN
-        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId());
+        cu = dbCompanyUserProvider.findByCompanyIdAndUserId(linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId());
 
-        assertThat(response).isEmpty();
+        assertThat(cu).isEmpty();
     }
 
     @Test
@@ -145,7 +168,7 @@ class DBCompanyUserProviderIT {
         User user1 = ZerofiltreUtils.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         User user2 = new User();
@@ -153,7 +176,7 @@ class DBCompanyUserProviderIT {
         user2.setPseudoName("user2");
         user2 = dbUserProvider.save(user2);
 
-        linkCompanyUser = new LinkCompanyUser(company.getId(), user2.getId(), LinkCompanyUser.Role.ADMIN);
+        linkCompanyUser = new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         //WHEN
@@ -177,7 +200,7 @@ class DBCompanyUserProviderIT {
         User user1 = ZerofiltreUtils.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         User user2 = new User();
@@ -185,7 +208,7 @@ class DBCompanyUserProviderIT {
         user2.setPseudoName("user2");
         user2 = dbUserProvider.save(user2);
 
-        linkCompanyUser = new LinkCompanyUser(company.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR);
+        linkCompanyUser = new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         User user3 = new User();
@@ -193,7 +216,7 @@ class DBCompanyUserProviderIT {
         user3.setPseudoName("user3");
         user3 = dbUserProvider.save(user3);
 
-        linkCompanyUser = new LinkCompanyUser(company.getId(), user3.getId(), LinkCompanyUser.Role.VIEWER);
+        linkCompanyUser = new LinkCompanyUser(0, company.getId(), user3.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         //WHEN
@@ -221,13 +244,13 @@ class DBCompanyUserProviderIT {
         User user = ZerofiltreUtils.createMockUser(false);
         user = dbUserProvider.save(user);
 
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         Company company2 = new Company(0, "Company2", "000000002");
         company2 = dbCompanyProvider.save(company2);
 
-        linkCompanyUser = new LinkCompanyUser(company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN);
+        linkCompanyUser = new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         //WHEN

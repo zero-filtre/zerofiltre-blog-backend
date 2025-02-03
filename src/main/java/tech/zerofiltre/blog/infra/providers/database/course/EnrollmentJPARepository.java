@@ -34,5 +34,7 @@ public interface EnrollmentJPARepository extends JpaRepository<EnrollmentJPA, Lo
 
     List<EnrollmentJPA> findAllByCompanyCourseIdAndActive(long companyCourseId, boolean isActive);
 
+    List<EnrollmentJPA> findAllByCompanyUserIdAndActive(long companyCourseId, boolean isActive);
+
 }
 

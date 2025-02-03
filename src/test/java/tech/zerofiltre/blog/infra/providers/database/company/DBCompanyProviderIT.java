@@ -13,6 +13,7 @@ import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,13 +111,13 @@ class DBCompanyProviderIT {
         Company company1 = new Company(0, "Company1", "000000001");
         company1 = dbCompanyProvider.save(company1);
 
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         Company company2 = new Company(0, "Company2", "000000002");
         company2 = dbCompanyProvider.save(company2);
 
-        linkCompanyUser = new LinkCompanyUser(company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN);
+        linkCompanyUser = new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         //WHEN
