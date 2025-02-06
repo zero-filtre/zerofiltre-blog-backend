@@ -12,7 +12,9 @@ import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.mapper.CompanyUserJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyUserJPA;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional
@@ -42,6 +44,16 @@ public class DBCompanyUserProvider implements CompanyUserProvider {
     public Page<LinkCompanyUser> findAllByCompanyId(int pageNumber, int pageSize, long companyId) {
         org.springframework.data.domain.Page<LinkCompanyUserJPA> pageJpa = repository.findAllByCompanyId(PageRequest.of(pageNumber, pageSize), companyId);
         return pageMapper.fromSpringPage(pageJpa.map(mapper::fromJPA));
+    }
+
+    @Override
+    public List<LinkCompanyUser> findAllByCompanyId(long companyId) {
+        return repository.findAllByCompanyId(companyId).stream().map(mapper::fromJPA).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LinkCompanyUser> findAllByCompanyIdExceptAdminRole(long companyId) {
+        return repository.findAllByCompanyIdAndRoleNot(companyId, "ADMIN").stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
     @Override
