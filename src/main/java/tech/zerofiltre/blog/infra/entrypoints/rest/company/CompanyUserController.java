@@ -54,20 +54,20 @@ public class CompanyUserController {
     }
 
     @DeleteMapping("/company/{companyId}/user/{userId}")
-    public void unlink(@PathVariable long companyId, @PathVariable long userId) throws ZerofiltreException {
+    public void unlink(@PathVariable long companyId, @PathVariable long userId, @RequestParam boolean hard) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        companyUserService.unlink(user, companyId, userId);
+        companyUserService.unlink(user, companyId, userId, hard);
     }
 
     @DeleteMapping("/company/{companyId}/user/all")
-    public void unlinkAllByCompanyId(@PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAllByCompanyId(@PathVariable long companyId, @RequestParam boolean hard) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
 
         if(companyId < 1){
             throw new ForbiddenActionException("You must at least set a company id");
         }
 
-        companyUserService.unlinkAllByCompanyId(user, companyId);
+        companyUserService.unlinkAllByCompanyId(user, companyId, hard);
     }
 
     @DeleteMapping("/company/user/{userId}/all")

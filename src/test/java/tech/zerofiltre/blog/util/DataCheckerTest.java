@@ -399,33 +399,37 @@ class DataCheckerTest {
         );
     }
 
-    @Test
-    @DisplayName("given a admin user and role admin when hasPermission then return true")
-    void givenAdminUserAndRoleAdmin_whenHasPermission_thenReturnTrue() throws ForbiddenActionException {
+    @DisplayName("When I verify that a platform admin has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are")
+    @ParameterizedTest(name = "[{index}] admin company user - user role added: {0}")
+    @MethodSource("adminAndEditorAndViewerRoleProvider")
+    void shouldHasPermission_whenHasPermissionToActLinkUserWithAdminOrEditorOrViewerRole_asPlatformAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
         //WHEN
-        boolean response = checker.hasPermission(adminUser, false, LinkCompanyUser.Role.ADMIN);
+        boolean response = checker.hasPermission(adminUser, 1, role);
 
         //THEN
         assertThat(response).isTrue();
     }
 
-    @DisplayName("given admin user and role editor or viewer when hasPermission then return true")
-    @ParameterizedTest(name = "[{index}] admin company user - user role added: {0}")
-    @MethodSource("editorAndViewerRoleProvider")
-    void givenAdminUserAndRoleEditorOrViewer_whenHasPermission_thenReturnTrue(LinkCompanyUser.Role role) throws ForbiddenActionException {
-        //WHEN
-        boolean response = checker.hasPermission(adminUser, false, role);
-
-        //THEN
-        assertThat(response).isTrue();
+    static Stream<Arguments> adminAndEditorAndViewerRoleProvider() {
+        return Stream.of(
+                arguments(LinkCompanyUser.Role.ADMIN),
+                arguments(LinkCompanyUser.Role.EDITOR),
+                arguments(LinkCompanyUser.Role.VIEWER)
+        );
     }
 
-    @DisplayName("given admin company user when hasPermission then return true")
-    @ParameterizedTest(name = "[{index}] admin company user - user role added: {0}")
+    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an EDITOR or VIEWER role and a company, then they are")
+    @ParameterizedTest(name = "[{index}] company admin - user role added: {0}")
     @MethodSource("editorAndViewerRoleProvider")
-    void givenAdminCompanyUser_whenHasPermission_thenReturnTrue(LinkCompanyUser.Role role) throws ForbiddenActionException {
+    void shouldHasPermission_whenHasPermissionToActLinkUserWithEditorOrViewerRole_asCompanyAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
+        //GIVEN
+        long companyId = 1;
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, companyId, userWithUserRole.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
+
+        when(companyUserProvider.findByCompanyIdAndUserId(companyId, userWithUserRole.getId(), true)).thenReturn(Optional.of(linkCompanyUser));
+
         //WHEN
-        boolean response = checker.hasPermission(userWithUserRole, true, role);
+        boolean response = checker.hasPermission(userWithUserRole, companyId, role);
 
         //THEN
         assertThat(response).isTrue();
@@ -439,20 +443,86 @@ class DataCheckerTest {
     }
 
     @Test
-    @DisplayName("given not admin user when hasPermission then throw ForbiddenActionException")
-    void givenNotAdminUser_whenHasPermission_thenThrowForbiddenActionException() {
+    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an ADMIN role and a company, then they are not")
+    void shouldHasNotPermission_whenHasPermissionToActLinkUserWithAdminRole_asCompanyAdmin() {
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, false, LinkCompanyUser.Role.ADMIN));
+                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, LinkCompanyUser.Role.ADMIN));
     }
 
-    @DisplayName("given user when hasPermission then throw ForbiddenActionException")
-    @ParameterizedTest(name = "[{index}] user with user role - user role added: {0}")
-    @MethodSource("editorAndViewerRoleProvider")
-    void givenUser_whenHasPermission_thenThrowForbiddenActionException(LinkCompanyUser.Role role) {
+    @Test
+    @DisplayName("When I verify that a user with user role has permission to act on a link between a user with an ADMIN role and a company, then they are not")
+    void shouldHasNotPermission_whenHasPermissionToActLinkUserWithAdminRole_asUserWithUserRole() {
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, false, role));
+                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, LinkCompanyUser.Role.ADMIN));
+    }
+
+    @DisplayName("When I verify that a user with user role has permission to act on a link between a user with an EDITOR or VIEWER role and a company, then they are not")
+    @ParameterizedTest(name = "[{index}] user with user role - user role added: {0}")
+    @MethodSource("editorAndViewerRoleProvider")
+    void shouldHasNotPermission_whenHasPermissionToActLinkUserWithEditorOrViewerRole_asUserWithUserRole(LinkCompanyUser.Role role) {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1, 1, 1, LinkCompanyUser.Role.EDITOR, true, null, null)));
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, role));
+
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(),anyLong(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("When I verify that a user is a company ADMIN, then they are")
+    void shouldTrue_whenIsCompanyAdmin_asCompanyAdmin() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1L, 1L, userWithUserRole.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null)));
+
+        //WHEN
+        boolean response = checker.isCompanyAdmin(userWithUserRole.getId(), 1L);
+
+        //THEN
+        assertThat(response).isTrue();
+    }
+
+    @Test
+    @DisplayName("When I verify that a user with inactive link is a company ADMIN, then they are not")
+    void shouldFalse_whenIsCompanyAdmin_asCompanyUserWithInactiveLink() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        //WHEN
+        boolean response = checker.isCompanyAdmin(userWithUserRole.getId(), 1L);
+
+        //THEN
+        assertThat(response).isFalse();
+    }
+
+    @Test
+    @DisplayName("When I verify that a user with EDITOR role is a company ADMIN, then they are not")
+    void shouldFalse_whenIsCompanyAdmin_asUserWithEditorRole() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1L, 1L, userWithUserRole.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null)));
+
+        //WHEN
+        boolean response = checker.isCompanyAdmin(userWithUserRole.getId(), 1L);
+
+        //THEN
+        assertThat(response).isFalse();
+    }
+
+    @Test
+    @DisplayName("When I check that a user who is not from the company is an administrator of the company, then they are not")
+    void shouldFalse_whenIsCompanyAdmin_asNotCompanyUser() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        //WHEN
+        boolean response = checker.isCompanyAdmin(userWithUserRole.getId(), 1L);
+
+        //THEN
+        assertThat(response).isFalse();
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test

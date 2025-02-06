@@ -23,7 +23,7 @@ public class CompanyUserService {
     private final DataChecker checker;
 
     public LinkCompanyUser link(User connectedUser, long companyId, long userId, LinkCompanyUser.Role role) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.hasPermission(connectedUser, isCompanyAdmin(connectedUser, companyId), role);
+        checker.hasPermission(connectedUser, companyId, role);
         checker.companyExists(companyId);
         checker.userExists(userId);
 
@@ -62,25 +62,49 @@ public class CompanyUserService {
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).map(LinkCompanyUser::getId).orElse(0L);
     }
 
-    public void unlink(User connectedUser, long companyId, long userId) throws ZerofiltreException {
+    public void unlink(User connectedUser, long companyId, long userId, boolean hard) throws ZerofiltreException {
         checker.isAdminOrCompanyAdmin(connectedUser, companyId);
 
         Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
         if(companyUser.isPresent()) {
-            checker.hasPermission(connectedUser, isCompanyAdmin(connectedUser, companyId), companyUser.get().getRole());
-            suspendLink(companyUser.get());
+            checker.hasPermission(connectedUser, companyId, companyUser.get().getRole());
+
+            if(hard) {
+                companyUserProvider.delete(companyUser.get());
+                suspendEnrollments(companyUser.get().getId());
+            } else {
+                suspendLink(companyUser.get());
+            }
         }
     }
 
-    public void unlinkAllByCompanyId(User connectedUser, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
+    public void unlinkAllByCompanyId(User connectedUser, long companyId, boolean hard) throws ZerofiltreException {
         checker.isAdminOrCompanyAdmin(connectedUser, companyId);
         checker.companyExists(companyId);
 
-        if(connectedUser.isAdmin()) {
-            companyUserProvider.deleteAllByCompanyId(companyId);
-        } else if(isCompanyAdmin(connectedUser, companyId)) {
-            companyUserProvider.deleteAllByCompanyIdExceptAdminRole(companyId);
+        if(hard) {
+            if(connectedUser.isAdmin()) {
+                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
+                    companyUserProvider.delete(c);
+                    suspendEnrollments(c.getId());
+                }
+            } else {
+                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
+                    companyUserProvider.delete(c);
+                    suspendEnrollments(c.getId());
+                }
+            }
+        } else {
+            if(connectedUser.isAdmin()) {
+                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
+                    suspendLink(c);
+                }
+            } else {
+                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
+                    suspendLink(c);
+                }
+            }
         }
     }
 
@@ -90,22 +114,16 @@ public class CompanyUserService {
         companyUserProvider.deleteAllByUserId(userId);
     }
 
-    boolean isCompanyAdmin(User user, long companyId) {
-        Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, user.getId());
-
-        return companyUser.map(value -> value.getRole().equals(LinkCompanyUser.Role.ADMIN)).orElse(false);
-    }
-
     void suspendLink(LinkCompanyUser linkCompanyUser) throws ZerofiltreException {
         if(null == linkCompanyUser.getSuspendedAt()) {
             linkCompanyUser.setActive(false);
             linkCompanyUser.setSuspendedAt(LocalDateTime.now());
             companyUserProvider.save(linkCompanyUser);
         }
-        suspendEnrollment(linkCompanyUser.getId());
+        suspendEnrollments(linkCompanyUser.getId());
     }
 
-    void suspendEnrollment(long companyUserId) throws ZerofiltreException {
+    void suspendEnrollments(long companyUserId) throws ZerofiltreException {
         for(Enrollment e : enrollmentProvider.findAllByCompanyUserId(companyUserId, true)) {
             e.setActive(false);
             e.setSuspendedAt(LocalDateTime.now());
