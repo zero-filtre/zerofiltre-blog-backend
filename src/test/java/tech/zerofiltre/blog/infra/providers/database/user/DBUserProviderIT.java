@@ -10,7 +10,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ class DBUserProviderIT {
 
     @Test
     void savingAUser_saves_SocialLinks() {
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
 
         //ACT
         user = provider.save(user);
@@ -53,7 +53,7 @@ class DBUserProviderIT {
 
     @Test
     void shouldGet_UserBy_PaymentEmail() {
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPaymentEmail(PAYMENT_EMAIL);
 
         //ACT
@@ -69,7 +69,7 @@ class DBUserProviderIT {
     @Test
     void savingAUser_with_socialId_persists_theSocialId() {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setSocialId(SOCIAL_ID);
 
         //WHEN
@@ -84,7 +84,7 @@ class DBUserProviderIT {
     @Test
     void savingAUser_savesLoginFrom_asString() {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
 
         //WHEN
         UserJPA userJPA = userJPARepository.save(mapper.toJPA(user));

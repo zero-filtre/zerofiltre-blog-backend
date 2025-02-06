@@ -13,7 +13,7 @@ import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -48,7 +48,7 @@ class InitArticleTest {
     void mustSetStatusToPublished() {
         //ARRANGE
         LocalDateTime beforeInit = LocalDateTime.now();
-        User mockUser = ZerofiltreUtils.createMockUser(false);
+        User mockUser = ZerofiltreUtilsTest.createMockUser(false);
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> {
             Article article = invocationOnMock.getArgument(0);
             article.setId(45);

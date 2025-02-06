@@ -29,13 +29,13 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBSectionProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.*;
+import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.*;
 
 @DataJpaTest
 @Import({DBSectionProvider.class, Slf4jLoggerProvider.class, DBCourseProvider.class, DBUserProvider.class, DBTagProvider.class, DBChapterProvider.class, DBEnrollmentProvider.class})
@@ -77,9 +77,9 @@ class SectionIT {
         User author = new User();
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user = userProvider.save(user);
 
         //WHEN
@@ -102,9 +102,9 @@ class SectionIT {
         User author = new User();
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user = userProvider.save(user);
 
         section = new Section.SectionBuilder()
@@ -119,7 +119,7 @@ class SectionIT {
 
 
         //WHEN
-        section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true)
+        section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true)
                 .get(0)
                 .update(section.getId(), TEST_SECTION_TITLE_1, TEST_SECTION_CONTENT_1, TEST_THUMBNAIL, 1, user);
 
@@ -134,12 +134,12 @@ class SectionIT {
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void update_UpdatesFieldsProperly() throws ZerofiltreException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("test@mail.uk");
         author.setPseudoName("pseudo");
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         section = new Section.SectionBuilder()
@@ -171,12 +171,12 @@ class SectionIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void update_reordersSections_IfPositionIsChanged() throws ZerofiltreException {
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("update_reordersSections_IfPositionIsChanged@mail.com");
         author.setPseudoName("update_reordersSections_IfPositionIsChanged");
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Section section = new Section.SectionBuilder()
@@ -225,12 +225,12 @@ class SectionIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void update_DoesNotReorderSections_IfPositionIsSame() throws ZerofiltreException {
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("update_DoesNotReorderSections_IfPositionIsSame@mail.com");
         author.setPseudoName("update_DoesNotReorderSections_IfPositionIsSame@mail.com");
         author = userProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         Section section = new Section.SectionBuilder()
@@ -287,7 +287,7 @@ class SectionIT {
     @Test
     void deleteSection_isOk() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
@@ -318,7 +318,7 @@ class SectionIT {
     void findSection_isOK() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);

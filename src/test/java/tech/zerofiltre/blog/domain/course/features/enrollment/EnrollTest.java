@@ -32,6 +32,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ class EnrollTest {
         parentCourse.setId(20);
 
         // find users enrollments
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
         when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
 
@@ -161,7 +162,7 @@ class EnrollTest {
         enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, null, null, purchaseProvider, checker, companyCourseProvider, companyUserProvider);
 
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -187,7 +188,7 @@ class EnrollTest {
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -216,7 +217,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
         Course course = new Course();
@@ -293,7 +294,7 @@ class EnrollTest {
 
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -319,7 +320,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.BASIC);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -381,7 +382,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.BASIC);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -449,7 +450,7 @@ class EnrollTest {
         when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
 
@@ -624,8 +625,8 @@ class EnrollTest {
         CourseProvider courseProvider = mock(CourseProvider.class);
         FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
 
-        User author = ZerofiltreUtils.createMockUser(false);
-        Course mockCourse = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>());
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, author, Collections.emptyList(), new ArrayList<>());
         mockCourse.setSandboxType(Sandbox.Type.K8S);
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
@@ -673,7 +674,7 @@ class EnrollTest {
         course.setId(20);
 
         // find users enrollments
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
         when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
 
@@ -738,7 +739,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
         when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
 
@@ -768,7 +769,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
         when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
 
@@ -798,7 +799,7 @@ class EnrollTest {
         UserProvider userProvider = mock(UserProvider.class);
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
         when(userProvider.userOfId(12)).thenReturn(Optional.of(user));
 
@@ -835,7 +836,7 @@ class EnrollTest {
         course.setStatus(Status.PUBLISHED);
         course.setId(20);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
 
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
@@ -877,7 +878,7 @@ class EnrollTest {
         course.setStatus(Status.PUBLISHED);
         course.setId(20);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(12);
 
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));

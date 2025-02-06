@@ -20,7 +20,7 @@ import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
 import tech.zerofiltre.blog.domain.metrics.MetricsProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.DummyMetricsProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -54,7 +54,7 @@ class FindArticleTest {
     @DisplayName("Must return the article corresponding ot the id")
     void mustNotFilterOnAuthors() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
@@ -71,7 +71,7 @@ class FindArticleTest {
     @DisplayName("Increment view count if article is found and published")
     void mustIncrementViewIfArticleIsFound() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -89,11 +89,11 @@ class FindArticleTest {
     void mustSave_AnArticleView_IfArticleIsFound() throws ResourceNotFoundException {
         //ARRANGE
         LocalDateTime beforeViewing = LocalDateTime.now();
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(24);
 
         //ACT
@@ -114,11 +114,11 @@ class FindArticleTest {
     @Test
     void doNotCreateArticleView_ifArticle_IsNot_Published() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         mockArticle.setStatus(DRAFT);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(24);
 
         //ACT
@@ -134,7 +134,7 @@ class FindArticleTest {
     @DisplayName("Do not Increment view count if article is not published")
     void mustNotIncrementView_IfArticle_IsNot_Published() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         assertThat(mockArticle.getViewsCount()).isZero();
@@ -151,7 +151,7 @@ class FindArticleTest {
     @DisplayName("Do not Increment view count if viewer is the author even if it is published")
     void mustNotIncrementView_IfViewer_IsTheAuthor() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -168,11 +168,11 @@ class FindArticleTest {
     @Test
     void mustNotSave_AnArticleView_IfViewer_IsTheAuthor() throws ResourceNotFoundException {
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         mockArticle.setStatus(PUBLISHED);
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(mockArticle));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(24);
 
         //ACT
@@ -298,7 +298,7 @@ class FindArticleTest {
         String a26WordContent = "This is a 26-char content.";
         String halfOfA26WordContent = "This is a 26-";
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setId(85);
 
         Article premium = new Article();
@@ -326,7 +326,7 @@ class FindArticleTest {
         //ARRANGE
         String a26WordContent = "This is a 26-char content.";
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
 
         Article premium = new Article();
         premium.setStatus(PUBLISHED);
@@ -337,7 +337,7 @@ class FindArticleTest {
 
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        User admin = ZerofiltreUtils.createMockUser(true);
+        User admin = ZerofiltreUtilsTest.createMockUser(true);
         admin.setId(24);
 
         //ACT
@@ -355,7 +355,7 @@ class FindArticleTest {
         //ARRANGE
         String a26WordContent = "This is a 26-char content.";
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setId(24);
 
         Article premium = new Article();
@@ -383,7 +383,7 @@ class FindArticleTest {
         //ARRANGE
         String a26WordContent = "This is a 26-char content.";
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setId(24);
 
         Article premium = new Article();
@@ -395,7 +395,7 @@ class FindArticleTest {
 
         when(articleProvider.articleOfId(12)).thenReturn(java.util.Optional.of(premium));
         when(articleProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
-        User pro = ZerofiltreUtils.createMockUser(false);
+        User pro = ZerofiltreUtilsTest.createMockUser(false);
         pro.setId(102);
         pro.setPlan(User.Plan.PRO);
 

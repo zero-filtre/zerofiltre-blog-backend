@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Set;
@@ -44,7 +44,7 @@ class UpdateUserIT {
     @DisplayName("Patching a user updates only the date that are meant to be updated. E.g: loginFrom should not be overridden")
     void patchUser_UpdatesProperly() throws UserNotFoundException, ForbiddenActionException {
         //ARRANGE
-        User existingUser = ZerofiltreUtils.createMockUser(true);
+        User existingUser = ZerofiltreUtilsTest.createMockUser(true);
         existingUser = userProvider.save(existingUser);
 
         //loginFrom will not be set

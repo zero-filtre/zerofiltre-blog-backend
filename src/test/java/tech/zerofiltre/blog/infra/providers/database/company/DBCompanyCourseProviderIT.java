@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.CourseJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -60,8 +60,8 @@ class DBCompanyCourseProviderIT {
     void save() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null);
 
         //WHEN
@@ -80,8 +80,8 @@ class DBCompanyCourseProviderIT {
     void findByCompanyIdAndCourseId() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
         LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
 
         assertThat(linkCompanyCourse).isNotNull();
@@ -103,8 +103,8 @@ class DBCompanyCourseProviderIT {
     void findByCompanyIdAndCourseIdAndActiveIsTrue() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
         LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
 
         assertThat(linkCompanyCourse).isNotNull();
@@ -126,12 +126,12 @@ class DBCompanyCourseProviderIT {
     void findAllByCompanyIdByPage_returnAllCompanyCourseByCompanyIdByPage() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         LinkCompanyCourse linkCompanyCourse1 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
 
-        Course course2 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
 
@@ -161,12 +161,12 @@ class DBCompanyCourseProviderIT {
     void findAllCoursesByCompanyIdByPage_returnAllCoursesByCompanyIdByPage() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
 
-        Course course2 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
 
@@ -190,12 +190,12 @@ class DBCompanyCourseProviderIT {
     void findAllByCompanyId() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
 
-        Course course2 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), true, LocalDateTime.now(), null));
 
@@ -215,8 +215,8 @@ class DBCompanyCourseProviderIT {
     @DisplayName("given courseId when findAllByCourseId then return list of LinkCompanyCourse for a course")
     void findAllByCourseId() {
         //GIVEN
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
@@ -241,8 +241,8 @@ class DBCompanyCourseProviderIT {
     void delete() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
 
@@ -263,12 +263,12 @@ class DBCompanyCourseProviderIT {
     void deleteAllByCompanyId() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
 
-        Course course2 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), true, LocalDateTime.now(), null));
 
@@ -291,8 +291,8 @@ class DBCompanyCourseProviderIT {
     void deleteAllByCourseId() {
         //GIVEN
         Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
 

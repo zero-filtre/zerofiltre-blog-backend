@@ -16,7 +16,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.*;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 
@@ -169,10 +169,10 @@ class FindEnrollmentIT {
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
 
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setPseudoName("author");
         author.setEmail("author@gmail.fr");
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPseudoName("enrolled");
         user.setEmail("susbscriber@gamil.fr");
 
@@ -180,15 +180,15 @@ class FindEnrollmentIT {
         author = userProvider.save(author);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
-        Course susPendedCourse = ZerofiltreUtils.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course susPendedCourse = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         susPendedCourse = courseProvider.save(susPendedCourse);
 
-        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, user, course);
+        Enrollment enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, user, course);
         enrollmentProvider.save(enrollment);
 
-        Enrollment sencondEnrollment = ZerofiltreUtils.createMockEnrollment(false, user, susPendedCourse);
+        Enrollment sencondEnrollment = ZerofiltreUtilsTest.createMockEnrollment(false, user, susPendedCourse);
         sencondEnrollment.setActive(!withThe2ndOneInactive);
         sencondEnrollment.setCompleted(withThe2ndOneCompleted);
         enrollmentProvider.save(sencondEnrollment);

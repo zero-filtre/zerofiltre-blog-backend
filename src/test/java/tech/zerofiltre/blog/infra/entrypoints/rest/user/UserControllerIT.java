@@ -58,7 +58,7 @@ import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProper
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -468,7 +468,7 @@ class UserControllerIT {
     void onGetArticles_ifValidInput_return200() throws Exception {
 
         //ARRANGE
-        Article mockArticle = ZerofiltreUtils.createMockArticle(false);
+        Article mockArticle = ZerofiltreUtilsTest.createMockArticle(false);
         when(articleProvider.articlesOf(anyInt(), anyInt(), any(), anyLong(), any(), anyString())).thenReturn(
                 new Page<>(1, 0, 1, 1, 4, Collections.singletonList(mockArticle), true, false));
 

@@ -30,7 +30,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.util.DataChecker;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -94,16 +94,16 @@ class EnrollIT {
 
     @Test
     void enrollGetsExecutedProperly() throws ZerofiltreException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user.setEmail("test@gmail.grok");
         user.setPseudoName("tester");
         user = dbUserProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
         LocalDateTime beforeEnroll = LocalDateTime.now();
         Enrollment enrollment = enroll.execute(user.getId(), course.getId(), 0, false);
@@ -130,19 +130,19 @@ class EnrollIT {
 
     @Test
     void enrollMentoredGetsExecutedProperly() throws ZerofiltreException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user.setEmail("test@gmail.grok");
         user.setPseudoName("tester");
         user = dbUserProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList(), true);
         course = dbCourseProvider.save(course);
 
-        Purchase purchase = ZerofiltreUtils.createMockPurchase(1, user, course, LocalDateTime.now());
+        Purchase purchase = ZerofiltreUtilsTest.createMockPurchase(1, user, course, LocalDateTime.now());
         dbPurchaseProvider.save(purchase);
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
@@ -170,13 +170,13 @@ class EnrollIT {
 
     @Test
     void executeSetSuspendeAt_toNull() throws ZerofiltreException {
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user.setEmail("test@gmail.grok");
         user.setPseudoName("tester");
         user = dbUserProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
         enroll.execute(user.getId(), course.getId(), 0, false);
@@ -193,16 +193,16 @@ class EnrollIT {
 
     @Test
     void givenCompanyUserAndCompanyCourse_enrollGetsExecutedProperly() throws ZerofiltreException {
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setPlan(User.Plan.PRO);
         user.setEmail("test@gmail.grok");
         user.setPseudoName("tester");
         user = dbUserProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
         Company company = dbCompanyProvider.save(new Company(0, "company 1", "000000001"));

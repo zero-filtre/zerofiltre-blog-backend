@@ -53,11 +53,11 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsMostReacted_InDescendingOrder() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
-        Article article0 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -81,7 +81,7 @@ class DBArticleProviderIT {
 
         article0JPA.setReactions(new HashSet<>(Arrays.asList(reaction0, reaction1, reaction2)));
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -102,7 +102,7 @@ class DBArticleProviderIT {
         article1JPA.setReactions(new HashSet<>(Arrays.asList(reaction3, reaction4)));
 
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -124,12 +124,12 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsMostReacted_InDescendingOrder_WithConnectedUser() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
         //article0JPA has no author
-        Article article0 = ZerofiltreUtils.createMockArticle(null, Collections.emptyList(), Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(null, Collections.emptyList(), Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -153,7 +153,7 @@ class DBArticleProviderIT {
 
         article0JPA.setReactions(new HashSet<>(Arrays.asList(reaction0, reaction1, reaction2)));
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -175,7 +175,7 @@ class DBArticleProviderIT {
         article1JPA.setReactions(new HashSet<>(Arrays.asList(reaction3, reaction4)));
 
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -198,11 +198,11 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsMostViewed_InDescendingOrder() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
-        Article article0 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -210,7 +210,7 @@ class DBArticleProviderIT {
         article0JPA.setViewsCount(0);
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -218,7 +218,7 @@ class DBArticleProviderIT {
         article1JPA.setViewsCount(2);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -241,12 +241,12 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsMostViewed_InDescendingOrder_WithConnectedUser() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
         //article0JPA has no author
-        Article article0 = ZerofiltreUtils.createMockArticle(null, Collections.emptyList(), Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(null, Collections.emptyList(), Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -254,7 +254,7 @@ class DBArticleProviderIT {
         article0JPA.setViewsCount(5);
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -263,7 +263,7 @@ class DBArticleProviderIT {
         article1JPA.setViewsCount(2);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -285,12 +285,12 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_reliesOnTheProperFilter() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
         //article1JPA has 2 reactions and 5 views
-        Article article1 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -312,7 +312,7 @@ class DBArticleProviderIT {
 
 
         //article1JPA has 0 reactions and 8 views
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -335,14 +335,14 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsSelectedTag_InDescendingOrder() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
-        List<Tag> tags = ZerofiltreUtils.createMockTags(false);
+        List<Tag> tags = ZerofiltreUtilsTest.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
 
-        Article article0 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -350,7 +350,7 @@ class DBArticleProviderIT {
         article0JPA.setAuthor(userJPA);
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -358,7 +358,7 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -380,22 +380,22 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsSelectedTag_InDescendingOrder_WithConnectedUser() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
 
-        List<Tag> tags = ZerofiltreUtils.createMockTags(false);
+        List<Tag> tags = ZerofiltreUtilsTest.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
 
         //Article0 has no author
-        Article article0 = ZerofiltreUtils.createMockArticle(null, tags, Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(null, tags, Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
         article0JPA.setPublishedAt(LocalDateTime.now());
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -403,7 +403,7 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -424,17 +424,17 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsInDescendingOrder_ByDefault() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
         LocalDateTime now = LocalDateTime.now();
 
 
-        List<Tag> tags = ZerofiltreUtils.createMockTags(false);
+        List<Tag> tags = ZerofiltreUtilsTest.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
 
 
-        Article article0 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
@@ -442,7 +442,7 @@ class DBArticleProviderIT {
         article0JPA.setAuthor(userJPA);
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -450,7 +450,7 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);
@@ -473,24 +473,24 @@ class DBArticleProviderIT {
     @Test
     void articlesOf_returnsInDescendingOrder_ByDefault_WithConnectedUser() {
         //ARRANGE
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         UserJPA userJPA = userJPAMapper.toJPA(user);
         userJPARepository.save(userJPA);
         LocalDateTime now = LocalDateTime.now();
 
 
-        List<Tag> tags = ZerofiltreUtils.createMockTags(false);
+        List<Tag> tags = ZerofiltreUtilsTest.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
 
         //Article 0 has no author
-        Article article0 = ZerofiltreUtils.createMockArticle(null, tags, Collections.emptyList());
+        Article article0 = ZerofiltreUtilsTest.createMockArticle(null, tags, Collections.emptyList());
         article0.setTitle("article0");
         ArticleJPA article0JPA = articleJPAMapper.toJPA(article0);
         article0JPA.setStatus(Status.PUBLISHED);
         article0JPA.setPublishedAt(now);
         articleJPARepository.save(article0JPA);
 
-        Article article1 = ZerofiltreUtils.createMockArticle(user, tags, Collections.emptyList());
+        Article article1 = ZerofiltreUtilsTest.createMockArticle(user, tags, Collections.emptyList());
         article1.setTitle("article1");
         ArticleJPA article1JPA = articleJPAMapper.toJPA(article1);
         article1JPA.setStatus(Status.PUBLISHED);
@@ -498,7 +498,7 @@ class DBArticleProviderIT {
         article1JPA.setAuthor(userJPA);
         articleJPARepository.save(article1JPA);
 
-        Article article2 = ZerofiltreUtils.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
+        Article article2 = ZerofiltreUtilsTest.createMockArticle(user, Collections.emptyList(), Collections.emptyList());
         article2.setTitle("article2");
         ArticleJPA article2JPA = articleJPAMapper.toJPA(article2);
         article2JPA.setAuthor(userJPA);

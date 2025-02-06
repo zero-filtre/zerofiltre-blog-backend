@@ -11,7 +11,7 @@ import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,7 +64,7 @@ class DBCompanyUserProviderIT {
     void findByCompanyIdAndUserId() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
 
         //WHEN
@@ -82,7 +82,7 @@ class DBCompanyUserProviderIT {
     void findByCompanyIdAndUserIdAndActiveIsTrue() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        User user = dbUserProvider.save(ZerofiltreUtils.createMockUser(false));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
 
         assertThat(linkCompanyUser).isNotNull();
@@ -104,7 +104,7 @@ class DBCompanyUserProviderIT {
         Company company = new Company(0, "Company1", "000000001");
         company = dbCompanyProvider.save(company);
 
-        User user1 = ZerofiltreUtils.createMockUser(false);
+        User user1 = ZerofiltreUtilsTest.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
         LinkCompanyUser linkCompanyUser1 = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
@@ -141,7 +141,7 @@ class DBCompanyUserProviderIT {
         Company company = new Company(0, "Company1", "000000001");
         company = dbCompanyProvider.save(company);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = dbUserProvider.save(user);
 
         LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
@@ -165,7 +165,7 @@ class DBCompanyUserProviderIT {
         Company company = new Company(0, "Company1", "000000001");
         company = dbCompanyProvider.save(company);
 
-        User user1 = ZerofiltreUtils.createMockUser(false);
+        User user1 = ZerofiltreUtilsTest.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
@@ -197,7 +197,7 @@ class DBCompanyUserProviderIT {
         Company company = new Company(0, "Company1", "000000001");
         company = dbCompanyProvider.save(company);
 
-        User user1 = ZerofiltreUtils.createMockUser(false);
+        User user1 = ZerofiltreUtilsTest.createMockUser(false);
         user1 = dbUserProvider.save(user1);
 
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
@@ -241,7 +241,7 @@ class DBCompanyUserProviderIT {
         Company company1 = new Company(0, "Company1", "000000001");
         company1 = dbCompanyProvider.save(company1);
 
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = dbUserProvider.save(user);
 
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);

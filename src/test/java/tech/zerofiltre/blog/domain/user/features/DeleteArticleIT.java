@@ -25,7 +25,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBVerificationTokenProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,16 +61,16 @@ class DeleteArticleIT {
     @Test
     @DisplayName("Deleting an article, deletes it from DB")
     void shouldDeleteProperly() throws ForbiddenActionException, ResourceNotFoundException {
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser = userProvider.save(currentUser);
 
-        List<Tag> tags = ZerofiltreUtils.createMockTags(false);
+        List<Tag> tags = ZerofiltreUtilsTest.createMockTags(false);
         tags = tags.stream().map(tagProvider::save).collect(Collectors.toList());
 
-        Article article = ZerofiltreUtils.createMockArticle(currentUser, tags, Collections.emptyList());
+        Article article = ZerofiltreUtilsTest.createMockArticle(currentUser, tags, Collections.emptyList());
         article = articleProvider.save(article);
 
-        List<Reaction> reactions = ZerofiltreUtils.createMockReactions(false, article.getId(),0, currentUser);
+        List<Reaction> reactions = ZerofiltreUtilsTest.createMockReactions(false, article.getId(),0, currentUser);
         reactions.forEach(reactionProvider::save);
 
         deleteArticle.execute(currentUser, article.getId());

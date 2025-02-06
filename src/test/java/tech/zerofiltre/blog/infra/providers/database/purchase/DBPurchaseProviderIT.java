@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.CourseJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -47,10 +47,10 @@ class DBPurchaseProviderTest {
         DBUserProvider userProvider = new DBUserProvider(userRepository);
         dbPurchaseProvider = new DBPurchaseProvider(purchaseRepository);
 
-        user = ZerofiltreUtils.createMockUser(false);
+        user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        course = ZerofiltreUtils.createMockCourse(true, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
         purchase = new Purchase();

@@ -10,7 +10,7 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -49,7 +49,7 @@ class UpdateUserTest {
     @Test
     void updateUser_savesUserProperly() throws ForbiddenActionException, UserNotFoundException {
         //ARRANGE
-        User foundUser = ZerofiltreUtils.createMockUser(false);
+        User foundUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(1);
         when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(foundUser));
         when(userProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -91,7 +91,7 @@ class UpdateUserTest {
     @Test
     void updateUser_updatesSocialLinks() throws ForbiddenActionException, UserNotFoundException {
         //ARRANGE
-        User foundUser = ZerofiltreUtils.createMockUser(false);
+        User foundUser = ZerofiltreUtilsTest.createMockUser(false);
 
         assertThat(foundUser.getSocialLinks().size()).isEqualTo(3);
         currentUser.setId(1);

@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -47,9 +47,9 @@ class DeleteArticleTest {
 
         //ARRANGE
 
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(10);
-        Article article = ZerofiltreUtils.createMockArticle(currentUser, Collections.emptyList(), Collections.emptyList());
+        Article article = ZerofiltreUtilsTest.createMockArticle(currentUser, Collections.emptyList(), Collections.emptyList());
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(article));
 
 
@@ -62,9 +62,9 @@ class DeleteArticleTest {
     @DisplayName("A non admin user, not owner of an article can't delete it")
     void deleteFromNonAdminAndNonAuthor_isKO() {
 
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(10);
-        Article article = ZerofiltreUtils.createMockArticle(false);
+        Article article = ZerofiltreUtilsTest.createMockArticle(false);
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(article));
 
 
@@ -78,9 +78,9 @@ class DeleteArticleTest {
 
         //ARRANGE
 
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser.setId(10);
-        Article article = ZerofiltreUtils.createMockArticle(currentUser, Collections.emptyList(), Collections.emptyList());
+        Article article = ZerofiltreUtilsTest.createMockArticle(currentUser, Collections.emptyList(), Collections.emptyList());
         when(articleProvider.articleOfId(anyLong())).thenReturn(Optional.of(article));
 
         //ACT

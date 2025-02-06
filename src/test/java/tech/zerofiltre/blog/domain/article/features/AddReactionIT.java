@@ -20,7 +20,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBArticleProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,10 +56,10 @@ class AddReactionIT {
     @Test
     void execute_mustSaveReactionsProperly() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
-        Article article = ZerofiltreUtils.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
+        Article article = ZerofiltreUtilsTest.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
         article.setStatus(Status.PUBLISHED);
         article = articleProvider.save(article);
 
@@ -86,11 +86,11 @@ class AddReactionIT {
     @Test
     void execute_mustSaveReactionsOnCourseProperly() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         long courseId = course.getId();
 
@@ -116,12 +116,12 @@ class AddReactionIT {
     @Test
     void execute_returnsAllArticleReactions() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
 
 
-        Article article = ZerofiltreUtils.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
+        Article article = ZerofiltreUtilsTest.createMockArticle(currentUser, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
         article.setStatus(Status.PUBLISHED);
         long articleId = article.getId();
@@ -162,12 +162,12 @@ class AddReactionIT {
     @Test
     void execute_returnsAllCourseReactions() throws ForbiddenActionException, ResourceNotFoundException {
         //ARRANGE
-        User currentUser = ZerofiltreUtils.createMockUser(false);
+        User currentUser = ZerofiltreUtilsTest.createMockUser(false);
         currentUser = userProvider.save(currentUser);
         long currentUserId = currentUser.getId();
 
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, currentUser, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
         long courseId = course.getId();
 

@@ -49,13 +49,13 @@ class DBLessonProviderIT {
     @Test
     void delete_lesson_is_ok() {
         //given
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
         Lesson lesson = Lesson.builder()
@@ -76,13 +76,13 @@ class DBLessonProviderIT {
     void delete_lesson_removes_it_from_enrollment_completedLessons() throws ZerofiltreException {
         //given
 
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
         Lesson lesson = Lesson.builder()
@@ -94,7 +94,7 @@ class DBLessonProviderIT {
         lesson = lessonProvider.save(lesson);
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isPresent();
 
-        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, author, course);
+        Enrollment enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, author, course);
         dbEnrollmentProvider.save(enrollment);
 
         //when
@@ -110,16 +110,16 @@ class DBLessonProviderIT {
     @Test
     void list_all_lessonId_notCompleted_by_enrollmentId_then_return_one_lessonId() throws ZerofiltreException {
         //given
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, author, course);
+        Enrollment enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, author, course);
         enrollment = dbEnrollmentProvider.save(enrollment);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
         Lesson lesson1 = Lesson.builder()
@@ -177,13 +177,13 @@ class DBLessonProviderIT {
     @Test
     void list_all_lessonId_notCompleted_by_enrollmentId_then_return_nothing() throws ZerofiltreException {
         //given
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author = dbUserProvider.save(author);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
         course = dbCourseProvider.save(course);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
         Lesson lesson1 = Lesson.builder()
@@ -200,7 +200,7 @@ class DBLessonProviderIT {
         assertThat(lessonProvider.lessonOfId(lesson1.getId())).isPresent();
         assertThat(lessonProvider.lessonOfId(lesson2.getId())).isPresent();
 
-        Enrollment enrollment = ZerofiltreUtils.createMockEnrollment(false, author, course);
+        Enrollment enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, author, course);
         enrollment = dbEnrollmentProvider.save(enrollment);
 
         CompletedLesson completedLesson1 = new CompletedLesson();

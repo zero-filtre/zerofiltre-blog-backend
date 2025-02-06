@@ -23,7 +23,7 @@ import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.notification.user.AppPublisherNotificationProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -70,17 +70,17 @@ class PublishOrSaveArticleIT {
     @DisplayName("Must properly partially save the data on publish")
     void mustPublishProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        User user = userProvider.save(ZerofiltreUtils.createMockUser(true));
+        User user = userProvider.save(ZerofiltreUtilsTest.createMockUser(true));
 
-        List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
+        List<Tag> newTags = ZerofiltreUtilsTest.createMockTags(false).stream()
                 .map(tagProvider::save)
                 .collect(Collectors.toList());
 
 
-        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
+        Article article = ZerofiltreUtilsTest.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
 
-        ZerofiltreUtils.createMockReactions(true, article.getId(), 0,user)
+        ZerofiltreUtilsTest.createMockReactions(true, article.getId(), 0,user)
                 .forEach(reactionProvider::save);
 
 
@@ -152,16 +152,16 @@ class PublishOrSaveArticleIT {
     @DisplayName("Must properly partially save the data on save")
     void mustSaveProperly() throws PublishOrSaveArticleException, ForbiddenActionException {
         //ARRANGE
-        User user = userProvider.save(ZerofiltreUtils.createMockUser(false));
+        User user = userProvider.save(ZerofiltreUtilsTest.createMockUser(false));
 
-        List<Tag> newTags = ZerofiltreUtils.createMockTags(false).stream()
+        List<Tag> newTags = ZerofiltreUtilsTest.createMockTags(false).stream()
                 .map(tagProvider::save)
                 .collect(Collectors.toList());
 
-        Article article = ZerofiltreUtils.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
+        Article article = ZerofiltreUtilsTest.createMockArticle(user, new ArrayList<>(), new ArrayList<>());
         article = articleProvider.save(article);
 
-        ZerofiltreUtils.createMockReactions(true, article.getId(),0, user)
+        ZerofiltreUtilsTest.createMockReactions(true, article.getId(),0, user)
                 .forEach(reactionProvider::save);
 
 

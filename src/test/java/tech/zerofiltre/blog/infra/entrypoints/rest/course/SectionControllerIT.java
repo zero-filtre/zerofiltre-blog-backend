@@ -40,7 +40,7 @@ import tech.zerofiltre.blog.infra.security.config.RoleRequiredAccessDeniedHandle
 import tech.zerofiltre.blog.infra.security.model.GithubAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.JwtAuthenticationTokenProperties;
 import tech.zerofiltre.blog.infra.security.model.StackOverflowAuthenticationTokenProperties;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -101,11 +101,11 @@ class SectionControllerIT {
 
     @BeforeEach
     void setUp() throws UserNotFoundException {
-        mockSection = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, true).get(0);
+        mockSection = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, true).get(0);
         when(sectionProvider.findById(anyLong())).thenReturn(Optional.ofNullable(mockSection));
         when(sectionProvider.save(any())).thenReturn(mockSection);
-        User mockUser = ZerofiltreUtils.createMockUser(true);
-        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtils.createMockCourse(false, Status.DRAFT, mockUser,Collections.emptyList(),Collections.emptyList())));
+        User mockUser = ZerofiltreUtilsTest.createMockUser(true);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, mockUser,Collections.emptyList(),Collections.emptyList())));
         when(securityContextManager.getAuthenticatedUser()).thenReturn(mockUser);
 
         sectionVM.setTitle("title");

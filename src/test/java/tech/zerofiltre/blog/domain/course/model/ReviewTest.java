@@ -15,7 +15,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.FoundAdminUserProviderSpy;
 import tech.zerofiltre.blog.doubles.FoundReviewProviderSpy;
 import tech.zerofiltre.blog.doubles.NotFoundUserProviderSpy;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Optional;
 
@@ -61,7 +61,7 @@ public class ReviewTest {
     @Test
     void init_saves_review_if_user_has_active_enrollment() throws ResourceNotFoundException, ForbiddenActionException {
         // given
-        User reviewer = ZerofiltreUtils.createMockUser(false);
+        User reviewer = ZerofiltreUtilsTest.createMockUser(false);
         when(userProvider.userOfId(reviewer.getId())).thenReturn(Optional.of(reviewer));
         when(courseProvider.courseIdOfChapterId(1)).thenReturn(2L);
         when(enrollmentProvider.enrollmentOf(reviewer.getId(), 2L, true)).thenReturn(Optional.of(new Enrollment()));
@@ -96,7 +96,7 @@ public class ReviewTest {
     @Test
     void init_throws_ForbiddenActionException_if_user_has_no_access() throws ResourceNotFoundException, ForbiddenActionException {
         // given
-        User reviewer = ZerofiltreUtils.createMockUser(false);
+        User reviewer = ZerofiltreUtilsTest.createMockUser(false);
         when(userProvider.userOfId(reviewer.getId())).thenReturn(Optional.of(reviewer));
         when(courseProvider.courseIdOfChapterId(1)).thenReturn(2L);
         when(enrollmentProvider.enrollmentOf(reviewer.getId(), 2L, true))
@@ -169,7 +169,7 @@ public class ReviewTest {
     @Test
     void delete_throws_ResourceNotFoundException_when_user_does_not_exist() {
         // given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         long reviewId = 1L;
 
         review = reviewBuilder
@@ -192,7 +192,7 @@ public class ReviewTest {
     @Test
     void delete_review_hrows_esourceNotFoundException_when_review_does_not_exist() {
         // given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         long reviewId = 1L;
 
         review = reviewBuilder
@@ -217,7 +217,7 @@ public class ReviewTest {
     @Test
     void delete_review_throws_ForbiddenActionException_when_you_are_not_admin() {
         // given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
 
         long reviewId = 1L;
         review = reviewBuilder
@@ -242,7 +242,7 @@ public class ReviewTest {
     @Test
     void delete_review_works_if_user_is_admin() throws ForbiddenActionException, ResourceNotFoundException {
         // given
-        User user = ZerofiltreUtils.createMockUser(true);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         FoundReviewProviderSpy reviewProviderSpy = new FoundReviewProviderSpy();
 
         long reviewId = 1L;
@@ -297,7 +297,7 @@ public class ReviewTest {
     @Test
     void update_review_throws_ResourceNotFoundException_when_review_does_not_exist() {
         // given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
 
         review = reviewBuilder
                 .id(1L)
@@ -327,7 +327,7 @@ public class ReviewTest {
     @Test
     void update_works_if_the_updater_is_the_owner_of_the_review() throws ForbiddenActionException, ResourceNotFoundException {
         // given
-        User user = ZerofiltreUtils.createMockProUser(false, true);
+        User user = ZerofiltreUtilsTest.createMockProUser(false, true);
         review = reviewBuilder
                 .id(1L)
                 .reviewAuthorId(user.getId())
@@ -359,7 +359,7 @@ public class ReviewTest {
     @Test
     void must_update_the_existing_review_when_the_same_user_try_give_another_review() throws ForbiddenActionException, ResourceNotFoundException {
         // given
-        User user = ZerofiltreUtils.createMockProUser(false, true);
+        User user = ZerofiltreUtilsTest.createMockProUser(false, true);
         review = reviewBuilder
                 .id(2L)
                 .userProvider(userProvider)

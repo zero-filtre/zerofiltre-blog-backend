@@ -25,7 +25,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBLessonProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBResourceProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -57,13 +57,13 @@ public class ResourceServiceIT {
     @Test
     void should_create_resource() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
         Lesson lesson = Lesson.builder()
@@ -89,13 +89,13 @@ public class ResourceServiceIT {
     @Test
     void should_delete_resource() throws ForbiddenActionException, ResourceNotFoundException {
         //given
-        User user = ZerofiltreUtils.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
         user = userProvider.save(user);
 
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        Chapter chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
         Lesson lesson = Lesson.builder()

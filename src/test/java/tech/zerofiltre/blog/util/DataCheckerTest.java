@@ -133,7 +133,7 @@ class DataCheckerTest {
     @DisplayName("given an existing course when execute then return true")
     void givenExistingCompanyCourse_courseExists_thenNotThrowException() throws ResourceNotFoundException {
         //GIVEN
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
@@ -159,7 +159,7 @@ class DataCheckerTest {
     @DisplayName("given an existing published course when execute then not throw exception")
     void givenExistingPublishedCourse_isPublishedCourse_thenNotThrowException() throws ForbiddenActionException {
         //GIVEN
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
@@ -184,7 +184,7 @@ class DataCheckerTest {
     @DisplayName("given draft course when execute then throw ForbiddenActionException")
     void givenUnpublishedCourse_isPublishedCourse_thenThrowException() {
         //GIVEN
-        Course course = ZerofiltreUtils.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 

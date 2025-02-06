@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.course.model.Section;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ class DBSectionProviderIT {
 
     @Test
     void savingASection_isOK() {
-        Section section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false).get(0);
+        Section section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, false).get(0);
         section = sectionProvider.save(section);
 
         assertThat(section.getId()).isNotZero();
@@ -41,7 +41,7 @@ class DBSectionProviderIT {
 
     @Test
     void getASectionByItsId_isOk() {
-        Section section = ZerofiltreUtils.createMockSections(sectionProvider, courseProvider, false).get(0);
+        Section section = ZerofiltreUtilsTest.createMockSections(sectionProvider, courseProvider, false).get(0);
         section = sectionProvider.save(section);
 
         Optional<Section> sectionOptional = sectionProvider.findById(section.getId());

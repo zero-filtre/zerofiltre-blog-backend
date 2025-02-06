@@ -9,7 +9,7 @@ import java.util.*;
 public class FoundTagProviderSpy implements TagProvider {
     @Override
     public Optional<Tag> tagOfId(long id) {
-        return Optional.of(ZerofiltreUtils.createMockTags(true).get(0));
+        return Optional.of(ZerofiltreUtilsTest.createMockTags(true).get(0));
     }
 
     @Override

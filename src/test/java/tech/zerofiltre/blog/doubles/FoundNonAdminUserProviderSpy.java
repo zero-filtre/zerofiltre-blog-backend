@@ -3,7 +3,7 @@ package tech.zerofiltre.blog.doubles;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class FoundNonAdminUserProviderSpy implements UserProvider {
     @Override
     public Optional<User> userOfId(long userId) {
         userOfIdCalled = true;
-        User mockUser = ZerofiltreUtils.createMockUser(false);
+        User mockUser = ZerofiltreUtilsTest.createMockUser(false);
         mockUser.setId(1);
         return Optional.of(mockUser);
     }

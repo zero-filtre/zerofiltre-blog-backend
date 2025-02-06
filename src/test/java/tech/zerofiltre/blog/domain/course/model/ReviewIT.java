@@ -19,7 +19,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider
 import tech.zerofiltre.blog.infra.providers.database.course.DBReviewProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtils;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,22 +64,22 @@ public class ReviewIT {
 
     @Test
     void init_review_is_Ok_when_has_enrollement() throws ZerofiltreException {
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("author@zerofiltre.tech");
         author.setPseudoName("pseudo");
         author = userProvider.save(author);
 
-        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        chapterReviewer = ZerofiltreUtils.createMockUser(false);
+        chapterReviewer = ZerofiltreUtilsTest.createMockUser(false);
         chapterReviewer.setId(4L);
         chapterReviewer = userProvider.save(chapterReviewer);
 
-        enrollment = ZerofiltreUtils.createMockEnrollment(false, chapterReviewer, course);
+        enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, chapterReviewer, course);
         enrollment = enrollmentProvider.save(enrollment);
 
         review = Review.builder()
@@ -108,22 +108,22 @@ public class ReviewIT {
     @Test
     void get_review_is_Ok() throws ZerofiltreException {
         // given
-        author = ZerofiltreUtils.createMockUser(false);
+        author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("author@zerofiltre.tech");
         author.setPseudoName("pseudo");
         author = userProvider.save(author);
 
-        chapterReviewer = ZerofiltreUtils.createMockUser(false);
+        chapterReviewer = ZerofiltreUtilsTest.createMockUser(false);
         chapterReviewer.setId(4L);
         chapterReviewer = userProvider.save(chapterReviewer);
 
-        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        enrollment = ZerofiltreUtils.createMockEnrollment(false, chapterReviewer, course);
+        enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, chapterReviewer, course);
         enrollment = enrollmentProvider.save(enrollment);
 
         List<String> learningTool = new ArrayList<>();
@@ -171,22 +171,22 @@ public class ReviewIT {
 
     @Test
     void delete_review_is_Ok_when_admin_user() throws ZerofiltreException {
-        User authorAndAdmin = ZerofiltreUtils.createMockUser(true);
+        User authorAndAdmin = ZerofiltreUtilsTest.createMockUser(true);
         authorAndAdmin.setEmail("authorAndAdmin@zerofiltre.tech");
         authorAndAdmin.setPseudoName("pseudo");
         authorAndAdmin = userProvider.save(authorAndAdmin);
 
-        chapterReviewer = ZerofiltreUtils.createMockUser(true);
+        chapterReviewer = ZerofiltreUtilsTest.createMockUser(true);
         chapterReviewer.setId(4L);
         chapterReviewer = userProvider.save(chapterReviewer);
 
-        course = ZerofiltreUtils.createMockCourse(false, DRAFT, authorAndAdmin, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, DRAFT, authorAndAdmin, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        enrollment = ZerofiltreUtils.createMockEnrollment(false, chapterReviewer, course);
+        enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, chapterReviewer, course);
         enrollment = enrollmentProvider.save(enrollment);
 
         review = Review.builder()
@@ -216,22 +216,22 @@ public class ReviewIT {
     @Test
     void user_has_active_enrollment_update_review_is_Ok() throws ZerofiltreException {
         // given
-        User author = ZerofiltreUtils.createMockUser(false);
+        User author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("authorAndAdmin@zerofiltre.tech");
         author.setPseudoName("pseudo");
         author = userProvider.save(author);
 
-        chapterReviewer = ZerofiltreUtils.createMockUser(false);
+        chapterReviewer = ZerofiltreUtilsTest.createMockUser(false);
         chapterReviewer.setId(4L);
         chapterReviewer = userProvider.save(chapterReviewer);
 
-        course = ZerofiltreUtils.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        course = ZerofiltreUtilsTest.createMockCourse(false, DRAFT, author, Collections.emptyList(), Collections.emptyList());
         course = courseProvider.save(course);
 
-        chapter = ZerofiltreUtils.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
+        chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        enrollment = ZerofiltreUtils.createMockEnrollment(false, chapterReviewer, course);
+        enrollment = ZerofiltreUtilsTest.createMockEnrollment(false, chapterReviewer, course);
         enrollment = enrollmentProvider.save(enrollment);
 
         review = Review.builder()
