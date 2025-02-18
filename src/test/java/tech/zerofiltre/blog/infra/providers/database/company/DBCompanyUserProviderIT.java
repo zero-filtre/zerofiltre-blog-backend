@@ -99,7 +99,7 @@ class DBCompanyUserProviderIT {
 
     @Test
     @DisplayName("given pageNumber, pageSize and companyId when get users then return page of LinkCompanyUser for a company")
-    void findAllByCompanyId() {
+    void findAllByCompanyId_byPage() {
         //GIVEN
         Company company = new Company(0, "Company1", "000000001");
         company = dbCompanyProvider.save(company);
@@ -132,6 +132,64 @@ class DBCompanyUserProviderIT {
         assertThat(content.get(1).getCompanyId()).isEqualTo(linkCompanyUser2.getCompanyId());
         assertThat(content.get(1).getUserId()).isEqualTo(linkCompanyUser2.getUserId());
         assertThat(content.get(1).getRole()).isEqualTo(linkCompanyUser2.getRole());
+    }
+
+    @Test
+    @DisplayName("When I search for all the links between users and a company, then I receive a list")
+    void findAllByCompanyId() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+
+        User user1 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+
+        User user2 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+
+        //WHEN
+        List<LinkCompanyUser> response = dbCompanyUserProvider.findAllByCompanyId(company.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0).getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get(0).getUserId()).isEqualTo(user1.getId());
+        assertThat(response.get(1).getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get(1).getUserId()).isEqualTo(user2.getId());
+    }
+
+    @Test
+    @DisplayName("When I search for all the links between users and a company except company admin, then I receive a list")
+    void findAllByCompanyIdExceptAdminRole() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+
+        User user = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+
+        User user1 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user1.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+
+        User user2 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+
+        assertThat(dbCompanyUserProvider.findAllByCompanyId(company.getId()).size()).isEqualTo(3);
+
+        //WHEN
+        List<LinkCompanyUser> response = dbCompanyUserProvider.findAllByCompanyIdExceptAdminRole(company.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0).getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get(0).getUserId()).isEqualTo(user1.getId());
+        assertThat(response.get(1).getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get(1).getUserId()).isEqualTo(user2.getId());
     }
 
     @Test
