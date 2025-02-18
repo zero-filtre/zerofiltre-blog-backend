@@ -52,7 +52,7 @@ spec:
           image: imzerofiltre/zerofiltretech-blog:${tag_number}_${docker_tag_suffix}
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources:
             requests:
                 cpu: ${requests_cpu}
@@ -63,7 +63,7 @@ spec:
           livenessProbe:
               httpGet:
                 path: /actuator/health
-                port: 80
+                port: 8080
               periodSeconds: 300
               timeoutSeconds: 5
 
@@ -71,14 +71,14 @@ spec:
 #           readinessProbe:
 #               httpGet:
 #                 path: /actuator/health
-#                 port: 80
+#                 port: 8080
 #               periodSeconds: 30
 #               timeoutSeconds: 5
 
           startupProbe:
               httpGet:
                 path: /actuator/health
-                port: 80
+                port: 8080
               initialDelaySeconds: 60
               timeoutSeconds: 5
               failureThreshold: 10
@@ -258,8 +258,8 @@ metadata:
 spec:
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8080
+      targetPort: 8080
   selector:
     app: zerofiltretech-blog-${env_name}
 ---
@@ -283,7 +283,7 @@ spec:
               service:
                 name: zerofiltretech-blog-${env_name}
                 port:
-                  number: 80
+                  number: 8080
   tls: # < placing a host in the TLS config will indicate a certificate should be created
     - hosts:
         - ${api_host}
