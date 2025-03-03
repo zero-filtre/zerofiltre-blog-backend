@@ -2,10 +2,12 @@ package tech.zerofiltre.blog.infra.providers.database.search.mapper;
 
 import org.junit.jupiter.api.Test;
 import tech.zerofiltre.blog.domain.search.model.SearchResult;
+import tech.zerofiltre.blog.domain.search.model.UserSearchResult;
 import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.LessonWithCourseIdJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserSearchResultJPA;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +98,36 @@ class SearchResultJpaMapperTest {
         assertEquals("Lesson Content shorter than 100 characters",
                 result.getLessons().get(1).getContent());
 
+
+    }
+
+    @Test
+    void userSearchResult_mapped_properly()    {
+        //arrange
+        UserSearchResultJPA userSearchResult = new UserSearchResultJPA();
+        userSearchResult.setId(1);
+        userSearchResult.setFullName("Full Name");
+        userSearchResult.setProfilePicture("Profile Picture");
+
+        UserSearchResultJPA anotherUserSearchResult = new UserSearchResultJPA();
+        anotherUserSearchResult.setId(2);
+        anotherUserSearchResult.setFullName("Another Full Name");
+        anotherUserSearchResult.setProfilePicture("Another Profile Picture");
+
+        //act
+        List<UserSearchResult> mappings = mapper.fromJPAs(List.of(userSearchResult,anotherUserSearchResult));
+
+        //assert
+        assertNotNull(mappings);
+
+        assertEquals(2, mappings.size());
+
+        assertEquals(userSearchResult.getId(), mappings.get(0).getId());
+        assertEquals(userSearchResult.getFullName(), mappings.get(0).getFullName());
+        assertEquals(userSearchResult.getProfilePicture(), mappings.get(0).getProfilePicture());
+        assertEquals(anotherUserSearchResult.getId(), mappings.get(1).getId());
+        assertEquals(anotherUserSearchResult.getFullName(), mappings.get(1).getFullName());
+        assertEquals(anotherUserSearchResult.getProfilePicture(), mappings.get(1).getProfilePicture());
 
     }
 

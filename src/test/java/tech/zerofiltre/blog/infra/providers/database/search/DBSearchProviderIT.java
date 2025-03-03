@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.search.model.SearchResult;
+import tech.zerofiltre.blog.domain.search.model.UserSearchResult;
 import tech.zerofiltre.blog.infra.providers.database.article.ArticleJPARepository;
 import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.ChapterJPARepository;
@@ -17,6 +18,10 @@ import tech.zerofiltre.blog.infra.providers.database.course.model.ChapterJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
 import tech.zerofiltre.blog.infra.providers.database.search.mapper.SearchResultJpaMapper;
+import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,6 +33,8 @@ class DBSearchProviderIT {
     private ArticleJPA article1;
     private CourseJPA course2;
     private CourseJPA course1;
+    private UserJPA user;
+    private UserJPA anotherUser;
     @Autowired
     private ArticleJPARepository articleJPARepository;
     @Autowired
@@ -37,10 +44,12 @@ class DBSearchProviderIT {
     @Autowired
     private ChapterJPARepository chapterJPARepository;
     private DBSearchProvider dbSearchProvider;
+    @Autowired
+    private UserJPARepository userJPARepository;
 
     @BeforeEach
     void setUp() {
-        dbSearchProvider = new DBSearchProvider(articleJPARepository, courseJPARepository, lessonJPARepository, mapper);
+        dbSearchProvider = new DBSearchProvider(articleJPARepository, courseJPARepository, lessonJPARepository, userJPARepository, mapper);
 
         // Set up test data
         article1 = new ArticleJPA();
@@ -63,6 +72,23 @@ class DBSearchProviderIT {
         course2.setSummary("2nd Summary of Java Course");
         course2.setStatus(Status.PUBLISHED);
         courseJPARepository.save(course2);
+
+        user = new UserJPA();
+        user.setFullName("John Doe");
+        user.setEmail("john.doe@example.com");
+        user.setPaymentEmail("john.doe@examplepay.com");
+        user.setBio(" I am John Doe");
+        user.setProfession("Java Profession");
+        user.setProfilePicture("picture");
+        userJPARepository.save(user);
+
+        anotherUser = new UserJPA();
+        anotherUser.setFullName("Maw Well");
+        anotherUser.setEmail("mw.w@example.com");
+        anotherUser.setPaymentEmail("mw.w@examplepay.com");
+        anotherUser.setBio(" I am Maw Well");
+        anotherUser.setProfession("Java Profession");
+        userJPARepository.save(anotherUser);
 
         ChapterJPA chapterJPA = new ChapterJPA();
         chapterJPA.setCourse(course1);
@@ -107,6 +133,21 @@ class DBSearchProviderIT {
 
         assertThat(result.getLessons().get(1).getContent()).isEqualTo("2nd Content about Data JPA");
         assertThat(result.getLessons().get(1).getCourseId()).isEqualTo(course1.getId());
+    }
+
+
+    @Test
+    void searchUsersWorksProperly() {
+        // Execute the search
+        List<UserSearchResult> result = dbSearchProvider.searchUsers("doe");
+
+        // Verify the results
+        assertThat(result).hasSize(1);
+        UserSearchResult searchResult = result.get(0);
+        assertThat(searchResult.getFullName()).isEqualTo(user.getFullName());
+        assertThat(searchResult.getId()).isNotZero();
+        assertThat(searchResult.getProfilePicture()).isEqualTo(user.getProfilePicture());
+
     }
 
     @Test

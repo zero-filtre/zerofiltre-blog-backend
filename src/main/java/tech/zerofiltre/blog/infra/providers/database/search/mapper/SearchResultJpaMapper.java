@@ -2,13 +2,16 @@ package tech.zerofiltre.blog.infra.providers.database.search.mapper;
 
 import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.search.model.SearchResult;
+import tech.zerofiltre.blog.domain.search.model.UserSearchResult;
 import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.LessonWithCourseIdJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserSearchResultJPA;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class SearchResultJpaMapper {
@@ -50,5 +53,15 @@ public class SearchResultJpaMapper {
             result.getLessons().add(lessonSearchResult);
         }
         return result;
+    }
+
+    public List<UserSearchResult> fromJPAs(List<UserSearchResultJPA> userSearchResult) {
+        return userSearchResult.stream().map(userSearchResultJPA -> {
+            UserSearchResult result = new UserSearchResult();
+            result.setId(userSearchResultJPA.getId());
+            result.setFullName(userSearchResultJPA.getFullName());
+            result.setProfilePicture(userSearchResultJPA.getProfilePicture());
+            return result;
+        }).collect(Collectors.toUnmodifiableList());
     }
 }
