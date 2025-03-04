@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.zerofiltre.blog.domain.search.SearchProvider;
 import tech.zerofiltre.blog.domain.search.model.SearchResult;
+import tech.zerofiltre.blog.domain.search.model.UserSearchResult;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -28,5 +30,10 @@ public class SearchController {
     @GetMapping
     public SearchResult search(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 5 characters long") String query) {
         return searchProvider.search(query);
+    }
+
+    @GetMapping("/users")
+    public List<UserSearchResult> searchUsers(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 5 characters long") String query) {
+        return searchProvider.searchUsers(query);
     }
 }
