@@ -20,7 +20,7 @@ jobs:
       replicas : ${{startsWith(github.ref, 'refs/heads/release-') && 1 || 1 }}
       requests_cpu: ${{startsWith(github.ref, 'refs/heads/release-') && '10m' || '10m' }}
       requests_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '1Gi' || '1Gi' }}
-      limits_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '1Gi' || '1Gi' }}
+      limits_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '4Gi' || '1Gi' }}
       tag_number : ${{ github.run_number }}
       
 
