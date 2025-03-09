@@ -1,172 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title th:text="#{message.registration.subject}"></title>
-    <style>
-        body {
-            font-family: 'Aria', sans-serif;
-        }
-
-        .parent{
-            background-color: #f6f9fc;
-            height: 100%;
-            width: 100%;
-            padding: 50px;
-
-        }
-
-        .container {
-            margin: 0 auto;
-            max-width: 600px;
-            padding: 50px;
-            border-radius: 10px;
-            background-color: #ffffff;
-            word-break: break-word;
-            font-size: 16px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .primary-color {
-            color: #1c2e5c;
-        }
-
-        .secondary-color {
-            color: #15b2bc;
-        }
-
-
-        .cta-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #1c2e5c;
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 20px 20px;
-            font-weight: bold;
-        }
-
-        .button-wrapper {
-           text-align: center;
-        }
-
-        .linkedin-button {
-          display: inline-block;
-          padding: 3px 5px;
-          background-color: #0a66c2;
-          color: #ffffff !important;
-          text-decoration: none;
-          border-radius: 3px;
-          cursor: pointer !important;
-          font-weight: bold;
-        }
-
-        .footer {
-            text-align: center;
-            font-size: 10px;
-            margin-top: 100px;
-        }
-
-        .visual-media-container {
-            content: "";
-            display: table;
-            clear: both;
-            width: 100%;
-        }
-
-        .visual-media {
-            float: left;
-            width: 30%;
-            margin: 1%;
-            box-sizing: border-box;
-        }
-
-        .visual-media:nth-child(4) {
-            width: 62%;
-        }
-
-        .visual-media img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .section-header {
-            width: 100%;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .visual-media {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .visual-media:nth-child(4) {
-                width: 100%;
-            }
-
-            .section-header {
-                margin: 10px 0;
-                font-size: 1.25rem;
-            }
-        }
-
-
-    </style>
 </head>
-<body>
-<div class="parent">
-    <div class="container">
-        <div class="header">
-            <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT">
-            <h1><span th:text="#{greetings('')}" class="primary-color"></span>,</h1>
-        </div>
 
+<body style="font-family: Arial, sans-serif; background-color: #f6f9fc; margin: 0; padding: 50px 0;">
 
-        <p th:utext="${content}"></p>
-        </br>
-        </br>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+        style="background-color: #ffffff; max-width: 600px; margin: 0px auto; border-radius: 10px; padding: 20px;">
+        
+        <tr>
+            <td style="text-align: center; padding-top: 30px">
+                <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT"
+                    style="max-width: 100%; height: auto;">
+                <h1 style="color: #1c2e5c;"><span th:text="#{greetings('')}"></span>,</h1>
+            </td>
+        </tr>
 
-        <div class="visual-media-container">
-            <h3 th:if="${videosIds != null && videosIds.size() != 0}" class="section-header primary-color">---------- Vidéos ----------</h3>
-            <div class="visual-media" th:each="videoId : ${videosIds}">
-                <a th:href="'https://www.youtube.com/watch?v=' + ${videoId}" target="_blank">
-                    <img th:src="'https://img.youtube.com/vi/' + ${videoId} + '/hqdefault.jpg'" alt="Video Thumbnail">
-                </a>
-            </div>
+        <tr>
+            <td style="padding: 20px;">
+                <p th:utext="${content}" style="color: #000; font-size: 16px;"></p>
 
-            <h3 th:if="${images != null && images.size() != 0 }" class="section-header primary-color">---------- Images ----------</h3>
-            <div class="visual-media" th:each="image : ${images}">
-                <img th:src="${image}" alt="Image Thumbnail">
-            </div>
-        </div>
+                <!-- Bloc vidéos -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                    <tr th:each="videoId, iterStat : ${videosIds}">
+                        <td style="width: 33.33%; text-align: center; padding: 5px;">
+                            <a th:href="'https://www.youtube.com/watch?v=' + ${videoId}" target="_blank">
+                                <img th:src="'https://img.youtube.com/vi/' + ${videoId} + '/hqdefault.jpg'"
+                                    alt="Video Thumbnail" style="max-width: 100%; height: auto; border-radius: 4px;">
+                            </a>
+                        </td>
+                        <td th:if="${iterStat.index % 3 == 2}"></td>
+                    </tr>
+                </table>
+                
+                <!-- Bloc images -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                    <tr th:each="image, iterStat : ${images}" th:if="${iterStat.index % 2 == 0}">
+                        <td style="width: 50%; text-align: center; padding: 5px;">
+                            <img th:src="${image}" alt="Image Thumbnail"
+                                style="max-width: 250px; width: 100%; height: auto; border-radius: 4px;">
+                        </td>
+                        
+                        <td th:if="${iterStat.index + 1 < images.size()}" style="width: 50%; text-align: center; padding: 5px;">
+                            <img th:src="${images[iterStat.index + 1]}" alt="Image Thumbnail"
+                                style="max-width: 250px; width: 100%; height: auto; border-radius: 4px;">
+                        </td>
+                    </tr>
+                </table>
 
+                <p style="color: #000;"><em th:text="#{zerofiltre_team_signature}"></em></p>
+            </td>
+        </tr>
 
-        </br>
-        </br>
-        <p><em th:text="#{zerofiltre_team_signature}"></em></p>
+        <tr>
+            <td align="center" style="padding: 20px; font-size: 14px; color: #1c2e5c;">
+                <a href="https://www.linkedin.com/company/65767867/admin/" target="_blank" style="display: inline-block; padding: 5px 10px; background-color: #0a66c2; color: #ffffff; text-decoration: none; border-radius: 3px; font-weight: bold;">in</a>
+                <p style="margin: 10px 0;">&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
+                <p style="margin: 0;">72 AV De La Division Leclerc</p>
+                <p style="margin: 0;">93350 Le Bourget</p>
 
+                <p style="margin-top: 10px;">
+                    <a href="https://zerofiltre.tech" style="color: #1c2e5c;">zerofiltre.tech</a> |
+                    <a href="mailto:info@zerofiltre.tech" style="color: #1c2e5c;">info@zerofiltre.tech</a>
+                </p>
+            </td>
+        </tr>
 
-        <div class="footer">
-            <p>Zerofiltre</p>
-            <p>72 AV DE LA DIVISION LECLERC</p>
-            <p>93350 LE BOURGET</p>
-            <p>zerofiltre.tech</p>
-            <p>info@zerofiltre.tech</p>
-            <p><a href="https://www.linkedin.com/company/65767867/admin/" class="linkedin-button" target="_blank">in</a></p>
-            <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-        </div>
-    </div>
-</div>
+    </table>
+
 </body>
+
 </html>
