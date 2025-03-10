@@ -64,4 +64,9 @@ public class Found_Published_WithUnknownAuthor_CourseProviderSpy implements Cour
 
     @Override
     public String getTitle(long courseId) { return ""; }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        return List.of();
+    }
 }

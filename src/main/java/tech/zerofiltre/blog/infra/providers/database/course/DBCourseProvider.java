@@ -17,7 +17,9 @@ import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.CourseJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -123,5 +125,12 @@ public class DBCourseProvider implements CourseProvider {
     @Override
     public String getTitle(long courseId) {
         return repository.getTitle(courseId);
+    }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        List<LocalDate> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
+        return repository.findNewCoursesBetween(listDates.get(0).atStartOfDay(), listDates.get(1).atStartOfDay())
+                .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 }

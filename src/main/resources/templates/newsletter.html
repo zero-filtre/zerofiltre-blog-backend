@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="#{message.registration.subject}"></title>
+    <style>
+        body {
+            font-family: 'Aria', sans-serif;
+        }
+
+        .parent{
+            background-color: #f6f9fc;
+            height: 100%;
+            width: 100%;
+            padding: 50px;
+
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 50px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            word-break: break-word;
+            font-size: 16px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .primary-color {
+            color: #1c2e5c;
+        }
+
+        .secondary-color {
+            color: #15b2bc;
+        }
+
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1c2e5c;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 20px;
+            font-weight: bold;
+        }
+
+        .button-wrapper {
+           text-align: center;
+        }
+
+        .linkedin-button {
+          display: inline-block;
+          padding: 3px 5px;
+          background-color: #0a66c2;
+          color: #ffffff !important;
+          text-decoration: none;
+          border-radius: 3px;
+          cursor: pointer !important;
+          font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 100px;
+        }
+
+        .visual-media-container {
+            content: "";
+            display: table;
+            clear: both;
+            width: 100%;
+        }
+
+        .visual-media {
+            float: left;
+            width: 30%;
+            margin: 1%;
+            box-sizing: border-box;
+        }
+
+        .visual-media:nth-child(4) {
+            width: 62%;
+        }
+
+        .visual-media img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .section-header {
+            width: 100%;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .visual-media {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .visual-media:nth-child(4) {
+                width: 100%;
+            }
+
+            .section-header {
+                margin: 10px 0;
+                font-size: 1.25rem;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="parent">
+    <div class="container">
+        <div class="header">
+            <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT">
+            <h1><span th:text="#{greetings('')}" class="primary-color"></span>,</h1>
+            <h2><span th:text="#{remind_newsletter_message}"></span></h2>
+        </div>
+
+
+        <p th:utext="${content}"></p>
+        </br>
+        </br>
+
+        <div class="visual-media-container">
+            <h3 th:if="${newArticles != null && newArticles.size() != 0}" class="section-header primary-color">---------- new articles ----------</h3>
+            <div class="visual-media" th:each="newArticle : ${newArticles}">
+                <img th:src="${newArticle}" alt="New Article Thumbnail">
+            </div>
+
+            <h3 th:if="${newCourses != null && newCourses.size() != 0 }" class="section-header primary-color">---------- new courses ----------</h3>
+            <div class="visual-media" th:each="newCourse : ${newCourses}">
+                <img th:src="${newCourse}" alt="New Course Thumbnail">
+            </div>
+        </div>
+
+
+        </br>
+        </br>
+        <p><em th:text="#{zerofiltre_team_signature}"></em></p>
+
+
+        <div class="footer">
+            <p>Zerofiltre</p>
+            <p>72 AV DE LA DIVISION LECLERC</p>
+            <p>93350 LE BOURGET</p>
+            <p>zerofiltre.tech</p>
+            <p>info@zerofiltre.tech</p>
+            <p><a href="https://www.linkedin.com/company/65767867/admin/" class="linkedin-button" target="_blank">in</a></p>
+            <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -60,4 +60,9 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
 
     @Override
     public String getTitle(long courseId) { return ""; }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        return List.of();
+    }
 }

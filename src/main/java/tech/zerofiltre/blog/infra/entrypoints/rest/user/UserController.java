@@ -68,6 +68,7 @@ public class UserController {
     private final FindArticle findArticle;
     private final GenerateToken generateToken;
     private final CourseService courseService;
+    private final SubscribeToBroadcast subscribeToBroadcast;
 
 
     public UserController(UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ArticleViewProvider articleViewProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider) {
@@ -90,6 +91,7 @@ public class UserController {
         this.deleteUser = new DeleteUser(userProvider, articleProvider, tokenProvider, reactionProvider, courseProvider, loggerProvider);
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
         this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        this.subscribeToBroadcast = new SubscribeToBroadcast(userProvider);
 
     }
 
@@ -242,7 +244,6 @@ public class UserController {
 
     }
 
-
     @PostMapping("/user/github/accessToken")
     public Token getGithubToken(@RequestParam String code) throws ResourceNotFoundException {
         String accessToken = retrieveSocialToken.execute(code);
@@ -256,5 +257,11 @@ public class UserController {
     @GetMapping("/user/jwt/refreshToken")
     public Token refreshJwtToken(@RequestParam(name = "refreshToken") String refreshingToken) throws InvalidTokenException {
         return this.generateToken.byRefreshToken(refreshingToken);
+    }
+
+    @PostMapping("/user/broadcast")
+    public String subscribe(@RequestParam boolean subscribe) throws UserNotFoundException {
+        User user = securityContextManager.getAuthenticatedUser();
+        return subscribeToBroadcast.execute(user, subscribe);
     }
 }

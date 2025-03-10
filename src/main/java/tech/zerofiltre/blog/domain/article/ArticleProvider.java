@@ -17,6 +17,8 @@ public interface ArticleProvider {
 
     List<Article> articlesOf(User user);
 
+    List<Article> newArticlesFromLastMonth();
+
     void delete(Article article);
 
     int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId);

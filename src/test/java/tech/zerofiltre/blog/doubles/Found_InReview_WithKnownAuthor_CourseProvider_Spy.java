@@ -61,4 +61,9 @@ public class Found_InReview_WithKnownAuthor_CourseProvider_Spy implements Course
 
     @Override
     public String getTitle(long courseId) { return ""; }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        return List.of();
+    }
 }

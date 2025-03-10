@@ -48,7 +48,7 @@ class DBCompanyUserProviderIT {
     @DisplayName("given a LinkCompanyUser when save then return a LinkCompanyUser")
     void save() {
         //GIVEN
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, 1, 1, LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, 1, 1, LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
 
         //WHEN
         LinkCompanyUser response = dbCompanyUserProvider.save(linkCompanyUser);
