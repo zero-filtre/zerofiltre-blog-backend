@@ -65,4 +65,9 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons imp
 
     @Override
     public String getTitle(long courseId) { return ""; }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        return List.of();
+    }
 }

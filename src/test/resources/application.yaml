@@ -47,6 +47,7 @@ zerofiltre:
   env: dev
   infra:
     stats.reminder.cron: "* */30 * * * ?"
+    newsletter.reminder.cron: "* */1 * * * ?"
     mobile:
       payments:
         reminder:

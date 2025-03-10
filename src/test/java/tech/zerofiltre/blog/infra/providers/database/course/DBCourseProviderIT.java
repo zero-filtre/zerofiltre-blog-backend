@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.course;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -170,6 +171,63 @@ class DBCourseProviderIT {
         assertThat(newest.getAuthor().getFullName()).isEqualTo(TEST_FULL_NAME);
         assertThat(newest.getAuthor().getProfilePicture()).isEqualTo(TEST_PROFILE_PICTURE);
 
+    }
+
+    @Test
+    @DisplayName("When I'm looking for new courses from last month, I return the list")
+    void shouldReturnList_whenSearchingNewCoursesFromLastMonth() {
+        //ARRANGE
+        // -- dates
+        LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
+        LocalDateTime threeMonthsBack = LocalDateTime.now().minusMonths(3);
+
+        // -- Users
+        User userA = new User();
+        userA = userProvider.save(userA);
+
+        User userB = new User();
+        userB = userProvider.save(userB);
+
+        // -- Courses
+        Course courseA1 = new Course();
+        courseA1.setAuthor(userA);
+        courseA1.setLastPublishedAt(threeMonthsBack);
+        courseProvider.save(courseA1);
+
+        Course courseA2 = new Course();
+        courseA2.setAuthor(userA);
+        courseA2.setLastPublishedAt(lastMonth);
+        courseA2 = courseProvider.save(courseA2);
+
+        Course courseA3 = new Course();
+        courseA3.setAuthor(userA);
+        courseA3.setLastPublishedAt(lastMonth);
+        courseA3 = courseProvider.save(courseA3);
+
+        Course courseB1 = new Course();
+        courseB1.setAuthor(userB);
+        courseB1.setLastPublishedAt(threeMonthsBack);
+        courseProvider.save(courseB1);
+
+        Course courseB2 = new Course();
+        courseB2.setAuthor(userB);
+        courseB2.setLastPublishedAt(lastMonth);
+        courseB2 = courseProvider.save(courseB2);
+
+        //ACT
+        List<Course> courseList = courseProvider.newCoursesFromLastMonth();
+
+        //ASSERT
+        assertThat(courseList.size()).isEqualTo(3);
+
+        assertThat(courseList.get(0).getId()).isEqualTo(courseA2.getId());
+        assertThat(courseList.get(0).getLastPublishedAt()).isEqualTo(courseA2.getLastPublishedAt());
+
+        assertThat(courseList.get(1).getId()).isEqualTo(courseA3.getId());
+        assertThat(courseList.get(1).getLastPublishedAt()).isEqualTo(courseA3.getLastPublishedAt());
+
+        assertThat(courseList.get(2).getId()).isEqualTo(courseB2.getId());
+        assertThat(courseList.get(2).getLastPublishedAt()).isEqualTo(courseB2.getLastPublishedAt());
     }
 
     private List<Reaction> initCourseWithReactions() {

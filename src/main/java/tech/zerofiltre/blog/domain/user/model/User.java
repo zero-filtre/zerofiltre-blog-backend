@@ -30,6 +30,7 @@ public class User implements Serializable {
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;
+    private boolean subscribedToBroadcast = true;
     private SocialLink.Platform loginFrom;
     private Plan plan = Plan.BASIC;
 
@@ -239,6 +240,14 @@ public class User implements Serializable {
 
     public void setSocialId(String id) {
         this.socialId = id;
+    }
+
+    public boolean isSubscribedToBroadcast() {
+        return subscribedToBroadcast;
+    }
+
+    public void setSubscribedToBroadcast(boolean subscribedToBroadcast) {
+        this.subscribedToBroadcast = subscribedToBroadcast;
     }
 
     @AllArgsConstructor

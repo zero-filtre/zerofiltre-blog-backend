@@ -102,6 +102,7 @@ zerofiltre:
   infra:
     sandbox.k8s.doc: https://github.com/Zerofiltre-Courses/bootcamp-devops-dev/blob/main/k8s/k8s_README.md
     stats.reminder.cron: "0 0 13 1 * ?"
+    newsletter.reminder.cron: "0 0 13 1 * ?"
     mobile.payments.reminder.cron: "0 */30 * * * ?"
     security:
       jwt:

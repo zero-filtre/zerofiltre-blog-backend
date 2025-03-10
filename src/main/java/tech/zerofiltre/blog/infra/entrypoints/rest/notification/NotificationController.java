@@ -8,6 +8,7 @@ import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.providers.notification.user.MonthlyNewsletterReminder;
 import tech.zerofiltre.blog.infra.providers.notification.user.ZerofiltreEmailSender;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.ValidEmail;
@@ -26,7 +27,7 @@ public class NotificationController {
     private final ZerofiltreEmailSender emailSender;
     private final SecurityContextManager securityContextManager;
     private final InfraProperties infraProPerties;
-
+    private final MonthlyNewsletterReminder monthlyNewsletterReminder;
 
     @PostMapping
     public String notifyByEmail(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
@@ -50,10 +51,18 @@ public class NotificationController {
 
     @PostMapping("all")
     public String notifyByEmailForAllUsers(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
-            User user = securityContextManager.getAuthenticatedUser();
-            if (!user.getRoles().contains("ROLE_ADMIN"))
-                throw new ForbiddenActionException("You are not allowed to send emails");
+        User user = securityContextManager.getAuthenticatedUser();
+        if (!user.getRoles().contains("ROLE_ADMIN"))
+            throw new ForbiddenActionException("You are not allowed to send emails");
         emailSender.sendForAllUsers(email);
         return "Email(s) sent for all users";
+    }
+
+    @PostMapping("/broadcast/recipients/test")
+    public String notifyNewsletter(@RequestBody @Valid Email email) {
+        monthlyNewsletterReminder.setEmailTest(email);
+        monthlyNewsletterReminder.sendNewsletter();
+        monthlyNewsletterReminder.setEmailTest(null);
+        return "Newsletter sent for all users";
     }
 }
