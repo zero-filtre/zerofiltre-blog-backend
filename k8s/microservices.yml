@@ -237,6 +237,11 @@ spec:
                 configMapKeyRef:
                   name: zerofiltre-blog-api
                   key: stats_reminder_cron
+            - name: ZEROFILTRE_INFRA_NEWSLETTER_REMINDER_CRON
+              valueFrom:
+                configMapKeyRef:
+                  name: zerofiltre-blog-api
+                  key: newsletter_reminder_cron
             - name: SANDBOX_K8S_DOC
               valueFrom:
                 configMapKeyRef:
