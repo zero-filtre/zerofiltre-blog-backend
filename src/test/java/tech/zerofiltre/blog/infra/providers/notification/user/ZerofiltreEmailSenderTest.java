@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.notification.user;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -11,19 +12,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.thymeleaf.ITemplateEngine;
+import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +48,7 @@ class ZerofiltreEmailSenderTest {
     ITemplateEngine templateEngine;
 
     @MockBean
-    DBUserProvider dbUserProvider;
+    UserProvider userProvider;
 
     private ZerofiltreEmailSender zerofiltreEmailSender;
 
@@ -62,14 +59,14 @@ class ZerofiltreEmailSenderTest {
         when(javaMailSender.createMimeMessage()).thenCallRealMethod();
         when(infraProperties.getContactEmail()).thenReturn(INFO_ZEROFILTRE_TECH);
         when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
-        zerofiltreEmailSender = new ZerofiltreEmailSender(javaMailSender, infraProperties, templateEngine, dbUserProvider);
+        zerofiltreEmailSender = new ZerofiltreEmailSender(javaMailSender, infraProperties, templateEngine, userProvider);
     }
 
     @Test
     void mustSend_WithProperData() throws MessagingException {
         //ARRANGE
         Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Arrays.asList(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2), Arrays.asList(CERTIFIED_COPY1, CERTIFIED_COPY2),
-                                CONTENT, SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
+                CONTENT, SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         //ACT
         zerofiltreEmailSender.send(email, true);
@@ -88,7 +85,7 @@ class ZerofiltreEmailSenderTest {
     void mustSend_WithDefault_replyTo() throws MessagingException {
         //ARRANGE
         Email email = new Email(Arrays.asList(ADDRESS, ANOTHER_ADDRESS), Collections.emptyList(), Collections.emptyList(),
-                                CONTENT, SUBJECT, null, Collections.emptyList(), Collections.emptyList());
+                CONTENT, SUBJECT, null, Collections.emptyList(), Collections.emptyList());
 
         //ACT
         zerofiltreEmailSender.send(email, true);
@@ -102,15 +99,15 @@ class ZerofiltreEmailSenderTest {
     }
 
     @Test
-    void mustSendToAllUsers_WithProperData() throws MessagingException, IOException {
+    void mustSendToAllUsers_WithProperData() throws MessagingException {
         //ARRANGE
         Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT,
-                                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
+                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         UserEmail userEmail1 = new UserEmail(EMAIL_BLIND_COPY1, null);
         UserEmail userEmail2 = new UserEmail(EMAIL_BLIND_COPY2, null);
-        UserEmail userEmail3 = new UserEmail( null, PAYMENT_EMAIL_BLIND_COPY);
-        when(dbUserProvider.allEmails()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3));
+        UserEmail userEmail3 = new UserEmail(null, PAYMENT_EMAIL_BLIND_COPY);
+        when(userProvider.allEmails()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3));
 
         //ACT
         zerofiltreEmailSender.sendForAllUsers(email);
@@ -130,19 +127,19 @@ class ZerofiltreEmailSenderTest {
     }
 
     @Test
-    void mustSend42Emails_WithProperData() throws MessagingException, IOException {
+    void mustSend42Emails_WithProperData() {
         //ARRANGE
         Email email = new Email(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), CONTENT,
-                                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
+                SUBJECT, REPLY_TO, Collections.emptyList(), Collections.emptyList());
 
         List<UserEmail> list = new ArrayList<>();
-        for(int i = 0; i < 42; i++) {
+        for (int i = 0; i < 42; i++) {
             String emailUser = "p" + i + "@email.com";
             UserEmail userEmail = new UserEmail(emailUser, null);
             list.add(userEmail);
         }
 
-        when(dbUserProvider.allEmails()).thenReturn(list);
+        when(userProvider.allEmails()).thenReturn(list);
 
         //ACT
         zerofiltreEmailSender.sendForAllUsers(email);
@@ -150,4 +147,25 @@ class ZerofiltreEmailSenderTest {
         //ASSERT
         verify(javaMailSender, times(3)).send(any(MimeMessage.class));
     }
+
+    @Test
+    @DisplayName("When I want the list of emails from all users, then I get the list of emails from all users.")
+    void shouldGetListEmailsFromAllUsers_whenListAllEmails() {
+        //ARRANGE
+        UserEmail userEmail1 = new UserEmail(EMAIL_BLIND_COPY1, null);
+        UserEmail userEmail2 = new UserEmail(EMAIL_BLIND_COPY2, null);
+        UserEmail userEmail3 = new UserEmail(null, PAYMENT_EMAIL_BLIND_COPY);
+        UserEmail userEmail4 = new UserEmail(null, "bad.email_email.com");
+        when(userProvider.allEmails()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3, userEmail4));
+
+        //ACT
+        Collection<List<String>> response = zerofiltreEmailSender.listAllEmails();
+
+        //ASSERT
+        verify(userProvider).allEmails();
+        Collection<List<String>> collection = new ArrayList<>();
+        collection.add(List.of(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2, PAYMENT_EMAIL_BLIND_COPY));
+        assertThat(response.containsAll(collection)).isTrue();
+    }
+
 }
