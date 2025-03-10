@@ -9,8 +9,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
@@ -29,7 +29,7 @@ public class ZerofiltreEmailSender {
     private final JavaMailSender mailSender;
     private final InfraProperties infraProperties;
     private final ITemplateEngine emailTemplateEngine;
-    private final DBUserProvider dbUserProvider;
+    private final UserProvider userProvider;
 
     public void sendForAllUsers(Email email) {
         email.setRecipients(Collections.singletonList(infraProperties.getContactEmail()));
@@ -84,8 +84,8 @@ public class ZerofiltreEmailSender {
         return EmailValidator.validateEmail(email);
     }
 
-    private Collection<List<String>> listAllEmails() {
-        List<UserEmail> userEmailList = dbUserProvider.allEmails();
+    Collection<List<String>> listAllEmails() {
+        List<UserEmail> userEmailList = userProvider.allEmails();
         List<String> list = new ArrayList<>();
 
         for (UserEmail u : userEmailList) {
