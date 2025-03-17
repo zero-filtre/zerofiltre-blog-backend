@@ -437,15 +437,13 @@ class CompanyCourseServiceTest {
 
     @Test
     @DisplayName("When I search for the identification number of the non-existent link between a course and a company, then I find nothing")
-    void shouldFindNothing_whenNotExistingLinkBetweenCourseAndCompanyIsSearched() throws ResourceNotFoundException {
+    void shouldFindNothing_whenNotExistingLinkBetweenCourseAndCompanyIsSearched() {
         //GIVEN
-        when(checker.companyCourseExists(anyLong(), anyLong())).thenThrow(ResourceNotFoundException.class);
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(1, 1));
-
-        verify(checker).companyCourseExists(anyLong(), anyLong());
     }
 
     @Test

@@ -58,8 +58,7 @@ public class CompanyUserService {
     }
 
     public long getLinkCompanyUserIdIfUserIsActive(long companyId, long userId) throws ResourceNotFoundException {
-        checker.companyUserExists(companyId, userId);
-        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).map(LinkCompanyUser::getId).orElse(0L);
+        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).map(LinkCompanyUser::getId).orElseThrow(() -> new ResourceNotFoundException("We could not find the link between the company and the user.", ""));
     }
 
     public void unlink(User connectedUser, long companyId, long userId, boolean hard) throws ZerofiltreException {

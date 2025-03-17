@@ -12,6 +12,7 @@ import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.mapper.CompanyJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.model.CompanyJPA;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -43,6 +44,11 @@ public class DBCompanyProvider implements CompanyProvider {
     public Page<Company> findAllByUserId(int pageNumber, int pageSize, long userId) {
         org.springframework.data.domain.Page<CompanyJPA> pageJpa = repository.findAllByUserId(PageRequest.of(pageNumber, pageSize), userId);
         return pageMapper.fromSpringPage(pageJpa.map(mapper::fromJPA));
+    }
+
+    @Override
+    public List<Long> findAllCompanyIdByUserIdAndCourseId(long userId, long courseId) {
+        return repository.findAllCompanyIdByUserIdAndCourseId(userId, courseId);
     }
 
     @Override
