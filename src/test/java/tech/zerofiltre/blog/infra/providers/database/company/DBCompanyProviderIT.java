@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.model.Company;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.course.CourseJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
@@ -23,10 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DBCompanyProviderIT {
 
     DBCompanyProvider dbCompanyProvider;
-
     DBCompanyUserProvider dbCompanyUserProvider;
+    DBCompanyCourseProvider dbCompanyCourseProvider;
 
     DBUserProvider dbUserProvider;
+    DBCourseProvider dbCourseProvider;
 
     @Autowired
     CompanyJPARepository repository;
@@ -35,13 +40,23 @@ class DBCompanyProviderIT {
     CompanyUserJPARepository companyUserJPARepository;
 
     @Autowired
+    CompanyCourseJPARepository companyCourseJPARepository;
+
+    @Autowired
     UserJPARepository userJPARepository;
+
+    @Autowired
+    CourseJPARepository courseJPARepository;
 
     @BeforeEach
     void init() {
         dbCompanyProvider = new DBCompanyProvider(repository);
+
         dbCompanyUserProvider = new DBCompanyUserProvider(companyUserJPARepository);
+        dbCompanyCourseProvider = new DBCompanyCourseProvider(companyCourseJPARepository);
+
         dbUserProvider = new DBUserProvider(userJPARepository);
+        dbCourseProvider = new DBCourseProvider(courseJPARepository, userJPARepository);
     }
 
     @Test
@@ -129,6 +144,126 @@ class DBCompanyProviderIT {
         assertThat(content).hasSize(2);
         assertThat(content.get(0).getId()).isEqualTo(company1.getId());
         assertThat(content.get(1).getId()).isEqualTo(company2.getId());
+    }
+
+    @Test
+    @DisplayName("When I search for companies that have a user and a course, I get a list")
+    void shouldGetList_whenFindAllCompaniesWithUserIdAndCourseId() {
+        //GIVEN
+        Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
+        Company company3 = dbCompanyProvider.save(new Company(0, "Company3", "000000003"));
+        Company company4 = dbCompanyProvider.save(new Company(0, "Company4", "000000004"));
+
+        User user1 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user1.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company4.getId(), user1.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+
+        User user2 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company1.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company3.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+
+        Course course1 = dbCourseProvider.save(new Course());
+
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), true, LocalDateTime.now(), null));
+
+        Course course2 = dbCourseProvider.save(new Course());
+
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course2.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course2.getId(), true, LocalDateTime.now(), null));
+
+        //WHEN
+        List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user1.getId(), course1.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0)).isEqualTo(company2.getId());
+        assertThat(response.get(1)).isEqualTo(company4.getId());
+    }
+
+    @Test
+    @DisplayName("When I search for companies with a user and a course, I get an empty list")
+    void shouldGetEmptyList_whenFindAllCompaniesWithUserIdAndCourseId() {
+        //GIVEN
+        Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
+        Company company3 = dbCompanyProvider.save(new Company(0, "Company3", "000000003"));
+        Company company4 = dbCompanyProvider.save(new Company(0, "Company4", "000000004"));
+
+        User user1 = dbUserProvider.save(new User());
+
+        User user2 = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company1.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company3.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+
+        Course course1 = dbCourseProvider.save(new Course());
+
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), true, LocalDateTime.now(), null));
+
+        dbCourseProvider.save(new Course());
+
+        //WHEN
+        List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user1.getId(), course1.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isZero();
+    }
+
+    @Test
+    @DisplayName("When I search for companies that have a user and a course and the link between the company and the user is inactive, I get an empty list")
+    void shouldGetEmptyList_whenFindAllCompaniesWithNotActiveUserAndCourse() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+
+        User user = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.EDITOR, false, LocalDateTime.now(), LocalDateTime.now()));
+
+        Course course = dbCourseProvider.save(new Course());
+
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
+
+        //WHEN
+        List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isZero();
+    }
+
+    @Test
+    @DisplayName("When I search for companies that have a user and a course and the link between the company and the course is inactive, I get an empty list")
+    void shouldGetEmptyList_whenFindAllCompaniesWithUserAndNotActiveCourse() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+
+        User user = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+
+        Course course = dbCourseProvider.save(new Course());
+
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, LocalDateTime.now(), LocalDateTime.now()));
+
+        //WHEN
+        List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());
+
+        //THEN
+        assertThat(response).isNotNull();
+        assertThat(response.size()).isZero();
     }
 
     @Test

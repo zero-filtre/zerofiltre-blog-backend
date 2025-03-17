@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -29,7 +30,6 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
 import tech.zerofiltre.blog.infra.providers.database.purchase.DBPurchaseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.time.LocalDateTime;
@@ -66,6 +66,9 @@ class SuspendIT {
     PurchaseProvider purchaseProvider;
 
     @Autowired
+    CompanyProvider companyProvider;
+
+    @Autowired
     CompanyCourseProvider companyCourseProvider;
 
     @Mock
@@ -74,14 +77,11 @@ class SuspendIT {
     @Mock
     SandboxProvider sandboxProvider;
 
-    @Mock
-    DataChecker checker;
-
     @BeforeEach
     void init() throws ZerofiltreException {
         doNothing().when(sandboxProvider).destroy(any(), any());
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, dbCourseProvider);
-        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, sandboxProvider, null, checker, companyCourseProvider, companyUserProvider);
+        enroll = new Enroll(enrollmentProvider, dbCourseProvider, dbUserProvider, chapterProvider, sandboxProvider, null, companyProvider, companyCourseProvider, companyUserProvider, null);
         findEnrollment = new FindEnrollment(enrollmentProvider, dbCourseProvider, chapterProvider);
     }
 

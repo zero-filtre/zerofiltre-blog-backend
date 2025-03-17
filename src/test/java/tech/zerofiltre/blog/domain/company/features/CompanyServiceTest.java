@@ -17,6 +17,9 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -107,7 +110,7 @@ class CompanyServiceTest {
 
     @Test
     @DisplayName("given admin user and existing company id when findById then return company")
-    void whenFindById_thenReturnCompany() throws ForbiddenActionException, ResourceNotFoundException {
+    void whenFindById_thenReturnCompany() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
 
@@ -195,6 +198,22 @@ class CompanyServiceTest {
     }
 
     @Test
+    @DisplayName("when I search for all the identifiers of companies that have a user and a course, I find a list")
+    void shouldFindList_whenSearchingAllCompanyId_forUserIdAndCourseId() {
+        //GIVEN
+        when(companyProvider.findAllCompanyIdByUserIdAndCourseId(anyLong(), anyLong())).thenReturn(List.of(4L, 9L));
+
+        //WHEN
+        List<Long> response = companyService.findAllCompanyIdByUserIdAndCourseId(1L, 2L);
+
+        //THEN
+        verify(companyProvider).findAllCompanyIdByUserIdAndCourseId(anyLong(), anyLong());
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0)).isEqualTo(4L);
+        assertThat(response.get(1)).isEqualTo(9L);
+    }
+
+    @Test
     @DisplayName("given admin user and existing company when delete then verify call companyUserProvider unlinkAllByCompanyId and companyCourseProvider unlinkAllByCompanyId and companyProvider delete")
     void givenAdminUserAndExistingCompany_whenDelete_thenVerifyCallCompanyProviderDelete() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
@@ -211,7 +230,7 @@ class CompanyServiceTest {
     }
 
     @Test
-    @DisplayName("given admin user when findAll then throw ForbiddenActionException")
+    @DisplayName("given admin user when delete then throw ForbiddenActionException")
     void givenBadUser_whenDelete_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
         when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
