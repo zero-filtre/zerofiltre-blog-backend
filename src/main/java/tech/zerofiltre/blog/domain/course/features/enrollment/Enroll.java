@@ -3,8 +3,10 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.features.CompanyService;
 import tech.zerofiltre.blog.domain.company.features.CompanyUserService;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -23,6 +25,7 @@ import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,18 +41,18 @@ public class Enroll {
     private final ChapterProvider chapterProvider;
     private final SandboxProvider sandboxProvider;
     private final PurchaseProvider purchaseProvider;
-    private final DataChecker checker;
+    private final CompanyService companyService;
     private final CompanyCourseService companyCourseService;
     private final CompanyUserService companyUserService;
 
-    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider) {
+    public Enroll(EnrollmentProvider enrollmentProvider, CourseProvider courseProvider, UserProvider userProvider, ChapterProvider chapterProvider, SandboxProvider sandboxProvider, PurchaseProvider purchaseProvider, CompanyProvider companyProvider, CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider, DataChecker checker) {
         this.enrollmentProvider = enrollmentProvider;
         this.courseProvider = courseProvider;
         this.userProvider = userProvider;
         this.chapterProvider = chapterProvider;
         this.sandboxProvider = sandboxProvider;
         this.purchaseProvider = purchaseProvider;
-        this.checker = checker;
+        this.companyService = new CompanyService(companyProvider, companyUserProvider, companyCourseProvider, checker);
         this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
         this.companyUserService = new CompanyUserService(companyUserProvider, enrollmentProvider, checker);
     }
@@ -68,10 +71,13 @@ public class Enroll {
         long companyCourseId = 0;
         long companyUserId = 0;
 
+        if(companyId == 0) {
+            List<Long> companyIdList = companyService.findAllCompanyIdByUserIdAndCourseId(userId, courseId);
+
+            if(!companyIdList.isEmpty()) companyId = companyIdList.get(0);
+        }
+
         if(companyId > 0) {
-            checker.companyExists(companyId);
-            checker.companyUserExists(companyId, userId);
-            checker.companyCourseExists(companyId, courseId);
             companyCourseId = companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(companyId, courseId);
             companyUserId = companyUserService.getLinkCompanyUserIdIfUserIsActive(companyId, userId);
         }

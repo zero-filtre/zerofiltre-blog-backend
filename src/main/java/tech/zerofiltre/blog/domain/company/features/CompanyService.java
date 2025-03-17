@@ -11,6 +11,7 @@ import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -50,6 +51,10 @@ public class CompanyService {
         checker.isAdminUser(executor);
         checker.userExists(userId);
         return companyProvider.findAllByUserId(pageNumber, pageSize, userId);
+    }
+
+    public List<Long> findAllCompanyIdByUserIdAndCourseId(long userId, long courseId) {
+        return companyProvider.findAllCompanyIdByUserIdAndCourseId(userId, courseId);
     }
 
     public void delete(User user, Company company) throws ForbiddenActionException, ResourceNotFoundException {

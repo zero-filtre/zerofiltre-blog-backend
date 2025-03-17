@@ -317,15 +317,13 @@ class CompanyUserServiceTest {
 
     @Test
     @DisplayName("When I search for the ID of an non-existent link between a user and a company, then I find nothing")
-    void shouldFindNothing_whenSearchingIdNonExistingLinkBetweenUserAndCompany() throws ResourceNotFoundException {
+    void shouldFindNothing_whenSearchingIdNonExistingLinkBetweenUserAndCompany() {
         //GIVEN
-        when(checker.companyUserExists(anyLong(), anyLong())).thenThrow(ResourceNotFoundException.class);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyUserService.getLinkCompanyUserIdIfUserIsActive(1, 1));
-
-        verify(checker).companyUserExists(anyLong(), anyLong());
     }
 
     @Test
