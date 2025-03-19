@@ -20,6 +20,7 @@ import javax.validation.constraints.AssertTrue;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
@@ -31,7 +32,7 @@ public class CertificateService {
     private final MessageSource messageSource;
 
 
-    public Certificate get(User user, long courseId) throws ZerofiltreException, NoSuchAlgorithmException {
+    public Certificate get(User user, long courseId) throws ZerofiltreException {
         if (enrollmentProvider.isCompleted(user.getId(), courseId)) {
             Certificate certificate = certificateProvider.generate(user, courseId);
             enrollmentProvider.setCertificatePath(certificate.getPath(), user.getId(), courseId);
@@ -43,11 +44,16 @@ public class CertificateService {
 
     public CertificateVerificationResponseVM verify(String uuid, String fullname, String courseTitle, HttpServletRequest request) throws ZerofiltreException {
 
+        CertificateVerificationResponseVM response = new CertificateVerificationResponseVM();
         try {
-            String collectedHash = ZerofiltreUtils.generateHash(fullname, courseTitle);
             Certificate dbCertificate = certificateProvider.findByUuid(uuid);
+            if(dbCertificate == null){
+                // Cas où le certificat n'est pas trouvé (QRCode non valide, UUID erroné, etc.)
+                response.setResponse(messageSource.getMessage("message.certificate.verification.response.error", new Object[]{}, request.getLocale()));
+                response.setDescription(messageSource.getMessage("message.certificate.verification.description.error", new Object[]{}, request.getLocale()));
+            }
+            String collectedHash = ZerofiltreUtils.generateHash(fullname, courseTitle);
             String dbHash = dbCertificate.getHash();
-            CertificateVerificationResponseVM response = new CertificateVerificationResponseVM();
 
             if (collectedHash.equals(dbHash)) {
                 response.setResponse(messageSource.getMessage("message.certificate.verification.response.valid", new Object[]{}, request.getLocale()));
@@ -56,10 +62,15 @@ public class CertificateService {
                 response.setResponse(messageSource.getMessage("message.certificate.verification.response.invalid", new Object[]{}, request.getLocale()));
                 response.setDescription(messageSource.getMessage("message.certificate.verification.description.invalid", new Object[]{}, request.getLocale()));
             }
-            return response;
+
         } catch (NoSuchAlgorithmException e) {
             throw new ZerofiltreException("Hash generation failure !", e);
+        }catch (Exception e){
+            // Capture toutes les autres erreurs imprévues
+            response.setResponse(messageSource.getMessage("message.certificate.verification.response.error", new Object[]{}, request.getLocale()));
+            response.setDescription(messageSource.getMessage("message.certificate.verification.description.error", new Object[]{}, request.getLocale()));
         }
+        return response;
     }
 
 
