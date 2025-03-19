@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,8 +86,12 @@ public class PDFCertificateProvider implements CertificateProvider {
 
     @Override
     public Certificate findByUuid(String uuid) throws ZerofiltreException {
-        Optional<CertificateJPA> certificateJPA = certificateJPARepository.findByUuid(uuid);
-        return certificateMapper.fromJPA(certificateJPA.get());
+        try{
+            Optional<CertificateJPA> certificateJPA = certificateJPARepository.findByUuid(uuid);
+            return certificateMapper.fromJPA(certificateJPA.get());
+        }catch (NoSuchElementException e){
+            throw new ZerofiltreException("there is not such Certificate in data base !");
+        }
     }
 
     @Override

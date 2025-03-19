@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public interface CertificateProvider {
 
-    Certificate save(Certificate certificate) throws NoSuchAlgorithmException;
+    Certificate save(Certificate certificate) ;
 
     void delete(Certificate certificate);
 

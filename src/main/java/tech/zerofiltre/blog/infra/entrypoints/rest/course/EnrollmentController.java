@@ -147,7 +147,7 @@ public class EnrollmentController {
                     .contentLength(content.length)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(new InputStreamResource(byteArrayInputStream));
-        } catch (ZerofiltreException|NoSuchAlgorithmException e) {
+        } catch (ZerofiltreException e) {
             throw new ZerofiltreException("Can't get the Certifcate from DataBase", e);
         }
     }
@@ -157,15 +157,11 @@ public class EnrollmentController {
             @RequestParam String uuid,
             @RequestParam String fullname,
             @RequestParam String courseTitle,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws ZerofiltreException {
         CertificateVerificationResponseVM response= new CertificateVerificationResponseVM();
-        try {
-            return certificateService.verify(uuid, fullname, courseTitle, request);
-        } catch (ZerofiltreException e) {
-            response.setResponse(messageSource.getMessage("message.certificate.verification.response.error", new Object[]{}, request.getLocale()));
-            response.setDescription(messageSource.getMessage("message.certificate.verification.description.error", new Object[]{}, request.getLocale()));
-            return response;
-        }
+
+        return certificateService.verify(uuid, fullname, courseTitle, request);
+
     }
 
 
