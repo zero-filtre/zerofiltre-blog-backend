@@ -1,0 +1,55 @@
+databaseChangeLog:
+- changeSet:
+    id: 1742930658895-5
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: is_subscribed_to_news_letter
+            type: BIT(1)
+        tableName: user
+- changeSet:
+    id: 1742930658895-6
+    author: philippe SIMO (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: id
+        indexName: PRIMARY
+        tableName: company_user
+        unique: true
+- changeSet:
+    id: 1742930658895-1
+    author: philippe SIMO (generated)
+    changes:
+    - dropNotNullConstraint:
+        columnDataType: bigint(19)
+        columnName: company_id
+        tableName: company_user
+- changeSet:
+    id: 1742930658895-2
+    author: philippe SIMO (generated)
+    changes:
+    - dropNotNullConstraint:
+        columnDataType: bigint(19)
+        columnName: user_id
+        tableName: company_user
+- changeSet:
+    id: 1742930658895-3
+    author: philippe SIMO (generated)
+    changes:
+    - dropPrimaryKey:
+        tableName: company_user
+- changeSet:
+    id: 1742930658895-4
+    author: philippe SIMO (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: id
+        constraintName: PRIMARY
+        tableName: company_user
+
