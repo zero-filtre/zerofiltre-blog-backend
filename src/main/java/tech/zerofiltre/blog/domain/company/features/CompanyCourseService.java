@@ -75,8 +75,7 @@ public class CompanyCourseService {
     }
 
     public long getLinkCompanyCourseIdIfCourseIsActive(long companyId, long courseId) throws ResourceNotFoundException {
-        checker.companyCourseExists(companyId, courseId);
-        return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).map(LinkCompanyCourse::getId).orElse(0L);
+        return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).map(LinkCompanyCourse::getId).orElseThrow(() -> new ResourceNotFoundException("We could not find the link between the company and the course.", ""));
     }
 
     public void unlink(User user, long companyId, long courseId, boolean hard) throws ZerofiltreException {
