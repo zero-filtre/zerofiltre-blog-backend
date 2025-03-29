@@ -524,7 +524,7 @@ class DBArticleProviderIT {
         // -- dates
         LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
         LocalDateTime threeMonthsBack = LocalDateTime.now().minusMonths(3);
-        List<LocalDate> listDates = ZerofiltreUtils.defineStartDateAndEndDate();
+        List<LocalDate> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
 
         // -- Users
         User userA = new User();
@@ -568,6 +568,63 @@ class DBArticleProviderIT {
         assertThat(articlesPublishedByUserA).isEqualTo(2);
         assertThat(articlesPublishedByUserB).isNotNull();
         assertThat(articlesPublishedByUserB).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("When I'm looking for new articles from last month, I return the list")
+    void shouldReturnList_whenSearchingNewArticlesFromLastMonth() {
+        //ARRANGE
+        // -- dates
+        LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
+        LocalDateTime threeMonthsBack = LocalDateTime.now().minusMonths(3);
+
+        // -- Users
+        User userA = new User();
+        userA = userProvider.save(userA);
+
+        User userB = new User();
+        userB = userProvider.save(userB);
+
+        // -- Articles
+        Article articleA1 = new Article();
+        articleA1.setAuthor(userA);
+        articleA1.setLastPublishedAt(threeMonthsBack);
+        articleProvider.save(articleA1);
+
+        Article articleA2 = new Article();
+        articleA2.setAuthor(userA);
+        articleA2.setLastPublishedAt(lastMonth);
+        articleA2 = articleProvider.save(articleA2);
+
+        Article articleA3 = new Article();
+        articleA3.setAuthor(userA);
+        articleA3.setLastPublishedAt(lastMonth);
+        articleA3 = articleProvider.save(articleA3);
+
+        Article articleB1 = new Article();
+        articleB1.setAuthor(userB);
+        articleB1.setLastPublishedAt(threeMonthsBack);
+        articleProvider.save(articleB1);
+
+        Article articleB2 = new Article();
+        articleB2.setAuthor(userB);
+        articleB2.setLastPublishedAt(lastMonth);
+        articleB2 = articleProvider.save(articleB2);
+
+        //ACT
+        List<Article> articleList = articleProvider.newArticlesFromLastMonth();
+
+        //ASSERT
+        assertThat(articleList.size()).isEqualTo(3);
+
+        assertThat(articleList.get(0).getId()).isEqualTo(articleA2.getId());
+        assertThat(articleList.get(0).getLastPublishedAt()).isEqualTo(articleA2.getLastPublishedAt());
+
+        assertThat(articleList.get(1).getId()).isEqualTo(articleA3.getId());
+        assertThat(articleList.get(1).getLastPublishedAt()).isEqualTo(articleA3.getLastPublishedAt());
+
+        assertThat(articleList.get(2).getId()).isEqualTo(articleB2.getId());
+        assertThat(articleList.get(2).getLastPublishedAt()).isEqualTo(articleB2.getLastPublishedAt());
     }
 
 }

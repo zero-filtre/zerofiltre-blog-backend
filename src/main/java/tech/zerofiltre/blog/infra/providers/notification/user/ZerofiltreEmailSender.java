@@ -9,11 +9,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
-import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.mail.MessagingException;
@@ -29,7 +28,23 @@ public class ZerofiltreEmailSender {
     private final JavaMailSender mailSender;
     private final InfraProperties infraProperties;
     private final ITemplateEngine emailTemplateEngine;
-    private final DBUserProvider dbUserProvider;
+    private final UserProvider userProvider;
+
+    public void send(Email email, boolean templateReady) {
+        if (!templateReady) {
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("content", email.getContent());
+            templateModel.put("videosIds", email.getVideosIds());
+            templateModel.put("images", email.getImages());
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(Locale.FRENCH);
+            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
+            log.info("email content {}", emailContent);
+            email.setContent(emailContent);
+        }
+        send(email);
+    }
 
     public void sendForAllUsers(Email email) {
         email.setRecipients(Collections.singletonList(infraProperties.getContactEmail()));
@@ -44,16 +59,16 @@ public class ZerofiltreEmailSender {
         }
     }
 
-    private Collection<List<String>> listAllEmails() {
-        List<UserEmail> userEmailList = dbUserProvider.allEmails();
+    Collection<List<String>> listAllEmails() {
         List<String> list = new ArrayList<>();
+        List<UserEmail> userEmailList = userProvider.allEmails();
 
         for(UserEmail u : userEmailList) {
-            if(isValidEmail(u.getEmail())) {
+            if(ZerofiltreUtils.isValidEmail(u.getEmail())) {
                 list.add(u.getEmail());
                 continue;
             }
-            if(isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
+            if(ZerofiltreUtils.isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
         }
         return ZerofiltreUtils.partitionList(list, NUMBER_MAX_EMAILS);
     }
@@ -80,23 +95,4 @@ public class ZerofiltreEmailSender {
         }
     }
 
-    public void send(Email email, boolean templateReady) {
-        if (!templateReady) {
-            Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("content", email.getContent());
-            templateModel.put("videosIds", email.getVideosIds());
-            templateModel.put("images", email.getImages());
-            Context thymeleafContext = new Context();
-            thymeleafContext.setVariables(templateModel);
-            thymeleafContext.setLocale(Locale.FRENCH);
-            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
-            log.info("email content {}", emailContent);
-            email.setContent(emailContent);
-        }
-        send(email);
-    }
-
-    private boolean isValidEmail(String email) {
-        return EmailValidator.validateEmail(email);
-    }
 }
