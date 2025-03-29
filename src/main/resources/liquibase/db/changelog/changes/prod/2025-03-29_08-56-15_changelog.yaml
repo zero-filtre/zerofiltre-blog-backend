@@ -1,0 +1,44 @@
+databaseChangeLog:
+- changeSet:
+    id: 1743238587981-1
+    author: philippe SIMO (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BIT(1)
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: linked_at
+            type: datetime
+        - column:
+            name: role
+            type: VARCHAR(255)
+        - column:
+            name: suspended_at
+            type: datetime
+        - column:
+            name: user_id
+            type: BIGINT
+        tableName: company_user
+- changeSet:
+    id: 1743238587981-2
+    author: philippe SIMO (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: company_id, user_id
+        constraintName: UniqueCompanyIdAndUserId
+        tableName: company_user
+
