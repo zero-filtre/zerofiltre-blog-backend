@@ -1,78 +1,265 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${certificateTitle ?: 'Certificate of Completion'}">Certificate of Completion</title>
     <style>
         body {
-            font-family: 'Aria', sans-serif;
+            font-family: Arial, sans-serif;
+            /* background-color: #f5f5f5; */
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        h1 {
-            margin-top: 50px;
-            margin-bottom: 50px;
+        .certificate {
+            background-color: white;
+            width: 1000px;
+            height: 600px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 40px;
         }
 
-        h2 {
+        .top-left-curve {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 150px;
+            height: 150px;
+        }
+
+        .top-right-curve {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 300px;
+            background-color: var(--primary-light-color, #c4a9ff);
+            border-bottom-left-radius: 100%;
+        }
+
+        .bottom-left-curve {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 300px;
+            background-color: var(--secondary-color, #9decdb);
+            border-top-right-radius: 100%;
+        }
+
+        .bottom-right-curve {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 150px;
+            height: 150px;
+        }
+
+        .dots {
+            position: absolute;
+            bottom: 20px;
+            left: 70px;
+            display: grid;
+            grid-template-columns: repeat(10, 10px);
+            grid-gap: 15px;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            background-color: var(--primary-color, #6b46c1);
+            border-radius: 50%;
+        }
+
+        .circle-accent-1 {
+            position: absolute;
+            top: 100px;
+            left: 150px;
+            width: 80px;
+            height: 80px;
+            border: 15px solid var(--primary-color, #6b46c1);
+            border-radius: 50%;
+        }
+
+        .circle-accent-2 {
+            position: absolute;
+            top: 380px;
+            right: 80px;
+            width: 100px;
+            height: 100px;
+            border: 15px solid var(--secondary-color, #9decdb);
+            border-radius: 50%;
+        }
+
+        .logo {
+            margin: 50px auto 110px auto;
+            text-align: center;
+        }
+
+        .logo img {
+            width: 100px;
+        }
+
+        .title {
+            text-align: center;
+            color: var(--text-color, #443C68);
+            font-size: 28px;
+            margin-bottom: 20px;
             margin-top: 25px;
-            margin-bottom: 25px;
+            font-weight: 500;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
-        .espace_ligne {
-            line-height: 2em;
+        .recipient {
+            text-align: center;
+            color: var(--text-color, #443C68);
+            font-size: 48px;
+            font-weight: bold;
+            max-width: 600px;
+            margin-inline: auto;
+            margin-bottom: 40px;
+            font-family: 'Courier New', Courier, monospace
         }
 
-        .container {
+        .course {
+            text-align: center;
+            color: var(--text-color, #443C68);
+            font-size: 26px;
+            font-weight: lighter;
+            margin-bottom: 10px;
+            max-width: 600px;
+            margin-inline: auto;
+        }
+
+        .date {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 20px;
+            width: 60%;
             margin: 0 auto;
-            height: 90%;
-            width: 90%;
-            background-color: #ffffff;
-            word-break: break-word;
+            max-width: 350px;
+        }
+
+        .signature .responsable {
+            padding-top: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 18px;
+            color: var(--text-color, #443C68);
+        }
+
+        .signature-title {
+            color: #666;
             font-size: 16px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
+        .seal {
+            position: absolute;
+            right: 100px;
+            bottom: 150px;
         }
 
-        .footer {
+        .seal-inner {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed var(--primary-color, #6b46c1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .seal-text {
+            font-size: 14px;
+            color: var(--primary-color, #6b46c1);
+            font-weight: bold;
             text-align: center;
-            /*font-size: 10px;*/
-            margin-top: 100px;
+        }
+
+        :root {
+            --primary-color: #052b5d;
+            --primary-light-color: #052b5de7;
+            --secondary-color: #15B2BC;
+            --text-color: #443C68;
+            --accent-color: #FFD79C;
+        }
+
+        /* Print-friendly styles */
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .certificate {
+                box-shadow: none;
+                width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <div class="header">
-        <img th:src="${attachement}" alt="Zerofiltre change des vies et des finances grâce à l'IT">
-        <h1>Certificat de fin de parcours</h1>
+    <div class="certificate">
+        <div class="top-left-curve"></div>
+        <div class="top-right-curve"></div>
+        <div class="bottom-left-curve"></div>
+        <div class="bottom-right-curve"></div>
+
+        <div class="circle-accent-1"></div>
+        <div class="circle-accent-2"></div>
+        
+        <div class="dots">
+            <div class="dot" th:each="i : ${#numbers.sequence(1, 30)}"></div>
+        </div>
+
+        <div class="logo">
+            <img th:if="${attachement}" th:src="${attachement}" alt="Logo" />
+        </div>
+
+        <h1 class="title">Certificat de fin de parcours</h1>
+        <div class="recipient" th:text="${fullName ?: ''}"></div>
+        <div class="course" th:text="${courseTitle ?: ''}"></div>
+        <div class="date" th:text="${today}"></div>
+
+        
+        <div class="signature">
+            <img th:if="${zerofiltre_team_signature_url}" th:src="${zerofiltre_team_signature_url}" alt="Signature"
+                style="max-width: 200px; max-height: 60px;" />
+            <p><em th:text="#{zerofiltre_team_signature}"></em></p>
+            <div class="responsable">
+                <div class="signature-name" th:text="${signatoryName ?: 'Philippe Fabrice GUEMKAM SIMO'}"></div>
+                <div class="signature-title" th:text="${signatoryTitle ?: 'Fondateur'}"></div>
+            </div>
+        </div>
+
+        <div class="seal">
+            <div class="seal-inner">
+                <div class="seal-text" th:text="${sealText ?: 'Zerofiltre'}"></div>
+            </div>
+        </div>
     </div>
-
-    <p class="espace_ligne">Je, soussigné <strong>Monsieur Philippe Fabrice GUEMKAM SIMO</strong>, représentant légal de l'organisme Zerofiltre,
-     atteste que <strong><span th:text="${fullName}"></span></strong> a suivi toutes les leçons du parcours:</p>
-
-    <h2><span th:text="${courseTitle}"></span></h2>
-
-    <p>En foi de quoi, le présent certificat est délivré pour servir et valoir ce que de droit.</p>
-    <p>Fait au Bourget, le <strong><span th:text="${today}"></span></strong></p>
-    <p><strong>Philippe Fabrice GUEMKAM SIMO</strong></p>
-
-    <br/>
-    <br/>
-    <p><em th:text="#{zerofiltre_team_signature}"></em></p>
-
-
-    <div class="footer">
-        <p>Zerofiltre</p>
-        <p>72 AV DE LA DIVISION LECLERC</p>
-        <p>93350 LE BOURGET</p>
-        <p>zerofiltre.tech</p>
-        <p>info@zerofiltre.tech</p>
-        <p><a href="https://www.linkedin.com/company/65767867/admin/" class="linkedin-button" target="_blank">in</a>
-        </p>
-        <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-    </div>
-</div>
 </body>
+
 </html>
