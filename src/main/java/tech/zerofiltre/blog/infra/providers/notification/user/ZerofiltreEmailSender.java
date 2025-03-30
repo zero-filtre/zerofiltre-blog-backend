@@ -37,28 +37,28 @@ public class ZerofiltreEmailSender {
         email.setReplyTo(infraProperties.getContactEmail());
 
         Collection<List<String>> listAllEmails = listAllEmails();
-        for(List<String> li : listAllEmails) {
+        for (List<String> li : listAllEmails) {
             email.setBccs(li);
-
             send(email, false);
         }
     }
 
-    private Collection<List<String>> listAllEmails() {
-        List<UserEmail> userEmailList = dbUserProvider.allEmails();
-        List<String> list = new ArrayList<>();
-
-        for(UserEmail u : userEmailList) {
-            if(isValidEmail(u.getEmail())) {
-                list.add(u.getEmail());
-                continue;
-            }
-            if(isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
+    public void send(Email email, boolean templateReady) {
+        String processedTemplateContent = email.getContent();
+        if (!templateReady) {
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("content", email.getContent());
+            templateModel.put("videosIds", email.getVideosIds());
+            templateModel.put("images", email.getImages());
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariables(templateModel);
+            thymeleafContext.setLocale(Locale.FRENCH);
+            processedTemplateContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
         }
-        return ZerofiltreUtils.partitionList(list, NUMBER_MAX_EMAILS);
+        send(email, processedTemplateContent);
     }
 
-    private void send(Email email) {
+    private void send(Email email, String processedTemplateContent) {
         try {
             Resource resourceFile = new ClassPathResource("mail_header_image.png");
             String replyTo = email.getReplyTo() == null || email.getReplyTo().isEmpty() ? infraProperties.getContactEmail() : email.getReplyTo();
@@ -70,33 +70,31 @@ public class ZerofiltreEmailSender {
             helper.setBcc(email.getBccs().toArray(new String[0]));
             helper.setCc(email.getCcs().toArray(new String[0]));
             helper.setSubject(email.getSubject());
-            helper.setText(email.getContent(), true);
+            helper.setText(processedTemplateContent, true);
+            log.debug("Processed email content {}", processedTemplateContent);
             helper.setReplyTo(replyTo);
             helper.addInline("attachement.png", resourceFile);
             this.mailSender.send(mimeMessage);
-
         } catch (MessagingException e) {
             log.error("An error occurred when sending email", e);
         }
     }
 
-    public void send(Email email, boolean templateReady) {
-        if (!templateReady) {
-            Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("content", email.getContent());
-            templateModel.put("videosIds", email.getVideosIds());
-            templateModel.put("images", email.getImages());
-            Context thymeleafContext = new Context();
-            thymeleafContext.setVariables(templateModel);
-            thymeleafContext.setLocale(Locale.FRENCH);
-            String emailContent = emailTemplateEngine.process("general_message.html", thymeleafContext);
-            log.info("email content {}", emailContent);
-            email.setContent(emailContent);
-        }
-        send(email);
-    }
-
     private boolean isValidEmail(String email) {
         return EmailValidator.validateEmail(email);
+    }
+
+    private Collection<List<String>> listAllEmails() {
+        List<UserEmail> userEmailList = dbUserProvider.allEmails();
+        List<String> list = new ArrayList<>();
+
+        for (UserEmail u : userEmailList) {
+            if (isValidEmail(u.getEmail())) {
+                list.add(u.getEmail());
+                continue;
+            }
+            if (isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
+        }
+        return ZerofiltreUtils.partitionList(list, NUMBER_MAX_EMAILS);
     }
 }
