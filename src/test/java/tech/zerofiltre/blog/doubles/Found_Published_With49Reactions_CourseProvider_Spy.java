@@ -72,4 +72,9 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
 
     @Override
     public String getTitle(long courseId) { return ""; }
+
+    @Override
+    public List<Course> newCoursesFromLastMonth() {
+        return List.of();
+    }
 }
