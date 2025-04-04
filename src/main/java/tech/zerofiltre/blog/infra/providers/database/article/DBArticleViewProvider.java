@@ -1,15 +1,15 @@
 package tech.zerofiltre.blog.infra.providers.database.article;
 
-import lombok.*;
-import org.mapstruct.factory.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.article.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.infra.providers.database.article.mapper.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
+import tech.zerofiltre.blog.domain.article.model.ArticleView;
+import tech.zerofiltre.blog.infra.providers.database.article.mapper.ArticleViewJPAMapper;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 @Component
 @Transactional
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class DBArticleViewProvider implements ArticleViewProvider {
     }
 
     @Override
-    public int countArticlesReadByDatesAndUser(LocalDate startDate, LocalDate endDate, long viewerId) {
+    public int countArticlesReadByDatesAndUser(LocalDateTime startDate, LocalDateTime endDate, long viewerId) {
         return repository.countViewedIdByDatesAndViewerId(startDate, endDate, viewerId);
     }
 }

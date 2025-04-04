@@ -7,8 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import java.util.List;
@@ -71,12 +70,7 @@ public class DBUserProvider implements UserProvider {
     }
 
     @Override
-    public List<UserEmail> allEmails() {
-        return repository.findAllEmails();
-    }
-
-    @Override
-    public List<UserEmailLanguage> allEmailsForBroadcast() {
-        return repository.findAllEmailsForBroadcast();
+    public List<UserForBroadcast> allUsersForBroadcast() {
+        return repository.findAllUsersForBroadcast();
     }
 }

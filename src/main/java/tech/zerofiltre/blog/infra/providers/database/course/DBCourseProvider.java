@@ -19,7 +19,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -129,8 +129,8 @@ public class DBCourseProvider implements CourseProvider {
 
     @Override
     public List<Course> newCoursesFromLastMonth() {
-        List<LocalDate> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
-        return repository.findNewCoursesBetween(listDates.get(0).atStartOfDay(), listDates.get(1).atStartOfDay())
+        List<LocalDateTime> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
+        return repository.findNewCoursesBetween(listDates.get(0), listDates.get(1))
                 .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 }
