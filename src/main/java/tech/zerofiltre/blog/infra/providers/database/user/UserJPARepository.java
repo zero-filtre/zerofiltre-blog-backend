@@ -25,7 +25,7 @@ public interface UserJPARepository extends JpaRepository<UserJPA, Long> {
             "where co.id=:courseId")
     String findAuthorInfoByCourseId(long courseId);
 
-    @Query("select new tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail(email, paymentEmail) from UserJPA")
+    @Query("select new tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail(email, paymentEmail) from UserJPA where subscribedToBroadcast = true")
     List<UserEmail> findAllEmails();
 
     @Query("select new tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage(u.email, u.paymentEmail, u.language) from UserJPA u where u.subscribedToBroadcast = true")
