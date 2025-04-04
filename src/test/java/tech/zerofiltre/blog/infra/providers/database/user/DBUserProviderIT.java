@@ -101,29 +101,32 @@ class DBUserProviderIT {
         //GIVEN
         User user1 = new User();
         user1.setEmail("u1@a.a");
-
         userJPARepository.save(mapper.toJPA(user1));
 
         User user2 = new User();
         user2.setEmail("u2@a.a");
-
         userJPARepository.save(mapper.toJPA(user2));
 
         User user3 = new User();
         user3.setPaymentEmail("u3@a.a");
         userJPARepository.save(mapper.toJPA(user3));
 
+        User user4 = new User();
+        user4.setPaymentEmail("u4@a.a");
+        user4.setSubscribedToBroadcast(false);
+        userJPARepository.save(mapper.toJPA(user4));
+
         //WHEN
         List<UserEmail> allEmails = provider.allEmails();
 
         //THEN
         assertThat(allEmails.size()).isEqualTo(3);
-        assertThat(allEmails.get(0).getEmail()).isEqualTo("u1@a.a");
+        assertThat(allEmails.get(0).getEmail()).isEqualTo(user1.getEmail());
         assertThat(allEmails.get(0).getPaymentEmail()).isNull();
-        assertThat(allEmails.get(1).getEmail()).isEqualTo("u2@a.a");
+        assertThat(allEmails.get(1).getEmail()).isEqualTo(user2.getEmail());
         assertThat(allEmails.get(1).getPaymentEmail()).isNull();
         assertThat(allEmails.get(2).getEmail()).isNull();
-        assertThat(allEmails.get(2).getPaymentEmail()).isEqualTo("u3@a.a");
+        assertThat(allEmails.get(2).getPaymentEmail()).isEqualTo(user3.getPaymentEmail());
     }
 
     @Test
