@@ -16,9 +16,10 @@ import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,13 +67,13 @@ class MonthlyNewsletterReminderTest {
     @Test
     void mustSendNewsletter_WithProperData() {
         //ARRANGE
-        UserEmailLanguage userEmail1 = new UserEmailLanguage(EMAIL_BLIND_COPY1, null, "fr");
-        UserEmailLanguage userEmail2 = new UserEmailLanguage(EMAIL_BLIND_COPY2, null, "");
-        UserEmailLanguage userEmail3 = new UserEmailLanguage(null, PAYMENT_EMAIL_BLIND_COPY, null);
-        UserEmailLanguage userEmail4 = new UserEmailLanguage(null, null, null);
+        UserForBroadcast userEmail1 = new UserForBroadcast(0, EMAIL_BLIND_COPY1, null, "fr", null);
+        UserForBroadcast userEmail2 = new UserForBroadcast(0, EMAIL_BLIND_COPY2, null, "", null);
+        UserForBroadcast userEmail3 = new UserForBroadcast(0, null, PAYMENT_EMAIL_BLIND_COPY, null, null);
+        UserForBroadcast userEmail4 = new UserForBroadcast(0, null, null, null, null);
         when(articleProvider.newArticlesFromLastMonth()).thenReturn(List.of(new Article()));
         when(courseProvider.newCoursesFromLastMonth()).thenReturn(List.of(new Course()));
-        when(userProvider.allEmailsForBroadcast()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3, userEmail4));
+        when(userProvider.allUsersForBroadcast()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3, userEmail4));
         when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
 
         //ACT
@@ -101,7 +102,7 @@ class MonthlyNewsletterReminderTest {
     }
 
     @Test
-    @DisplayName("When I give an email with a list of recipients then I send the newsletter")
+    @DisplayName("When I give an e-mail with a list of recipients and at least one new article and one new course have been created in the last month, I send the newsletter")
     void shouldSendNewsletter_whenGivingEmailWithListOfRecipients() {
         //ARRANGE
         List<String> emailList = List.of(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2, PAYMENT_EMAIL_BLIND_COPY);
@@ -139,12 +140,13 @@ class MonthlyNewsletterReminderTest {
     }
 
     @Test
-    @DisplayName("When there are no new articles or courses in the previous month, no newsletter is sent")
-    void shouldNotSendNewsletter_whenNotArticleOrCourse_inPreviousMonth() {
+    @DisplayName("When I give an e-mail with a list of recipients and at least one new article has been created in the last month, I send the newsletter")
+    void shouldSendNewsletter_whenGivingEmailWithListOfRecipients_andNewArticleCreatedLastMonth() {
         //ARRANGE
-        List<String> emailList = List.of(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2, PAYMENT_EMAIL_BLIND_COPY);
+        List<String> emailList = List.of(EMAIL_BLIND_COPY1);
         Email email = new Email();
         email.setRecipients(emailList);
+        when(articleProvider.newArticlesFromLastMonth()).thenReturn(List.of(new Article()));
         when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
 
         //ACT
@@ -153,6 +155,59 @@ class MonthlyNewsletterReminderTest {
         monthlyNewsletterReminder.setEmailTest(null);
 
         //ASSERT
+        ArgumentCaptor<Email> captor = ArgumentCaptor.forClass(Email.class);
+        verify(zerofiltreEmailSender).send(captor.capture(), eq(true));
+        List<Email> emails = captor.getAllValues();
+        assertThat(emails.size()).isEqualTo(1);
+
+        assertThat(emails.get(0).getRecipients().get(0)).isEqualTo(emailList.get(0));
+        assertThat(emails.get(0).getSubject()).isEqualTo(SUBJECT);
+        assertThat(emails.get(0).getBccs().size()).isEqualTo(0);
+        assertThat(emails.get(0).getCcs().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("When I give an e-mail with a list of recipients and at least one new course has been created in the last month, I send the newsletter")
+    void shouldSendNewsletter_whenGivingEmailWithListOfRecipients_andNewCourseCreatedLastMonth() {
+        //ARRANGE
+        List<String> emailList = List.of(EMAIL_BLIND_COPY1);
+        Email email = new Email();
+        email.setRecipients(emailList);
+        when(courseProvider.newCoursesFromLastMonth()).thenReturn(List.of(new Course()));
+        when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
+
+        //ACT
+        monthlyNewsletterReminder.setEmailTest(email);
+        monthlyNewsletterReminder.sendNewsletter();
+        monthlyNewsletterReminder.setEmailTest(null);
+
+        //ASSERT
+        ArgumentCaptor<Email> captor = ArgumentCaptor.forClass(Email.class);
+        verify(zerofiltreEmailSender).send(captor.capture(), eq(true));
+        List<Email> emails = captor.getAllValues();
+        assertThat(emails.size()).isEqualTo(1);
+
+        assertThat(emails.get(0).getRecipients().get(0)).isEqualTo(emailList.get(0));
+        assertThat(emails.get(0).getSubject()).isEqualTo(SUBJECT);
+        assertThat(emails.get(0).getBccs().size()).isEqualTo(0);
+        assertThat(emails.get(0).getCcs().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("When there are no new articles or courses in the previous month, no newsletter is sent")
+    void shouldNotSendNewsletter_whenNotArticleOrCourse_inPreviousMonth() {
+        //ARRANGE
+        MonthlyNewsletterReminder spy = spy(monthlyNewsletterReminder);
+
+        when(spy.findNewArticles()).thenReturn(new ArrayList<>());
+        when(spy.findNewCourses()).thenReturn(new ArrayList<>());
+
+        //ACT
+        monthlyNewsletterReminder.sendNewsletter();
+
+        //ASSERT
+        verify(spy).findNewArticles();
+        verify(spy).findNewCourses();
         verify(zerofiltreEmailSender, never()).send(any(Email.class), anyBoolean());
     }
 

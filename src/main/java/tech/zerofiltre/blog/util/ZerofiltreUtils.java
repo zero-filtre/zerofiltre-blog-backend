@@ -77,9 +77,9 @@ public class ZerofiltreUtils {
         return dateTime.format(formatter);
     }
 
-    public static List<LocalDate> getBeginningAndEndOfMonthDates() {
-        LocalDate endDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
-        LocalDate startDate = endDate.minusMonths(1);
+    public static List<LocalDateTime> getBeginningAndEndOfMonthDates() {
+        LocalDateTime endDate = LocalDateTime.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1, 0, 0);
+        LocalDateTime startDate = endDate.minusMonths(1);
 
         return Arrays.asList(startDate, endDate);
     }

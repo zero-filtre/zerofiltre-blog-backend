@@ -15,7 +15,6 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -53,7 +52,7 @@ class DBArticleViewProviderIT {
         // -- dates
         LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
         LocalDateTime threeMonthsBack = LocalDateTime.now().minusMonths(3);
-        List<LocalDate> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
+        List<LocalDateTime> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
 
         // -- Users
         User userA = new User();

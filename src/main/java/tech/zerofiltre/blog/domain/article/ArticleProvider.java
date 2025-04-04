@@ -1,11 +1,14 @@
 package tech.zerofiltre.blog.domain.article;
 
-import tech.zerofiltre.blog.domain.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Article;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public interface ArticleProvider {
 
@@ -21,5 +24,5 @@ public interface ArticleProvider {
 
     void delete(Article article);
 
-    int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId);
+    int countPublishedArticlesByDatesAndUser(LocalDateTime startDate, LocalDateTime endDate, long authorId);
 }

@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEmailLanguage {
+public class UserForBroadcast {
+    private long id;
     private String email;
     private String paymentEmail;
     private String language;
+    private String fullName;
 }

@@ -11,7 +11,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
@@ -85,10 +85,10 @@ public class ZerofiltreEmailSender {
     }
 
     Collection<List<String>> listAllEmails() {
-        List<UserEmail> userEmailList = userProvider.allEmails();
+        List<UserForBroadcast> userEmailList = userProvider.allUsersForBroadcast();
         List<String> list = new ArrayList<>();
 
-        for (UserEmail u : userEmailList) {
+        for (UserForBroadcast u : userEmailList) {
             if (isValidEmail(u.getEmail())) {
                 list.add(u.getEmail());
                 continue;

@@ -16,7 +16,6 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -297,7 +296,7 @@ public class ZerofiltreUtilsTest {
     void getBeginningAndEndOfMonthDates() {
         //ARRANGE
         //ACT
-        List<LocalDate> list = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
+        List<LocalDateTime> list = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
 
         //ASSERT
         assertThat(list.get(0)).isBefore(list.get(1));

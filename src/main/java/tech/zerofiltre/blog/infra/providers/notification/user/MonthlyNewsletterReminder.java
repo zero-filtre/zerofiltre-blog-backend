@@ -14,7 +14,7 @@ import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
@@ -49,17 +49,17 @@ public class MonthlyNewsletterReminder {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
 
-        List<UserEmailLanguage> listAllEmails = new ArrayList<>();
+        List<UserForBroadcast> listAllUsers = new ArrayList<>();
 
         if(emailTest != null) {
             for(String recipient : emailTest.getRecipients()) {
-                listAllEmails.add(new UserEmailLanguage(recipient, null, "fr"));
+                listAllUsers.add(new UserForBroadcast(0, recipient, null, "fr", null));
             }
         } else {
-            listAllEmails = userProvider.allEmailsForBroadcast();
+            listAllUsers = userProvider.allUsersForBroadcast();
         }
 
-        for(UserEmailLanguage u : listAllEmails) {
+        for(UserForBroadcast u : listAllUsers) {
             if(!ZerofiltreUtils.isValidEmail(u.getEmail()) && !ZerofiltreUtils.isValidEmail(u.getPaymentEmail())) continue;
             String mail = ZerofiltreUtils.isValidEmail(u.getEmail()) ? u.getEmail() : u.getPaymentEmail();
 

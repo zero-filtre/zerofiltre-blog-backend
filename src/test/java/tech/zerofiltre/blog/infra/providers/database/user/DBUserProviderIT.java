@@ -8,8 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
@@ -92,74 +91,58 @@ class DBUserProviderIT {
 
         //THEN
         assertThat(SocialLink.Platform.LINKEDIN.toString()).isEqualTo(userJPA.getLoginFrom());
-
-
     }
 
     @Test
-    void listAllEmails() {
+    void listAllUsersForBroadcast() {
         //GIVEN
         User user1 = new User();
-        user1.setEmail("u1@a.a");
-
-        userJPARepository.save(mapper.toJPA(user1));
-
-        User user2 = new User();
-        user2.setEmail("u2@a.a");
-
-        userJPARepository.save(mapper.toJPA(user2));
-
-        User user3 = new User();
-        user3.setPaymentEmail("u3@a.a");
-        userJPARepository.save(mapper.toJPA(user3));
-
-        //WHEN
-        List<UserEmail> allEmails = provider.allEmails();
-
-        //THEN
-        assertThat(allEmails.size()).isEqualTo(3);
-        assertThat(allEmails.get(0).getEmail()).isEqualTo("u1@a.a");
-        assertThat(allEmails.get(0).getPaymentEmail()).isNull();
-        assertThat(allEmails.get(1).getEmail()).isEqualTo("u2@a.a");
-        assertThat(allEmails.get(1).getPaymentEmail()).isNull();
-        assertThat(allEmails.get(2).getEmail()).isNull();
-        assertThat(allEmails.get(2).getPaymentEmail()).isEqualTo("u3@a.a");
-    }
-
-    @Test
-    void listAllEmailsForBroadcast() {
-        //GIVEN
-        User user1 = new User();
+        user1.setActive(true);
         user1.setEmail("u1@a.a");
         user1.setSubscribedToBroadcast(true);
         user1.setLanguage("fr");
+        user1.setFullName("fullName1");
         userJPARepository.save(mapper.toJPA(user1));
 
         User user2 = new User();
+        user2.setActive(true);
         user2.setEmail("u2@a.a");
         user2.setSubscribedToBroadcast(false);
         user2.setLanguage("fr");
+        user2.setFullName("fullName2");
         userJPARepository.save(mapper.toJPA(user2));
 
         User user3 = new User();
+        user3.setActive(true);
         user3.setPaymentEmail("u3@a.a");
         user3.setSubscribedToBroadcast(true);
         user3.setLanguage("en");
+        user3.setFullName("fullName3");
         userJPARepository.save(mapper.toJPA(user3));
 
+        User user4 = new User();
+        user4.setActive(false);
+        user4.setPaymentEmail("u4@a.a");
+        user4.setSubscribedToBroadcast(true);
+        user4.setLanguage("fr");
+        user4.setFullName("fullName4");
+        userJPARepository.save(mapper.toJPA(user4));
+
         //WHEN
-        List<UserEmailLanguage> allEmails = provider.allEmailsForBroadcast();
+        List<UserForBroadcast> allEmails = provider.allUsersForBroadcast();
 
         //THEN
         assertThat(allEmails.size()).isEqualTo(2);
 
-        assertThat(allEmails.get(0).getEmail()).isEqualTo("u1@a.a");
+        assertThat(allEmails.get(0).getEmail()).isEqualTo(user1.getEmail());
         assertThat(allEmails.get(0).getPaymentEmail()).isNull();
-        assertThat(allEmails.get(0).getLanguage()).isEqualTo("fr");
+        assertThat(allEmails.get(0).getLanguage()).isEqualTo(user1.getLanguage());
+        assertThat(allEmails.get(0).getFullName()).isEqualTo(user1.getFullName());
 
         assertThat(allEmails.get(1).getEmail()).isNull();
-        assertThat(allEmails.get(1).getPaymentEmail()).isEqualTo("u3@a.a");
-        assertThat(allEmails.get(1).getLanguage()).isEqualTo("en");
+        assertThat(allEmails.get(1).getPaymentEmail()).isEqualTo(user3.getPaymentEmail());
+        assertThat(allEmails.get(1).getLanguage()).isEqualTo(user3.getLanguage());
+        assertThat(allEmails.get(1).getFullName()).isEqualTo(user3.getFullName());
     }
 
 }
