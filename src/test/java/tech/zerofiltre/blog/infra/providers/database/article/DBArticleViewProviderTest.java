@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -25,7 +25,7 @@ class DBArticleViewProviderTest {
         Mockito.when(articleViewJPARepository.countViewedIdByDatesAndViewerId(any(), any(), anyLong())).thenReturn(1);
 
         DBArticleViewProvider dbArticleViewProvider = new DBArticleViewProvider(articleViewJPARepository);
-        dbArticleViewProvider.countArticlesReadByDatesAndUser(LocalDate.parse("2024-05-01"), LocalDate.parse("2024-06-01"), 0);
+        dbArticleViewProvider.countArticlesReadByDatesAndUser(LocalDateTime.parse("2024-05-01T00:00:00"), LocalDateTime.parse("2024-06-01T00:00:00"), 0);
 
         Mockito.verify(articleViewJPARepository, Mockito.times(1)).countViewedIdByDatesAndViewerId(any(), any(), anyLong());
 

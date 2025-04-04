@@ -10,12 +10,12 @@ import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.domain.article.ArticleProvider;
 import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
-import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -42,13 +42,28 @@ public class MonthlyStatsReminder {
     @Scheduled(cron = "${zerofiltre.infra.stats.reminder.cron}")
     public void sendStats() throws InterruptedException {
 
-        List<User> users = userProvider.users();
+        List<UserForBroadcast> users = userProvider.allUsersForBroadcast();
         //TODO: Get only users having views/enrollments ... only active users actually
 
-        List<LocalDate> listDates = getBeginningAndEndOfMonthDates();
+        List<LocalDateTime> listDates = getBeginningAndEndOfMonthDates();
+        String ue;
+        String pe;
+        String userEmail;
 
-        for (User user : users) {
-            if (user.getEmail() != null && EmailValidator.validateEmail(user.getEmail())) {
+        for (UserForBroadcast user : users) {
+            userEmail = "";
+            ue = user.getEmail();
+            pe = user.getPaymentEmail();
+
+            if(EmailValidator.validateEmail(ue)) {
+                userEmail = ue;
+            } else if(EmailValidator.validateEmail(pe)) {
+                userEmail = pe;
+            }
+
+            if (!userEmail.isEmpty()) {
+                int articlesViewsCount = articleViewProvider.countArticlesReadByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
+                int publishedArticlesCount = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
 
                 String language = user.getLanguage() != null ? user.getLanguage() : Locale.FRANCE.getLanguage();
                 Locale locale = new Locale(language);
@@ -56,9 +71,6 @@ public class MonthlyStatsReminder {
                 String subject = messages.getMessage("message.stats.subject.remind", null, locale);
 
                 String pageUri = "/articles";
-
-                int articlesViewsCount = articleViewProvider.countArticlesReadByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
-                int publishedArticlesCount = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
 
                 Map<String, Object> templateModel = new HashMap<>();
                 templateModel.put("fullName", user.getFullName());
@@ -73,13 +85,11 @@ public class MonthlyStatsReminder {
                 Email email = new Email();
                 email.setSubject(subject);
                 email.setContent(emailContent);
-                email.setRecipients(Collections.singletonList(user.getEmail()));
+                email.setRecipients(Collections.singletonList(userEmail));
                 emailSender.send(email, true);
             }
             TimeUnit.SECONDS.sleep(10);
         }
         log.info("Broadcast of {} stats mail succeeded", users.size());
-
-
     }
 }

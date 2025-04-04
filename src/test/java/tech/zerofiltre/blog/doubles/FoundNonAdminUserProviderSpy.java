@@ -2,11 +2,9 @@ package tech.zerofiltre.blog.doubles;
 
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
-import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +26,7 @@ public class FoundNonAdminUserProviderSpy implements UserProvider {
     }
 
     @Override
-    public List<UserEmail> allEmails() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<UserEmailLanguage> allEmailsForBroadcast() {
+    public List<UserForBroadcast> allUsersForBroadcast() {
         return List.of();
     }
 
