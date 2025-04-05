@@ -1,171 +1,178 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title th:text="#{message.registration.subject}"></title>
-    <style>
-        body {
-            font-family: 'Aria', sans-serif;
-        }
-
-        .parent{
-            background-color: #f6f9fc;
-            height: 100%;
-            width: 100%;
-            padding: 50px;
-
-        }
-
-        .container {
-            margin: 0 auto;
-            max-width: 600px;
-            padding: 50px;
-            border-radius: 10px;
-            background-color: #ffffff;
-            word-break: break-word;
-            font-size: 16px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .primary-color {
-            color: #1c2e5c;
-        }
-
-        .secondary-color {
-            color: #15b2bc;
-        }
-
-
-        .cta-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #1c2e5c;
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 20px 20px;
-            font-weight: bold;
-        }
-
-        .button-wrapper {
-           text-align: center;
-        }
-
-        .linkedin-button {
-          display: inline-block;
-          padding: 3px 5px;
-          background-color: #0a66c2;
-          color: #ffffff !important;
-          text-decoration: none;
-          border-radius: 3px;
-          cursor: pointer !important;
-          font-weight: bold;
-        }
-
-        .footer {
-            text-align: center;
-            font-size: 10px;
-            margin-top: 100px;
-        }
-
-        .visual-media-container {
-            content: "";
-            display: table;
-            clear: both;
-            width: 100%;
-        }
-
-        .visual-media {
-            float: left;
-            width: 30%;
-            margin: 1%;
-            box-sizing: border-box;
-        }
-
-        .visual-media:nth-child(4) {
-            width: 62%;
-        }
-
-        .visual-media img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .section-header {
-            width: 100%;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .visual-media {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .visual-media:nth-child(4) {
-                width: 100%;
-            }
-
-            .section-header {
-                margin: 10px 0;
-                font-size: 1.25rem;
-            }
-        }
-
-
-    </style>
 </head>
-<body>
-<div class="parent">
-    <div class="container">
-        <div class="header">
-            <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT">
-            <h1><span th:text="#{greetings('')}" class="primary-color"></span>,</h1>
-            <h2><span th:text="#{remind_newsletter_message}"></span></h2>
-        </div>
 
+<body style="font-family: Arial, sans-serif; background-color: #f6f9fc; margin: 0; padding: 50px 0;">
 
-        <p th:utext="${content}"></p>
-        </br>
-        </br>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+        style="background-color: #ffffff; max-width: 600px; margin: 0px auto; border-radius: 10px; padding: 20px;">
+        
+        <tr>
+            <td style="text-align: center; padding-top: 30px">
+                <img src="cid:attachement.png" alt="Zerofiltre change des vies et des finances grâce à l'IT"
+                    style="max-width: 100%; height: auto;">
+                <h1 style="color: #1c2e5c;"><span th:text="#{greetings('')}"></span>,</h1>
+                <h2><span th:text="#{remind_newsletter_message}"></span></h2>
+            </td>
+        </tr>
 
-        <div class="visual-media-container">
-            <h3 th:if="${newArticles != null && newArticles.size() != 0}" class="section-header primary-color">---------- new articles ----------</h3>
-            <div class="visual-media" th:each="newArticle : ${newArticles}">
-                <img th:src="${newArticle}" alt="New Article Thumbnail">
-            </div>
+        <tr>
+            <td style="padding: 20px;">
+                <p th:utext="${content}" style="color: #000; font-size: 16px;"></p>
+                <p style="color:#000; font-size:16px; margin-bottom:25px;">
+                    Nous avons le plaisir de vous annoncer l’ajout d’un nouveau module consacré à <strong>Alertmanager</strong>, l’outil incontournable de gestion des alertes en monitoring, au sein du parcours <strong>\"Exploitez les mines d’or que sont les logs et les métriques\"</strong>.<br><br>\n\nDans ce module, vous approfondirez votre maîtrise d’<strong>Alertmanager</strong> à travers :<br>\n- Une exploration détaillée de ses différentes configurations, illustrée par une vidéo explicite.<br>\n- Une mise en pratique concrète avec un cas réel de surveillance des métriques système et de gestion des alertes.<br><br>\n\n👉🏼 <a href=\"https://zerofiltre.tech/cours/33/233\" target=\"_blank\" style=\"color: #007bff; text-decoration: none;\">Connectez-vous dès à présent</a> afin d’accéder à ce contenu et poursuivre votre apprentissage.
+                </p>
 
-            <h3 th:if="${newCourses != null && newCourses.size() != 0 }" class="section-header primary-color">---------- new courses ----------</h3>
-            <div class="visual-media" th:each="newCourse : ${newCourses}">
-                <img th:src="${newCourse}" alt="New Course Thumbnail">
-            </div>
-        </div>
+                <!-- Bloc articles -->
+                <div th:if="${!newArticles.isEmpty()}">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 40px;">
+                        <tr th:each="article : ${newArticles}">
+                            <td style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px;">
+                                <article style="display: table; width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: Arial, sans-serif;">
+                                    <tr>
+                                        <!-- Image -->
+                                        <td style="width: 180px; vertical-align: top; padding-right: 16px;">
+                                            <a th:href="'https://dev.zerofiltre.tech/articles/' + ${article.id}" style="display: block; width: 100%; text-decoration: none;">
+                                                <img th:src="${article.thumbnail}" th:alt="${article.title}" style="width: 100%; max-width: 100%; border-radius: 8px; display: block;"/>
+                                            </a>
+                                        </td>
+                                        
+                                        <!-- Texte -->
+                                        <td style="vertical-align: top;">
+                                            <!-- Tags -->
+                                            <div style="margin: 15px 0;">
+                                                <span th:each="tag : ${article.tags}" style="display: inline-block; background-color: #f0f0f0; color: #000; border-radius: 12px; padding: 5px 10px; margin-right: 5px; font-size: 12px;">
+                                                    <span th:text="${tag.name}">tag de test</span>
+                                                </span>
+                                            </div>
+                                        
+                                            <!-- Title -->
+                                            <h2 style="margin: 10px 0; font-size: 20px; color: #333;">
+                                                <a th:href="'https://dev.zerofiltre.tech/articles/' + ${article.id}" style="color: #333; text-decoration: none;">
+                                                    <span th:text="${#strings.capitalize(article.title)}">Titre de l'article</span>
+                                                </a>
+                                            </h2>
+                                        
+                                            <!-- Summary -->
+                                            <p style="font-size: 14px; line-height: 1.5; color: #555;">
+                                                <span th:if="${article.summary}" th:text="${article.summary}">Résumé</span>
+                                            </p>
+                                        
+                                            <!-- Author -->
+                                            <div style="margin-top: 20px; display: flex; align-items: center;">
+                                                <img th:src="${article.author.profilePicture}" th:alt="${article.author.fullName}"
+                                                    style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"/>
+                                                <div>
+                                                    <p style="margin: 0; font-size: 14px; font-weight: bold; color: #333;" th:text="${article.author.fullName}">Auteur</p>
+                                                    <p style="margin: 0; font-size: 12px; color: #888;">
+                                                        <time th:text="${#dates.format(article.publishedAt, 'dd MMM yyyy')}">Date</time>
+                                                        &nbsp;·&nbsp;
+                                                        <!-- <span th:text="${article.readingTime} + ' min'">X min</span> -->
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        
+                                            <!-- Stats -->
+                                            <div style="margin-top: 15px; font-size: 13px; color: #666;">
+                                                <!-- 👁 <span th:text="${#numbers.formatInteger(article.viewsCount)}">0</span> vues &nbsp;&nbsp; -->
+                                                💬 <span th:text="${article.reactions.size()}">0</span> réactions
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </article>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Bloc cours -->
+                <div th:if="${!newCourses.isEmpty()}">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 40px;">
+                        <tr th:each="course : ${newCourses}">
+                            <td style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px;">
+                                <article style="display: table; width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: Arial, sans-serif;">
+                                    <tr>
+                                        <!-- Image -->
+                                        <td style="width: 180px; vertical-align: top; padding-right: 16px;">
+                                            <a th:href="'https://dev.zerofiltre.tech/cours/' + ${course.id}" style="display: block; width: 100%; text-decoration: none;">
+                                                <img th:src="${course.thumbnail}" th:alt="${course.title}" style="width: 100%; max-width: 100%; border-radius: 8px; display: block;"/>
+                                            </a>
+                                        </td>
+    
+                                        <!-- texte -->
+                                        <td style="vertical-align: top;">
+                                            <!-- tags du cours -->
+                                            <div style="margin: 15px 0;">
+                                                <span th:each="tag : ${course.tags}" style="display: inline-block; background-color: #f0f0f0; color: #000; border-radius: 12px; padding: 5px 10px; margin-right: 5px; font-size: 12px;">
+                                                    <span th:text="${tag.name}">tag de test</span>
+                                                </span>
+                                            </div>
+                                    
+                                            <!-- Titre du cours -->
+                                            <h2 style="margin: 10px 0; font-size: 20px; color: #333;">
+                                                <a th:href="'https://dev.zerofiltre.tech/cours/' + ${course.id}" style="color: #333; text-decoration: none;">
+                                                    <span th:text="${#strings.capitalize(course.title)}">Titre du cours</span>
+                                                </a>
+                                            </h2>
+                                    
+                                            <!-- Résumé -->
+                                            <p style="font-size: 14px; line-height: 1.5; color: #555;">
+                                                <span th:if="${course.summary}" th:text="${course.summary}">Résumé</span>
+                                            </p>
+                                    
+                                            <!-- Auteur -->
+                                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
+                                                <div style="display: flex; align-items: center;">
+                                                    <img th:src="${course.author.profilePicture}" th:alt="${course.author.fullName}"
+                                                        style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"/>
+                                                    <div>
+                                                        <p style="margin: 0; font-size: 14px; font-weight: bold; color: #333;" th:text="${course.author.fullName}">Auteur</p>
+                                                        <p style="margin: 0; font-size: 12px; color: #888;">
+                                                            <time th:text="${#dates.format(course.publishedAt, 'dd MMM yyyy')}">Date</time>
+                                                            &nbsp;·&nbsp;
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </table>
+                                    
+                                            <!-- Stats -->
+                                            <p style="font-size: 12px; color: #6B7280; margin-top: 12px;">
+                                                👥 <span th:text="${course.enrolledCount}">0</span> suivent
+                                                ❤️ <span th:text="${course.reactions.size()}">0</span> aiment
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </article>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
 
+                <p style="color: #000;"><em th:text="#{zerofiltre_team_signature}"></em></p>
+            </td>
+        </tr>
 
-        </br>
-        </br>
-        <p><em th:text="#{zerofiltre_team_signature}"></em></p>
+        <tr>
+            <td align="center" style="padding: 20px; font-size: 14px; color: #1c2e5c;">
+                <a href="https://www.linkedin.com/company/65767867/admin/" target="_blank" style="display: inline-block; padding: 5px 10px; background-color: #0a66c2; color: #ffffff; text-decoration: none; border-radius: 3px; font-weight: bold;">in</a>
+                <p style="margin: 10px 0;">&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
+                <p style="margin: 0;">72 AV De La Division Leclerc</p>
+                <p style="margin: 0;">93350 Le Bourget</p>
 
+                <p style="margin-top: 10px;">
+                    <a href="https://zerofiltre.tech" style="color: #1c2e5c;">zerofiltre.tech</a> |
+                    <a href="mailto:info@zerofiltre.tech" style="color: #1c2e5c;">info@zerofiltre.tech</a>
+                </p>
+            </td>
+        </tr>
 
-        <div class="footer">
-            <p>Zerofiltre</p>
-            <p>72 AV DE LA DIVISION LECLERC</p>
-            <p>93350 LE BOURGET</p>
-            <p>zerofiltre.tech</p>
-            <p>info@zerofiltre.tech</p>
-            <p><a href="https://www.linkedin.com/company/65767867/admin/" class="linkedin-button" target="_blank">in</a></p>
-            <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-        </div>
-    </div>
-</div>
+    </table>
+
 </body>
+
 </html>
+
