@@ -34,6 +34,7 @@ public class UserJPA extends BaseEntityJPA {
     private boolean isActive = false;
     private boolean isLocked = false;
     private boolean isExpired = false;
+    private boolean subscribedToBroadcast = true;
     private String loginFrom;
     private String plan;
 

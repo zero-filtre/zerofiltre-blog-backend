@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static tech.zerofiltre.blog.util.ZerofiltreUtils.defineStartDateAndEndDate;
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getBeginningAndEndOfMonthDates;
 import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
 
 @Slf4j
@@ -45,7 +45,7 @@ public class MonthlyStatsReminder {
         List<User> users = userProvider.users();
         //TODO: Get only users having views/enrollments ... only active users actually
 
-        List<LocalDate> listDates = defineStartDateAndEndDate();
+        List<LocalDate> listDates = getBeginningAndEndOfMonthDates();
 
         for (User user : users) {
             if (user.getEmail() != null && EmailValidator.validateEmail(user.getEmail())) {

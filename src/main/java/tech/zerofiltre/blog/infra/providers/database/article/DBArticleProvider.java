@@ -16,6 +16,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.article.mapper.ArticleJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -76,6 +77,13 @@ public class DBArticleProvider implements ArticleProvider {
     @Override
     public List<Article> articlesOf(User user) {
         return repository.findByAuthorId(user.getId())
+                .stream().map(mapper::fromJPA).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Article> newArticlesFromLastMonth() {
+        List<LocalDate> listDates = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
+        return repository.findNewArticlesBetween(listDates.get(0).atStartOfDay(), listDates.get(1).atStartOfDay())
                 .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
