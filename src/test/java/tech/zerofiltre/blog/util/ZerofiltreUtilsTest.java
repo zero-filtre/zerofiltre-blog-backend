@@ -294,10 +294,10 @@ public class ZerofiltreUtilsTest {
     }
 
     @Test
-    void defineStartDateAndEndDate() {
+    void getBeginningAndEndOfMonthDates() {
         //ARRANGE
         //ACT
-        List<LocalDate> list = ZerofiltreUtils.defineStartDateAndEndDate();
+        List<LocalDate> list = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
 
         //ASSERT
         assertThat(list.get(0)).isBefore(list.get(1));
@@ -336,4 +336,5 @@ public class ZerofiltreUtilsTest {
         //ASSERT
         assertThat(responses).isEqualTo(expectedFileNamesList);
     }
+
 }

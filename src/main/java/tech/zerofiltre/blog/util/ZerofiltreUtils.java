@@ -77,7 +77,7 @@ public class ZerofiltreUtils {
         return dateTime.format(formatter);
     }
 
-    public static List<LocalDate> defineStartDateAndEndDate() {
+    public static List<LocalDate> getBeginningAndEndOfMonthDates() {
         LocalDate endDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
         LocalDate startDate = endDate.minusMonths(1);
 
@@ -93,6 +93,10 @@ public class ZerofiltreUtils {
 
     public static String sanitizeString(String filename) {
         return filename.replaceAll("[/\\\\:*?\"<>| ]+", "_");
+    }
+
+    public static boolean isValidEmail(String email) {
+        return EmailValidator.validateEmail(email);
     }
 
 }
