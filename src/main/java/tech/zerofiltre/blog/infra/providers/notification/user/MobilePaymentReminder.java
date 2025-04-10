@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import tech.zerofiltre.blog.domain.course.features.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.payment.model.ChargeRequest;
 import tech.zerofiltre.blog.domain.payment.model.Payment;
@@ -29,6 +30,7 @@ public class MobilePaymentReminder {
     private final UserProvider userProvider;
     private final ZerofiltreEmailSender emailSender;
     private final NotchPayProvider notchPayProvider;
+    private final Suspend suspend;
     private List<Payment> payments;
 
     @Scheduled(cron = "${zerofiltre.infra.mobile.payments.reminder.cron}")
@@ -80,10 +82,9 @@ public class MobilePaymentReminder {
             String subject = "[Urgent] Votre accès a été suspendu ";
             user.setPlan(User.Plan.BASIC);
             userProvider.save(user);
+            suspend.all(user.getId(), false);
             notifyUser(user, subject, message);
         }
-
-
     }
 
     private boolean userHasAValidPayment(User user) {
