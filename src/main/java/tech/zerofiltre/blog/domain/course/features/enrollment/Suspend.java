@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -17,6 +18,7 @@ import java.util.List;
 import static tech.zerofiltre.blog.domain.sandbox.model.Sandbox.Type.K8S;
 
 @Slf4j
+@Component
 public class Suspend {
     private final EnrollmentProvider enrollmentProvider;
     private final ChapterProvider chapterProvider;
@@ -41,7 +43,10 @@ public class Suspend {
     public void all(long userId, boolean enrolledForLife) throws ZerofiltreException {
         List<Enrollment> enrollments = enrollmentProvider.of(0, Integer.MAX_VALUE, userId, null, null).getContent();
         for (Enrollment enrollment : enrollments) {
-            if (enrollment.isActive() && enrollment.isForLife() == enrolledForLife) {
+            if (enrollment.isActive()
+                    && enrollment.isForLife() == enrolledForLife
+                    && enrollment.getCompanyUserId() == 0
+                    && enrollment.getCompanyCourseId() == 0) {
                 doSuspend(userId, enrollment);
             }
         }

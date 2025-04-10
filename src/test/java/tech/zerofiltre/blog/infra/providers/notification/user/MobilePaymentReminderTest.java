@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.course.features.enrollment.Suspend;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.payment.model.Payment;
 import tech.zerofiltre.blog.domain.user.UserProvider;
@@ -30,6 +31,8 @@ class MobilePaymentReminderTest {
     ZerofiltreEmailSender emailSender;
     @Mock
     NotchPayProvider notchPayProvider;
+    @Mock
+    Suspend suspend;
 
     @InjectMocks
     MobilePaymentReminder paymentReminder;
@@ -160,5 +163,30 @@ class MobilePaymentReminderTest {
 
     }
 
+    @Test
+    @DisplayName("If the user has not renewed his PRO subscription, his PRO subscription enrollments are suspended")
+    void shouldSuspendSubscriptionEnrollments_whenUserNotRenewedPROSubscription() throws ZerofiltreException {
+        //Given
+        MobilePaymentReminder spy = spy(paymentReminder);
+
+        User user = new User();
+        user.setId(20);
+        user.setEmail("email@mail.com");
+        user.setPlan(User.Plan.PRO);
+
+        Payment payment = new Payment();
+        payment.setUser(user);
+
+        doNothing().when(spy).notifyUser(any(User.class), anyString(), anyString());
+
+        //when
+        spy.notify(payment, 0);
+
+        //then
+        verify(notchPayProvider).createSession(any(), any(), any());
+        verify(userProvider).save(any());
+        verify(suspend).all(20, false);
+        verify(spy).notifyUser(any(User.class), anyString(), anyString());
+    }
 
 }
