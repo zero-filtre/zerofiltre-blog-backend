@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -188,6 +189,7 @@ class SuspendTest {
     }
 
     @Test
+    @DisplayName("When I suspend all active enrollments of a user in courses and the user is not part of a company to take these courses, then the enrollments are suspended")
     void suspendAllEnrollments() throws ZerofiltreException {
         //GIVEN
         Course course = new Course();
@@ -199,25 +201,57 @@ class SuspendTest {
         enrollment1.setId(1);
         enrollment1.setCourse(course);
         enrollment1.setActive(true);
-        enrollment1.setForLife(true);
+        enrollment1.setForLife(false);
+        enrollment1.setCompanyUserId(0);
+        enrollment1.setCompanyCourseId(0);
 
         Enrollment enrollment2 = new Enrollment();
         enrollment2.setId(2);
         enrollment2.setCourse(course);
         enrollment2.setActive(true);
-        enrollment2.setForLife(true);
+        enrollment2.setForLife(false);
+        enrollment2.setCompanyUserId(0);
+        enrollment2.setCompanyCourseId(0);
 
         Enrollment enrollment3 = new Enrollment();
         enrollment3.setId(3);
         enrollment3.setCourse(course);
         enrollment3.setActive(true);
-        enrollment3.setForLife(false);
+        enrollment3.setForLife(true);
+        enrollment3.setCompanyUserId(0);
+        enrollment3.setCompanyCourseId(0);
+
+        Enrollment enrollment4 = new Enrollment();
+        enrollment4.setId(4);
+        enrollment4.setCourse(course);
+        enrollment4.setActive(false);
+        enrollment4.setForLife(false);
+
+        Enrollment enrollment5 = new Enrollment();
+        enrollment5.setId(5);
+        enrollment5.setCourse(course);
+        enrollment5.setActive(true);
+        enrollment5.setForLife(false);
+        enrollment5.setCompanyUserId(1);
+        enrollment5.setCompanyCourseId(0);
+
+
+        Enrollment enrollment6 = new Enrollment();
+        enrollment6.setId(6);
+        enrollment6.setCourse(course);
+        enrollment6.setActive(true);
+        enrollment6.setForLife(false);
+        enrollment6.setCompanyUserId(0);
+        enrollment6.setCompanyCourseId(1);
 
         Page<Enrollment> enrollmentsPage = new Page<>();
         List<Enrollment> list = enrollmentsPage.getContent();
         list.add(enrollment1);
         list.add(enrollment2);
         list.add(enrollment3);
+        list.add(enrollment4);
+        list.add(enrollment5);
+        list.add(enrollment6);
 
         when(enrollmentProvider.of(anyInt(), anyInt(), anyLong(), eq(null), eq(null))).thenReturn(enrollmentsPage);
         when(enrollmentProvider.save(any(Enrollment.class))).thenReturn(enrollment1).thenReturn(enrollment2);
@@ -225,7 +259,7 @@ class SuspendTest {
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
 
         //WHEN
-        suspend.all(1, true);
+        suspend.all(1, false);
 
         //THEN
         verify(enrollmentProvider, times(1)).of(anyInt(), anyInt(), anyLong(), eq(null), eq(null));
