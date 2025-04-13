@@ -149,7 +149,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // must be an admin if trying to access admin area (authentication is also required here)
                 .antMatchers("/actuator/**").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/search/users").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
     }

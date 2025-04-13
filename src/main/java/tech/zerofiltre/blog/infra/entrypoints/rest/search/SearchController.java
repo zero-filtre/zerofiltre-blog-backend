@@ -28,12 +28,12 @@ public class SearchController {
     private final SearchProvider searchProvider;
 
     @GetMapping
-    public SearchResult search(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 5 characters long") String query) {
+    public SearchResult search(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 3 characters long") String query) {
         return searchProvider.search(query);
     }
 
     @GetMapping("/users")
-    public List<UserSearchResult> searchUsers(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 5 characters long") String query) {
+    public List<UserSearchResult> searchUsers(@RequestParam @Valid @NotNull @NotBlank @Size(min = 3, message = "Query must be at least 3 characters long") String query) {
         return searchProvider.searchUsers(query);
     }
 }
