@@ -9,6 +9,7 @@ import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmail;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserEmailLanguage;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
@@ -113,7 +114,7 @@ class DBUserProviderIT {
         userJPARepository.save(mapper.toJPA(user3));
 
         //WHEN
-        List<UserEmail> allEmails = userJPARepository.findAllEmails();
+        List<UserEmail> allEmails = provider.allEmails();
 
         //THEN
         assertThat(allEmails.size()).isEqualTo(3);
@@ -123,6 +124,42 @@ class DBUserProviderIT {
         assertThat(allEmails.get(1).getPaymentEmail()).isNull();
         assertThat(allEmails.get(2).getEmail()).isNull();
         assertThat(allEmails.get(2).getPaymentEmail()).isEqualTo("u3@a.a");
+    }
+
+    @Test
+    void listAllEmailsForBroadcast() {
+        //GIVEN
+        User user1 = new User();
+        user1.setEmail("u1@a.a");
+        user1.setSubscribedToBroadcast(true);
+        user1.setLanguage("fr");
+        userJPARepository.save(mapper.toJPA(user1));
+
+        User user2 = new User();
+        user2.setEmail("u2@a.a");
+        user2.setSubscribedToBroadcast(false);
+        user2.setLanguage("fr");
+        userJPARepository.save(mapper.toJPA(user2));
+
+        User user3 = new User();
+        user3.setPaymentEmail("u3@a.a");
+        user3.setSubscribedToBroadcast(true);
+        user3.setLanguage("en");
+        userJPARepository.save(mapper.toJPA(user3));
+
+        //WHEN
+        List<UserEmailLanguage> allEmails = provider.allEmailsForBroadcast();
+
+        //THEN
+        assertThat(allEmails.size()).isEqualTo(2);
+
+        assertThat(allEmails.get(0).getEmail()).isEqualTo("u1@a.a");
+        assertThat(allEmails.get(0).getPaymentEmail()).isNull();
+        assertThat(allEmails.get(0).getLanguage()).isEqualTo("fr");
+
+        assertThat(allEmails.get(1).getEmail()).isNull();
+        assertThat(allEmails.get(1).getPaymentEmail()).isEqualTo("u3@a.a");
+        assertThat(allEmails.get(1).getLanguage()).isEqualTo("en");
     }
 
 }
