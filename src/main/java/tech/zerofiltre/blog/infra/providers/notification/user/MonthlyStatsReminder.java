@@ -65,6 +65,8 @@ public class MonthlyStatsReminder {
                 int articlesViewsCount = articleViewProvider.countArticlesReadByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
                 int publishedArticlesCount = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
 
+                if(articlesViewsCount == 0 && publishedArticlesCount == 0) continue;
+
                 String language = user.getLanguage() != null ? user.getLanguage() : Locale.FRANCE.getLanguage();
                 Locale locale = new Locale(language);
 
