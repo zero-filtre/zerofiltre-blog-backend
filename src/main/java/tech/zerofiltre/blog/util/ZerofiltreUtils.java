@@ -77,9 +77,9 @@ public class ZerofiltreUtils {
         return dateTime.format(formatter);
     }
 
-    public static List<LocalDate> defineStartDateAndEndDate() {
-        LocalDate endDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
-        LocalDate startDate = endDate.minusMonths(1);
+    public static List<LocalDateTime> getBeginningAndEndOfMonthDates() {
+        LocalDateTime endDate = LocalDateTime.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1, 0, 0);
+        LocalDateTime startDate = endDate.minusMonths(1);
 
         return Arrays.asList(startDate, endDate);
     }
@@ -93,6 +93,10 @@ public class ZerofiltreUtils {
 
     public static String sanitizeString(String filename) {
         return filename.replaceAll("[/\\\\:*?\"<>| ]+", "_");
+    }
+
+    public static boolean isValidEmail(String email) {
+        return EmailValidator.validateEmail(email);
     }
 
 }
