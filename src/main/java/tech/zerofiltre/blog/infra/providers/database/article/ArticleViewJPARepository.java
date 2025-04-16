@@ -1,17 +1,18 @@
 package tech.zerofiltre.blog.infra.providers.database.article;
 
-import org.springframework.data.jpa.repository.*;
-import tech.zerofiltre.blog.infra.providers.database.article.model.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleViewJPA;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ArticleViewJPARepository extends JpaRepository<ArticleViewJPA, Long> {
     List<ArticleViewJPA> findByViewedId(long viewedId);
 
     List<ArticleViewJPA> findByViewerId(long viewerId);
 
-    @Query(value = "select count(distinct a.viewed_id) from article_view a WHERE a.viewed_at>=?1 AND a.viewed_at<?2 AND a.viewer_id=?3", nativeQuery = true)
-    int countViewedIdByDatesAndViewerId(LocalDate startDate, LocalDate endDate, long viewerId);
+    @Query("SELECT count(distinct a.viewed.id) FROM ArticleViewJPA a WHERE a.viewedAt >= ?1 AND a.viewedAt < ?2 AND a.viewer.id = ?3")
+    int countViewedIdByDatesAndViewerId(LocalDateTime startDate, LocalDateTime endDate, long viewerId);
 
 }

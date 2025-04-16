@@ -16,7 +16,6 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -294,10 +293,10 @@ public class ZerofiltreUtilsTest {
     }
 
     @Test
-    void defineStartDateAndEndDate() {
+    void getBeginningAndEndOfMonthDates() {
         //ARRANGE
         //ACT
-        List<LocalDate> list = ZerofiltreUtils.defineStartDateAndEndDate();
+        List<LocalDateTime> list = ZerofiltreUtils.getBeginningAndEndOfMonthDates();
 
         //ASSERT
         assertThat(list.get(0)).isBefore(list.get(1));
@@ -336,4 +335,5 @@ public class ZerofiltreUtilsTest {
         //ASSERT
         assertThat(responses).isEqualTo(expectedFileNamesList);
     }
+
 }

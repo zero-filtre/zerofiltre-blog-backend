@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.infra.providers.database.article.model.ArticleJPA;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
@@ -39,7 +39,10 @@ public interface ArticleJPARepository extends JpaRepository<ArticleJPA, Long> {
             "LOWER(a.summary) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<ArticleJPA> findByKeyword(String keyword, Status status);
 
-    @Query(value = "select count(a.id) from article a WHERE a.last_published_at>=?1 AND a.last_published_at<?2 AND a.author_id=?3", nativeQuery = true)
-    int countPublishedArticlesByDatesAndUser(LocalDate startDate, LocalDate endDate, long authorId);
+    @Query("SELECT a FROM ArticleJPA a WHERE a.lastPublishedAt >= ?1 AND a.lastPublishedAt < ?2")
+    List<ArticleJPA> findNewArticlesBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query("SELECT count(a.id) FROM ArticleJPA a WHERE a.lastPublishedAt >= ?1 AND a.lastPublishedAt < ?2 AND a.author.id = ?3")
+    int countPublishedArticlesByDatesAndUser(LocalDateTime startDate, LocalDateTime endDate, long authorId);
 
 }
