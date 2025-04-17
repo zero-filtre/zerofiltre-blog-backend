@@ -1,10 +1,12 @@
 package tech.zerofiltre.blog.domain.course.features.enrollment;
 
+import com.google.zxing.WriterException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.springframework.context.MessageSource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tech.zerofiltre.blog.domain.course.CertificateProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -15,13 +17,17 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class GenerateCertificateTest {
+class CertificateServiceTest {
 
     private User user;
 
@@ -34,12 +40,15 @@ class GenerateCertificateTest {
     @Mock
     CertificateProvider certificateProvider;
 
+    @Mock
+    MessageSource messageSource;
 
-    private GenerateCertificate generateCertificate;
+
+    private CertificateService certificateService;
 
     @BeforeEach
     void init() {
-        generateCertificate = new GenerateCertificate(enrollmentProvider, certificateProvider);
+        certificateService = new CertificateService(enrollmentProvider, certificateProvider, messageSource);
 
         user = new User();
         user.setId(1L);
@@ -49,7 +58,7 @@ class GenerateCertificateTest {
     }
 
     @Test
-    void getCertificate_whenEnrollment_Is_Completed() throws IOException, ZerofiltreException {
+    void getCertificate_whenEnrollment_Is_Completed() throws ZerofiltreException, NoSuchAlgorithmException, WriterException {
         //given
         String courseTitle = "title course 3";
         String fileName = ZerofiltreUtils.sanitizeString(user.getFullName()) + "-" + ZerofiltreUtils.sanitizeString(courseTitle) + ".pdf";
@@ -57,14 +66,15 @@ class GenerateCertificateTest {
 
         when(enrollmentProvider.isCompleted(anyLong(), anyLong())).thenReturn(true);
         doNothing().when(enrollmentProvider).setCertificatePath(any(), anyLong(), anyLong());
-        when(certificateProvider.get(any(), anyLong())).thenReturn(new Certificate(fileName, content));
+        when(certificateProvider.generate(any(), anyLong())).thenReturn(new Certificate(
+                fileName, courseTitle, user.getFullName(), content, "uuid", "hash"));
 
         //when
-        Certificate response = generateCertificate.get(user, 2L);
+        Certificate response = certificateService.get(user, 2L);
 
         //then
         verify(enrollmentProvider, times(1)).isCompleted(anyLong(), anyLong());
-        assertThat(response.getName()).isEqualTo(fileName);
+        assertThat(response.getPath()).isEqualTo(fileName);
         assertThat(response.getContent()).isEqualTo(content);
     }
 
@@ -76,7 +86,16 @@ class GenerateCertificateTest {
 
         //then
         Assertions.assertThatExceptionOfType(ZerofiltreException.class)
-                .isThrownBy(() -> generateCertificate.get(user, 2L));
+                .isThrownBy(() -> certificateService.get(user, 2L));
+    }
+
+    @Test
+    void testUrlEncoding() throws UnsupportedEncodingException {
+
+        String hello = "Hello World! How are you?";
+        String enHello = "Hello%20World%21%20How%20are%20you%3F";
+
+        assertThat(URLEncoder.encode(hello, StandardCharsets.US_ASCII)).isEqualTo(enHello);
     }
 
 

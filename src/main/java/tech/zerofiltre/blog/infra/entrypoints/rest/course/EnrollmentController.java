@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,8 +26,10 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.CertificateVerificationResponseVM;
 import tech.zerofiltre.blog.util.DataChecker;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 
 @RestController
@@ -38,7 +41,10 @@ public class EnrollmentController {
     private final Suspend suspend;
     private final CompleteLesson completeLesson;
     private final FindEnrollment findEnrollment;
-    private final GenerateCertificate generateCertificate;
+    private final CertificateService certificateService;
+    private final MessageSource messageSource;
+    private final CertificateProvider certificateProvider;
+    private final DataChecker dataChecker;
 
     public EnrollmentController(
             EnrollmentProvider enrollmentProvider,
@@ -50,15 +56,21 @@ public class EnrollmentController {
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
             CertificateProvider certificateProvider,
-            DataChecker checker, CompanyProvider companyProvider,
-            CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider) {
+            MessageSource messageSource,
+            CompanyProvider companyProvider,
+            CompanyCourseProvider companyCourseProvider,
+            CompanyUserProvider companyUserProvider,
+            DataChecker dataChecker) {
         this.securityContextManager = securityContextManager;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyProvider, companyCourseProvider, companyUserProvider, checker);
+        this.messageSource = messageSource;
+        this.certificateProvider = certificateProvider;
+        this.dataChecker = dataChecker;
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyProvider, companyCourseProvider, companyUserProvider, dataChecker);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
-        generateCertificate = new GenerateCertificate(enrollmentProvider, certificateProvider);
-    }
+        certificateService = new CertificateService(enrollmentProvider, certificateProvider, messageSource);
+        }
 
     @PostMapping
     public Enrollment enroll(@RequestParam long courseId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
@@ -112,20 +124,38 @@ public class EnrollmentController {
     @GetMapping("/certificate")
     public ResponseEntity<InputStreamResource> giveCertificateByCourseId(@RequestParam long courseId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        Certificate certificate = generateCertificate.get(user, courseId);
+        Certificate certificate = null;
+        try {
+            certificate = certificateService.get(user, courseId);
 
-        byte[] content = certificate.getContent();
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
+            byte[] content = certificate.getContent();
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + certificate.getName());
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + certificate.getPath());
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(content.length)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new InputStreamResource(byteArrayInputStream));
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(content.length)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(new InputStreamResource(byteArrayInputStream));
+        } catch (ZerofiltreException e) {
+            throw new ZerofiltreException("Can't get the Certifcate from DataBase", e);
+        }
     }
+
+    @GetMapping("/certificate/verification")
+    public CertificateVerificationResponseVM verifyCertificate(
+            @RequestParam String uuid,
+            @RequestParam String fullname,
+            @RequestParam String courseTitle,
+            HttpServletRequest request) throws ZerofiltreException {
+        CertificateVerificationResponseVM response= new CertificateVerificationResponseVM();
+
+        return certificateService.verify(uuid, fullname, courseTitle, request);
+
+    }
+
 
     @PostMapping("/admin")
     public Enrollment enrollAUser(@RequestParam long courseId, @RequestParam long userId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
@@ -141,5 +171,6 @@ public class EnrollmentController {
     public Enrollment getEnrollmentForUser(@RequestParam long courseId, @RequestParam long userId) throws ZerofiltreException {
         return findEnrollment.of(courseId, userId, 0, true);
     }
+
 
 }
