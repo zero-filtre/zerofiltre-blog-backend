@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.storage.StorageProvider;
+import tech.zerofiltre.blog.infra.providers.database.course.CertificateJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.io.IOException;
@@ -22,7 +23,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PDFCertificateProviderTest {
 
-
     @Mock
     private StorageProvider storageProvider;
 
@@ -34,7 +34,6 @@ class PDFCertificateProviderTest {
 
     @Mock
     private CertificateJPARepository certificateJPARepository;
-
 
     private PDFCertificateProvider certificateProvider;
 
@@ -68,15 +67,12 @@ class PDFCertificateProviderTest {
         when(storageProvider.get(any())).thenReturn(Optional.empty());
         when(courseProvider.getTitle(anyLong())).thenReturn("title");
 
-
         //when
         certificateProvider.generate(ZerofiltreUtilsTest.createMockUser(false), 3);
-
 
         //then
         verify(pdfCertificateEngine, times(1)).process(any(), anyString(), anyString(), anyString(), anyString());
         verify(storageProvider, times(1)).store(any(), anyString());
-
     }
 
 }
