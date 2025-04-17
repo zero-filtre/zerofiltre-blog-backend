@@ -47,6 +47,8 @@ public class CertificateService {
         CertificateVerificationResponseVM response = new CertificateVerificationResponseVM();
         try {
             Certificate dbCertificate = certificateProvider.findByUuid(uuid);
+            response.setOwnerFullName(fullname);
+            response.setCourseTitle(courseTitle);
             if(dbCertificate == null){
                 // Cas où le certificat n'est pas trouvé (QRCode non valide, UUID erroné, etc.)
                 response.setResponse(messageSource.getMessage("message.certificate.verification.response.error", new Object[]{}, request.getLocale()));

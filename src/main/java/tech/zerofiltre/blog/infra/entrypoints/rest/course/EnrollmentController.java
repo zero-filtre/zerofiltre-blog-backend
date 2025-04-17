@@ -1,7 +1,5 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course;
 
-import com.google.zxing.WriterException;
-import liquibase.pro.packaged.Z;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +17,6 @@ import tech.zerofiltre.blog.domain.course.features.enrollment.*;
 import tech.zerofiltre.blog.domain.course.model.Certificate;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
-import tech.zerofiltre.blog.domain.error.CertificateVerificationFailedException;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
@@ -30,14 +27,10 @@ import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.CertificateVerificationResponseVM;
-import tech.zerofiltre.blog.infra.providers.certificate.CertificateDigitalSignature;
-import tech.zerofiltre.blog.infra.providers.database.CertificateRepository;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/enrollment")
@@ -48,11 +41,10 @@ public class EnrollmentController {
     private final Suspend suspend;
     private final CompleteLesson completeLesson;
     private final FindEnrollment findEnrollment;
-
     private final CertificateService certificateService;
     private final MessageSource messageSource;
-    private final CertificateRepository certificateRepository;
-    private final CertificateDigitalSignature certificateDigitalSignature;
+    private final CertificateProvider certificateProvider;
+    private final DataChecker dataChecker;
 
     public EnrollmentController(
             EnrollmentProvider enrollmentProvider,
@@ -63,22 +55,22 @@ public class EnrollmentController {
             ChapterProvider chapterProvider,
             SandboxProvider sandboxProvider,
             PurchaseProvider purchaseProvider,
-            CertificateProvider certificateProvider, MessageSource messageSource, CertificateRepository certificateRepository, CertificateDigitalSignature certificateDigitalSignature) {
-            CertificateProvider certificateProvider, MessageSource messageSource) {
             CertificateProvider certificateProvider,
-            DataChecker checker, CompanyProvider companyProvider,
-            CompanyCourseProvider companyCourseProvider, CompanyUserProvider companyUserProvider) {
+            MessageSource messageSource,
+            CompanyProvider companyProvider,
+            CompanyCourseProvider companyCourseProvider,
+            CompanyUserProvider companyUserProvider,
+            DataChecker dataChecker) {
         this.securityContextManager = securityContextManager;
         this.messageSource = messageSource;
         this.certificateProvider = certificateProvider;
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider);
-        suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider);
-        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyProvider, companyCourseProvider, companyUserProvider, checker);
+        this.dataChecker = dataChecker;
+        enroll = new Enroll(enrollmentProvider, courseProvider, userProvider, chapterProvider, sandboxProvider, purchaseProvider, companyProvider, companyCourseProvider, companyUserProvider, dataChecker);
         suspend = new Suspend(enrollmentProvider, chapterProvider, purchaseProvider, sandboxProvider, courseProvider);
         completeLesson = new CompleteLesson(enrollmentProvider, lessonProvider, chapterProvider, courseProvider);
         findEnrollment = new FindEnrollment(enrollmentProvider, courseProvider, chapterProvider);
         certificateService = new CertificateService(enrollmentProvider, certificateProvider, messageSource);
-    }
+        }
 
     @PostMapping
     public Enrollment enroll(@RequestParam long courseId, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
@@ -180,24 +172,5 @@ public class EnrollmentController {
         return findEnrollment.of(courseId, userId, 0, true);
     }
 
-    @GetMapping("/certificate/verification")
-    public CertificateVerificationResponseVM verifyCertificate1(){
-
-        /*
-        Exposer l’endpoint du QRCODE permettant de vérifier le certificat
-
-        stocker les données du certificat (fullname,courseTitle) en paramètre de l’url du QRCODE du certificat
-
-        stocker le uuid en paramètre  de l’url du QRCODE du certificat
-                /certificate/verification?fullname=philippe simo&courseTitle=DDD&uuid=xxxxxxxxx
-
-        à l’appel de l’endpoint, récupérer les données du certificat, les hasher, récupérer l’uuid du QRcode,
-        aller rechercher le hash en bd, comparer les deux hashs, si ok, renvoyer les infos du certificat avec OK,
-        sinon renvoyer KO
-
-
-         */
-        return null;
-    }
 
 }
