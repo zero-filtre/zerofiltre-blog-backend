@@ -62,17 +62,17 @@ spec:
             - containerPort: 8080
           resources:
             requests:
-                cpu: ${requests_cpu}
-                memory: ${requests_memory}
+              cpu: ${requests_cpu}
+              memory: ${requests_memory}
             limits:
-                cpu: ${limits_cpu}
-                memory: ${limits_memory}
+              cpu: ${limits_cpu}
+              memory: ${limits_memory}
           livenessProbe:
-              httpGet:
-                path: /actuator/health
-                port: 8080
-              periodSeconds: 300
-              timeoutSeconds: 5
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 300
+            timeoutSeconds: 5
 
 
 # Disabling as readinessProbe is checking the same endpoint as livenessProbe
@@ -84,179 +84,16 @@ spec:
 #               timeoutSeconds: 5
 
           startupProbe:
-              httpGet:
-                path: /actuator/health
-                port: 8080
-              initialDelaySeconds: 60
-              timeoutSeconds: 5
-              failureThreshold: 10
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 10
 
-          env:
-            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: logging_level_org_springframework
-            - name: LOGGING_LEVEL_ORG_HIBERNATE_SQL
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: logging_level_org_hibernate_sql
-            - name: LOGGING_LEVEL_TECH_ZEROFILTRE
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: logging_level_tech_zerofiltre
-            - name: SERVER_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: server_port
-            - name: THROTTLING_CAPACITY
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: throttling_capacity
-            - name: THROTTLING_TIME_SECONDS
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: throttling_time_seconds
-            - name: SPRING_LIQUIBASE_CHANGELOG
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_liquibase_changelog
-            - name: SPRING_MAIL_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_mail_host
-            - name: SPRING_MAIL_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_mail_port
-            - name: SPRING_MAIL_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_mail_username
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_datasource_username
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: spring_datasource_url
-            - name: HIBERNATE_DDL_AUTO
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: hibernate_ddl_auto
-            - name: ZEROFILTRE_ENV
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: zerofiltre_env
-            - name: SECURITY_JWT_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: security_jwt_expiration
-            - name: SECURITY_VERIFICATION_TOKEN_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: security_verification_token_expiration
-            - name: SECURITY_JWT_URI
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: security_jwt_uri
-            - name: GITHUB_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: github_client_id
-            - name: STACKOVERFLOW_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: stackoverflow_key
-            - name: ALLOWED_ORIGINS_PATTERN
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: allowed_origins_pattern
-            - name: REMINDER_RATE
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: reminder_rate
-            - name: REMINDER_INITIAL_DELAY
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: reminder_initial_delay
-            - name: CUSTOMER_PORTAL_LINK
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: customer_portal_link
-            - name: OVH_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: ovh_username
-            - name: OVH_AUTH_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: ovh_auth_url
-            - name: VIMEO_ROOT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: vimeo_root_url
-            - name: CHECKOUT_REMINDER_DELAY_MS
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key : checkout_reminder_delay_ms
-            - name: CHECKOUT_REMINDER_CHECK_FREQUENCY_MS
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: checkout_reminder_check_frequency_ms
-            - name: ZEROFILTRE_INFRA_STATS_REMINDER_CRON
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: stats_reminder_cron
-            - name: SANDBOX_K8S_DOC
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: sandbox_k8s_doc
-            - name: K8S_PROVISIONER_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: k8s_provisioner_url
-            - name: NOTCHPAY_PUBLIC_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: notchpay_public_key
-            - name: ZEROFILTRE_INFRA_MOBILE_PAYMENTS_REMINDER_CRON
-              valueFrom:
-                configMapKeyRef:
-                  name: zerofiltre-blog-api
-                  key: mobile_payments_reminder_cron
+          envFrom:
+            - configMapRef:
+                name: zerofiltre-blog-api
 
 ---
 apiVersion: v1
