@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import tech.zerofiltre.blog.domain.Product;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 
 import java.io.UnsupportedEncodingException;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -95,8 +97,12 @@ public class ZerofiltreUtils {
         return filename.replaceAll("[/\\\\:*?\"<>| ]+", "_");
     }
 
-    public static boolean isValidEmail(String email) {
-        return EmailValidator.validateEmail(email);
+    public static Optional<String> getValidEmailForBroadcast(UserForBroadcast user) {
+        if(user.getEmail() != null && EmailValidator.validateEmail(user.getEmail())) return Optional.of(user.getEmail());
+
+        if(user.getPaymentEmail() != null && EmailValidator.validateEmail(user.getPaymentEmail())) return Optional.of(user.getPaymentEmail());
+
+        return Optional.empty();
     }
 
 }

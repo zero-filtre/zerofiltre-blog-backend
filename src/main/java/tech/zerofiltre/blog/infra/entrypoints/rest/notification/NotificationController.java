@@ -9,7 +9,6 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.providers.notification.user.MonthlyNewsletterReminder;
-import tech.zerofiltre.blog.infra.providers.notification.user.MonthlyStatsReminder;
 import tech.zerofiltre.blog.infra.providers.notification.user.ZerofiltreEmailSender;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.security.config.ValidEmail;
@@ -29,7 +28,6 @@ public class NotificationController {
     private final SecurityContextManager securityContextManager;
     private final InfraProperties infraProPerties;
     private final MonthlyNewsletterReminder monthlyNewsletterReminder;
-    private final MonthlyStatsReminder monthlyStatsReminder;
 
     @PostMapping
     public String notifyByEmail(@RequestBody @Valid Email email) throws UserNotFoundException, ForbiddenActionException {
@@ -58,15 +56,6 @@ public class NotificationController {
             throw new ForbiddenActionException("You are not allowed to send emails");
         emailSender.sendForAllUsers(email);
         return "Email(s) sent for all users";
-    }
-
-    @PostMapping("all/stats")
-    public String notifyByEmailForAllUsersCron() throws UserNotFoundException, ForbiddenActionException, InterruptedException {
-        User user = securityContextManager.getAuthenticatedUser();
-        if (!user.getRoles().contains("ROLE_ADMIN"))
-            throw new ForbiddenActionException("You are not allowed to send emails");
-        monthlyStatsReminder.sendStats();
-        return "Email(s) sent for all users by cron";
     }
 
     @PostMapping("/broadcast/recipients/test")

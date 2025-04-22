@@ -26,7 +26,7 @@ public interface UserJPARepository extends JpaRepository<UserJPA, Long> {
 
     @Query("select new tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast" +
             "(u.id, u.email, u.paymentEmail, u.language, u.fullName) from UserJPA u " +
-            "where u.isActive = true and u.subscribedToBroadcast = true")
+            "where u.subscribedToBroadcast = true")
     List<UserForBroadcast> findAllUsersForBroadcast();
 
     @Query("select new tech.zerofiltre.blog.infra.providers.database.user.model.UserSearchResultJPA" +

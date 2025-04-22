@@ -1,6 +1,5 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -60,8 +60,8 @@ public class MonthlyNewsletterReminder {
         }
 
         for(UserForBroadcast u : listAllUsers) {
-            if(!ZerofiltreUtils.isValidEmail(u.getEmail()) && !ZerofiltreUtils.isValidEmail(u.getPaymentEmail())) continue;
-            String mail = ZerofiltreUtils.isValidEmail(u.getEmail()) ? u.getEmail() : u.getPaymentEmail();
+            Optional<String> mail = ZerofiltreUtils.getValidEmailForBroadcast(u);
+            if(mail.isEmpty()) continue;
 
             String language = (u.getLanguage() != null && !u.getLanguage().isBlank()) ? u.getLanguage() : Locale.FRANCE.getLanguage();
             Locale locale = new Locale(language);
@@ -73,7 +73,7 @@ public class MonthlyNewsletterReminder {
 
             Email email = new Email();
             email.setReplyTo(infraProperties.getContactEmail());
-            email.setRecipients(Collections.singletonList(mail));
+            email.setRecipients(Collections.singletonList(mail.get()));
             email.setSubject(subject);
             email.setContent(emailContent);
             emailSender.send(email, true);

@@ -97,7 +97,6 @@ class DBUserProviderIT {
     void listAllUsersForBroadcast() {
         //GIVEN
         User user1 = new User();
-        user1.setActive(true);
         user1.setEmail("u1@a.a");
         user1.setSubscribedToBroadcast(true);
         user1.setLanguage("fr");
@@ -105,7 +104,6 @@ class DBUserProviderIT {
         userJPARepository.save(mapper.toJPA(user1));
 
         User user2 = new User();
-        user2.setActive(true);
         user2.setEmail("u2@a.a");
         user2.setSubscribedToBroadcast(false);
         user2.setLanguage("fr");
@@ -113,20 +111,11 @@ class DBUserProviderIT {
         userJPARepository.save(mapper.toJPA(user2));
 
         User user3 = new User();
-        user3.setActive(true);
         user3.setPaymentEmail("u3@a.a");
         user3.setSubscribedToBroadcast(true);
         user3.setLanguage("en");
         user3.setFullName("fullName3");
         userJPARepository.save(mapper.toJPA(user3));
-
-        User user4 = new User();
-        user4.setActive(false);
-        user4.setPaymentEmail("u4@a.a");
-        user4.setSubscribedToBroadcast(true);
-        user4.setLanguage("fr");
-        user4.setFullName("fullName4");
-        userJPARepository.save(mapper.toJPA(user4));
 
         //WHEN
         List<UserForBroadcast> allEmails = provider.allUsersForBroadcast();
