@@ -1,5 +1,6 @@
 package tech.zerofiltre.blog.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Reaction;
@@ -15,6 +16,7 @@ import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.SocialLink;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -290,6 +292,88 @@ public class ZerofiltreUtilsTest {
         enrollment.setCourse(course);
         return enrollment;
 
+    }
+
+    @Test
+    @DisplayName("When a user has a valid email then I return this email")
+    void shouldReturnEmail_whenGetValidEmail_withValidEmail() {
+        //ARRANGE
+        User user = new User();
+        user.setEmail("user@email.com");
+
+        //ACT
+        String response = ZerofiltreUtils.getValidEmail(user);
+
+        //ASSERT
+        assertThat(response).isEqualTo(user.getEmail());
+    }
+
+    @Test
+    @DisplayName("When a user has a valid payment email then I return this payment email")
+    void shouldReturnPaymentEmail_whenGetValidEmail_withValidPaymentEmail() {
+        //ARRANGE
+        User user = new User();
+        user.setPaymentEmail("user@email.com");
+
+        //ACT
+        String response = ZerofiltreUtils.getValidEmail(user);
+
+        //ASSERT
+        assertThat(response).isEqualTo(user.getPaymentEmail());
+    }
+
+    @Test
+    @DisplayName("When a user doesn't have an email or a valid payment email then I return null")
+    void shouldReturnBlank_whenGetValidEmail_withNotValidEmailOrPaymentEmail() {
+        //ARRANGE
+        User user = new User();
+
+        //ACT
+        String response = ZerofiltreUtils.getValidEmail(user);
+
+        //ASSERT
+        assertThat(response).isBlank();
+    }
+
+    @Test
+    @DisplayName("When a user has a valid email for broadcast then I return this email")
+    void shouldReturnEmail_whenGetValidEmailForBroadcast_withValidEmail() {
+        //ARRANGE
+        UserForBroadcast user = new UserForBroadcast(1, "user@email.com", "", "", "");
+
+        //ACT
+        Optional<String> response = ZerofiltreUtils.getValidEmailForBroadcast(user);
+
+        //ASSERT
+        assertThat(response).isNotEmpty();
+        assertThat(response.get()).isEqualTo(user.getEmail());
+    }
+
+    @Test
+    @DisplayName("When a user has a valid payment email for broadcast then I return this email")
+    void shouldReturnEmail_whenGetValidEmailForBroadcast_withValidPaymentEmail() {
+        //ARRANGE
+        UserForBroadcast user = new UserForBroadcast(1, "", "user@email.com", "", "");
+
+        //ACT
+        Optional<String> response = ZerofiltreUtils.getValidEmailForBroadcast(user);
+
+        //ASSERT
+        assertThat(response).isNotEmpty();
+        assertThat(response.get()).isEqualTo(user.getPaymentEmail());
+    }
+
+    @Test
+    @DisplayName("When a user doesn't have an valid email or a valid payment email for broadcast then I return empty")
+    void shouldReturnEmpty_whenGetValidEmailForBroadcast_withNotValidEmailOrPaymentEmail() {
+        //ARRANGE
+        UserForBroadcast user = new UserForBroadcast();
+
+        //ACT
+        Optional<String> response = ZerofiltreUtils.getValidEmailForBroadcast(user);
+
+        //ASSERT
+        assertThat(response).isEmpty();
     }
 
     @Test

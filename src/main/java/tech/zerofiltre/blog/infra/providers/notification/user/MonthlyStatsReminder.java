@@ -13,7 +13,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
-import tech.zerofiltre.blog.infra.security.config.EmailValidator;
+import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,24 +46,16 @@ public class MonthlyStatsReminder {
         //TODO: Get only users having views/enrollments ... only active users actually
 
         List<LocalDateTime> listDates = getBeginningAndEndOfMonthDates();
-        String ue;
-        String pe;
-        String userEmail;
+        Optional<String> userEmail;
 
-        for (UserForBroadcast user : users) {
-            userEmail = "";
-            ue = user.getEmail();
-            pe = user.getPaymentEmail();
+        for(UserForBroadcast user : users) {
+            userEmail = ZerofiltreUtils.getValidEmailForBroadcast(user);
 
-            if(EmailValidator.validateEmail(ue)) {
-                userEmail = ue;
-            } else if(EmailValidator.validateEmail(pe)) {
-                userEmail = pe;
-            }
-
-            if (!userEmail.isEmpty()) {
+            if(userEmail.isPresent()) {
                 int articlesViewsCount = articleViewProvider.countArticlesReadByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
                 int publishedArticlesCount = articleProvider.countPublishedArticlesByDatesAndUser(listDates.get(START_DATE), listDates.get(END_DATE), user.getId());
+
+                if(articlesViewsCount == 0 && publishedArticlesCount == 0) continue;
 
                 String language = user.getLanguage() != null ? user.getLanguage() : Locale.FRANCE.getLanguage();
                 Locale locale = new Locale(language);
@@ -85,7 +77,7 @@ public class MonthlyStatsReminder {
                 Email email = new Email();
                 email.setSubject(subject);
                 email.setContent(emailContent);
-                email.setRecipients(Collections.singletonList(userEmail));
+                email.setRecipients(Collections.singletonList(userEmail.get()));
                 emailSender.send(email, true);
             }
             TimeUnit.SECONDS.sleep(10);

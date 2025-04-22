@@ -13,7 +13,6 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.database.user.model.UserForBroadcast;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
-import tech.zerofiltre.blog.infra.security.config.EmailValidator;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import javax.mail.MessagingException;
@@ -80,20 +79,14 @@ public class ZerofiltreEmailSender {
         }
     }
 
-    private boolean isValidEmail(String email) {
-        return EmailValidator.validateEmail(email);
-    }
-
     Collection<List<String>> listAllEmails() {
         List<UserForBroadcast> userEmailList = userProvider.allUsersForBroadcast();
         List<String> list = new ArrayList<>();
+        Optional<String> email;
 
         for (UserForBroadcast u : userEmailList) {
-            if (isValidEmail(u.getEmail())) {
-                list.add(u.getEmail());
-                continue;
-            }
-            if (isValidEmail(u.getPaymentEmail())) list.add(u.getPaymentEmail());
+            email = ZerofiltreUtils.getValidEmailForBroadcast(u);
+            email.ifPresent(list::add);
         }
         return ZerofiltreUtils.partitionList(list, NUMBER_MAX_EMAILS);
     }

@@ -86,14 +86,21 @@ class MonthlyStatsReminderTest {
         UserForBroadcast user4 = new UserForBroadcast();
         user4.setId(4);
         user4.setEmail("u4");
-        user4.setPaymentEmail("u4a.a");
+        user4.setPaymentEmail("u4@a.a");
         user4.setLanguage("en");
         user4.setFullName("user4");
 
-        when(userProvider.allUsersForBroadcast()).thenReturn(List.of(user1, user2, user3, user4));
+        UserForBroadcast user5 = new UserForBroadcast();
+        user5.setId(5);
+        user5.setEmail("u5");
+        user5.setPaymentEmail("u5.a");
+        user5.setLanguage("en");
+        user5.setFullName("user5");
+
+        when(userProvider.allUsersForBroadcast()).thenReturn(List.of(user1, user2, user3, user4, user5));
         when(messages.getMessage(eq("message.stats.subject.remind"), any(), any())).thenReturn(SUBJECT);
-        when(articleViewProvider.countArticlesReadByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(1).thenReturn(0);
-        when(articleProvider.countPublishedArticlesByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(0).thenReturn(1);
+        when(articleViewProvider.countArticlesReadByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(1).thenReturn(0).thenReturn(0);
+        when(articleProvider.countPublishedArticlesByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(0).thenReturn(1).thenReturn(0);
 
         //ACT
         monthlyStatsReminder.sendStats();
