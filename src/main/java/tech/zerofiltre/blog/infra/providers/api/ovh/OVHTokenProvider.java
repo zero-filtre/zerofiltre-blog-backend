@@ -37,7 +37,7 @@ public class OVHTokenProvider {
 
         if (token != null) {
             ZonedDateTime expirationTime = ZonedDateTime.parse(token.getExpiresAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            if (ZonedDateTime.now().isAfter(expirationTime)) return token;
+            if (ZonedDateTime.now().isBefore(expirationTime)) return token;
         }
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
