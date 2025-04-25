@@ -30,7 +30,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -116,7 +115,7 @@ public class CourseController {
     @PostMapping
     public Course init(@RequestParam @NotNull @NotEmpty String title, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return courseService.init(title, user, Objects.isNull(companyId) ? 0 : companyId.intValue());
+        return courseService.init(title, user, null == companyId ? 0 : companyId.intValue());
     }
 
     @DeleteMapping("/{id}")

@@ -113,7 +113,7 @@ class MobilePaymentReminderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Payment almostExpiredMonthlyPayment = new Payment();
-        almostExpiredMonthlyPayment.setAt(now.minusMonths(1).plusDays(2));
+        almostExpiredMonthlyPayment.setAt(now.minusMonths(1).plusDays(4));
         almostExpiredMonthlyPayment.setRecurringInterval(Payment.MONTH);
         almostExpiredMonthlyPayment.setUser(user);
 

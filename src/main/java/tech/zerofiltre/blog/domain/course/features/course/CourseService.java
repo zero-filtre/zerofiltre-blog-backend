@@ -7,6 +7,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -35,21 +36,25 @@ public class CourseService {
 
     private final DataChecker checker;
     private final CompanyCourseService companyCourseService;
+    private final CompanyCourseProvider companyCourseProvider;
 
     public CourseService(CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider) {
         this.courseProvider = courseProvider;
         this.tagProvider = tagProvider;
         this.loggerProvider = loggerProvider;
         this.checker = checker;
+        this.companyCourseProvider = companyCourseProvider;
         this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
     }
 
 
     public Course init(String title, User author, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+        boolean isCompanyCourse = false;
+
         if (companyId > 0) {
             checker.companyExists(companyId);
-            checker.isAdminOrCompanyUser(author, companyId);
-            checker.isCompanyAdminOrCompanyEditor(author, companyId);
+            checker.isAdminOrCompanyAdminOrEditor(author, companyId);
+            isCompanyCourse = true;
         }
 
         Course course = new Course();
@@ -57,7 +62,12 @@ public class CourseService {
         course.setAuthor(author);
         course.setCreatedAt(LocalDateTime.now());
         course.setLastSavedAt(course.getCreatedAt());
-        return courseProvider.save(course);
+        course = courseProvider.save(course);
+
+        if (isCompanyCourse)
+            companyCourseProvider.save(new LinkCompanyCourse(0, companyId, course.getId(), true, true, LocalDateTime.now(), null));
+
+        return course;
     }
 
     public Course findById(long id, User viewer) throws ResourceNotFoundException, ForbiddenActionException {

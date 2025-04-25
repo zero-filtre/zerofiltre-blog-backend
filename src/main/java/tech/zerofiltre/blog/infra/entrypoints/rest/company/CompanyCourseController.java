@@ -50,7 +50,6 @@ public class CompanyCourseController {
         Optional<LinkCompanyCourse> course = companyCourseService.find(user, companyId, courseId);
 
         return course.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-
     }
 
     @GetMapping("/company/{companyId}/course")

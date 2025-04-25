@@ -6,7 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +26,7 @@ public class LinkCompanyCourseJPA extends BaseEntityJPA {
     @Column(name = "course_id")
     private long courseId;
 
+    private boolean owner;
     private boolean active;
 
     @Column(name = "linked_at")

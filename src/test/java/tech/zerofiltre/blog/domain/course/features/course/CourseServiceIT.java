@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.features.course;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,6 +12,7 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -24,6 +26,7 @@ import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
@@ -33,14 +36,20 @@ import tech.zerofiltre.blog.infra.providers.logging.Slf4jLoggerProvider;
 import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class, DBCompanyCourseProvider.class})
 class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -70,7 +79,7 @@ class CourseServiceIT {
     @MockBean
     private DataChecker checker;
 
-    @MockBean
+    @Autowired
     private CompanyCourseProvider companyCourseProvider;
 
     private Course course;
@@ -131,46 +140,88 @@ class CourseServiceIT {
     }
 
     @Test
-    void save_and_init_company_course_are_OK() throws ForbiddenActionException, ResourceNotFoundException {
-        author = ZerofiltreUtilsTest.createMockUser(false);
+    @DisplayName("When a platform admin initializes a company course, the course is initialized and a link between company and course is created.")
+    void shouldInitCourseAndCreateLink_whenPlatformAdminInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        author = ZerofiltreUtilsTest.createMockUser(true);
         author = userProvider.save(author);
+
+        String title = "some title";
+        long companyId = 1;
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
 
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
-        course = courseService.init("some title", author, 1);
+        //WHEN
+        course = courseService.init(title, author, companyId);
 
-        Section section1 = ZerofiltreUtilsTest.createMockSection(course.getId(), sectionProvider, courseProvider, false);
-        section1.init(author);
-
-        course.setTags(tags);
-        course.setSections(List.of(section1));
-        course.setTitle(UPDATED_TITLE);
-        course.setStatus(Status.PUBLISHED);
-        course.setThumbnail(UPDATED_THUMBNAIL);
-        course.setVideo(UPDATED_VIDEO);
-        course.setSummary(UPDATED_SUMMARY);
-        course.setSubTitle(UPDATED_SUB_TITLE);
-
-        course = courseService.save(course, author);
-
+        //THEN
         assertThat(course.getId()).isNotZero();
-        assertThat(course.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(course.getSubTitle()).isEqualTo(UPDATED_SUB_TITLE);
-        assertThat(course.getSummary()).isEqualTo(UPDATED_SUMMARY);
-        assertThat(course.getVideo()).isEqualTo(UPDATED_VIDEO);
-        assertThat(course.getThumbnail()).isEqualTo(UPDATED_THUMBNAIL);
-        assertThat(course.getStatus()).isEqualTo(Status.IN_REVIEW);
+        assertThat(course.getTitle()).isEqualTo(title);
+        assertThat(course.getAuthor().getId()).isEqualTo(author.getId());
+        assertThat(course.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(course.getLastSavedAt()).isEqualTo(course.getCreatedAt());
 
-        assertThat(
-                course.getSections().stream().allMatch(section -> sections.stream().anyMatch(s -> s.getId() == section.getId()))
-        ).isTrue();
+        verify(checker).companyExists(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
-        assertThat(
-                course.getTags().stream().allMatch(tag -> tags.stream().anyMatch(tag1 -> tag1.getId() == tag.getId()))
-        ).isTrue();
+        Optional<LinkCompanyCourse> linkCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, course.getId(), true);
+
+        assertThat(linkCompanyCourse).isPresent();
+        assertThat(linkCompanyCourse.get().getCompanyId()).isEqualTo(companyId);
+        assertThat(linkCompanyCourse.get().getCourseId()).isEqualTo(course.getId());
+        assertThat(linkCompanyCourse.get().isOwner()).isTrue();
+        assertThat(linkCompanyCourse.get().isActive()).isTrue();
+        assertThat(linkCompanyCourse.get().getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(linkCompanyCourse.get().getSuspendedAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("When a company admin or company editor initializes a company course, the course is initialized and a link between company and course is created.")
+    void shouldInitCourseAndCreateLink_whenCompanyAdminORCompanyEditorInitializesCompanyCourse() throws ResourceNotFoundException, ForbiddenActionException {
+        //GIVEN
+        author = ZerofiltreUtilsTest.createMockUser(false);
+        author = userProvider.save(author);
+
+        String title = "some title";
+        long companyId = 1;
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
+        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
+
+        ZerofiltreUtilsTest.createMockTags(false)
+                .forEach(tag -> tags.add(tagProvider.save(tag)));
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+
+        //WHEN
+        course = courseService.init(title, author, companyId);
+
+        //THEN
+        assertThat(course.getId()).isNotZero();
+        assertThat(course.getTitle()).isEqualTo(title);
+        assertThat(course.getAuthor().getId()).isEqualTo(author.getId());
+        assertThat(course.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(course.getLastSavedAt()).isEqualTo(course.getCreatedAt());
+
+        verify(checker).companyExists(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        Optional<LinkCompanyCourse> linkCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, course.getId(), true);
+
+        assertThat(linkCompanyCourse).isPresent();
+        assertThat(linkCompanyCourse.get().getCompanyId()).isEqualTo(companyId);
+        assertThat(linkCompanyCourse.get().getCourseId()).isEqualTo(course.getId());
+        assertThat(linkCompanyCourse.get().isOwner()).isTrue();
+        assertThat(linkCompanyCourse.get().isActive()).isTrue();
+        assertThat(linkCompanyCourse.get().getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(linkCompanyCourse.get().getSuspendedAt()).isNull();
     }
 
     @Test

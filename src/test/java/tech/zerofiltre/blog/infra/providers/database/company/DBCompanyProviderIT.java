@@ -168,15 +168,15 @@ class DBCompanyProviderIT {
 
         Course course1 = dbCourseProvider.save(new Course());
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(new Course());
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course2.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course2.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course2.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course2.getId(), false, true, LocalDateTime.now(), null));
 
         //WHEN
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user1.getId(), course1.getId());
@@ -207,10 +207,10 @@ class DBCompanyProviderIT {
 
         Course course1 = dbCourseProvider.save(new Course());
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), true, LocalDateTime.now(), null));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company3.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company4.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         dbCourseProvider.save(new Course());
 
@@ -234,7 +234,7 @@ class DBCompanyProviderIT {
 
         Course course = dbCourseProvider.save(new Course());
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, true, LocalDateTime.now(), null));
 
         //WHEN
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());
@@ -256,7 +256,7 @@ class DBCompanyProviderIT {
 
         Course course = dbCourseProvider.save(new Course());
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, LocalDateTime.now(), LocalDateTime.now()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, false, LocalDateTime.now(), LocalDateTime.now()));
 
         //WHEN
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());

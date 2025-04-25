@@ -197,7 +197,7 @@ class EnrollIT {
         LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
         assertThat(linkCompanyUser).isNotNull();
 
-        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, true, LocalDateTime.now(), null));
         assertThat(linkCompanyCourse).isNotNull();
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
@@ -243,7 +243,7 @@ class EnrollIT {
         LinkCompanyUser linkCompanyUser = dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
         assertThat(linkCompanyUser).isNotNull();
 
-        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, true, LocalDateTime.now(), null));
         assertThat(linkCompanyCourse).isNotNull();
 
         LocalDateTime beforeEnroll = LocalDateTime.now();
