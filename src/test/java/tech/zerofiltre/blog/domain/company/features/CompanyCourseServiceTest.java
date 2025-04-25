@@ -90,7 +90,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company and the link already exists, then there is nothing")
     void shouldDoNothing_whenLinkCourseToCompany_IfLinkExists_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -112,7 +112,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a link between a course and a company is suspended and a platform admin links them again, then the link is activated")
     void shouldActivatesLink_whenSuspendLinkBetweenCourseAndCompany_LinkAgain_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
 
         when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -193,8 +193,8 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin activates all links between courses and a company, then all the links are activated")
     void shouldActivatesAllLinks_whenActivateAllLinksBetweenCoursesAndCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
-        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, LocalDateTime.now().minusMonths(2), LocalDateTime.now().minusWeeks(2));
+        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
+        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, false, LocalDateTime.now().minusMonths(2), LocalDateTime.now().minusWeeks(2));
         List<LinkCompanyCourse> list = new ArrayList<>();
         list.add(linkCompanyCourse1);
         list.add(linkCompanyCourse2);
@@ -424,7 +424,7 @@ class CompanyCourseServiceTest {
     @Test
     @DisplayName("When I search for the identification number of the link between a course and a company, I find the identification number")
     void shouldFindIdentificationNumber_whenSearchingForLinkBetweenCourseAndCompany() throws ResourceNotFoundException {
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1, 2L, 3L, true, LocalDateTime.now(), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1, 2L, 3L, false, true, LocalDateTime.now(), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
 
         //WHEN
@@ -450,7 +450,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes the link between a course and a company, the link is deleted and the enrollments related to this link are suspended")
     void shouldDeleteLinkAndSuspendEnrollments_whenLinkBetweenCourseAndCompanyIsDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse.getId());
@@ -515,7 +515,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspend the link between a course and a company, the link is suspended and the enrollments related to this link are suspended")
     void shouldSuspendLinkAndEnrollments_whenLinkBetweenCourseAndCompanyIsSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse.getId());
@@ -589,9 +589,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes all links between courses and a company, then the links are deleted and the enrollments related to these links are suspended")
     void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
-        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse1.getId());
@@ -662,9 +662,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspends all links between courses and a company, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
-        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse1.getId());
@@ -765,9 +765,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When I delete all links between a course and companies as a platform admin, then the links are deleted and the enrollments related to these links are suspended")
     void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenCourseAndCompaniesAreDeleted_asPlatformAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
-        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse1.getId());
@@ -838,9 +838,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspends all links between a course and companies, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCourseAndCompaniesAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
-        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setCompanyCourseId(linkCompanyCourse1.getId());
@@ -940,7 +940,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When I suspend the link between a course and a company, then the link is suspended and all enrollments related to this link are also suspended")
     void shouldSuspendLinkAndRelatedEnrollments_whenSuspendCourseCompanyLink() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment = new Enrollment();
         enrollment.setCompanyCourseId(linkCompanyCourse.getId());
@@ -968,7 +968,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When I suspend the link between a course and a company, if the link is already suspended, then all enrollments are still suspended")
     void shouldAllEnrollmentsAreStillSuspended_whenSuspendLinkBetweenCourseAndCompany_ifLinkIsAlreadySuspended() throws ZerofiltreException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L,1L, 1L, false, LocalDateTime.now(), LocalDateTime.now());
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now(), LocalDateTime.now());
 
         Enrollment enrollment = new Enrollment();
 

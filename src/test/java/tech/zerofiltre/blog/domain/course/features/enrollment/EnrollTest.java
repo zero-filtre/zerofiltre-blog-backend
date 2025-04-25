@@ -754,7 +754,7 @@ class EnrollTest {
 
         when(enrollmentProvider.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(12, companyId, course.getId(), true, LocalDateTime.now(), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(12, companyId, course.getId(), false, true, LocalDateTime.now(), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
 
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(23, companyId, user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null);
@@ -891,7 +891,7 @@ class EnrollTest {
         when(chapterProvider.ofCourseId(anyLong()))
                 .thenReturn(Collections.singletonList(chapter));
 
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(12, companyId, course.getId(), true, LocalDateTime.now(), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(12, companyId, course.getId(), false, true, LocalDateTime.now(), null);
         when(companyCourseService.getLinkCompanyCourseIdIfCourseIsActive(anyLong(), anyLong())).thenReturn(linkCompanyCourse.getId());
 
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(23, companyId, user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null);

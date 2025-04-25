@@ -62,7 +62,7 @@ class DBCompanyCourseProviderIT {
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null);
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, company.getId(), course.getId(), false, true, LocalDateTime.now(), null);
 
         //WHEN
         LinkCompanyCourse response = dbCompanyCourseProvider.save(linkCompanyCourse);
@@ -82,7 +82,7 @@ class DBCompanyCourseProviderIT {
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
+        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
 
         assertThat(linkCompanyCourse).isNotNull();
 
@@ -105,7 +105,7 @@ class DBCompanyCourseProviderIT {
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), true, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course.getId(), false, true, LocalDateTime.now(), null));
 
         assertThat(linkCompanyCourse).isNotNull();
 
@@ -129,11 +129,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        LinkCompanyCourse linkCompanyCourse1 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse1 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
         Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company.getId());
@@ -164,11 +164,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
         Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId());
@@ -193,11 +193,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, true, LocalDateTime.now(), null));
 
         //WHEN
         List<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyId(company.getId());
@@ -219,10 +219,10 @@ class DBCompanyCourseProviderIT {
         Course course = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
         Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course.getId(), false, false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
 
         Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course.getId(), false, true, LocalDateTime.now(), null));
 
         //WHEN
         List<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCourseId(course.getId());
@@ -244,7 +244,7 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         Optional<LinkCompanyCourse> cc = dbCompanyCourseProvider.findByCompanyIdAndCourseId(linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId(), true);
         assertThat(cc).isPresent();
@@ -266,11 +266,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, true, LocalDateTime.now(), null));
 
         Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company.getId());
         assertThat(response.getTotalNumberOfElements()).isEqualTo(2);
@@ -294,11 +294,11 @@ class DBCompanyCourseProviderIT {
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company1.getId(), course1.getId(), false, false, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
 
         Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
 
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), true, LocalDateTime.now(), null));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company2.getId(), course1.getId(), false, true, LocalDateTime.now(), null));
 
         //WHEN
         dbCompanyCourseProvider.deleteAllByCourseId(course1.getId());

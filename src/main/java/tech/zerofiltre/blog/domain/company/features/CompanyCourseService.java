@@ -30,7 +30,7 @@ public class CompanyCourseService {
 
         Optional<LinkCompanyCourse> existingCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
         if(existingCompanyCourse.isEmpty()) {
-            LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, companyId, courseId, true, LocalDateTime.now(), null);
+            LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, companyId, courseId, false, true, LocalDateTime.now(), null);
             return companyCourseProvider.save(linkCompanyCourse);
         } else if(null != existingCompanyCourse.get().getSuspendedAt()) {
             existingCompanyCourse.get().setActive(true);

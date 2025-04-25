@@ -118,6 +118,17 @@ public class DataChecker {
         return true;
     }
 
+    public boolean isAdminOrCompanyAdminOrEditor(User connectedUser, long companyId) throws ForbiddenActionException {
+        if (!connectedUser.isAdmin()) {
+            Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, connectedUser.getId());
+
+            if (companyUser.isEmpty() || companyUser.get().getRole().equals(LinkCompanyUser.Role.VIEWER)) {
+                throw new ForbiddenActionException("You don't have authorization.");
+            }
+        }
+        return true;
+    }
+
     public boolean hasPermission(User connectedUser, long companyId, LinkCompanyUser.Role role) throws ForbiddenActionException {
         if (role.equals(LinkCompanyUser.Role.ADMIN)
                 && !connectedUser.isAdmin()) {

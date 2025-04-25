@@ -1,8 +1,11 @@
 package tech.zerofiltre.blog.domain.course.features.course;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -66,7 +69,8 @@ class CourseServiceTest {
 
 
     @Test
-    void should_init_course_properly() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a user initializes a course, the course is initialized.")
+    void shouldInitCourse_whenUserInitializesCourse() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
@@ -89,25 +93,27 @@ class CourseServiceTest {
         assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
         assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
+        verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
 
     @Test
-    void should_init_course_for_existing_company_properly() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a platform admin initializes a company course, the course is initialized and a link between company and course is created.")
+    void shouldInitCourseAndCreateLink_whenPlatformAdminInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
+        long companyId = 1;
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        User user = ZerofiltreUtilsTest.createMockUser(false);
+        User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(1);
 
         when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
 
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course course = courseService.init(THIS_IS_MY_TITLE, user, 1);
+        Course course = courseService.init(THIS_IS_MY_TITLE, user, companyId);
 
         //THEN
         assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
@@ -120,6 +126,124 @@ class CourseServiceTest {
         assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
         assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
+        verify(checker, never()).isCompanyAdminOrCompanyEditor(any(), anyLong());
+
+        ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
+        verify(companyCourseProvider).save(captor.capture());
+        LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
+        Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
+        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
+        Assertions.assertThat(linkCompanyCourseCaptured.isOwner()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        Assertions.assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("When a company admin or company editor initializes a company course, the course is initialized and a link between company and course is created.")
+    void shouldInitCourseAndCreateLink_whenCompanyAdminORCompanyEditorInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        long companyId = 1;
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        user.setId(1);
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
+
+        LocalDateTime beforeSave = LocalDateTime.now();
+
+        //WHEN
+        Course course = courseService.init(THIS_IS_MY_TITLE, user, companyId);
+
+        //THEN
+        assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
+        assertThat(course.getStatus()).isEqualTo(DRAFT);
+        LocalDateTime createdAt = course.getCreatedAt();
+        assertThat(createdAt).isAfterOrEqualTo(beforeSave);
+        assertThat(course.getLastSavedAt()).isEqualTo(createdAt);
+        assertThat(course.getLastPublishedAt()).isNull();
+        assertThat(course.getPublishedAt()).isNull();
+        assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
+
+        ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
+        verify(companyCourseProvider).save(captor.capture());
+        LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
+        Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
+        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
+        Assertions.assertThat(linkCompanyCourseCaptured.isOwner()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        Assertions.assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("When a company viewer initializes a company course, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCompanyViewerInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        user.setId(1);
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.init(THIS_IS_MY_TITLE, user, 1));
+
+        //THEN
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
+        verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
+    }
+
+    @Test
+    @DisplayName("When a non-company user initializes a company's course, a forbidden action exception is thrown.")
+    void shouldThrownException_whenNotCompanyUserInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        user.setId(1);
+
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.init(THIS_IS_MY_TITLE, user, 1));
+
+        //THEN
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
+        verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
+    }
+
+    @Test
+    @DisplayName("When a company does not exist and a user initializes a course for this company, a resource not found exception is thrown.")
+    void shouldThrownException_whenUserInitializesCompanyCourse_ForNotExistingCompany() throws ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new NotFoundCourseProviderSpy();
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        user.setId(1);
+
+        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+
+        //WHEN
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> courseService.init(THIS_IS_MY_TITLE, user, 1));
+
+        //THEN
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
+        verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
 
     @Test

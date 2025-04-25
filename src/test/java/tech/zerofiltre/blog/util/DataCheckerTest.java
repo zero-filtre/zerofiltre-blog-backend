@@ -274,7 +274,7 @@ class DataCheckerTest {
     @DisplayName("given inactive company course when execute then throw ResourceNotFoundException")
     void givenInactiveCompanyCourse_whenExecute_thenThrowException() {
         //GIVEN
-        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyCourse(1, 1, 1, false, LocalDateTime.now(), null)));
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(new LinkCompanyCourse(1, 1, 1, false, false, LocalDateTime.now(), null)));
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -397,6 +397,52 @@ class DataCheckerTest {
                 arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleViewer), LinkCompanyUser.Role.VIEWER),
                 arguments(userWithUserRole, "user with user role", Optional.empty(), LinkCompanyUser.Role.ADMIN)
         );
+    }
+
+    @Test
+    @DisplayName("When a user is an admin and I check that he is an admin or a company admin or editor, then true is returned")
+    void shouldReturnTrue_whenVerifyUserIsAdmin() throws ForbiddenActionException {
+        //WHEN
+        boolean response = checker.isAdminOrCompanyAdminOrEditor(adminUser, 1L);
+
+        //THEN
+        assertThat(response).isTrue();
+    }
+
+    @DisplayName("When a user is a company admin or editor and I check that he is an admin or a company admin or editor, then true is returned")
+    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
+    @MethodSource("userWithGoodRoleProvider")
+    void shouldReturnTrue_whenVerifyUserIsCompanyAdminOrEditor(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ForbiddenActionException {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
+
+        //WHEN
+        boolean response = checker.isAdminOrCompanyAdminOrEditor(user, 1L);
+
+        //THEN
+        assertThat(response).isTrue();
+    }
+
+    @Test
+    @DisplayName("When a user is a company viewer and I check that he is an admin or a company admin or editor, then throw ForbiddenActionException")
+    void shouldThrowException_whenIsCompanyViewer() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUserRoleViewer));
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> checker.isAdminOrCompanyAdminOrEditor(new User(), 1L));
+    }
+
+    @Test
+    @DisplayName("When a user is admin of another company and I check that he is an admin or a company admin or editor, then throw ForbiddenActionException")
+    void shouldThrowException_whenIsAdminOfAnotherCompany() {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> checker.isAdminOrCompanyAdminOrEditor(new User(), 1L));
     }
 
     @DisplayName("When I verify that a platform admin has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are")
