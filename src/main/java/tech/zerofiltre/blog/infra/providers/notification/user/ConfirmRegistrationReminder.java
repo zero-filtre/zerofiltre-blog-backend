@@ -55,7 +55,8 @@ public class ConfirmRegistrationReminder {
 
                         Map<String, Object> templateModel = new HashMap<>();
                         templateModel.put("fullName", user.getFullName());
-                        templateModel.put("validationLink",getOriginUrl(infraProperties.getEnv()) + pageUri + token);
+                        templateModel.put("validationLink", getOriginUrl(infraProperties.getEnv()) + pageUri + token);
+                        templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
                         Context thymeleafContext = new Context();
                         thymeleafContext.setVariables(templateModel);
                         thymeleafContext.setLocale(locale);

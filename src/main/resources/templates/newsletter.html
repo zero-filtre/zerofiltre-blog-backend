@@ -55,7 +55,7 @@
                                     <article style="display: table; width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
                                         <div style="display: table-row;">
                                             <div class="card-img" style="display: table-cell; width: 180px; vertical-align: top; padding-right: 16px;">
-                                                <a th:href="'https://dev.zerofiltre.tech/articles/' + ${article.id}">
+                                                <a th:href="${originUrl} + '/articles/' + ${article.id}">
                                                     <img th:src="${article.thumbnail}" th:alt="${article.title}" style="width: 100%; border-radius: 8px; display: block;" />
                                                 </a>
                                             </div>
@@ -66,7 +66,7 @@
                                                     </span>
                                                 </div>
                                                 <h2 style="margin: 10px 0; font-size: 20px; color: #333;">
-                                                    <a th:href="'https://dev.zerofiltre.tech/articles/' + ${article.id}" style="color: #333; text-decoration: none;">
+                                                    <a th:href="${originUrl} + '/articles/' + ${article.id}" style="color: #333; text-decoration: none;">
                                                         <span th:text="${#strings.capitalize(article.title)}">Titre</span>
                                                     </a>
                                                 </h2>
@@ -107,7 +107,7 @@
                                     <article style="display: table; width: 100%; font-family: Arial, sans-serif;">
                                         <div style="display: table-row;">
                                             <div class="card-img"  style="display: table-cell; width: 180px; vertical-align: top; padding-right: 16px;">
-                                                <a th:href="'https://dev.zerofiltre.tech/cours/' + ${course.id}">
+                                                <a th:href="${originUrl} + '/cours/' + ${course.id}">
                                                     <img th:src="${course.thumbnail}" th:alt="${course.title}" style="width: 100%; border-radius: 8px; display: block;" />
                                                 </a>
                                             </div>
@@ -118,7 +118,7 @@
                                                     </span>
                                                 </div>
                                                 <h2 style="margin: 10px 0; font-size: 20px; color: #333;">
-                                                    <a th:href="'https://dev.zerofiltre.tech/cours/' + ${course.id}" style="color: #333; text-decoration: none;">
+                                                    <a th:href="${originUrl} + '/cours/' + ${course.id}" style="color: #333; text-decoration: none;">
                                                         <span th:text="${#strings.capitalize(course.title)}">Titre du cours</span>
                                                     </a>
                                                 </h2>
@@ -157,16 +157,7 @@
         </tr>
 
         <tr>
-            <td align="center" style="padding: 20px; font-size: 14px; color: #1c2e5c;">
-                <a href="https://www.linkedin.com/company/65767867/admin/" target="_blank" style="display: inline-block; padding: 5px 10px; background-color: #0a66c2; color: #ffffff; text-decoration: none; border-radius: 3px; font-weight: bold;">in</a>
-                <p style="margin: 10px 0;">&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-                <p style="margin: 0;">72 AV De La Division Leclerc</p>
-                <p style="margin: 0;">93350 Le Bourget</p>
-                <p style="margin-top: 10px;">
-                    <a href="https://zerofiltre.tech" style="color: #1c2e5c;">zerofiltre.tech</a> |
-                    <a href="mailto:info@zerofiltre.tech" style="color: #1c2e5c;">info@zerofiltre.tech</a>
-                </p>
-            </td>
+            <td><div th:replace="fragments/footer :: emailFooter"></div></td>
         </tr>
 
     </table>

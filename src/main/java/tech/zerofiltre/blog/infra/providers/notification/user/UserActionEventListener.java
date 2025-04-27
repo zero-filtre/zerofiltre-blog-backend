@@ -8,6 +8,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.domain.user.model.Action;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.Email;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.UserActionApplicationEvent;
 import tech.zerofiltre.blog.infra.security.config.EmailValidator;
@@ -16,6 +17,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
+
 @Component
 @RequiredArgsConstructor
 public class UserActionEventListener implements ApplicationListener<UserActionApplicationEvent> {
@@ -23,6 +26,8 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
     private final MessageSource messages;
     private final ZerofiltreEmailSender emailSender;
     private final ITemplateEngine emailTemplateEngine;
+    private final InfraProperties infraProperties;
+
 
 
     @Override
@@ -52,6 +57,7 @@ public class UserActionEventListener implements ApplicationListener<UserActionAp
             Map<String, Object> templateModel = new HashMap<>();
             templateModel.put("fullName", user.getFullName());
             templateModel.put("validationLink", event.getAppUrl() + pageUri + token);
+            templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
 
             String recipientAddress = user.getEmail();
             String subject = messages.getMessage(subjectCode, null, event.getLocale());

@@ -97,16 +97,7 @@
         <p><em th:text="#{zerofiltre_team_signature}"></em></p>
 
 
-        <div class="footer">
-            <p>Zerofiltre</p>
-            <p>72 AV DE LA DIVISION LECLERC</p>
-            <p>93350 LE BOURGET</p>
-            <p>zerofiltre.tech</p>
-            <p>info@zerofiltre.tech</p>
-            <p><a class="linkedin-button" href="https://www.linkedin.com/company/65767867/admin/" target="_blank">in</a>
-            </p>
-            <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-        </div>
+        <div th:replace="fragments/footer :: emailFooter"></div>
     </div>
 </div>
 </body>
