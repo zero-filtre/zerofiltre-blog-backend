@@ -19,6 +19,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -49,6 +51,7 @@ public class ZerofiltreEmailSender {
             templateModel.put("content", email.getContent());
             templateModel.put("videosIds", email.getVideosIds());
             templateModel.put("images", email.getImages());
+            templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
             Context thymeleafContext = new Context();
             thymeleafContext.setVariables(templateModel);
             thymeleafContext.setLocale(Locale.FRENCH);

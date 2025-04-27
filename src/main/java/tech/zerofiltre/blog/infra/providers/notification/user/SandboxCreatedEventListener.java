@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class SandboxCreatedEventListener implements ApplicationListener<SandboxC
             templateModel.put("sandboxUsername", sandbox.getUsername());
             templateModel.put("sandboxPassword", sandbox.getPassword());
             templateModel.put("onboardingLink", sandboxDoc);
+            templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
 
             String subject = messages.getMessage(subjectCode, null, event.getLocale());
             Context thymeleafContext = new Context();

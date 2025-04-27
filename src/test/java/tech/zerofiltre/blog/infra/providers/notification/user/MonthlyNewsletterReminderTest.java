@@ -1,14 +1,13 @@
 package tech.zerofiltre.blog.infra.providers.notification.user;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.thymeleaf.ITemplateEngine;
 import tech.zerofiltre.blog.domain.article.ArticleProvider;
 import tech.zerofiltre.blog.domain.article.model.Article;
@@ -26,7 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class MonthlyNewsletterReminderTest {
 
     public static final String SUBJECT = "Subject";
@@ -35,32 +34,31 @@ class MonthlyNewsletterReminderTest {
     public static final String EMAIL_BLIND_COPY2 = "blindcopy2@email.com";
     public static final String PAYMENT_EMAIL_BLIND_COPY = "paymentEmailblindcopy2@email.com";
 
-    @MockBean
+    @Mock
     ZerofiltreEmailSender zerofiltreEmailSender;
 
-    @MockBean
+    @Mock
     InfraProperties infraProperties;
 
-    @MockBean
+    @Mock
     ITemplateEngine templateEngine;
 
-    @MockBean
+    @Mock
     MessageSource messages;
 
-    @MockBean
+    @Mock
     UserProvider userProvider;
 
-    @MockBean
+    @Mock
     ArticleProvider articleProvider;
 
-    @MockBean
+    @Mock
     CourseProvider courseProvider;
 
     private MonthlyNewsletterReminder monthlyNewsletterReminder;
 
     @BeforeEach
     void setUp() {
-        when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
         monthlyNewsletterReminder = new MonthlyNewsletterReminder(zerofiltreEmailSender, infraProperties, templateEngine, messages, userProvider, articleProvider, courseProvider);
     }
 
@@ -71,6 +69,9 @@ class MonthlyNewsletterReminderTest {
         UserForBroadcast userEmail2 = new UserForBroadcast(0, EMAIL_BLIND_COPY2, null, "", null);
         UserForBroadcast userEmail3 = new UserForBroadcast(0, null, PAYMENT_EMAIL_BLIND_COPY, null, null);
         UserForBroadcast userEmail4 = new UserForBroadcast(0, null, null, null, null);
+
+        when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
+        when(infraProperties.getEnv()).thenReturn("dev");
         when(articleProvider.newArticlesFromLastMonth()).thenReturn(List.of(new Article()));
         when(courseProvider.newCoursesFromLastMonth()).thenReturn(List.of(new Course()));
         when(userProvider.allUsersForBroadcast()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3, userEmail4));
@@ -108,6 +109,9 @@ class MonthlyNewsletterReminderTest {
         List<String> emailList = List.of(EMAIL_BLIND_COPY1, EMAIL_BLIND_COPY2, PAYMENT_EMAIL_BLIND_COPY);
         Email email = new Email();
         email.setRecipients(emailList);
+
+        when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
+        when(infraProperties.getEnv()).thenReturn("dev");
         when(articleProvider.newArticlesFromLastMonth()).thenReturn(List.of(new Article()));
         when(courseProvider.newCoursesFromLastMonth()).thenReturn(List.of(new Course()));
         when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
@@ -146,6 +150,9 @@ class MonthlyNewsletterReminderTest {
         List<String> emailList = List.of(EMAIL_BLIND_COPY1);
         Email email = new Email();
         email.setRecipients(emailList);
+
+        when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
+        when(infraProperties.getEnv()).thenReturn("dev");
         when(articleProvider.newArticlesFromLastMonth()).thenReturn(List.of(new Article()));
         when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
 
@@ -173,6 +180,9 @@ class MonthlyNewsletterReminderTest {
         List<String> emailList = List.of(EMAIL_BLIND_COPY1);
         Email email = new Email();
         email.setRecipients(emailList);
+
+        when(templateEngine.process(anyString(), any())).thenReturn(CONTENT);
+        when(infraProperties.getEnv()).thenReturn("dev");
         when(courseProvider.newCoursesFromLastMonth()).thenReturn(List.of(new Course()));
         when(messages.getMessage(eq("remind_newsletter_message"), any(), any())).thenReturn(SUBJECT);
 

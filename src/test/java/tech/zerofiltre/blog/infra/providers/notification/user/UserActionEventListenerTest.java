@@ -10,6 +10,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import tech.zerofiltre.blog.domain.user.model.Action;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.providers.notification.user.model.UserActionApplicationEvent;
 
 import java.util.Locale;
@@ -26,14 +27,17 @@ class UserActionEventListenerTest {
     ZerofiltreEmailSender mailSender;
     @Mock
     ITemplateEngine emailTemplateEngine;
+    @Mock
+    InfraProperties infraProperties;
 
     UserActionEventListener userActionEventListener;
 
 
     @BeforeEach
     void setUp() {
-        userActionEventListener = new UserActionEventListener(messageSource, mailSender, emailTemplateEngine);
+        userActionEventListener = new UserActionEventListener(messageSource, mailSender, emailTemplateEngine, infraProperties);
 
+        when(infraProperties.getEnv()).thenReturn("dev");
         when(emailTemplateEngine.process(anyString(), any(Context.class))).thenReturn("<a href=zerofiltre.tech>Home</a>");
         when(messageSource.getMessage(any(), any(), any())).thenReturn("message");
         doNothing().when(mailSender).send(any(), anyBoolean());

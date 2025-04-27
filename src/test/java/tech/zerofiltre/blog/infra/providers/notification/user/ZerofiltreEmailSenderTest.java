@@ -107,6 +107,7 @@ class ZerofiltreEmailSenderTest {
         UserForBroadcast userEmail2 = new UserForBroadcast(0, EMAIL_BLIND_COPY2, null, null, null);
         UserForBroadcast userEmail3 = new UserForBroadcast(0, null, PAYMENT_EMAIL_BLIND_COPY, null, null);
         when(userProvider.allUsersForBroadcast()).thenReturn(Arrays.asList(userEmail1, userEmail2, userEmail3));
+        when(infraProperties.getEnv()).thenReturn("dev");
 
         //ACT
         zerofiltreEmailSender.sendForAllUsers(email);
@@ -139,6 +140,7 @@ class ZerofiltreEmailSenderTest {
         }
 
         when(userProvider.allUsersForBroadcast()).thenReturn(list);
+        when(infraProperties.getEnv()).thenReturn("dev");
 
         //ACT
         zerofiltreEmailSender.sendForAllUsers(email);

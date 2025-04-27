@@ -20,6 +20,8 @@ import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.util.*;
 
+import static tech.zerofiltre.blog.util.ZerofiltreUtils.getOriginUrl;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class MonthlyNewsletterReminder {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put("newArticles", newArticlesList);
         templateModel.put("newCourses", newCoursesList);
+        templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
 

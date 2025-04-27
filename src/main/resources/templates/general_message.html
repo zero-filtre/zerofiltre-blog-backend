@@ -56,17 +56,7 @@
         </tr>
 
         <tr>
-            <td align="center" style="padding: 20px; font-size: 14px; color: #1c2e5c;">
-                <a href="https://www.linkedin.com/company/65767867/admin/" target="_blank" style="display: inline-block; padding: 5px 10px; background-color: #0a66c2; color: #ffffff; text-decoration: none; border-radius: 3px; font-weight: bold;">in</a>
-                <p style="margin: 10px 0;">&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> Zerofiltre</p>
-                <p style="margin: 0;">72 AV De La Division Leclerc</p>
-                <p style="margin: 0;">93350 Le Bourget</p>
-
-                <p style="margin-top: 10px;">
-                    <a href="https://zerofiltre.tech" style="color: #1c2e5c;">zerofiltre.tech</a> |
-                    <a href="mailto:info@zerofiltre.tech" style="color: #1c2e5c;">info@zerofiltre.tech</a>
-                </p>
-            </td>
+            <td><div th:replace="fragments/footer :: emailFooter"></div></td>
         </tr>
 
     </table>

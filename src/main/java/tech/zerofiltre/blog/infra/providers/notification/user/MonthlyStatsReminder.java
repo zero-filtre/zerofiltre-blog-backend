@@ -70,6 +70,7 @@ public class MonthlyStatsReminder {
                 templateModel.put("publishedArticlesCount", publishedArticlesCount);
                 templateModel.put("startNewArticleLink", getOriginUrl(infraProperties.getEnv()) + pageUri);
                 templateModel.put("readLatestArticlesLink", getOriginUrl(infraProperties.getEnv()) + pageUri);
+                templateModel.put("originUrl", getOriginUrl(infraProperties.getEnv()));
                 Context thymeleafContext = new Context();
                 thymeleafContext.setVariables(templateModel);
                 thymeleafContext.setLocale(locale);
