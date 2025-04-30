@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBLessonProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
@@ -56,11 +58,14 @@ class ChapterIT {
     @Autowired
     private EnrollmentProvider enrollmentProvider;
 
+    @MockBean
+    private DataChecker checker;
+
     private LessonService lessonService;
 
     @BeforeEach
     void setup() {
-        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider);
+        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider, checker);
     }
 
     @Test
@@ -78,6 +83,7 @@ class ChapterIT {
                 .courseProvider(courseProvider)
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
+//                .checker(checker)
                 .build()
                 .init(TITLE, course.getId(), author.getId());
 

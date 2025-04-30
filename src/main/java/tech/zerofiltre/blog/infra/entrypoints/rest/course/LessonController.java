@@ -17,6 +17,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.mapper.UpdateLessonVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.UpdateLessonVM;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -31,9 +32,9 @@ public class LessonController {
     private final SecurityContextManager securityContextManager;
     private final UpdateLessonVMMapper mapper = Mappers.getMapper(UpdateLessonVMMapper.class);
 
-    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, EnrollmentProvider enrollmentProvider, SecurityContextManager securityContextManager) {
+    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, EnrollmentProvider enrollmentProvider, DataChecker checker, SecurityContextManager securityContextManager) {
         this.securityContextManager = securityContextManager;
-        this.lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider);
+        this.lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider, checker);
     }
 
     @PostMapping

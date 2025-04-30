@@ -113,5 +113,10 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
 
     @Query("SELECT a FROM CourseJPA a WHERE a.lastPublishedAt >= ?1 AND a.lastPublishedAt < ?2")
     List<CourseJPA> findNewCoursesBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query("SELECT l.companyId FROM tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyCourseJPA l " +
+            "JOIN CourseJPA c ON c.id = l.courseId " +
+            "WHERE l.courseId = ?1 AND l.exclusive = true")
+    Optional<Long> idOfCompanyOwningCourse(long courseId);
 }
 

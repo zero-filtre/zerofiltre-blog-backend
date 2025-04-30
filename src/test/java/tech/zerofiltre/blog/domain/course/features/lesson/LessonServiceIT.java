@@ -78,7 +78,7 @@ public class LessonServiceIT {
 
     @BeforeEach
     void setup() {
-        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider);
+        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider, checker);
     }
 
     @Test

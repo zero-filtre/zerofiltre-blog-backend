@@ -67,18 +67,15 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company, then the link is created")
     void shouldCreatesLink_whenLinkCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //WHEN
         companyCourseService.link(adminUser, 1L, 1L);
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -95,18 +92,15 @@ class CompanyCourseServiceTest {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
 
         //WHEN
         companyCourseService.link(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId());
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -117,18 +111,15 @@ class CompanyCourseServiceTest {
         //GIVEN
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
 
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
 
         //WHEN
         companyCourseService.link(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId());
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -145,13 +136,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a non-platform admin links a course to a company, then it is forbidden")
     void shouldForbidden_whenLinkCourseToCompany_asNonPlatformAdmin() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.link(userWithRoleUser, 2L, 2L));
 
-        verify(checker).isAdminUser(any(User.class));
+        verify(checker).checkIfAdminUser(any(User.class));
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -160,15 +151,14 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company that does not exist, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkCourseToNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.link(adminUser, 2L, 2L));
 
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -177,17 +167,15 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course that does not exist to a company, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkNotExistingCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCourseExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.link(adminUser, 2L, 2L));
 
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -202,16 +190,14 @@ class CompanyCourseServiceTest {
         list.add(linkCompanyCourse1);
         list.add(linkCompanyCourse2);
 
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCompanyId(anyLong())).thenReturn(list);
 
         //WHEN
         companyCourseService.activeAllByCompanyId(adminUser, 1L);
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
         verify(companyCourseProvider, times(2)).save(captor.capture());
@@ -233,13 +219,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a non-platform admin activates all links between courses and a company, then it is forbidden.")
     void shouldForbidden_whenActivateAllLinksBetweenCoursesAndCompany_asNonPlatformAdmin() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.activeAllByCompanyId(userWithRoleUser, 2L));
 
-        verify(checker).isAdminUser(any(User.class));
+        verify(checker).checkIfAdminUser(any(User.class));
         verify(companyCourseProvider, never()).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -247,15 +233,14 @@ class CompanyCourseServiceTest {
     @Test
     @DisplayName("When a platform admin activates all links between courses and a company that does not exist, then the links are not activated")
     void shouldNotActivatedLinks_whenActivateAllLinksBetweenCoursesAndNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.activeAllByCompanyId(adminUser, 2L));
 
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider, never()).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -264,25 +249,22 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin activates all links between courses and a company and the links do not exist, then there is nothing")
     void shouldDoNothing_whenActivateAllLinksBetweenCoursesAndCompany_IfLinksDoNotExist_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCompanyId(anyLong())).thenReturn(new ArrayList<>());
 
         //WHEN
         companyCourseService.activeAllByCompanyId(adminUser, 2L);
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider).findAllByCompanyId(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
 
     @Test
     @DisplayName("When a platform admin or a company user searches for a link between a course and a company, then he finds the link")
-    void shouldFindsLink_whenSearchForLinkBetweenCourseAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    void shouldFindsLink_whenSearchForLinkBetweenCourseAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         LinkCompanyCourse expectedLink = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now(), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(expectedLink));
 
@@ -290,7 +272,7 @@ class CompanyCourseServiceTest {
         Optional<LinkCompanyCourse> result = companyCourseService.find(adminUser, 1L, 1L);
 
         //THEN
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         assertThat(result).contains(expectedLink);
     }
 
@@ -298,57 +280,40 @@ class CompanyCourseServiceTest {
     @DisplayName("When a user who is neither a platform admin nor part of the company searches for a link between a course and a company, then it is forbidden")
     void shouldForbidden_whenSearchForLinkBetweenCourseAndCompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
 
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
     }
 
     @Test
     @DisplayName("When a platform admin or a company user searches for a link between a course and a company that does not exist, then he finds nothing")
-    void shouldFindNothing_whenSearchForLinkBetweenCourseAndNotExistingCompany_asAdminOrCompanyUser() throws
-            ForbiddenActionException, ResourceNotFoundException {
-        //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
-
-        //THEN
-        Optional<LinkCompanyCourse> result = companyCourseService.find(userWithRoleUser, 2L, 2L);
-
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    @DisplayName("When a platform admin or a company user searches for a link between a course that does not exist and a company, then he finds nothing")
     void shouldFindNothing_whenSearchForLinkBetweenNotExistingCourseAndCompany_asAdminOrCompanyUser() throws
-            ForbiddenActionException, ResourceNotFoundException {
+            ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //THEN
         Optional<LinkCompanyCourse> result = companyCourseService.find(userWithRoleUser, 2L, 2L);
 
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         assertThat(result).isEmpty();
     }
 
     @Test
     @DisplayName("When a platform admin or a company user searches for all the links between courses and a company, then he finds a part of the list of links")
-    void shouldFindPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    void shouldFindPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
 
         //WHEN
         companyCourseService.findAllByCompanyId(adminUser, 0, 0, 1L);
 
         //THEN
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyId(0, 0, 1);
     }
 
@@ -356,40 +321,38 @@ class CompanyCourseServiceTest {
     @DisplayName("When a user who is neither a platform admin nor part of the company searches for all the links between courses and a company, then it is forbidden")
     void shouldForbidden_whenSearchingForAllLinksBetweenCoursesAndCompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L));
 
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider, never()).findByCompanyId(anyInt(), anyInt(), anyLong());
     }
 
     @Test
     @DisplayName("When a platform admin or a company user search for all the links between courses and a non-existent company, then he finds nothing")
-    void shouldFindNothing_whenSearchingForAllLinksBetweenCoursesAndNotExistingCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    void shouldFindNothing_whenSearchingForAllLinksBetweenCoursesAndNotExistingCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyId(anyInt(), anyInt(), anyLong())).thenReturn(Page.emptyPage());
         //THEN
         Page<LinkCompanyCourse> result = companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L);
 
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         assertThat(result.isEmpty()).isTrue();
     }
 
     @Test
     @DisplayName("When a platform admin or a company user searches for all the courses of a company, he finds a part of the list of courses")
-    void shouldReturnPartOfCourseList_whenSearchingForAllCoursesOfACompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    void shouldReturnPartOfCourseList_whenSearchingForAllCoursesOfACompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
 
         //WHEN
         companyCourseService.findCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L);
 
         //THEN
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         verify(companyCourseProvider).findCoursesByCompanyId(0, 0, 1L, Status.PUBLISHED);
     }
 
@@ -397,15 +360,15 @@ class CompanyCourseServiceTest {
     @DisplayName("When a user who is neither a platform admin nor part of the company searches for all the courses of a company, then it is forbidden")
     void shouldForbidden_whenSearchingForAllCoursesOfACompany_asNonPlatformAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.findCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L));
 
         //THEN
-        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker, never()).companyExists(anyLong());
+        verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
+        verify(checker, never()).checkCompanyExistence(anyLong());
         verify(companyCourseProvider, never()).findCoursesByCompanyId(anyInt(), anyInt(), anyLong(), any(Status.class));
     }
 
@@ -446,7 +409,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment2 = new Enrollment();
         enrollment2.setCompanyCourseId(linkCompanyCourse.getId());
 
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
 
@@ -454,7 +416,7 @@ class CompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, 1L, 1L, true);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captorLink = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -486,14 +448,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes a non-existent link between a course and a company, then there is nothing")
     void shouldDoNothing_whenDeleteNotExistingLink_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //WHEN
         companyCourseService.unlink(adminUser, 1L, 1L, true);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
         verify(enrollmentProvider, never()).save(any(Enrollment.class));
@@ -511,7 +472,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment2 = new Enrollment();
         enrollment2.setCompanyCourseId(linkCompanyCourse.getId());
 
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyCourse));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
 
@@ -519,7 +479,7 @@ class CompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, linkCompanyCourse.getCompanyId(), linkCompanyCourse.getCourseId(), false);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -546,14 +506,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspend a non-existent link between a course and a company, then there is nothing")
     void shouldDoNothing_whenSuspendNotExistingLinkBetweenCourseAndCompany_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //WHEN
         companyCourseService.unlink(adminUser, 1L, 1L, false);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong(), anyBoolean());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
         verify(enrollmentProvider, never()).save(any(Enrollment.class));
@@ -563,13 +522,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a non-admin user of the platform or company suspends a link between a course and a company, then it is forbidden")
     void shouldForbidden_whenSuspendLink_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 2L, false));
 
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
     }
 
@@ -593,8 +552,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment4 = new Enrollment();
         enrollment4.setCompanyCourseId(linkCompanyCourse2.getId());
 
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCompanyId(anyLong())).thenReturn(List.of(linkCompanyCourse1, linkCompanyCourse2));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2)).thenReturn(List.of(enrollment3, enrollment4));
 
@@ -602,8 +559,8 @@ class CompanyCourseServiceTest {
         companyCourseService.unlinkAllByCompanyId(adminUser, 1L, true);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider).findAllByCompanyId(anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captorLink = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -666,8 +623,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment4 = new Enrollment();
         enrollment4.setCompanyCourseId(linkCompanyCourse2.getId());
 
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCompanyId(anyLong())).thenReturn(List.of(linkCompanyCourse1, linkCompanyCourse2));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2)).thenReturn(List.of(enrollment3, enrollment4));
 
@@ -675,8 +630,8 @@ class CompanyCourseServiceTest {
         companyCourseService.unlinkAllByCompanyId(adminUser, 1L, false);
 
         //THEN
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider).findAllByCompanyId(anyLong());
         verify(enrollmentProvider, times(2)).findAll(anyLong(), anyBoolean());
 
@@ -724,13 +679,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a non-admin user of the platform or company deletes all links between courses and a company, then it is forbidden")
     void shouldForbidden_whenDeleteAllLinksBetweenCoursesAndCompany_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCompanyId(userWithRoleUser, 2L, true));
 
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).deleteAllByCompanyId(anyLong());
     }
 
@@ -738,14 +693,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes all links between courses and a company that does not exist, then all links are not deleted")
     void shouldLinksNotDeleted_whenDeleteAllLinksOfNotExistingCompany_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCompanyId(adminUser, 2L, true));
 
-        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).deleteAllByCompanyId(anyLong());
     }
 
@@ -769,8 +723,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment4 = new Enrollment();
         enrollment4.setCompanyCourseId(linkCompanyCourse2.getId());
 
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCourseId(anyLong())).thenReturn(List.of(linkCompanyCourse1, linkCompanyCourse2));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2)).thenReturn(List.of(enrollment3, enrollment4));
 
@@ -778,8 +730,8 @@ class CompanyCourseServiceTest {
         companyCourseService.unlinkAllByCourseId(adminUser, 1L, true);
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider).findAllByCourseId(anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captorLink = ArgumentCaptor.forClass(LinkCompanyCourse.class);
@@ -842,8 +794,6 @@ class CompanyCourseServiceTest {
         Enrollment enrollment4 = new Enrollment();
         enrollment4.setCompanyCourseId(linkCompanyCourse2.getId());
 
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
         when(companyCourseProvider.findAllByCourseId(anyLong())).thenReturn(List.of(linkCompanyCourse1, linkCompanyCourse2));
         when(enrollmentProvider.findAll(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2)).thenReturn(List.of(enrollment3, enrollment4));
 
@@ -851,8 +801,8 @@ class CompanyCourseServiceTest {
         companyCourseService.unlinkAllByCourseId(adminUser, 1L, false);
 
         //THEN
-        verify(checker).isAdminUser(any(User.class));
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkIfAdminUser(any(User.class));
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider).findAllByCourseId(anyLong());
         verify(enrollmentProvider, times(2)).findAll(anyLong(), anyBoolean());
 
@@ -900,13 +850,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a non-admin user of the platform or company deletes all links between a course and companies, then it is forbidden")
     void shouldForbidden_whenDeleteAllLinksBetweenCourseAndCompanies_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCourseId(userWithRoleUser, 2L, true));
 
-        verify(checker).isAdminUser(any(User.class));
+        verify(checker).checkIfAdminUser(any(User.class));
         verify(companyCourseProvider, never()).deleteAllByCourseId(anyLong());
     }
 
@@ -914,13 +864,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes all links between a course that does not exist and companies, then all links are not deleted")
     void shouldLinksNotDeleted_whenDeleteAllLinksBetweenNotExistingCourseAndCompanies_asPlatformOrCompanyAdmin() throws ResourceNotFoundException {
         //GIVEN
-        when(checker.courseExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCourseExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> companyCourseService.unlinkAllByCourseId(adminUser, 2L, true));
 
-        verify(checker).courseExists(anyLong());
+        verify(checker).checkCourseExistence(anyLong());
         verify(companyCourseProvider, never()).deleteAllByCourseId(anyLong());
     }
 
