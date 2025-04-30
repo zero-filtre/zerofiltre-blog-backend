@@ -77,4 +77,9 @@ public class Found_Published_With49Reactions_CourseProvider_Spy implements Cours
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }

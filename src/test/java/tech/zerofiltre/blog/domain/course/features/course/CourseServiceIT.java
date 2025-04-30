@@ -46,7 +46,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class, DBCompanyCourseProvider.class})
@@ -149,8 +148,6 @@ class CourseServiceIT {
         String title = "some title";
         long companyId = 1;
 
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
 
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
@@ -167,8 +164,8 @@ class CourseServiceIT {
         assertThat(course.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         assertThat(course.getLastSavedAt()).isEqualTo(course.getCreatedAt());
 
-        verify(checker).companyExists(anyLong());
-        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         Optional<LinkCompanyCourse> linkCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, course.getId(), true);
 
@@ -191,9 +188,6 @@ class CourseServiceIT {
         String title = "some title";
         long companyId = 1;
 
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
 
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
@@ -210,8 +204,8 @@ class CourseServiceIT {
         assertThat(course.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         assertThat(course.getLastSavedAt()).isEqualTo(course.getCreatedAt());
 
-        verify(checker).companyExists(anyLong());
-        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         Optional<LinkCompanyCourse> linkCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, course.getId(), true);
 
@@ -229,11 +223,11 @@ class CourseServiceIT {
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        Course course = courseService.init("some title", author, 0);
 
-        assertThat(courseService.findById(course.getId(), author)).isNotNull();
+        Course course1 = courseService.init("some title", author, 0);
+
+        assertThat(courseService.findById(course1.getId(), author)).isNotNull();
     }
 
     @Test

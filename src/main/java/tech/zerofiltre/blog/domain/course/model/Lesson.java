@@ -10,6 +10,7 @@ import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import static tech.zerofiltre.blog.domain.course.model.Chapter.USER_DOES_NOT_EXI
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.VIDEO_NOT_AVAILABLE_FOR_FREE;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED;
 
-@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "enrollmentProvider"})
+@JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "lessonProvider", "enrollmentProvider", "checker"})
 public class Lesson {
 
     public static final String THE_LESSON_OF_ID = "The lesson of id ";
@@ -41,6 +42,7 @@ public class Lesson {
     private UserProvider userProvider;
     private CourseProvider courseProvider;
     private EnrollmentProvider enrollmentProvider;
+    private DataChecker checker;
     private boolean notEnrolledAccess;
 
 
@@ -64,7 +66,9 @@ public class Lesson {
         this.userProvider = lessonBuilder.userProvider;
         this.courseProvider = lessonBuilder.courseProvider;
         this.enrollmentProvider = lessonBuilder.enrollmentProvider;
+        this.checker = lessonBuilder.checker;
         this.number = lessonBuilder.number;
+        this.notEnrolledAccess = lessonBuilder.notEnrolledAccess;
     }
 
     public long getId() {
@@ -210,6 +214,10 @@ public class Lesson {
         Course existingCourse = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId)));
 
+        if(courseProvider.idOfCompanyOwningCourse(courseId).isPresent()) {
+            throw new ForbiddenActionException("You are not allowed to do this action on this course");
+        }
+
         if (!existingCourse.getStatus().equals(Status.PUBLISHED)) {
             throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
         }
@@ -236,7 +244,7 @@ public class Lesson {
     }
 
 
-    private void checkLessonAccessConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
+    void checkLessonAccessConditions(long currentUserId, long chapterId, boolean isDeletion, boolean checkEnrollments) throws ResourceNotFoundException, ForbiddenActionException {
         currentUser = userProvider.userOfId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_DOES_NOT_EXIST, String.valueOf(currentUserId)));
 
@@ -247,21 +255,55 @@ public class Lesson {
         course = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId)));
 
-        if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && !course.getStatus().equals(Status.PUBLISHED)) {
-            throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
+        if(!course.getStatus().equals(Status.PUBLISHED))
+            checkUserAuthorized(currentUser, course, YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
+
+        if(isDeletion) checkConditionsForDeletingLesson(currentUserId);
+
+        if(!checkEnrollments)
+            checkUserAuthorized(currentUser, course, "You are not allowed to do this action on this course");
+
+        if(checkEnrollments)
+            checkConditionsWithConsideringEnrollments(currentUserId, courseId);
+    }
+
+    private void checkConditionsForDeletingLesson(long currentUserId) throws ForbiddenActionException {
+        if (course.getStatus().equals(Status.PUBLISHED)
+                && !currentUser.isAdmin()) {
+            Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(course.getId());
+
+            if(companyId.isEmpty() || !checker.isCompanyAdmin(currentUserId, companyId.get()))
+                throw new ForbiddenActionException("You can not delete a lesson that is already published");
         }
+    }
 
-        if (isDeletion && course.getStatus().equals(Status.PUBLISHED) && !currentUser.isAdmin())
-            throw new ForbiddenActionException("You can not delete a lesson that is already published");
+    private void checkConditionsWithConsideringEnrollments(long currentUserId, long courseId) throws ForbiddenActionException {
+        Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true);
+        if (enrollment.isEmpty() && !free) {
+            Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(course.getId());
 
-        if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && !checkEnrollments) {
-            throw new ForbiddenActionException("You are not allowed to do this action on this course");
-        }
+            if(companyId.isPresent()) {
+                checker.checkIfAdminOrCompanyUser(currentUser, companyId.get());
+                return;
+            }
 
-        if (checkEnrollments) {
-            Optional<Enrollment> enrollment = enrollmentProvider.enrollmentOf(currentUserId, courseId, true);
-            if (!currentUser.isAdmin() && course.getAuthor().getId() != currentUser.getId() && enrollment.isEmpty() && !free)
+            if(!currentUser.isAdmin()
+                    && course.getAuthor().getId() != currentUser.getId())
                 notEnrolledAccess = true;
+        }
+    }
+
+    private void checkUserAuthorized(User existingUser, Course existingCourse, String message) throws ForbiddenActionException {
+        Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(existingCourse.getId());
+
+        if(companyId.isPresent()) {
+            checker.checkIfAdminOrCompanyAdminOrEditor(existingUser, companyId.get());
+            return;
+        }
+
+        if (!existingUser.isAdmin()
+                && existingCourse.getAuthor().getId() != existingUser.getId()) {
+            throw new ForbiddenActionException(message);
         }
     }
 
@@ -293,6 +335,8 @@ public class Lesson {
         private UserProvider userProvider;
         private CourseProvider courseProvider;
         private EnrollmentProvider enrollmentProvider;
+        private DataChecker checker;
+        private boolean notEnrolledAccess;
 
 
         public LessonBuilder id(long id) {
@@ -367,6 +411,11 @@ public class Lesson {
 
         public LessonBuilder enrollmentProvider(EnrollmentProvider enrollmentProvider) {
             this.enrollmentProvider = enrollmentProvider;
+            return this;
+        }
+
+        public LessonBuilder checker(DataChecker checker) {
+            this.checker = checker;
             return this;
         }
 

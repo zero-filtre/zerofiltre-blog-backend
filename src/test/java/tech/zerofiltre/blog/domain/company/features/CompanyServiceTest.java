@@ -51,7 +51,6 @@ class CompanyServiceTest {
     @DisplayName("given admin user and new company when save then verify call companyProvider save")
     void whenSave_thenVerifyCallCompanyProviderSave() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
 
         //WHEN
         companyService.save(new User(), new Company());
@@ -64,7 +63,7 @@ class CompanyServiceTest {
     @DisplayName("given bad user when save then throw ForbiddenActionException")
     void givenUserWithRoleUserAndNewCompany_whenSave_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -75,8 +74,6 @@ class CompanyServiceTest {
     @DisplayName("given company admin user and existent company when patch then verify call companyProvider save")
     void whenPatch_thenVerifyCallCompanyProviderSave() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
         companyService.patch(new User(), new Company());
@@ -89,7 +86,7 @@ class CompanyServiceTest {
     @DisplayName("given bad user when patch then throw ForbiddenActionException")
     void givenBadUser_whenPatch_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -98,10 +95,9 @@ class CompanyServiceTest {
 
     @Test
     @DisplayName("given admin user and not exiting company when patch then throw ResourceNotFoundException")
-    void givenNotExitingCompany_whenPatch_thenThrowResourceNotFoundException() throws ForbiddenActionException, ResourceNotFoundException {
+    void givenNotExitingCompany_whenPatch_thenThrowResourceNotFoundException() throws ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
+        doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -112,7 +108,6 @@ class CompanyServiceTest {
     @DisplayName("given admin user and existing company id when findById then return company")
     void whenFindById_thenReturnCompany() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
 
         //WHEN
         companyService.findById(new User(), 1L);
@@ -125,7 +120,7 @@ class CompanyServiceTest {
     @DisplayName("given bad user when findById then throw ForbiddenActionException")
     void givenBadUser_whenFindById_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -163,7 +158,6 @@ class CompanyServiceTest {
     @DisplayName("given admin user and userId when findAll then verify call companyProvider findAllByUserId")
     void givenAdminUser_whenFindAll_thenVerifyCallCompanyProviderFindAllByUserId() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
         when(companyProvider.findAllByUserId(anyInt(), anyInt(), anyLong())).thenReturn(new Page<>());
 
         //WHEN
@@ -177,7 +171,7 @@ class CompanyServiceTest {
     @DisplayName("given not admin user and userId when findAll then throw ForbiddenActionException")
     void givenNotAdminUserAndUserId_whenFindAll_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -204,8 +198,6 @@ class CompanyServiceTest {
     @DisplayName("given admin user and existing company when delete then verify call companyUserProvider unlinkAllByCompanyId and companyCourseProvider unlinkAllByCompanyId and companyProvider delete")
     void givenAdminUserAndExistingCompany_whenDelete_thenVerifyCallCompanyProviderDelete() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
         companyService.delete(new User(), new Company());
@@ -220,7 +212,7 @@ class CompanyServiceTest {
     @DisplayName("given admin user when delete then throw ForbiddenActionException")
     void givenBadUser_whenDelete_thenThrowForbiddenActionException() throws ForbiddenActionException {
         //GIVEN
-        when(checker.isAdminUser(any(User.class))).thenThrow(new ForbiddenActionException(""));
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminUser(any(User.class));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
