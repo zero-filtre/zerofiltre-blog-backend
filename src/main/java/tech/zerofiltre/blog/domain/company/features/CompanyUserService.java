@@ -23,9 +23,9 @@ public class CompanyUserService {
     private final DataChecker checker;
 
     public LinkCompanyUser link(User connectedUser, long companyId, long userId, LinkCompanyUser.Role role) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
-        checker.companyExists(companyId);
-        checker.userExists(userId);
+        checker.checkIfAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.checkCompanyExistence(companyId);
+        checker.checkUserExistence(userId);
 
         Optional<LinkCompanyUser> existingCompanyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
@@ -46,16 +46,16 @@ public class CompanyUserService {
     }
 
     public Optional<LinkCompanyUser> find(User connectedUser, long companyId, long userId) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
-        checker.companyExists(companyId);
-        checker.userExists(userId);
+        checker.checkIfAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.checkCompanyExistence(companyId);
+        checker.checkUserExistence(userId);
 
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
     }
 
     public Page<LinkCompanyUser> findAllByCompanyId(User connectedUser, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
-        checker.companyExists(companyId);
+        checker.checkIfAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.checkCompanyExistence(companyId);
 
         return companyUserProvider.findAllByCompanyId(pageNumber, pageSize, companyId);
     }
@@ -65,51 +65,53 @@ public class CompanyUserService {
     }
 
     public void unlink(User connectedUser, long companyId, long userId, boolean hard) throws ZerofiltreException {
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.checkIfAdminOrCompanyAdmin(connectedUser, companyId);
 
         Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
-        if(companyUser.isPresent()) {
-            if(hard) {
+        if(hard && companyUser.isPresent()) {
                 companyUserProvider.delete(companyUser.get());
                 suspendEnrollments(companyUser.get().getId());
-            } else {
-                suspendLink(companyUser.get());
-            }
+                return;
         }
+
+        if(!hard && companyUser.isPresent()) suspendLink(companyUser.get());
     }
 
     public void unlinkAllByCompanyId(User connectedUser, long companyId, boolean hard) throws ZerofiltreException {
-        checker.isAdminOrCompanyAdmin(connectedUser, companyId);
-        checker.companyExists(companyId);
+        checker.checkIfAdminOrCompanyAdmin(connectedUser, companyId);
+        checker.checkCompanyExistence(companyId);
 
-        if(hard) {
-            if(connectedUser.isAdmin()) {
-                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
-                    companyUserProvider.delete(c);
-                    suspendEnrollments(c.getId());
-                }
-            } else {
-                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
-                    companyUserProvider.delete(c);
-                    suspendEnrollments(c.getId());
-                }
+        if(hard && connectedUser.isAdmin()) {
+            for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
+                companyUserProvider.delete(c);
+                suspendEnrollments(c.getId());
             }
-        } else {
-            if(connectedUser.isAdmin()) {
-                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
-                    suspendLink(c);
-                }
-            } else {
-                for(LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
-                    suspendLink(c);
-                }
+            return;
+        }
+
+        if(hard && !connectedUser.isAdmin()) {
+            for(LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
+                companyUserProvider.delete(c);
+                suspendEnrollments(c.getId());
             }
+            return;
+        }
+
+        if(connectedUser.isAdmin()) {
+            for(LinkCompanyUser c : companyUserProvider.findAllByCompanyId(companyId)) {
+                suspendLink(c);
+            }
+            return;
+        }
+
+        for (LinkCompanyUser c : companyUserProvider.findAllByCompanyIdExceptAdminRole(companyId)) {
+            suspendLink(c);
         }
     }
 
     public void unlinkAllByUserId(User connectedUser, long userId) throws ForbiddenActionException {
-        checker.isAdminUser(connectedUser);
+        checker.checkIfAdminUser(connectedUser);
 
         companyUserProvider.deleteAllByUserId(userId);
     }

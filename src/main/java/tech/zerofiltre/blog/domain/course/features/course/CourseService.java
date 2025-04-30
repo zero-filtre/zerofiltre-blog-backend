@@ -52,8 +52,8 @@ public class CourseService {
         boolean isCompanyCourse = false;
 
         if (companyId > 0) {
-            checker.companyExists(companyId);
-            checker.isAdminOrCompanyAdminOrEditor(author, companyId);
+            checker.checkCompanyExistence(companyId);
+            checker.checkIfAdminOrCompanyAdminOrEditor(author, companyId);
             isCompanyCourse = true;
         }
 

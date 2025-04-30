@@ -61,6 +61,29 @@ class DBCompanyUserProviderIT {
     }
 
     @Test
+    @DisplayName("When I search for an existing link between a company and a user, I return that link.")
+    void shouldReturnLink_whenSearchExistingLinkBetweenCompanyAndUser() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        LocalDateTime linkedAt = LocalDateTime.now().minusDays(2);
+        LocalDateTime suspendedAt = LocalDateTime.now().minusDays(1);
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, false, linkedAt, suspendedAt));
+
+        //WHEN
+        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user.getId());
+
+        //THEN
+        assertThat(response).isPresent();
+        assertThat(response.get().getCompanyId()).isEqualTo(company.getId());
+        assertThat(response.get().getUserId()).isEqualTo(user.getId());
+        assertThat(response.get().getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN);
+        assertThat(response.get().isActive()).isFalse();
+        assertThat(response.get().getLinkedAt()).isEqualTo(linkedAt);
+        assertThat(response.get().getSuspendedAt()).isEqualTo(suspendedAt);
+    }
+
+    @Test
     @DisplayName("given a companyId and userId and active LinkCompanyUser and ADMIN when findByCompanyIdAndUserId then return optional LinkCompanyUser")
     void findByCompanyIdAndUserId() {
         //GIVEN
@@ -69,7 +92,7 @@ class DBCompanyUserProviderIT {
         dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
 
         //WHEN
-        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user.getId());
+        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user.getId(), true);
 
         //THEN
         assertThat(response).isPresent();
@@ -240,7 +263,7 @@ class DBCompanyUserProviderIT {
         dbCompanyUserProvider.delete(linkCompanyUser);
 
         //THEN
-        cu = dbCompanyUserProvider.findByCompanyIdAndUserId(linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId());
+        cu = dbCompanyUserProvider.findByCompanyIdAndUserId(linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId(), true);
 
         assertThat(cu).isEmpty();
     }
@@ -310,14 +333,14 @@ class DBCompanyUserProviderIT {
         dbCompanyUserProvider.deleteAllByCompanyIdExceptAdminRole(company.getId());
 
         //THEN
-        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user1.getId());
+        Optional<LinkCompanyUser> response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user1.getId(), true);
         assertThat(response).isPresent();
         assertThat(response.get().getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN);
 
-        response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user2.getId());
+        response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user2.getId(), true);
         assertThat(response).isEmpty();
 
-        response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user3.getId());
+        response = dbCompanyUserProvider.findByCompanyIdAndUserId(company.getId(), user3.getId(), true);
         assertThat(response).isEmpty();
     }
 
