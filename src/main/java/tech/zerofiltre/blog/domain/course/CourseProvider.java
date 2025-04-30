@@ -29,4 +29,7 @@ public interface CourseProvider {
     String getTitle(long courseId);
 
     List<Course> newCoursesFromLastMonth();
+
+    Optional<Long> idOfCompanyOwningCourse(long courseId);
+
 }

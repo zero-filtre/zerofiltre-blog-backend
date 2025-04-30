@@ -65,4 +65,9 @@ public class NotFoundCourseProviderSpy implements CourseProvider {
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }
