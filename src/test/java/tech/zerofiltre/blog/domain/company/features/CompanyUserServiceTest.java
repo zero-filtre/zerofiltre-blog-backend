@@ -64,7 +64,7 @@ class CompanyUserServiceTest {
     @DisplayName("When a user with permission links a user to a company, then the link is created")
     void shouldCreatesLink_whenLinkUserToCompany_asUserWithPermission() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
 
@@ -72,7 +72,7 @@ class CompanyUserServiceTest {
         companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
 
@@ -90,19 +90,19 @@ class CompanyUserServiceTest {
         //GIVEN
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now().minusMonths(1), null);
 
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
         companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
@@ -112,19 +112,19 @@ class CompanyUserServiceTest {
         //GIVEN
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusDays(10));
 
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
         companyUserService.link(adminUser, linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId(), LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
 
         ArgumentCaptor<LinkCompanyUser> captor = ArgumentCaptor.forClass(LinkCompanyUser.class);
         verify(companyUserProvider).save(captor.capture());
@@ -139,14 +139,14 @@ class CompanyUserServiceTest {
     void shouldForbidden_whenLinkUserToCompany_asUserWithoutPermission()
     throws ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenThrow(new ForbiddenActionException(""));
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyUserService.link(userWithUserRole, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
@@ -154,7 +154,7 @@ class CompanyUserServiceTest {
     @DisplayName("When a user with permission links a user to a non-existent company, then the user and the company are not linked")
     void shouldUserAndCompanyNotLinked_whenLinkUserToNotExistingCompany_asUserWithPermission() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
         //WHEN
@@ -162,7 +162,7 @@ class CompanyUserServiceTest {
                 .isThrownBy(() -> companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
@@ -170,7 +170,7 @@ class CompanyUserServiceTest {
     @DisplayName("When a user with permission links a non-existent user to a company, then the user and the company are not linked")
     void shouldUserAndCompanyNotLinked_whenLinkNotExistingUserToCompany_asUserWithPermission() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
@@ -179,7 +179,7 @@ class CompanyUserServiceTest {
                 .isThrownBy(() -> companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
@@ -199,7 +199,7 @@ class CompanyUserServiceTest {
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -214,7 +214,7 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -231,7 +231,7 @@ class CompanyUserServiceTest {
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -250,7 +250,7 @@ class CompanyUserServiceTest {
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -335,8 +335,8 @@ class CompanyUserServiceTest {
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, 2L, 3L, LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         doNothing().when(spy).suspendEnrollments(anyLong());
 
         //WHEN
@@ -344,8 +344,8 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(companyUserProvider).delete(any(LinkCompanyUser.class));
 
         ArgumentCaptor<Long> captorLink = ArgumentCaptor.forClass(Long.class);
@@ -363,14 +363,14 @@ class CompanyUserServiceTest {
         CompanyUserService spy = spy(companyUserService);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //WHEN
         spy.unlink(adminUser, 1L, 1L, true);
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(companyUserProvider, never()).delete(any(LinkCompanyUser.class));
         verify(spy, never()).suspendEnrollments(anyLong());
     }
@@ -390,8 +390,8 @@ class CompanyUserServiceTest {
         enrollment2.setCompanyUserId(linkCompanyUser.getId());
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
-        when(checker.hasPermission(any(User.class), anyLong())).thenReturn(true);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
+        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(enrollmentProvider.findAllByCompanyUserId(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
 
         //WHEN
@@ -399,8 +399,8 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
-        verify(checker).hasPermission(any(User.class), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
+        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
 
         ArgumentCaptor<LinkCompanyUser> captorLink = ArgumentCaptor.forClass(LinkCompanyUser.class);
         verify(spy).suspendLink(captorLink.capture());
@@ -423,14 +423,14 @@ class CompanyUserServiceTest {
         CompanyUserService spy = spy(companyUserService);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //WHEN
         spy.unlink(adminUser, 1L, 1L, false);
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(spy, never()).suspendLink(any(LinkCompanyUser.class));
     }
 
@@ -887,7 +887,7 @@ class CompanyUserServiceTest {
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
         List<Enrollment> enrollmentsCaptured = captor.getAllValues();
-        assertThat(enrollmentsCaptured).isNotEmpty().hasSize(2);
+        assertThat(enrollmentsCaptured).hasSize(2);
         assertThat(enrollmentsCaptured.get(0).isActive()).isFalse();
         assertThat(enrollmentsCaptured.get(0).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
 

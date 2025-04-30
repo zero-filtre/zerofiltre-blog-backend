@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SaveChapterVM;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -30,6 +31,7 @@ public class ChapterController {
     private final LessonProvider lessonProvider;
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
+    private final DataChecker checker;
     private final SecurityContextManager securityContextManager;
 
 
@@ -39,6 +41,7 @@ public class ChapterController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .build();
         User user = securityContextManager.getAuthenticatedUser();
         return chapter.init(title, courseId, user.getId());
@@ -50,6 +53,7 @@ public class ChapterController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .title(saveChapterVM.getTitle())
                 .id(saveChapterVM.getId())
                 .courseId(saveChapterVM.getCourseId())
@@ -64,6 +68,7 @@ public class ChapterController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         User user = null;
@@ -82,6 +87,7 @@ public class ChapterController {
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
                 .lessonProvider(lessonProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         User user = securityContextManager.getAuthenticatedUser();
@@ -96,6 +102,7 @@ public class ChapterController {
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
                 .lessonProvider(lessonProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         User user = securityContextManager.getAuthenticatedUser();
@@ -109,6 +116,7 @@ public class ChapterController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .courseId(id)
                 .build();
         User user = null;
@@ -126,6 +134,7 @@ public class ChapterController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         User user = securityContextManager.getAuthenticatedUser();
