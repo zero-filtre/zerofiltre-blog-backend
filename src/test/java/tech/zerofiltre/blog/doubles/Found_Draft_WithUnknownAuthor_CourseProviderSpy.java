@@ -69,4 +69,9 @@ public class Found_Draft_WithUnknownAuthor_CourseProviderSpy implements CoursePr
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }
