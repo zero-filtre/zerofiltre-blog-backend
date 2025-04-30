@@ -25,9 +25,9 @@ public class CompanyCourseService {
     private final DataChecker checker;
 
     public LinkCompanyCourse link(User currentUser, long companyId, long courseId) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminUser(currentUser);
-        checker.companyExists(companyId);
-        checker.courseExists(courseId);
+        checker.checkIfAdminUser(currentUser);
+        checker.checkCompanyExistence(companyId);
+        checker.checkCourseExistence(courseId);
 
         Optional<LinkCompanyCourse> existingCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
         if(existingCompanyCourse.isEmpty()) {
@@ -43,8 +43,8 @@ public class CompanyCourseService {
     }
 
     public void activeAllByCompanyId(User user, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminUser(user);
-        checker.companyExists(companyId);
+        checker.checkIfAdminUser(user);
+        checker.checkCompanyExistence(companyId);
 
         for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
             c.setActive(true);
@@ -54,17 +54,17 @@ public class CompanyCourseService {
     }
 
     public Optional<LinkCompanyCourse> find(User user, long companyId, long courseId) throws ForbiddenActionException {
-        checker.isAdminOrCompanyUser(user, companyId);
+        checker.checkIfAdminOrCompanyUser(user, companyId);
         return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
     }
 
     public Page<LinkCompanyCourse> findAllByCompanyId(User user, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException {
-        checker.isAdminOrCompanyUser(user, companyId);
+        checker.checkIfAdminOrCompanyUser(user, companyId);
         return companyCourseProvider.findByCompanyId(pageNumber, pageSize, companyId);
     }
 
     public Page<Course> findCoursesByCompanyId(FinderRequest request, long companyId) throws ForbiddenActionException {
-        checker.isAdminOrCompanyUser(request.getUser(), companyId);
+        checker.checkIfAdminOrCompanyUser(request.getUser(), companyId);
         return companyCourseProvider.findCoursesByCompanyId(request.getPageNumber(), request.getPageSize(), companyId, request.getStatus());
     }
 
@@ -73,7 +73,7 @@ public class CompanyCourseService {
     }
 
     public void unlink(User user, long companyId, long courseId, boolean hard) throws ZerofiltreException {
-        checker.isAdminOrCompanyAdmin(user, companyId);
+        checker.checkIfAdminOrCompanyAdmin(user, companyId);
 
         if(hard) {
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
@@ -90,8 +90,8 @@ public class CompanyCourseService {
     }
 
     public void unlinkAllByCompanyId(User user, long companyId, boolean hard) throws ZerofiltreException {
-        checker.isAdminOrCompanyAdmin(user, companyId);
-        checker.companyExists(companyId);
+        checker.checkIfAdminOrCompanyAdmin(user, companyId);
+        checker.checkCompanyExistence(companyId);
 
         if(hard) {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
@@ -106,8 +106,8 @@ public class CompanyCourseService {
     }
 
     public void unlinkAllByCourseId(User user, long courseId, boolean hard) throws ZerofiltreException {
-        checker.isAdminUser(user);
-        checker.courseExists(courseId);
+        checker.checkIfAdminUser(user);
+        checker.checkCourseExistence(courseId);
 
         if(hard) {
             for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {

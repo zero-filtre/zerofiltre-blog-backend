@@ -68,4 +68,9 @@ public class Found_Draft_WithKnownAuthor_CourseProvider_Spy implements CoursePro
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }

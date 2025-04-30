@@ -80,18 +80,18 @@ class CourseServiceTest {
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course course = courseService.init(THIS_IS_MY_TITLE, user, 0);
+        Course course1 = courseService.init(THIS_IS_MY_TITLE, user, 0);
 
         //THEN
-        assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
-        assertThat(course.getStatus()).isEqualTo(DRAFT);
-        LocalDateTime createdAt = course.getCreatedAt();
+        assertThat(course1.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
+        assertThat(course1.getStatus()).isEqualTo(DRAFT);
+        LocalDateTime createdAt = course1.getCreatedAt();
         assertThat(createdAt).isAfterOrEqualTo(beforeSave);
-        assertThat(course.getLastSavedAt()).isEqualTo(createdAt);
-        assertThat(course.getLastPublishedAt()).isNull();
-        assertThat(course.getPublishedAt()).isNull();
-        assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
-        assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
+        assertThat(course1.getLastSavedAt()).isEqualTo(createdAt);
+        assertThat(course1.getLastPublishedAt()).isNull();
+        assertThat(course1.getPublishedAt()).isNull();
+        assertThat(course1.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(course1.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
@@ -107,26 +107,23 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(1);
 
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
 
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course course = courseService.init(THIS_IS_MY_TITLE, user, companyId);
+        Course course1 = courseService.init(THIS_IS_MY_TITLE, user, companyId);
 
         //THEN
-        assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
-        assertThat(course.getStatus()).isEqualTo(DRAFT);
-        LocalDateTime createdAt = course.getCreatedAt();
+        assertThat(course1.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
+        assertThat(course1.getStatus()).isEqualTo(DRAFT);
+        LocalDateTime createdAt = course1.getCreatedAt();
         assertThat(createdAt).isAfterOrEqualTo(beforeSave);
-        assertThat(course.getLastSavedAt()).isEqualTo(createdAt);
-        assertThat(course.getLastPublishedAt()).isNull();
-        assertThat(course.getPublishedAt()).isNull();
-        assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
-        assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
+        assertThat(course1.getLastSavedAt()).isEqualTo(createdAt);
+        assertThat(course1.getLastPublishedAt()).isNull();
+        assertThat(course1.getPublishedAt()).isNull();
+        assertThat(course1.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(course1.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
-        verify(checker, never()).isCompanyAdminOrCompanyEditor(any(), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
         verify(companyCourseProvider).save(captor.capture());
@@ -150,31 +147,29 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
 
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course course = courseService.init(THIS_IS_MY_TITLE, user, companyId);
+        Course course1 = courseService.init(THIS_IS_MY_TITLE, user, companyId);
 
         //THEN
-        assertThat(course.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
-        assertThat(course.getStatus()).isEqualTo(DRAFT);
-        LocalDateTime createdAt = course.getCreatedAt();
+        assertThat(course1.getTitle()).isEqualTo(THIS_IS_MY_TITLE);
+        assertThat(course1.getStatus()).isEqualTo(DRAFT);
+        LocalDateTime createdAt = course1.getCreatedAt();
         assertThat(createdAt).isAfterOrEqualTo(beforeSave);
-        assertThat(course.getLastSavedAt()).isEqualTo(createdAt);
-        assertThat(course.getLastPublishedAt()).isNull();
-        assertThat(course.getPublishedAt()).isNull();
-        assertThat(course.getAuthor().getId()).isEqualTo(user.getId());
-        assertThat(course.getAuthor().getEmail()).isEqualTo(user.getEmail());
+        assertThat(course1.getLastSavedAt()).isEqualTo(createdAt);
+        assertThat(course1.getLastPublishedAt()).isNull();
+        assertThat(course1.getPublishedAt()).isNull();
+        assertThat(course1.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(course1.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
         verify(companyCourseProvider).save(captor.capture());
         LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
         Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
-        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
+        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course1.getId());
         Assertions.assertThat(linkCompanyCourseCaptured.isExclusive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
@@ -182,8 +177,8 @@ class CourseServiceTest {
     }
 
     @Test
-    @DisplayName("When a company viewer initializes a company course, a forbidden action exception is thrown.")
-    void shouldThrownException_whenCompanyViewerInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a company viewer or a non-company user initializes a company course, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCompanyViewerInitializesCompanyCourse() throws ForbiddenActionException {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
@@ -191,30 +186,7 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
-
-        //WHEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> courseService.init(THIS_IS_MY_TITLE, user, 1));
-
-        //THEN
-        assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
-        verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
-    }
-
-    @Test
-    @DisplayName("When a non-company user initializes a company's course, a forbidden action exception is thrown.")
-    void shouldThrownException_whenNotCompanyUserInitializesCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
-        //GIVEN
-        courseProvider = new NotFoundCourseProviderSpy();
-
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        User user = ZerofiltreUtilsTest.createMockUser(false);
-        user.setId(1);
-
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(ForbiddenActionException.class);
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -235,7 +207,7 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
