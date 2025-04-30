@@ -31,11 +31,6 @@ public class DBCompanyUserProvider implements CompanyUserProvider {
     }
 
     @Override
-    public Optional<LinkCompanyUser> findByCompanyIdAndUserId(long companyId, long userId) {
-        return repository.findByCompanyIdAndUserId(companyId, userId).map(mapper::fromJPA);
-    }
-
-    @Override
     public Optional<LinkCompanyUser> findByCompanyIdAndUserId(long companyId, long userId, boolean active) {
         return repository.findByCompanyIdAndUserIdAndActive(companyId, userId, active).map(mapper::fromJPA);
     }
