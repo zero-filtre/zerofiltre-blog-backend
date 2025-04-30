@@ -1,16 +1,27 @@
 package tech.zerofiltre.blog.domain.course.model;
 
-import org.junit.jupiter.api.*;
-import tech.zerofiltre.blog.domain.article.model.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.error.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
+import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.user.UserProvider;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
-import tech.zerofiltre.blog.util.*;
+import tech.zerofiltre.blog.util.DataChecker;
+import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
@@ -656,6 +667,370 @@ class LessonTest {
         org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
         org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO);
 
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of an unpublished company-owned course for a viewer user, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCheckAccessConditions_forLessonPartUnpublishedCompanyOwnedCourse_forCompanyViewer() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.checkLessonAccessConditions(1, 1, false, false));
+
+        verify(courseProvider).courseOfId(anyLong());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson and it is an platform admin, there's nothing there.")
+    void shouldNothing_whenCheckAccessConditions_forLessonAndPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        DataChecker checker = Mockito.mock(DataChecker.class);
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundAdminUserProviderSpy())
+                .courseProvider(new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons())
+                .checker(checker)
+                .enrollmentProvider(new EnrollmentProviderSpy())
+                .title("Lesson 1")
+                .free(true)
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, true, true);
+
+        //THEN
+        verify(checker, never()).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published company-owned course for a viewer user and deletion is in progress, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCheckAccessConditions_forLessonPartPublishedCompanyOwnedCourse_forCompanyViewer_andDeletionInProgress() {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isCompanyAdmin(anyLong(), anyLong())).thenReturn(false);
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.checkLessonAccessConditions(1, 1, true, true))
+                .withMessage("You can not delete a lesson that is already published");
+
+        verify(courseProvider).courseOfId(anyLong());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isCompanyAdmin(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published company-owned course for a company admin and deletion is in progress, there's nothing there.")
+    void shouldNothing_whenCheckAccessConditions_forLessonPartPublishedCompanyOwnedCourse_forCompanyAdmin_andDeletionInProgress() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isCompanyAdmin(anyLong(), anyLong())).thenReturn(true);
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .enrollmentProvider(new EnrollmentProviderSpy())
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, true, true);
+
+        //THEN
+        verify(courseProvider).courseOfId(anyLong());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isCompanyAdmin(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is an non-admin user, not the author and the verification of the enrollments is false, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCheckAccessConditions_forLessonAndNonAdminUserAndNotAuthorAndCheckEnrollmentsIsFalse() {
+        //GIVEN
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .enrollmentProvider(new EnrollmentProviderSpy())
+                .title("Lesson 1")
+                .free(true)
+                .build();
+
+        //WHEN
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.checkLessonAccessConditions(1, 1, false, false))
+                .withMessage("You are not allowed to do this action on this course");
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is an non-admin user and the author and the verification of the enrollments is false, there's nothing there.")
+    void shouldNothing_whenCheckAccessConditions_forLessonAndNonAdminUserAndIsAuthorAndCheckEnrollmentsIsFalse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, false, false);
+
+        //THEN
+        assertThat(course.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(user.isAdmin()).isFalse();
+        assertThat(user).isEqualTo(course.getAuthor());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published company-owned course, it is an non-admin user and the verification of the enrollments is false, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCheckAccessConditions_forLessonPartOfPublishedCompanyOwnedCourse_andNonCompanyAdminAndCheckEnrollmentsIsFalse() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.checkLessonAccessConditions(1, 1, false, false));
+
+        //THEN
+        verify(courseProvider).courseOfId(anyLong());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is an non-admin user and not author, and the verification of the enrollments is true, the non-access enrolled is true.")
+    void shouldNotAccessEnrolledIsTrue_whenCheckAccessConditions_forLessonAndNonAdminUserAndNotAuthorAndCheckEnrollmentsIsTrue() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .enrollmentProvider(enrollmentProvider)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, false, true);
+
+        //THEN
+        assertThat(lesson.getNotEnrolledAccess()).isTrue();
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is an non-admin user and author, and the verification of the enrollments is true, the non-access enrolled is false.")
+    void shouldNotAccessEnrolledIsFalse_whenCheckAccessConditions_forLessonAndNonAdminUserAndIsAuthorAndCheckEnrollmentsIsTrue() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        UserProvider userProvider = mock(UserProvider.class);
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(user));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.empty());
+
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .enrollmentProvider(enrollmentProvider)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, false, true);
+
+        //THEN
+        assertThat(lesson.getNotEnrolledAccess()).isFalse();
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published company-owned course, it is a company user and the verification of the enrollments is true, there's nothing there.")
+    void shouldNothing_whenCheckAccessConditions_forLessonPartOfPublishedCompanyOwnedCourse_andCompanyUserAndCheckEnrollmentsIsTrue() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .enrollmentProvider(enrollmentProvider)
+                .checker(checker)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        lesson.checkLessonAccessConditions(1, 1, false, true);
+
+        //THEN
+        verify(courseProvider).courseOfId(anyLong());
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When I check the access conditions for a lesson that is part of a published company-owned course, the user is a non-platform admin or non-company user and the verification of the enrollments is true, a forbidden action exception is thrown.")
+    void shouldThrownException_whenCheckAccessConditions_forLessonPartOfPublishedCompanyOwnedCourse_andUserIsNotPlatformAdminOrCompanyUserAndCheckEnrollmentsIsTrue() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
+        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .enrollmentProvider(enrollmentProvider)
+                .checker(checker)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.checkLessonAccessConditions(1, 1, false, true));
+
+        //THEN
+        verify(courseProvider).courseOfId(anyLong());
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a user who is not logged in wants to access a lesson that is part of a published company-owned course, a forbidden action exception is thrown.")
+    void shouldThrownException_whenUserNotLogged_wantsAccessLessonCompanyOwnedCourse() {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        Lesson lesson = Lesson.builder()
+                .id(1)
+                .lessonProvider(new FoundLessonProviderSpy())
+                .chapterProvider(new FoundChapterProviderSpy())
+                .courseProvider(courseProvider)
+                .title("Lesson 1")
+                .build();
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> lesson.get(0))
+                .withMessage("You are not allowed to do this action on this course");
+
+        //THEN
+        verify(courseProvider).courseOfId(anyLong());
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
     }
 
 }

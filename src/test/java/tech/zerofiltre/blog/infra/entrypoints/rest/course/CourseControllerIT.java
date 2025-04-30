@@ -172,7 +172,6 @@ class CourseControllerIT {
         //ARRANGE
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/course")

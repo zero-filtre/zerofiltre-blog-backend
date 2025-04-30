@@ -135,4 +135,9 @@ public class DBCourseProvider implements CourseProvider {
         return repository.findNewCoursesBetween(listDates.get(0), listDates.get(1))
                 .stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return repository.findIdOfCompanyOwningCourse(courseId);
+    }
 }

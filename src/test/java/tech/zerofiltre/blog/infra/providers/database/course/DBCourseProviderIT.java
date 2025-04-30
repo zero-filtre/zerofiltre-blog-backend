@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Reaction;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Chapter;
@@ -22,6 +23,8 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.ReactionCourseJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.company.CompanyCourseJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
@@ -50,6 +53,8 @@ class DBCourseProviderIT {
 
     DBReactionProvider reactionProvider;
 
+    DBCompanyCourseProvider companyCourseProvider;
+
     @Autowired
     CourseJPARepository courseJPARepository;
 
@@ -68,6 +73,8 @@ class DBCourseProviderIT {
     @Autowired
     private ReactionCourseJPARepository reactionRepository;
 
+    @Autowired
+    private CompanyCourseJPARepository companyCourseJPARepository;
 
     @BeforeEach
     void init() {
@@ -75,6 +82,7 @@ class DBCourseProviderIT {
         userProvider = new DBUserProvider(userJPARepository);
         lessonProvider = new DBLessonProvider(lessonJPARepository, enrollmentJPARepository);
         chapterProvider = new DBChapterProvider(chapterJPARepository);
+        companyCourseProvider = new DBCompanyCourseProvider(companyCourseJPARepository);
     }
 
     @Test
@@ -228,6 +236,36 @@ class DBCourseProviderIT {
 
         assertThat(courseList.get(2).getId()).isEqualTo(courseB2.getId());
         assertThat(courseList.get(2).getLastPublishedAt()).isEqualTo(courseB2.getLastPublishedAt());
+    }
+
+    @Test
+    @DisplayName("When I search for the id of the company that owns a course, this id returned")
+    void shouldReturnIdCompany_whenCompanyOwnerCourse() {
+        //GIVEN
+        Course course = courseProvider.save(new Course());
+        long companyId = 6;
+        companyCourseProvider.save(new LinkCompanyCourse(0, companyId, course.getId(), true, true, LocalDateTime.now(), null));
+
+        //WHEN
+        Optional<Long> response = courseProvider.idOfCompanyOwningCourse(course.getId());
+
+        //THEN
+        assertThat(response).isPresent();
+        assertThat(response.get()).isEqualTo(companyId);
+    }
+
+    @Test
+    @DisplayName("when I search for the id of the company that doesn't own a course, an empty object is returned")
+    void shouldReturnEmpty_whenCompanyNotOwnerCourse() {
+        //GIVEN
+        Course course = courseProvider.save(new Course());
+        companyCourseProvider.save(new LinkCompanyCourse(0, 6, course.getId(), false, true, LocalDateTime.now(), null));
+
+        //WHEN
+        Optional<Long> response = courseProvider.idOfCompanyOwningCourse(course.getId());
+
+        //THEN
+        assertThat(response).isEmpty();
     }
 
     private List<Reaction> initCourseWithReactions() {

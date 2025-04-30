@@ -193,7 +193,6 @@ class CourseServiceIT {
 
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
 
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
@@ -229,11 +228,11 @@ class CourseServiceIT {
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
-        Course course = courseService.init("some title", author, 0);
 
-        assertThat(courseService.findById(course.getId(), author)).isNotNull();
+        Course course1 = courseService.init("some title", author, 0);
+
+        assertThat(courseService.findById(course1.getId(), author)).isNotNull();
     }
 
     @Test
