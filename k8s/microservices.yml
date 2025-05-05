@@ -42,10 +42,6 @@ spec:
           {{- end -}}
     spec:
       serviceAccountName: internal-app
-      volumes:
-        - name: zerofiltretech-blog-${env_name}
-          persistentVolumeClaim:
-            claimName: zerofiltretech-blog-${env_name}
       containers:
         - name: redis-${env_name}
           image: redis
@@ -54,9 +50,6 @@ spec:
             - containerPort: 6379
         - name: zerofiltretech-blog-${env_name}
           image: imzerofiltre/zerofiltretech-blog:${tag_number}_${docker_tag_suffix}
-          volumeMounts:
-            - name: zerofiltretech-blog-${env_name}
-              mountPath: /heapdumps
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -134,16 +127,4 @@ spec:
     - hosts:
         - ${api_host}
       secretName: blog-api-zerofiltre-ingress-cert # < cert-manager will store the created certificate in this secret.
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: zerofiltretech-${env_name}
-  name: zerofiltretech-blog-${env_name}
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 8Gi
-  storageClassName: csi-cinder-high-speed
+
