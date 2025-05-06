@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.model.Course;
@@ -54,8 +55,8 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     }
 
     @Override
-    public Page<Course> findAllCoursesByCompanyIdByPage(int pageNumber, int pageSize, long companyId) {
-        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findAllCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId);
+    public Page<Course> findAllCoursesByCompanyIdByPage(int pageNumber, int pageSize, long companyId, Status status) {
+        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findAllCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
         return pageCourseMapper.fromSpringPage(pageJpa.map(courseMapper::fromJPA));
     }
 
