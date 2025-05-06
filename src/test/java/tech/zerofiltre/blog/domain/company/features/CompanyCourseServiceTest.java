@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
@@ -398,7 +399,7 @@ class CompanyCourseServiceTest {
         when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
-        companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L, Status.PUBLISHED);
+        companyCourseService.findAllCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L);
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
@@ -414,7 +415,7 @@ class CompanyCourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L, Status.PUBLISHED));
+                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L));
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
@@ -1005,7 +1006,7 @@ class CompanyCourseServiceTest {
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
         List<Enrollment> enrollmentsCaptured = captor.getAllValues();
-        assertThat(enrollmentsCaptured.size()).isEqualTo(2);
+        assertThat(enrollmentsCaptured).hasSize(2);
         assertThat(enrollmentsCaptured.get(0).isActive()).isFalse();
         assertThat(enrollmentsCaptured.get(0).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
 
