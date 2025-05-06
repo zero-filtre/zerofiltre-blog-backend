@@ -157,21 +157,37 @@ class DBCompanyCourseProviderIT {
     }
 
     @Test
-    @DisplayName("given pageNumber, pageSize and companyId when findAllCoursesByCompanyIdByPage then return page of courses for a company")
-    void findAllCoursesByCompanyIdByPage_returnAllCoursesByCompanyIdByPage() {
+    @DisplayName("When I want to find the drafts of a company's courses, a list is returned.")
+    void shouldReturnCoursesList_whenFindDraftCompanyCourse() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
-        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
 
-        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
+        Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course4 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course6 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course8 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
+
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId());
+        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.DRAFT);
 
         //THEN
         assertThat(response).isNotNull();
@@ -183,6 +199,141 @@ class DBCompanyCourseProviderIT {
 
         assertThat(content.get(1).getId()).isEqualTo(course2.getId());
         assertThat(content.get(1).getStatus()).isEqualTo(course2.getStatus());
+    }
+
+    @Test
+    @DisplayName("When I want to find a company's published courses, a list is returned.")
+    void shouldReturnCoursesList_whenFindCompanyPublishedCourse() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course4 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course6 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course8 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
+
+        //WHEN
+        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.PUBLISHED);
+
+        //THEN
+        assertThat(response).isNotNull();
+        List<Course> content = response.getContent();
+        assertThat(content).hasSize(2);
+
+        assertThat(content.get(0).getId()).isEqualTo(course3.getId());
+        assertThat(content.get(0).getStatus()).isEqualTo(course3.getStatus());
+
+        assertThat(content.get(1).getId()).isEqualTo(course4.getId());
+        assertThat(content.get(1).getStatus()).isEqualTo(course4.getStatus());
+    }
+
+    @Test
+    @DisplayName("When I want to find a company's review courses, a list is returned.")
+    void shouldReturnCoursesList_whenFindCompanyInReviewCourse() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course4 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course6 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course8 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
+
+        //WHEN
+        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.IN_REVIEW);
+
+        //THEN
+        assertThat(response).isNotNull();
+        List<Course> content = response.getContent();
+        assertThat(content).hasSize(2);
+
+        assertThat(content.get(0).getId()).isEqualTo(course5.getId());
+        assertThat(content.get(0).getStatus()).isEqualTo(course5.getStatus());
+
+        assertThat(content.get(1).getId()).isEqualTo(course6.getId());
+        assertThat(content.get(1).getStatus()).isEqualTo(course6.getStatus());
+    }
+
+    @Test
+    @DisplayName("When I want to find a company's archived courses, a list is returned.")
+    void shouldReturnCoursesList_whenFindCompanyArchivedCourse() {
+        //GIVEN
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
+        Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course4 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course6 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
+
+        Course course8 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
+        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
+
+        //WHEN
+        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.ARCHIVED);
+
+        //THEN
+        assertThat(response).isNotNull();
+        List<Course> content = response.getContent();
+        assertThat(content).hasSize(2);
+
+        assertThat(content.get(0).getId()).isEqualTo(course7.getId());
+        assertThat(content.get(0).getStatus()).isEqualTo(course7.getStatus());
+
+        assertThat(content.get(1).getId()).isEqualTo(course8.getId());
+        assertThat(content.get(1).getStatus()).isEqualTo(course8.getStatus());
     }
 
     @Test

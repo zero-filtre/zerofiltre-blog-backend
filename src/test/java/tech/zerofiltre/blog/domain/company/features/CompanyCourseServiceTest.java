@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -397,12 +398,12 @@ class CompanyCourseServiceTest {
         when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
-        companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L);
+        companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L, Status.PUBLISHED);
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
-        verify(companyCourseProvider).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+        verify(companyCourseProvider).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong(), any(Status.class));
     }
 
     @Test
@@ -413,12 +414,12 @@ class CompanyCourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L));
+                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(adminUser, 0, 0, 1L, Status.PUBLISHED));
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
         verify(checker, never()).companyExists(anyLong());
-        verify(companyCourseProvider, never()).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+        verify(companyCourseProvider, never()).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong(), any(Status.class));
     }
 
     @Test

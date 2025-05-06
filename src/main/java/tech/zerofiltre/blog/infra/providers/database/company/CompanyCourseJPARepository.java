@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyCourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 
@@ -19,8 +20,8 @@ public interface CompanyCourseJPARepository extends JpaRepository<LinkCompanyCou
 
     Page<LinkCompanyCourseJPA> findAllByCompanyId(Pageable pageable, long companyId);
 
-    @Query("SELECT c FROM tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA c JOIN LinkCompanyCourseJPA l ON l.companyId = ?1 AND c.id = l.courseId")
-    Page<CourseJPA> findAllCoursesByCompanyId(Pageable pageable, long companyId);
+    @Query("SELECT c FROM tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA c JOIN LinkCompanyCourseJPA l ON l.companyId = ?1 AND c.id = l.courseId WHERE c.status = ?2")
+    Page<CourseJPA> findAllCoursesByCompanyId(Pageable pageable, long companyId, Status status);
 
     List<LinkCompanyCourseJPA> findAllByCompanyId(long companyId);
 

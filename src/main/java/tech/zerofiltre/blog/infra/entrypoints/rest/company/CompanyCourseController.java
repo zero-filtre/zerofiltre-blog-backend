@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
@@ -17,6 +18,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.util.DataChecker;
 
+import javax.validation.constraints.Pattern;
 import java.util.Optional;
 
 @Slf4j
@@ -52,10 +54,10 @@ public class CompanyCourseController {
         return course.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/company/{companyId}/course")
-    public Page<Course> findAllCoursesByCompanyId(@PathVariable long companyId, @RequestParam int pageNumber, @RequestParam int pageSize) throws ResourceNotFoundException, ForbiddenActionException {
+    @GetMapping("/company/{companyId}/course/status/{status}")
+    public Page<Course> findAllCoursesByCompanyId(@PathVariable long companyId, @PathVariable @Pattern(regexp = "DRAFT|PUBLISHED|ARCHIVED|IN_REVIEW") String status, @RequestParam int pageNumber, @RequestParam int pageSize) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
-        return companyCourseService.findAllCoursesByCompanyId(user, pageNumber, pageSize, companyId);
+        return companyCourseService.findAllCoursesByCompanyId(user, pageNumber, pageSize, companyId, Status.valueOf(status));
     }
 
     @DeleteMapping("/company/{companyId}/course/{courseId}")

@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.company.features;
 
 import lombok.RequiredArgsConstructor;
 import tech.zerofiltre.blog.domain.Page;
+import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -67,11 +68,11 @@ public class CompanyCourseService {
         return companyCourseProvider.findAllByCompanyIdByPage(pageNumber, pageSize, companyId);
     }
 
-    public Page<Course> findAllCoursesByCompanyId(User user, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+    public Page<Course> findAllCoursesByCompanyId(User user, int pageNumber, int pageSize, long companyId, Status status) throws ForbiddenActionException, ResourceNotFoundException {
         checker.isAdminOrCompanyUser(user, companyId);
         checker.companyExists(companyId);
 
-        return companyCourseProvider.findAllCoursesByCompanyIdByPage(pageNumber, pageSize, companyId);
+        return companyCourseProvider.findAllCoursesByCompanyIdByPage(pageNumber, pageSize, companyId, status);
     }
 
     public long getLinkCompanyCourseIdIfCourseIsActive(long companyId, long courseId) throws ResourceNotFoundException {
