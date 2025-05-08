@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.course;
 
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,6 +48,7 @@ public class DBCourseProvider implements CourseProvider {
     }
 
     @Override
+    @CacheEvict(value = {"courses-list", "search-results"}, allEntries = true)
     public Course save(Course course) {
         course = mapper.fromJPA(repository.save(mapper.toJPA(course)));
         course.setEnrolledCount(getEnrolledCount(course.getId()));
@@ -55,6 +57,7 @@ public class DBCourseProvider implements CourseProvider {
     }
 
     @Override
+    @CacheEvict(value = {"courses-list", "search-results"}, allEntries = true)
     public void delete(Course existingCourse) {
         repository.delete(mapper.toJPA(existingCourse));
     }

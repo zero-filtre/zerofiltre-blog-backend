@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.article;
 
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,7 @@ public class DBArticleProvider implements ArticleProvider {
 
 
     @Override
+    @CacheEvict(value = {"articles-list","search-results"}, allEntries = true)
     public Article save(Article article) {
         ArticleJPA save = repository.save(mapper.toJPA(article));
         return mapper.fromJPA(save);
@@ -88,6 +90,7 @@ public class DBArticleProvider implements ArticleProvider {
     }
 
     @Override
+    @CacheEvict(value = {"articles-list","search-results"}, allEntries = true)
     public void delete(Article article) {
         ArticleJPA entity = mapper.toJPA(article);
         repository.delete(entity);

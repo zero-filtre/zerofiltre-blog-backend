@@ -1,15 +1,17 @@
 package tech.zerofiltre.blog.infra.providers.database.course;
 
-import lombok.*;
-import org.mapstruct.factory.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.infra.providers.database.course.mapper.*;
-import tech.zerofiltre.blog.infra.providers.database.course.model.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
+import tech.zerofiltre.blog.infra.providers.database.course.mapper.LessonJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @Transactional
@@ -26,6 +28,7 @@ public class DBLessonProvider implements LessonProvider {
     }
 
     @Override
+    @CacheEvict(value = {"search-results"}, allEntries = true)
     public Lesson save(Lesson lesson) {
         LessonJPA lessonJPA = lessonJPAMapper.toJPA(lesson);
         LessonJPA saved = lessonJPARepository.save(lessonJPA);
@@ -33,6 +36,7 @@ public class DBLessonProvider implements LessonProvider {
     }
 
     @Override
+    @CacheEvict(value = {"search-results"}, allEntries = true)
     public void delete(Lesson lesson) {
         enrollmentJPARepository.getAllByCompletedLessonsLesson(lessonJPAMapper.toJPA(lesson)).forEach(enrollmentJPA -> {
             enrollmentJPA.getCompletedLessons().removeIf(completedLessonJPA -> completedLessonJPA.getLesson().getId() == lesson.getId());
@@ -47,6 +51,7 @@ public class DBLessonProvider implements LessonProvider {
     }
 
     @Override
+    @CacheEvict(value = {"search-results"}, allEntries = true)
     public List<Lesson> saveAll(List<Lesson> lessons) {
         List<LessonJPA> lessonsJPA = lessonJPAMapper.toJPAs(lessons);
         List<LessonJPA> savedLessonsJPA = lessonJPARepository.saveAll(lessonsJPA);

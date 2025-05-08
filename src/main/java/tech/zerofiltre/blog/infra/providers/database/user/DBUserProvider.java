@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.infra.providers.database.user;
 
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.user.UserProvider;
@@ -36,6 +37,7 @@ public class DBUserProvider implements UserProvider {
 
 
     @Override
+    @CacheEvict(value = "user-search-results", allEntries = true)
     public User save(User user) {
         return mapper.fromJPA(repository.save(mapper.toJPA(user)));
     }
