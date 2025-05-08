@@ -42,7 +42,7 @@ public class PDFCertificateProvider implements CertificateProvider {
     @Override
     public Certificate generate(User user, long courseId) throws ZerofiltreException {
 
-        String fullName = user.getFullName()  + UUID.randomUUID();
+        String fullName = user.getFullName();
         try {
             Certificate certificate = new Certificate();
             String courseTitle = courseProvider.getTitle(courseId);

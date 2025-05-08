@@ -71,6 +71,7 @@
         <p>Pour avoir complété avec succès le cours</p>
         <h3 class="course-title" th:text="${courseTitle}"></h3>
         <p class="date">Décerné le <span th:text="${today}"></span></p>
+        <img th:src="${path_to_qrcode_image}" alt="qrCode" width="120" height="120" style="vertical-align:bottom">
         <div class="signature">
             <img th:if="${zerofiltre_team_signature_url}" th:src="${zerofiltre_team_signature_url}" alt="Signature"
                 style="max-width: 200px; max-height: 60px;" />

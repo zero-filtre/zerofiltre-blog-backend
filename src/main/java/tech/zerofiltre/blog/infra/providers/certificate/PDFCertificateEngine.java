@@ -59,6 +59,8 @@ public class PDFCertificateEngine {
         //String sanitizedCourseTitle = URLEncoder.encode(ZerofiltreUtils.sanitizeString(courseTitle), StandardCharsets.UTF_8).replace("\\s+", "%20");
 
         String qrCodeBase64 = generateQrCodeImageAsBase64(uuid, fullName, courseTitle);
+
+        log.debug("Qrcode_base64  = {}", qrCodeBase64);
         templateModel.put("path_to_qrcode_image", "data:image/png;base64," + qrCodeBase64);
 
         Context thymeleafContext = new Context();
