@@ -41,7 +41,7 @@ public class CompanyService {
         return companyProvider.findById(id);
     }
 
-    public Page<Company> findAll(int pageNumber, int pageSize, User executor, long userId) throws ForbiddenActionException, ResourceNotFoundException {
+    public Page<Company> findAll(int pageNumber, int pageSize, User executor, long userId) throws ForbiddenActionException {
         if(userId == 0) {
             if(executor.isAdmin()) {
                 return companyProvider.findAll(pageNumber, pageSize);
@@ -49,7 +49,6 @@ public class CompanyService {
             return companyProvider.findAllByUserId(pageNumber, pageSize, executor.getId());
         }
         checker.isAdminUser(executor);
-        checker.userExists(userId);
         return companyProvider.findAllByUserId(pageNumber, pageSize, userId);
     }
 
