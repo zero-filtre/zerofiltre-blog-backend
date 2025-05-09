@@ -117,7 +117,7 @@ class DBCompanyProviderIT {
     }
 
     @Test
-    @DisplayName("given userId when findAllByUserId then return page Company by userId")
+    @DisplayName("given userId when findAllByUserId then return a page of active linked Company for the userId")
     void findAllByUserId() {
         //GIVEN
         User user = ZerofiltreUtilsTest.createMockUser(false);
@@ -132,7 +132,7 @@ class DBCompanyProviderIT {
         Company company2 = new Company(0, "Company2", "000000002");
         company2 = dbCompanyProvider.save(company2);
 
-        linkCompanyUser = new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null);
+        linkCompanyUser = new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, false, LocalDateTime.now(), null);
         dbCompanyUserProvider.save(linkCompanyUser);
 
         //WHEN
@@ -141,9 +141,8 @@ class DBCompanyProviderIT {
         //THEN
         assertThat(response).isNotNull();
         List<Company> content = response.getContent();
-        assertThat(content).hasSize(2);
+        assertThat(content).hasSize(1);
         assertThat(content.get(0).getId()).isEqualTo(company1.getId());
-        assertThat(content.get(1).getId()).isEqualTo(company2.getId());
     }
 
     @Test
@@ -182,8 +181,7 @@ class DBCompanyProviderIT {
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user1.getId(), course1.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isEqualTo(2);
+        assertThat(response).isNotNull().hasSize(2);
         assertThat(response.get(0)).isEqualTo(company2.getId());
         assertThat(response.get(1)).isEqualTo(company4.getId());
     }
@@ -218,8 +216,7 @@ class DBCompanyProviderIT {
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user1.getId(), course1.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isZero();
+        assertThat(response).isNotNull().isEmpty();
     }
 
     @Test
@@ -240,8 +237,7 @@ class DBCompanyProviderIT {
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isZero();
+        assertThat(response).isNotNull().isEmpty();
     }
 
     @Test
@@ -262,8 +258,7 @@ class DBCompanyProviderIT {
         List<Long> response = dbCompanyProvider.findAllCompanyIdByUserIdAndCourseId(user.getId(), course.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isZero();
+        assertThat(response).isNotNull().isEmpty();
     }
 
     @Test
