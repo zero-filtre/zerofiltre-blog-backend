@@ -1,12 +1,16 @@
 package tech.zerofiltre.blog.domain.course.features.enrollment;
 
+
 import com.google.zxing.WriterException;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+
 import org.springframework.context.MessageSource;
+
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tech.zerofiltre.blog.domain.course.CertificateProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
@@ -17,10 +21,12 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
 import java.io.IOException;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -40,15 +46,19 @@ class CertificateServiceTest {
     @Mock
     CertificateProvider certificateProvider;
 
+
     @Mock
     MessageSource messageSource;
+
 
 
     private CertificateService certificateService;
 
     @BeforeEach
     void init() {
+
         certificateService = new CertificateService(enrollmentProvider, certificateProvider, messageSource);
+
 
         user = new User();
         user.setId(1L);
@@ -58,7 +68,9 @@ class CertificateServiceTest {
     }
 
     @Test
+
     void getCertificate_whenEnrollment_Is_Completed() throws ZerofiltreException, NoSuchAlgorithmException, WriterException {
+
         //given
         String courseTitle = "title course 3";
         String fileName = ZerofiltreUtils.sanitizeString(user.getFullName()) + "-" + ZerofiltreUtils.sanitizeString(courseTitle) + ".pdf";
@@ -66,8 +78,10 @@ class CertificateServiceTest {
 
         when(enrollmentProvider.isCompleted(anyLong(), anyLong())).thenReturn(true);
         doNothing().when(enrollmentProvider).setCertificatePath(any(), anyLong(), anyLong());
+
         when(certificateProvider.generate(any(), anyLong())).thenReturn(new Certificate(
                 fileName, courseTitle, user.getFullName(), content, "uuid", "hash"));
+
 
         //when
         Certificate response = certificateService.get(user, 2L);
@@ -89,6 +103,7 @@ class CertificateServiceTest {
                 .isThrownBy(() -> certificateService.get(user, 2L));
     }
 
+
     @Test
     void testUrlEncoding() throws UnsupportedEncodingException {
 
@@ -97,6 +112,7 @@ class CertificateServiceTest {
 
         assertThat(URLEncoder.encode(hello, StandardCharsets.US_ASCII)).isEqualTo(enHello);
     }
+
 
 
 }

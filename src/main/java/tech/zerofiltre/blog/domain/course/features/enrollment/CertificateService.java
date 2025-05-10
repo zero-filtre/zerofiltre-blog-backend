@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.features.enrollment;
 
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.CertificateVerificationFailedException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
+
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.CertificateVerificationResponseVM;
 import tech.zerofiltre.blog.util.ZerofiltreUtils;
 
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class CertificateService {
 
     private final EnrollmentProvider enrollmentProvider;
     private final CertificateProvider certificateProvider;
+
     private final MessageSource messageSource;
 
 
@@ -36,11 +40,14 @@ public class CertificateService {
         if (enrollmentProvider.isCompleted(user.getId(), courseId)) {
             Certificate certificate = certificateProvider.generate(user, courseId);
             enrollmentProvider.setCertificatePath(certificate.getPath(), user.getId(), courseId);
+
             certificateProvider.save(certificate);
+
             return certificate;
         }
         throw new ZerofiltreException("The certificate cannot be issued. The course has not yet been completed.");
     }
+
 
     public CertificateVerificationResponseVM verify(String uuid, String fullname, String courseTitle, HttpServletRequest request) throws ZerofiltreException {
 
@@ -73,6 +80,7 @@ public class CertificateService {
             response.setDescription(messageSource.getMessage("message.certificate.verification.description.error", new Object[]{}, request.getLocale()));
         }
         return response;
+
     }
 
 

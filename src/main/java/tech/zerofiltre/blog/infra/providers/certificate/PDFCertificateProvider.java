@@ -43,9 +43,11 @@ public class PDFCertificateProvider implements CertificateProvider {
     public Certificate generate(User user, long courseId) throws ZerofiltreException {
 
         String fullName = user.getFullName();
+
         try {
             Certificate certificate = new Certificate();
             String courseTitle = courseProvider.getTitle(courseId);
+
 
             String fileName = "certificates/" + fullName.replaceAll("\\s+", "") + "_" + courseTitle + ".pdf";
             certificate.setPath(fileName);

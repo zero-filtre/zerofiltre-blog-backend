@@ -16,6 +16,7 @@ import java.util.UUID;
 
 public interface CertificateProvider {
 
+
     Certificate save(Certificate certificate) ;
 
     void delete(Certificate certificate);
@@ -25,5 +26,6 @@ public interface CertificateProvider {
     Certificate findByUuid(String uuid) throws ZerofiltreException;
 
     Certificate findByOwnerFullNameAndCourseTitle(String ownerFullName, String courseTitle);
+
 
 }
