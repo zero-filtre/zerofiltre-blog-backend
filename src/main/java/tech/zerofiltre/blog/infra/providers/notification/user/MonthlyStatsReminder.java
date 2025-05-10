@@ -81,8 +81,12 @@ public class MonthlyStatsReminder {
                 email.setRecipients(Collections.singletonList(userEmail.get()));
                 emailSender.send(email, true);
             }
-            TimeUnit.SECONDS.sleep(10);
+            sleep();
         }
         log.info("Broadcast of {} stats mail succeeded", users.size());
+    }
+
+    void sleep() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(10);
     }
 }

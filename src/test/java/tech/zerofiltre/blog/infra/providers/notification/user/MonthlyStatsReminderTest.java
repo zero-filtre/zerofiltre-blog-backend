@@ -5,9 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.thymeleaf.ITemplateEngine;
 import tech.zerofiltre.blog.domain.article.ArticleProvider;
 import tech.zerofiltre.blog.domain.article.ArticleViewProvider;
@@ -23,31 +23,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class MonthlyStatsReminderTest {
 
     public static final String SUBJECT = "Subject";
     public static final String CONTENT = "content";
 
-    @MockBean
+    @Mock
     ZerofiltreEmailSender emailSender;
 
-    @MockBean
+    @Mock
     InfraProperties infraProperties;
 
-    @MockBean
+    @Mock
     ITemplateEngine templateEngine;
 
-    @MockBean
+    @Mock
     MessageSource messages;
 
-    @MockBean
+    @Mock
     UserProvider userProvider;
 
-    @MockBean
+    @Mock
     ArticleProvider articleProvider;
 
-    @MockBean
+    @Mock
     ArticleViewProvider articleViewProvider;
 
     private MonthlyStatsReminder monthlyStatsReminder;
@@ -102,29 +102,32 @@ class MonthlyStatsReminderTest {
         when(articleViewProvider.countArticlesReadByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(1).thenReturn(0).thenReturn(0);
         when(articleProvider.countPublishedArticlesByDatesAndUser(any(LocalDateTime.class), any(LocalDateTime.class), anyLong())).thenReturn(1).thenReturn(0).thenReturn(1).thenReturn(0);
 
+        MonthlyStatsReminder spy = spy(monthlyStatsReminder);
+        doNothing().when(spy).sleep();
+
         //ACT
-        monthlyStatsReminder.sendStats();
+        spy.sendStats();
 
         //ASSERT
         ArgumentCaptor<Email> captor = ArgumentCaptor.forClass(Email.class);
         verify(emailSender, times(3)).send(captor.capture(), eq(true));
         List<Email> emails = captor.getAllValues();
-        assertThat(emails.size()).isEqualTo(3);
+        assertThat(emails).hasSize(3);
 
         assertThat(emails.get(0).getRecipients().get(0)).isEqualTo(user1.getEmail());
         assertThat(emails.get(0).getSubject()).isEqualTo(SUBJECT);
-        assertThat(emails.get(0).getBccs().size()).isEqualTo(0);
-        assertThat(emails.get(0).getCcs().size()).isEqualTo(0);
+        assertThat(emails.get(0).getBccs()).isEmpty();
+        assertThat(emails.get(0).getCcs()).isEmpty();
 
         assertThat(emails.get(1).getRecipients().get(0)).isEqualTo(user2.getEmail());
         assertThat(emails.get(1).getSubject()).isEqualTo(SUBJECT);
-        assertThat(emails.get(1).getBccs().size()).isEqualTo(0);
-        assertThat(emails.get(1).getCcs().size()).isEqualTo(0);
+        assertThat(emails.get(1).getBccs()).isEmpty();
+        assertThat(emails.get(1).getCcs()).isEmpty();
 
         assertThat(emails.get(2).getRecipients().get(0)).isEqualTo(user3.getPaymentEmail());
         assertThat(emails.get(2).getSubject()).isEqualTo(SUBJECT);
-        assertThat(emails.get(2).getBccs().size()).isEqualTo(0);
-        assertThat(emails.get(2).getCcs().size()).isEqualTo(0);
+        assertThat(emails.get(2).getBccs()).isEmpty();
+        assertThat(emails.get(2).getCcs()).isEmpty();
     }
 
 }

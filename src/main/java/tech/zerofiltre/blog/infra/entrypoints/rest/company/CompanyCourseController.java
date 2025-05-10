@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
@@ -54,10 +55,27 @@ public class CompanyCourseController {
         return course.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/company/{companyId}/course/status/{status}")
-    public Page<Course> findAllCoursesByCompanyId(@PathVariable long companyId, @PathVariable @Pattern(regexp = "DRAFT|PUBLISHED|ARCHIVED|IN_REVIEW") String status, @RequestParam int pageNumber, @RequestParam int pageSize) throws ResourceNotFoundException, ForbiddenActionException {
+    @GetMapping("/company/{companyId}/course")
+    public Page<Course> findAllCoursesByCompanyId(
+            @PathVariable long companyId,
+            @RequestParam @Pattern(regexp = "DRAFT|PUBLISHED|ARCHIVED|IN_REVIEW") String status,
+            @RequestParam int pageNumber,
+            @RequestParam int pageSize,
+            @RequestParam(required = false) String filter
+    ) throws ResourceNotFoundException, ForbiddenActionException {
         User user = securityContextManager.getAuthenticatedUser();
-        return companyCourseService.findAllCoursesByCompanyId(user, pageNumber, pageSize, companyId, Status.valueOf(status));
+
+        FinderRequest request = new FinderRequest();
+        request.setPageNumber(pageNumber);
+        request.setPageSize(pageSize);
+        request.setUser(user);
+        request.setStatus(Status.valueOf(status));
+        if (filter != null) {
+            filter = filter.toUpperCase();
+            request.setFilter(FinderRequest.Filter.valueOf(filter));
+        }
+
+        return companyCourseService.findAllCoursesByCompanyId(request, companyId);
     }
 
     @DeleteMapping("/company/{companyId}/course/{courseId}")
