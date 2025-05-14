@@ -88,7 +88,8 @@ class CompanyUserServiceTest {
     @DisplayName("When a platform or company admin links a user to a company and the link already exists, then there is nothing")
     void shouldDoNothing_whenLinkUserToCompany_IfLinkExists_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyUser.Role newRole = LinkCompanyUser.Role.ADMIN;
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, newRole, true, LocalDateTime.now().minusMonths(1), null);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -96,7 +97,7 @@ class CompanyUserServiceTest {
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
-        companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
+        companyUserService.link(adminUser, 1L, 1L, newRole);
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
@@ -104,6 +105,39 @@ class CompanyUserServiceTest {
         verify(checker).userExists(anyLong());
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
+    }
+
+    @Test
+    @DisplayName("When a user with permission links a user to a company, the link already exists and have a different role, then the user with the new role is saved")
+    void shouldSavedUserWithNewRole_whenLinkUserToCompany_IfLinkExistsAndRolesAreDifferent_asUserWithPermission() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now().minusMonths(1), null);
+        LinkCompanyUser.Role newRole = LinkCompanyUser.Role.ADMIN;
+
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
+        when(checker.companyExists(anyLong())).thenReturn(true);
+        when(checker.userExists(anyLong())).thenReturn(true);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+
+        //WHEN
+        companyUserService.link(adminUser, 1L, 1L, newRole);
+
+        //THEN
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).companyExists(anyLong());
+        verify(checker).userExists(anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+
+        ArgumentCaptor<LinkCompanyUser> captor = ArgumentCaptor.forClass(LinkCompanyUser.class);
+        verify(companyUserProvider).save(captor.capture());
+        LinkCompanyUser linkCompanyUserCaptured = captor.getValue();
+        assertThat(linkCompanyUserCaptured.getId()).isEqualTo(linkCompanyUser.getId());
+        assertThat(linkCompanyUserCaptured.getCompanyId()).isEqualTo(linkCompanyUser.getCompanyId());
+        assertThat(linkCompanyUserCaptured.getUserId()).isEqualTo(linkCompanyUser.getUserId());
+        assertThat(linkCompanyUserCaptured.getRole().toString()).hasToString(newRole.toString());
+        assertThat(linkCompanyUserCaptured.isActive()).isEqualTo(linkCompanyUser.isActive());
+        assertThat(linkCompanyUserCaptured.getLinkedAt()).isEqualTo(linkCompanyUser.getLinkedAt());
+        assertThat(linkCompanyUserCaptured.getSuspendedAt()).isEqualTo(linkCompanyUser.getSuspendedAt());
     }
 
     @Test
