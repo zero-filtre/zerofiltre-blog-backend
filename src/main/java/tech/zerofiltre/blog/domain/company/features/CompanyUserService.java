@@ -23,7 +23,7 @@ public class CompanyUserService {
     private final DataChecker checker;
 
     public LinkCompanyUser link(User connectedUser, long companyId, long userId, LinkCompanyUser.Role role) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.hasPermission(connectedUser, companyId, role);
+        checker.hasPermission(connectedUser, companyId);
         checker.companyExists(companyId);
         checker.userExists(userId);
 
@@ -67,7 +67,7 @@ public class CompanyUserService {
         Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
 
         if(companyUser.isPresent()) {
-            checker.hasPermission(connectedUser, companyId, companyUser.get().getRole());
+            checker.hasPermission(connectedUser, companyId);
 
             if(hard) {
                 companyUserProvider.delete(companyUser.get());
