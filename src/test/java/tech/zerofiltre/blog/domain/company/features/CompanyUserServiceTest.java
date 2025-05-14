@@ -61,10 +61,10 @@ class CompanyUserServiceTest {
     }
 
     @Test
-    @DisplayName("When a user with permission links a user to a company, then the link is created")
-    void shouldCreatesLink_whenLinkUserToCompany_asUserWithPermission() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a platform or company admin links a user to a company, then the link is created")
+    void shouldCreatesLink_whenLinkUserToCompany_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
 
@@ -72,7 +72,7 @@ class CompanyUserServiceTest {
         companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
 
@@ -85,12 +85,12 @@ class CompanyUserServiceTest {
     }
 
     @Test
-    @DisplayName("When a user with permission links a user to a company and the link already exists, then there is nothing")
-    void shouldDoNothing_whenLinkUserToCompany_IfLinkExists_asUserWithPermission() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a platform or company admin links a user to a company and the link already exists, then there is nothing")
+    void shouldDoNothing_whenLinkUserToCompany_IfLinkExists_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now().minusMonths(1), null);
 
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
@@ -99,7 +99,7 @@ class CompanyUserServiceTest {
         companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
@@ -107,12 +107,12 @@ class CompanyUserServiceTest {
     }
 
     @Test
-    @DisplayName("When a link between a user and a company is suspended and a user with permission links them again, then the link is activated")
-    void shouldActivatesLink_whenSuspendLinkBetweenUserAndCompany_LinkAgain_asUserWithPermission() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When a link between a user and a company is suspended and a platform or company admin links them again, then the link is activated")
+    void shouldActivatesLink_whenSuspendLinkBetweenUserAndCompany_LinkAgain_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusDays(10));
 
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
@@ -121,7 +121,7 @@ class CompanyUserServiceTest {
         companyUserService.link(adminUser, linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId(), LinkCompanyUser.Role.ADMIN);
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
@@ -135,26 +135,26 @@ class CompanyUserServiceTest {
     }
 
     @Test
-    @DisplayName("When a user without permission links a user to a company, then it is forbidden")
-    void shouldForbidden_whenLinkUserToCompany_asUserWithoutPermission()
-    throws ForbiddenActionException {
+    @DisplayName("When a user who is not an admin of the platform or a company links a user to a company, then it is forbidden")
+    void shouldForbidden_whenLinkUserToCompany_asUserNotAdminOfPlatformOrCompany()
+            throws ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenThrow(new ForbiddenActionException(""));
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenThrow(new ForbiddenActionException(""));
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> companyUserService.link(userWithUserRole, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
     @Test
-    @DisplayName("When a user with permission links a user to a non-existent company, then the user and the company are not linked")
-    void shouldUserAndCompanyNotLinked_whenLinkUserToNotExistingCompany_asUserWithPermission() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("When a platform or company admin links a user to a non-existent company, then the user and the company are not linked")
+    void shouldUserAndCompanyNotLinked_whenLinkUserToNotExistingCompany_asPlatformOrCompanyAdmin() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
         //WHEN
@@ -162,15 +162,15 @@ class CompanyUserServiceTest {
                 .isThrownBy(() -> companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
     @Test
-    @DisplayName("When a user with permission links a non-existent user to a company, then the user and the company are not linked")
-    void shouldUserAndCompanyNotLinked_whenLinkNotExistingUserToCompany_asUserWithPermission() throws ResourceNotFoundException, ForbiddenActionException {
+    @DisplayName("When a platform or company admin links a non-existent user to a company, then the user and the company are not linked")
+    void shouldUserAndCompanyNotLinked_whenLinkNotExistingUserToCompany_asPlatformOrCompanyAdmin() throws ResourceNotFoundException, ForbiddenActionException {
         //GIVEN
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
+        when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenThrow(new ResourceNotFoundException("", ""));
 
@@ -179,14 +179,14 @@ class CompanyUserServiceTest {
                 .isThrownBy(() -> companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN));
 
         //THEN
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
     @Test
     @DisplayName("When a platform or company admin searches for a link between a user and a company, then the link is found")
-    void shouldFindsLink_whenSearchForLinkBetweenUserAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
+    void shouldFindsLink_whenSearchForLinkBetweenUserAndCompany_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
@@ -336,7 +336,6 @@ class CompanyUserServiceTest {
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         doNothing().when(spy).suspendEnrollments(anyLong());
 
         //WHEN
@@ -345,7 +344,6 @@ class CompanyUserServiceTest {
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(companyUserProvider).delete(any(LinkCompanyUser.class));
 
         ArgumentCaptor<Long> captorLink = ArgumentCaptor.forClass(Long.class);
@@ -391,7 +389,6 @@ class CompanyUserServiceTest {
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
-        when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(enrollmentProvider.findAllByCompanyUserId(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
 
         //WHEN
@@ -400,7 +397,6 @@ class CompanyUserServiceTest {
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
-        verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
 
         ArgumentCaptor<LinkCompanyUser> captorLink = ArgumentCaptor.forClass(LinkCompanyUser.class);
         verify(spy).suspendLink(captorLink.capture());
@@ -887,7 +883,7 @@ class CompanyUserServiceTest {
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
         List<Enrollment> enrollmentsCaptured = captor.getAllValues();
-        assertThat(enrollmentsCaptured.size()).isEqualTo(2);
+        assertThat(enrollmentsCaptured).hasSize(2);
         assertThat(enrollmentsCaptured.get(0).isActive()).isFalse();
         assertThat(enrollmentsCaptured.get(0).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
 
