@@ -450,7 +450,7 @@ class DataCheckerTest {
     @MethodSource("adminAndEditorAndViewerRoleProvider")
     void shouldHasPermission_whenHasPermissionToActLinkUserWithAdminOrEditorOrViewerRole_asPlatformAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
         //WHEN
-        boolean response = checker.hasPermission(adminUser, 1, role);
+        boolean response = checker.hasPermission(adminUser, 1);
 
         //THEN
         assertThat(response).isTrue();
@@ -464,9 +464,9 @@ class DataCheckerTest {
         );
     }
 
-    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an EDITOR or VIEWER role and a company, then they are")
+    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are")
     @ParameterizedTest(name = "[{index}] company admin - user role added: {0}")
-    @MethodSource("editorAndViewerRoleProvider")
+    @MethodSource("adminAndEditorAndViewerRoleProvider")
     void shouldHasPermission_whenHasPermissionToActLinkUserWithEditorOrViewerRole_asCompanyAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
         //GIVEN
         long companyId = 1;
@@ -475,45 +475,22 @@ class DataCheckerTest {
         when(companyUserProvider.findByCompanyIdAndUserId(companyId, userWithUserRole.getId(), true)).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
-        boolean response = checker.hasPermission(userWithUserRole, companyId, role);
+        boolean response = checker.hasPermission(userWithUserRole, companyId);
 
         //THEN
         assertThat(response).isTrue();
     }
 
-    static Stream<Arguments> editorAndViewerRoleProvider() {
-        return Stream.of(
-                arguments(LinkCompanyUser.Role.EDITOR),
-                arguments(LinkCompanyUser.Role.VIEWER)
-        );
-    }
-
-    @Test
-    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an ADMIN role and a company, then they are not")
-    void shouldHasNotPermission_whenHasPermissionToActLinkUserWithAdminRole_asCompanyAdmin() {
-        //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, LinkCompanyUser.Role.ADMIN));
-    }
-
-    @Test
-    @DisplayName("When I verify that a user with user role has permission to act on a link between a user with an ADMIN role and a company, then they are not")
-    void shouldHasNotPermission_whenHasPermissionToActLinkUserWithAdminRole_asUserWithUserRole() {
-        //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, LinkCompanyUser.Role.ADMIN));
-    }
-
-    @DisplayName("When I verify that a user with user role has permission to act on a link between a user with an EDITOR or VIEWER role and a company, then they are not")
+    @DisplayName("When I verify that a user with user role has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are not")
     @ParameterizedTest(name = "[{index}] user with user role - user role added: {0}")
-    @MethodSource("editorAndViewerRoleProvider")
+    @MethodSource("adminAndEditorAndViewerRoleProvider")
     void shouldHasNotPermission_whenHasPermissionToActLinkUserWithEditorOrViewerRole_asUserWithUserRole(LinkCompanyUser.Role role) {
         //GIVEN
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1, 1, 1, LinkCompanyUser.Role.EDITOR, true, null, null)));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, role));
+                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1));
 
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(),anyLong(), anyBoolean());
     }
