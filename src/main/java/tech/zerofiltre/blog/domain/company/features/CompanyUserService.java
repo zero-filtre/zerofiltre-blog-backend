@@ -38,7 +38,10 @@ public class CompanyUserService {
 
             return companyUserProvider.save(existingCompanyUser.get());
         } else {
-            return existingCompanyUser.get();
+            if(existingCompanyUser.get().getRole().equals(role)) return existingCompanyUser.get();
+
+            existingCompanyUser.get().setRole(role);
+            return companyUserProvider.save(existingCompanyUser.get());
         }
     }
 
