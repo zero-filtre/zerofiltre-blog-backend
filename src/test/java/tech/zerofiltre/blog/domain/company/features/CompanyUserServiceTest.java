@@ -93,7 +93,7 @@ class CompanyUserServiceTest {
         when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
         companyUserService.link(adminUser, 1L, 1L, LinkCompanyUser.Role.ADMIN);
@@ -102,7 +102,7 @@ class CompanyUserServiceTest {
         verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(companyUserProvider, never()).save(any(LinkCompanyUser.class));
     }
 
@@ -115,7 +115,7 @@ class CompanyUserServiceTest {
         when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(checker.companyExists(anyLong())).thenReturn(true);
         when(checker.userExists(anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
         companyUserService.link(adminUser, linkCompanyUser.getCompanyId(), linkCompanyUser.getUserId(), LinkCompanyUser.Role.ADMIN);
@@ -124,7 +124,7 @@ class CompanyUserServiceTest {
         verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
 
         ArgumentCaptor<LinkCompanyUser> captor = ArgumentCaptor.forClass(LinkCompanyUser.class);
         verify(companyUserProvider).save(captor.capture());
@@ -199,7 +199,7 @@ class CompanyUserServiceTest {
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -214,7 +214,7 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -231,7 +231,7 @@ class CompanyUserServiceTest {
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -250,7 +250,7 @@ class CompanyUserServiceTest {
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(checker).companyExists(anyLong());
         verify(checker).userExists(anyLong());
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -335,7 +335,7 @@ class CompanyUserServiceTest {
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1, 2L, 3L, LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
         when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         doNothing().when(spy).suspendEnrollments(anyLong());
 
@@ -344,7 +344,7 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
         verify(companyUserProvider).delete(any(LinkCompanyUser.class));
 
@@ -363,14 +363,14 @@ class CompanyUserServiceTest {
         CompanyUserService spy = spy(companyUserService);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //WHEN
         spy.unlink(adminUser, 1L, 1L, true);
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(companyUserProvider, never()).delete(any(LinkCompanyUser.class));
         verify(spy, never()).suspendEnrollments(anyLong());
     }
@@ -390,7 +390,7 @@ class CompanyUserServiceTest {
         enrollment2.setCompanyUserId(linkCompanyUser.getId());
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUser));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUser));
         when(checker.hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class))).thenReturn(true);
         when(enrollmentProvider.findAllByCompanyUserId(anyLong(), anyBoolean())).thenReturn(List.of(enrollment1, enrollment2));
 
@@ -399,7 +399,7 @@ class CompanyUserServiceTest {
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(checker).hasPermission(any(User.class), anyLong(), any(LinkCompanyUser.Role.class));
 
         ArgumentCaptor<LinkCompanyUser> captorLink = ArgumentCaptor.forClass(LinkCompanyUser.class);
@@ -423,14 +423,14 @@ class CompanyUserServiceTest {
         CompanyUserService spy = spy(companyUserService);
 
         when(checker.isAdminOrCompanyAdmin(any(User.class), anyLong())).thenReturn(true);
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //WHEN
         spy.unlink(adminUser, 1L, 1L, false);
 
         //THEN
         verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
-        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong());
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
         verify(spy, never()).suspendLink(any(LinkCompanyUser.class));
     }
 
@@ -887,7 +887,7 @@ class CompanyUserServiceTest {
         ArgumentCaptor<Enrollment> captor = ArgumentCaptor.forClass(Enrollment.class);
         verify(enrollmentProvider, times(2)).save(captor.capture());
         List<Enrollment> enrollmentsCaptured = captor.getAllValues();
-        assertThat(enrollmentsCaptured.size()).isEqualTo(2);
+        assertThat(enrollmentsCaptured).hasSize(2);
         assertThat(enrollmentsCaptured.get(0).isActive()).isFalse();
         assertThat(enrollmentsCaptured.get(0).getSuspendedAt()).isBeforeOrEqualTo(LocalDateTime.now());
 

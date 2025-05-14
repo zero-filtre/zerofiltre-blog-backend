@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import tech.zerofiltre.blog.domain.article.model.Status;
@@ -14,6 +15,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
+import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Arrays;
@@ -21,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
 import static tech.zerofiltre.blog.domain.course.model.Lesson.THE_LESSON_OF_ID;
 
@@ -99,6 +101,41 @@ class ChapterTest {
         Assertions.assertThat(chapter.getTitle()).isEqualTo("Chapter 1");
         Assertions.assertThat(chapter.getCourseId()).isEqualTo(1);
         Assertions.assertThat(chapter.getLessons()).isNotNull();
+        Assertions.assertThat(chapter.getLessons()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("When a platform admin initializes a chapter for a course owned by the company, the chapter is initialized.")
+    void shouldInitChapter_whenUserIsAdmin_andCourseOwnedByCompany() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = mock(DataChecker.class);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
+
+        Chapter chapter = builder()
+                .id(1)
+                .chapterProvider(new ChapterProviderSpy())
+                .userProvider(new FoundAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Chapter 1")
+                .courseId(course.getId())
+                .build();
+
+        //WHEN
+        chapter.init("Chapter 1", course.getId(), 100);
+
+        //THEN
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        assertThat(chapter.getTitle()).isEqualTo("Chapter 1");
+        assertThat(chapter.getCourseId()).isEqualTo(course.getId());
+        assertThat(chapter.getLessons()).isNotNull();
         Assertions.assertThat(chapter.getLessons()).isEmpty();
     }
 
@@ -282,6 +319,90 @@ class ChapterTest {
     }
 
     @Test
+    @DisplayName("When a non-company admin wants to delete a chapter of a published course owned by the company, a forbidden action exception is thrown.")
+    void shouldThrowException_whenCompanyEditorOrViewerWantDeletePublishedChapterOfForCompanyCourse() {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isCompanyAdmin(anyLong(), anyLong())).thenReturn(false);
+
+        Chapter chapter = builder()
+                .id(1)
+                .chapterProvider(new FoundChapterProviderSpy())
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.delete(100))
+                .withMessage("You are not allowed to delete a chapter for a published course, please get in touch with an admin");
+
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isCompanyAdmin(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a company admin wants to delete a chapter of a published course owned by the company, the chapter is deleted.")
+    void shouldDeleteChapter_whenCompanyAdminWantDeletePublishedChapterOfForCompanyCourse() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isCompanyAdmin(anyLong(), anyLong())).thenReturn(true);
+
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        Chapter chapter = builder()
+                .id(1)
+                .chapterProvider(chapterProvider)
+                .userProvider(new FoundNonAdminUserProviderSpy())
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //WHEN
+        chapter.delete(100);
+
+        //THEN
+        assertThat(chapterProvider.deleteCalled).isTrue();
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isCompanyAdmin(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a platform admin deletes a chapter from a course with published status, the chapter is deleted.")
+    void shouldDeleteChapter_whenPlatformAdminDeleteChapterForPublishedCourse() throws ResourceNotFoundException, ForbiddenActionException {
+        //given
+        FoundChapterProviderSpy chapterProvider = new FoundChapterProviderSpy();
+        Chapter chapter = Chapter.builder()
+                .id(1)
+                .chapterProvider(chapterProvider)
+                .userProvider(new FoundAdminUserProviderSpy())
+                .courseProvider(new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons())
+                .title("Chapter 1")
+                .courseId(1)
+                .build();
+
+        //when
+        chapter.delete(100);
+
+        //then
+        assertThat(chapterProvider.deleteCalled).isTrue();
+    }
+
+    @Test
     void delete_throws_ForbiddenActionException_if_chapter_contains_lessons() {
         //given
         Chapter chapter = Chapter.builder()
@@ -368,11 +489,10 @@ class ChapterTest {
                 .build();
 
         //when
-        List<Chapter> result = chapter.getByCourseId(new User());
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(true));
 
         //then
-        Assertions.assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(2);
+        Assertions.assertThat(result).isNotEmpty().hasSize(2);
     }
 
     @Test
@@ -413,11 +533,10 @@ class ChapterTest {
                 .build();
 
         //when
-        List<Chapter> result = chapter.getByCourseId(new User());
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(true));
 
         //then
-        Assertions.assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(2);
+        Assertions.assertThat(result).isNotEmpty().hasSize(2);
     }
 
     @Test
@@ -432,8 +551,7 @@ class ChapterTest {
         List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(true));
 
         //then
-        Assertions.assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(2);
+        Assertions.assertThat(result).isNotEmpty().hasSize(2);
     }
 
     @Test
@@ -448,15 +566,19 @@ class ChapterTest {
         List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(false));
 
         //then
-        Assertions.assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(2);
+        Assertions.assertThat(result).isNotEmpty().hasSize(2);
     }
 
     @Test
     void getChaptersByCourseId_works_if_user_is_null() throws ForbiddenActionException, ResourceNotFoundException {
         //given
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.empty());
+
         Chapter chapter = Chapter.builder()
-                .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
+                .courseProvider(courseProvider)
                 .chapterProvider(new FoundChapterProviderSpy())
                 .build();
 
@@ -464,8 +586,73 @@ class ChapterTest {
         List<Chapter> result = chapter.getByCourseId(null);
 
         //then
-        Assertions.assertThat(result).isNotEmpty();
-        assertThat(result.size()).isEqualTo(2);
+        Assertions.assertThat(result).isNotEmpty().hasSize(2);
+    }
+
+    @Test
+    @DisplayName("When a company user wants to view all chapters of a company-owned course with published status, the user is authorized.")
+    void shouldFindAllCourseChapters_whenUserIsCompanyUserAndCompanyOwnedCourseWithStatusPublished() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        DataChecker checker = mock(DataChecker.class);
+        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
+
+        Chapter chapter = builder()
+                .courseProvider(courseProvider)
+                .chapterProvider(new FoundChapterProviderSpy())
+                .checker(checker)
+                .build();
+
+        //WHEN
+        List<Chapter> result = chapter.getByCourseId(ZerofiltreUtilsTest.createMockUser(false));
+
+        //THEN
+        assertThat(result).hasSize(2);
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a non-authenticated user wants to view a chapter of a company course with published status, a forbidden action exception is thrown.")
+    void shouldThrowException_whenUserIsNullAndCompanyCourseStatusIsPublished() {
+        //given
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.PUBLISHED, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(12L));
+
+        Chapter chapter = Chapter.builder()
+                .courseProvider(courseProvider)
+                .chapterProvider(new FoundChapterProviderSpy())
+                .build();
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.getByCourseId(null))
+                .withMessage("You are not allowed to get chapters for this course");
+    }
+
+    @Test
+    @DisplayName("When a non-authenticated user wants to view a chapter of a course with draft status, a forbidden action exception is thrown.")
+    void shouldThrowException_whenUserIsNullAndCourseStatusIsNotPublished() {
+        //GIVEN
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        Chapter chapter = Chapter.builder()
+                .courseProvider(courseProvider)
+                .chapterProvider(new FoundChapterProviderSpy())
+                .build();
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.getByCourseId(null))
+                .withMessage("You are not allowed to get chapters for this course");
     }
 
     @Test
@@ -858,6 +1045,117 @@ class ChapterTest {
             if (aChapter.getId() == 2) assertThat(aChapter.getNumber()).isEqualTo(3);
             if (aChapter.getId() == 3) assertThat(aChapter.getNumber()).isEqualTo(2);
         });
+    }
+
+    @Test
+    @DisplayName("When I check that an platform admin is an platform admin or an author, then true is returned.")
+    void shouldReturnTrue_whenCheckUserIsPlatformAdminOrAuthor_withUserIsPlatformAdmin() throws ForbiddenActionException {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(true);
+        Course course = new Course();
+
+        Chapter chapter = builder()
+                .build();
+
+        //WHEN
+        boolean response = chapter.isAdminOrAuthor(user, course, "");
+
+        //THEN
+        assertThat(response).isTrue();
+    }
+
+    @Test
+    @DisplayName("When I check that the author of the course is an platform admin or an author, then true is returned.")
+    void shouldReturnTrue_whenCheckUserIsPlatformAdminOrAuthor_withUserIsAuthorOfCourse() throws ForbiddenActionException {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+        Course course = new Course();
+        course.setAuthor(user);
+
+        Chapter chapter = builder()
+                .build();
+
+        //WHEN
+        boolean response = chapter.isAdminOrAuthor(user, course, "");
+
+        //THEN
+        assertThat(response).isTrue();
+    }
+
+    @Test
+    @DisplayName("When I check that the non-admin user and non-author of the course is an platform admin or an author, then a forbidden action exception is returned.")
+    void shouldReturnException_whenCheckUserIsPlatformAdminOrAuthor_withUserIsNotAdminAndNotAuthorOfCourse() {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+
+        User author = new User();
+        author.setId(user.getId() + 10);
+
+        Course course = new Course();
+        course.setAuthor(author);
+
+        String message = "You are not allowed to create a chapter for this course";
+
+        Chapter chapter = builder()
+                .build();
+
+        //WHEN
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> chapter.isAdminOrAuthor(user, course, message))
+                .withMessage(message);
+    }
+
+    @Test
+    @DisplayName("When the user is platform admin or company admin or editor wants to act on a chapter of a company course, then the user is authorized.")
+    void shouldReturnTrue_whenCompanyOwnerCourse_andUserIsPlatformAdminOrCompanyAdminOrEditor() throws ForbiddenActionException {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(true);
+        Course course = new Course();
+        course.setId(10);
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(course.getId()));
+
+        DataChecker checker = Mockito.mock(DataChecker.class);
+        when(checker.isAdminOrCompanyAdminOrEditor(any(User.class), anyLong())).thenReturn(true);
+
+        Chapter chapter = builder()
+                .courseProvider(courseProvider)
+                .checker(checker)
+                .build();
+
+        //WHEN
+        boolean response = chapter.isUserAuthorized(user, course, "");
+
+        //THEN
+        assertThat(response).isTrue();
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).isAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When the user is platform admin or author wants to act on a chapter of a company course, then the user is authorized.")
+    void shouldReturnTrue_whenCompanyNotOwnerCourse_andUserIsPlatformAdminOrAuthor() throws ForbiddenActionException {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(false);
+
+        Course course = new Course();
+        course.setAuthor(user);
+
+        CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
+        when(courseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.empty());
+
+        Chapter chapter = builder()
+                .courseProvider(courseProvider)
+                .build();
+
+        //WHEN
+        boolean response = chapter.isUserAuthorized(user, course, "");
+
+        //THEN
+        assertThat(response).isTrue();
+        verify(courseProvider).idOfCompanyOwningCourse(anyLong());
     }
 
 }
