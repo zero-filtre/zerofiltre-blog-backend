@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
+import tech.zerofiltre.blog.domain.company.model.UserCompanyInfos;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
@@ -13,6 +14,7 @@ import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -56,6 +58,11 @@ public class CompanyUserService {
 
         return companyUserProvider.findAllByCompanyId(pageNumber, pageSize, companyId);
     }
+
+//    public List<UserCompanyInfos> findAllByUserId(long userId) throws ResourceNotFoundException {
+//        checker.userExists(userId);
+//        return companyUserProvider.findAllByUserId(userId);
+//    }
 
     public long getLinkCompanyUserIdIfUserIsActive(long companyId, long userId) throws ResourceNotFoundException {
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).map(LinkCompanyUser::getId).orElseThrow(() -> new ResourceNotFoundException("We could not find the link between the company and the user.", ""));
