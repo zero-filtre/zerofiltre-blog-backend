@@ -214,21 +214,7 @@ class DataCheckerTest {
                 .isThrownBy(() -> checker.companyExists(1L));
     }
 
-    @DisplayName("given company user when execute then return true")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("companyUserProvider")
-    void givenCompanyUser_whenExecute_thenReturnTrue(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ResourceNotFoundException {
-        //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
-
-        //WHEN
-        boolean response = checker.companyUserExists(1L, user.getId());
-
-        //THEN
-        assertThat(response).isTrue();
-    }
-
-    static Stream<Arguments> companyUserProvider() {
+    static Stream<Arguments> companyUser() {
         return Stream.of(
                 arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleAdmin), LinkCompanyUser.Role.ADMIN),
                 arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleEditor), LinkCompanyUser.Role.EDITOR),
@@ -236,15 +222,18 @@ class DataCheckerTest {
         );
     }
 
-    @Test
-    @DisplayName("given non company user when execute then throw ResourceNotFoundException")
-    void givenNonCompanyUser_whenExecute_thenThrowException() {
-        //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+    static Stream<Arguments> isCompanyUser() {
+        return Stream.of(
+                arguments(Optional.of(new LinkCompanyUser()), true),
+                arguments(Optional.empty(), false)
+        );
+    }
 
-        //THEN
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> checker.companyUserExists(1L, 1L));
+    static Stream<Arguments> userWithGoodRoleProvider() {
+        return Stream.of(
+                arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleAdmin), LinkCompanyUser.Role.ADMIN),
+                arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleEditor), LinkCompanyUser.Role.EDITOR)
+        );
     }
 
     @Test
@@ -291,29 +280,29 @@ class DataCheckerTest {
         assertThat(response).isTrue();
     }
 
-    @Test
-    @DisplayName("given user with role company admin when execute then return true")
-    void givenUserWithRoleCompanyAdmin_whenIsAdminOrCompanyAdmin_thenReturnTrue() throws ForbiddenActionException {
+    @DisplayName("given company user when execute then return true")
+    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
+    @MethodSource("companyUser")
+    void givenCompanyUser_whenExecute_thenReturnTrue(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ResourceNotFoundException {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUserRoleAdmin));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(companyUser);
 
         //WHEN
-        boolean response = checker.isAdminOrCompanyAdmin(userWithUserRole, 1L);
+        boolean response = checker.companyUserExists(1L, user.getId());
 
         //THEN
         assertThat(response).isTrue();
     }
 
-    @DisplayName("given user with user role and bad company role when execute then throw ForbiddenActionException")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("userWithBadRoleProvider1")
-    void givenUserWithUserRoleAndBadCompanyRole_whenIsAdminOrCompanyAdmin_thenThrowForbiddenActionException(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) {
+    @Test
+    @DisplayName("given non company user when execute then throw ResourceNotFoundException")
+    void givenNonCompanyUser_whenExecute_thenThrowException() {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.isAdminOrCompanyAdmin(user, 1L));
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> checker.companyUserExists(1L, 1L));
     }
 
     static Stream<Arguments> userWithBadRoleProvider1() {
@@ -334,69 +323,31 @@ class DataCheckerTest {
         assertThat(response).isTrue();
     }
 
-    @DisplayName("given company user when execute then return true")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("companyUserProvider")
-    void givenCOmpanyUser_whenExecute_thenReturnTrue(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ForbiddenActionException {
-        //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
-
-        //WHEN
-        boolean response = checker.isAdminOrCompanyUser(user, 1L);
-
-        //THEN
-        assertThat(response).isTrue();
-    }
-
     @Test
-    @DisplayName("given not company user when execute then throw ForbiddenActionException")
-    void givenNotCompanyUser_whenExecute_thenThrowForbiddenActionException() {
+    @DisplayName("given user with role company admin when execute then return true")
+    void givenUserWithRoleCompanyAdmin_whenIsAdminOrCompanyAdmin_thenReturnTrue() throws ForbiddenActionException {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
-
-        //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.isAdminOrCompanyUser(new User(), 1L));
-    }
-
-    @DisplayName("given user with user role and good company role when execute then return true")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("userWithGoodRoleProvider")
-    void givenUserWithUserRoleAndGoodCompanyRole_whenIsCompanyAdminOrCompanyEditor_thenReturnTrue(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ForbiddenActionException {
-        //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
+        DataChecker spy = spy(checker);
+        doReturn(true).when(spy).isCompanyAdmin(anyLong(), anyLong());
 
         //WHEN
-        boolean response = checker.isCompanyAdminOrCompanyEditor(user, 1L);
+        boolean response = spy.isAdminOrCompanyAdmin(userWithUserRole, 1L);
 
         //THEN
         assertThat(response).isTrue();
+        verify(spy).isCompanyAdmin(anyLong(), anyLong());
     }
 
-    static Stream<Arguments> userWithGoodRoleProvider() {
-        return Stream.of(
-                arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleAdmin), LinkCompanyUser.Role.ADMIN),
-                arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleEditor), LinkCompanyUser.Role.EDITOR)
-        );
-    }
-
-    @DisplayName("given user with bad role company when execute then throw ForbiddenActionException")
+    @DisplayName("given user with user role and bad company role when execute then throw ForbiddenActionException")
     @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("userWithBadRoleProvider2")
-    void givenUserWithBadRoleCompany_whenIsCompanyAdminOrCompanyEditor_thenThrowForbiddenActionException(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) {
+    @MethodSource("userWithBadRoleProvider1")
+    void givenUserWithUserRoleAndBadCompanyRole_whenIsAdminOrCompanyAdmin_thenThrowForbiddenActionException(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(companyUser);
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.isCompanyAdminOrCompanyEditor(user, 1L));
-    }
-
-    static Stream<Arguments> userWithBadRoleProvider2() {
-        return Stream.of(
-                arguments(userWithUserRole, "user with user role", Optional.of(linkCompanyUserRoleViewer), LinkCompanyUser.Role.VIEWER),
-                arguments(userWithUserRole, "user with user role", Optional.empty(), LinkCompanyUser.Role.ADMIN)
-        );
+                .isThrownBy(() -> checker.isAdminOrCompanyAdmin(user, 1L));
     }
 
     @Test
@@ -409,25 +360,39 @@ class DataCheckerTest {
         assertThat(response).isTrue();
     }
 
-    @DisplayName("When a user is a company admin or editor and I check that he is an admin or a company admin or editor, then true is returned")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("userWithGoodRoleProvider")
-    void shouldReturnTrue_whenVerifyUserIsCompanyAdminOrEditor(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ForbiddenActionException {
+    @Test
+    @DisplayName("When a user is a company user then return true")
+    void shouldReturnTrue_whenUserIsCompanyUser() throws ForbiddenActionException {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(companyUser);
+        DataChecker spy = spy(checker);
+        doReturn(true).when(spy).isCompanyUser(anyLong(), anyLong());
 
         //WHEN
-        boolean response = checker.isAdminOrCompanyAdminOrEditor(user, 1L);
+        boolean response = spy.isAdminOrCompanyUser(userWithUserRole, 1L);
 
         //THEN
         assertThat(response).isTrue();
+        verify(spy).isCompanyUser(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a user is not a company user then a forbidden action exception is thrown")
+    void shouldThrownException_whenUserIsNotCompanyUser() {
+        //GIVEN
+        DataChecker spy = spy(checker);
+        doReturn(false).when(spy).isCompanyUser(anyLong(), anyLong());
+
+        //THEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> spy.isAdminOrCompanyUser(new User(), 1L));
+        verify(spy).isCompanyUser(anyLong(), anyLong());
     }
 
     @Test
     @DisplayName("When a user is a company viewer and I check that he is an admin or a company admin or editor, then throw ForbiddenActionException")
     void shouldThrowException_whenIsCompanyViewer() {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyUserRoleViewer));
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(linkCompanyUserRoleViewer));
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
@@ -438,11 +403,25 @@ class DataCheckerTest {
     @DisplayName("When a user is admin of another company and I check that he is an admin or a company admin or editor, then throw ForbiddenActionException")
     void shouldThrowException_whenIsAdminOfAnotherCompany() {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> checker.isAdminOrCompanyAdminOrEditor(new User(), 1L));
+    }
+
+    @DisplayName("When a user is a company admin or editor and I check that he is an admin or a company admin or editor, then true is returned")
+    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
+    @MethodSource("userWithGoodRoleProvider")
+    void shouldReturnTrue_whenVerifyUserIsCompanyAdminOrEditor(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) throws ForbiddenActionException {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(companyUser);
+
+        //WHEN
+        boolean response = checker.isAdminOrCompanyAdminOrEditor(user, 1L);
+
+        //THEN
+        assertThat(response).isTrue();
     }
 
     @DisplayName("When I verify that a platform admin has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are")
@@ -450,7 +429,7 @@ class DataCheckerTest {
     @MethodSource("adminAndEditorAndViewerRoleProvider")
     void shouldHasPermission_whenHasPermissionToActLinkUserWithAdminOrEditorOrViewerRole_asPlatformAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
         //WHEN
-        boolean response = checker.hasPermission(adminUser, 1);
+        boolean response = checker.hasPermission(adminUser, 1, role);
 
         //THEN
         assertThat(response).isTrue();
@@ -464,7 +443,7 @@ class DataCheckerTest {
         );
     }
 
-    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an ADMIN or EDITOR or VIEWER role and a company, then they are")
+    @DisplayName("When I verify that a company admin has permission to act on a link between a user with an EDITOR or VIEWER role and a company, then they are")
     @ParameterizedTest(name = "[{index}] company admin - user role added: {0}")
     @MethodSource("adminAndEditorAndViewerRoleProvider")
     void shouldHasPermission_whenHasPermissionToActLinkUserWithEditorOrViewerRole_asCompanyAdmin(LinkCompanyUser.Role role) throws ForbiddenActionException {
@@ -475,7 +454,7 @@ class DataCheckerTest {
         when(companyUserProvider.findByCompanyIdAndUserId(companyId, userWithUserRole.getId(), true)).thenReturn(Optional.of(linkCompanyUser));
 
         //WHEN
-        boolean response = checker.hasPermission(userWithUserRole, companyId);
+        boolean response = checker.hasPermission(userWithUserRole, companyId, role);
 
         //THEN
         assertThat(response).isTrue();
@@ -490,14 +469,14 @@ class DataCheckerTest {
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1));
+                .isThrownBy(() -> checker.hasPermission(userWithUserRole, 1, role));
 
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(),anyLong(), anyBoolean());
     }
 
     @Test
-    @DisplayName("When I verify that a user is a company ADMIN, then they are")
-    void shouldTrue_whenIsCompanyAdmin_asCompanyAdmin() {
+    @DisplayName("When I verify that a user is a company ADMIN, then he is")
+    void shouldTrue_whenIsCompanyAdmin_asActiveCompanyAdmin() {
         //GIVEN
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1L, 1L, userWithUserRole.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null)));
 
@@ -509,8 +488,8 @@ class DataCheckerTest {
     }
 
     @Test
-    @DisplayName("When I verify that a user with inactive link is a company ADMIN, then they are not")
-    void shouldFalse_whenIsCompanyAdmin_asCompanyUserWithInactiveLink() {
+    @DisplayName("When I verify that a user with inactive link is a company ADMIN, then he is not")
+    void shouldFalse_whenIsCompanyAdmin_asActiveCompanyUserWithInactiveLink() {
         //GIVEN
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
 
@@ -522,7 +501,7 @@ class DataCheckerTest {
     }
 
     @Test
-    @DisplayName("When I verify that a user with EDITOR role is a company ADMIN, then they are not")
+    @DisplayName("When I verify that a user with EDITOR role is a company ADMIN, then he is not")
     void shouldFalse_whenIsCompanyAdmin_asUserWithEditorRole() {
         //GIVEN
         when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.of(new LinkCompanyUser(1L, 1L, userWithUserRole.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null)));
@@ -534,33 +513,43 @@ class DataCheckerTest {
         assertThat(response).isFalse();
     }
 
-    @Test
-    @DisplayName("When I check that a user who is not from the company is an administrator of the company, then they are not")
-    void shouldFalse_whenIsCompanyAdmin_asNotCompanyUser() {
+    @DisplayName("I verify that a user is a company user.")
+    @ParameterizedTest(name = "[{index}] is a company user: {1}")
+    @MethodSource("isCompanyUser")
+    void shouldIsCompanyUser(Optional<LinkCompanyUser> link, boolean result) {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(link);
 
         //WHEN
-        boolean response = checker.isCompanyAdmin(userWithUserRole.getId(), 1L);
+        boolean response = checker.isCompanyUser(1, 1);
 
         //THEN
-        assertThat(response).isFalse();
+        assertThat(response).isEqualTo(result);
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
-    @Test
-    @DisplayName("given companyId and userId when execute then verify call findByCompanyIdAndUserId")
-    void givenCompanyIdAndUserId_whenExecute_thenVerifyCallFindByCompanyIdAndUserId() {
+    @DisplayName("I verify that a user is a company admin or editor.")
+    @ParameterizedTest(name = "[{index}] - role {1} is a company admin or editor: {2}")
+    @MethodSource("companyAdminOrEditor")
+    void shouldIsCompanyAdminOrEditor(Optional<LinkCompanyUser> link, String role, boolean result) {
         //GIVEN
-        DataChecker checkerMock = spy(checker);
-
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(link);
 
         //WHEN
-        checkerMock.findCompanyUser(1, 1);
+        boolean response = checker.isCompanyAdminOrEditor(1, 1);
 
         //THEN
-        verify(checkerMock).findCompanyUser(anyLong(), anyLong());
+        assertThat(response).isEqualTo(result);
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
+    }
+
+    static Stream<Arguments> companyAdminOrEditor() {
+        return Stream.of(
+                arguments(Optional.of(linkCompanyUserRoleAdmin), LinkCompanyUser.Role.ADMIN.toString(), true),
+                arguments(Optional.of(linkCompanyUserRoleEditor), LinkCompanyUser.Role.EDITOR.toString(), true),
+                arguments(Optional.of(linkCompanyUserRoleViewer), LinkCompanyUser.Role.VIEWER.toString(), false),
+                arguments(Optional.empty(), "", false)
+        );
     }
 
 }

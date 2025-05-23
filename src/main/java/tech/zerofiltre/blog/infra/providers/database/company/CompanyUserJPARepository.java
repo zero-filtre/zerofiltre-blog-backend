@@ -11,8 +11,6 @@ import java.util.Optional;
 
 public interface CompanyUserJPARepository extends JpaRepository<LinkCompanyUserJPA, Long> {
 
-    Optional<LinkCompanyUserJPA> findByCompanyIdAndUserId(long companyId, long userId);
-
     Optional<LinkCompanyUserJPA> findByCompanyIdAndUserIdAndActive(long companyId, long userId, boolean active);
 
     Page<LinkCompanyUserJPA> findAllByCompanyId(Pageable pageable, long companyId);

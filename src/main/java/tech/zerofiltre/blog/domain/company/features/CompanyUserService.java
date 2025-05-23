@@ -23,11 +23,11 @@ public class CompanyUserService {
     private final DataChecker checker;
 
     public LinkCompanyUser link(User connectedUser, long companyId, long userId, LinkCompanyUser.Role role) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.hasPermission(connectedUser, companyId);
+        checker.hasPermission(connectedUser, companyId, role);
         checker.companyExists(companyId);
         checker.userExists(userId);
 
-        Optional<LinkCompanyUser> existingCompanyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
+        Optional<LinkCompanyUser> existingCompanyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true);
 
         if(existingCompanyUser.isEmpty()) {
             LinkCompanyUser linkCompanyUser = new LinkCompanyUser(0, companyId, userId, role, true, LocalDateTime.now(), null);
@@ -47,7 +47,7 @@ public class CompanyUserService {
         checker.companyExists(companyId);
         checker.userExists(userId);
 
-        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
+        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true);
     }
 
     public Page<LinkCompanyUser> findAllByCompanyId(User connectedUser, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
@@ -64,10 +64,10 @@ public class CompanyUserService {
     public void unlink(User connectedUser, long companyId, long userId, boolean hard) throws ZerofiltreException {
         checker.isAdminOrCompanyAdmin(connectedUser, companyId);
 
-        Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
+        Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true);
 
         if(companyUser.isPresent()) {
-            checker.hasPermission(connectedUser, companyId);
+            checker.hasPermission(connectedUser, companyId, companyUser.get().getRole());
 
             if(hard) {
                 companyUserProvider.delete(companyUser.get());
