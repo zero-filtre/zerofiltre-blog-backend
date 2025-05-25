@@ -49,14 +49,14 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     }
 
     @Override
-    public Page<LinkCompanyCourse> findAllByCompanyIdByPage(int pageNumber, int pageSize, long companyId) {
+    public Page<LinkCompanyCourse> findByCompanyId(int pageNumber, int pageSize, long companyId) {
         org.springframework.data.domain.Page<LinkCompanyCourseJPA> pageJpa = repository.findAllByCompanyId(PageRequest.of(pageNumber, pageSize), companyId);
         return pageMapper.fromSpringPage(pageJpa.map(mapper::fromJPA));
     }
 
     @Override
-    public Page<Course> findAllCoursesByCompanyIdByPage(int pageNumber, int pageSize, long companyId, Status status) {
-        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findAllCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
+    public Page<Course> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status) {
+        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
         return pageCourseMapper.fromSpringPage(pageJpa.map(courseMapper::fromJPA));
     }
 

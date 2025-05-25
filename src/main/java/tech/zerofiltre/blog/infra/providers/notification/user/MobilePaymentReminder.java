@@ -43,8 +43,8 @@ public class MobilePaymentReminder {
             if (!user.isPro() || userHasAValidPayment(user)) continue;
 
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime monthlyRenewDate = payment.getAt().plusMonths(1);
-            LocalDateTime yearlyRenewDate = payment.getAt().plusYears(1);
+            LocalDateTime monthlyRenewDate = payment.getAt().plusDays(30);
+            LocalDateTime yearlyRenewDate = payment.getAt().plusDays(365);
 
             if (MONTH.equals(payment.getRecurringInterval())) {
                 Duration between = Duration.between(now, monthlyRenewDate);
@@ -91,8 +91,8 @@ public class MobilePaymentReminder {
         return payments.stream().anyMatch(payment -> {
             if (payment.getUser() != null && payment.getUser().getId() != user.getId()) return false;
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime monthlyRenewDate = payment.getAt().plusMonths(1);
-            LocalDateTime yearlyRenewDate = payment.getAt().plusYears(1);
+            LocalDateTime monthlyRenewDate = payment.getAt().plusDays(30);
+            LocalDateTime yearlyRenewDate = payment.getAt().plusDays(365);
             Duration between = Duration.ZERO;
             if (MONTH.equals(payment.getRecurringInterval())) {
                 between = Duration.between(now, monthlyRenewDate);
