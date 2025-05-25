@@ -14,7 +14,7 @@ public class LinkCompanyCourse {
     private long id;
     private long companyId;
     private long courseId;
-    private boolean owner = false;
+    private boolean exclusive;
     private boolean active = true;
     private LocalDateTime linkedAt;
     private LocalDateTime suspendedAt;

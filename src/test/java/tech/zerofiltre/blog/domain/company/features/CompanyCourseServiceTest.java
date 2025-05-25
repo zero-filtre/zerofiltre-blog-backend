@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tech.zerofiltre.blog.domain.FinderRequest;
+import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
@@ -282,17 +283,15 @@ class CompanyCourseServiceTest {
     void shouldFindsLink_whenSearchForLinkBetweenCourseAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenReturn(true);
+        LinkCompanyCourse expectedLink = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now(), null);
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(expectedLink));
 
         //WHEN
-        companyCourseService.find(adminUser, 1L, 1L);
+        Optional<LinkCompanyCourse> result = companyCourseService.find(adminUser, 1L, 1L);
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
-        verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
+        assertThat(result).contains(expectedLink);
     }
 
     @Test
@@ -312,37 +311,31 @@ class CompanyCourseServiceTest {
     @Test
     @DisplayName("When a platform admin or a company user searches for a link between a course and a company that does not exist, then he finds nothing")
     void shouldFindNothing_whenSearchForLinkBetweenCourseAndNotExistingCompany_asAdminOrCompanyUser() throws
-    ForbiddenActionException, ResourceNotFoundException {
+            ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //THEN
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
+        Optional<LinkCompanyCourse> result = companyCourseService.find(userWithRoleUser, 2L, 2L);
 
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
+        assertThat(result).isEmpty();
     }
 
     @Test
     @DisplayName("When a platform admin or a company user searches for a link between a course that does not exist and a company, then he finds nothing")
     void shouldFindNothing_whenSearchForLinkBetweenNotExistingCourseAndCompany_asAdminOrCompanyUser() throws
-    ForbiddenActionException, ResourceNotFoundException {
+            ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.courseExists(anyLong())).thenThrow(ResourceNotFoundException.class);
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //THEN
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> companyCourseService.find(userWithRoleUser, 2L, 2L));
+        Optional<LinkCompanyCourse> result = companyCourseService.find(userWithRoleUser, 2L, 2L);
 
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(checker).courseExists(anyLong());
-        verify(companyCourseProvider, never()).findByCompanyIdAndCourseId(anyLong(), anyLong());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -350,15 +343,13 @@ class CompanyCourseServiceTest {
     void shouldFindPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
         companyCourseService.findAllByCompanyId(adminUser, 0, 0, 1L);
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(companyCourseProvider).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+        verify(companyCourseProvider).findByCompanyId(0, 0, 1);
     }
 
     @Test
@@ -372,7 +363,7 @@ class CompanyCourseServiceTest {
                 .isThrownBy(() -> companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L));
 
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(companyCourseProvider, never()).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+        verify(companyCourseProvider, never()).findByCompanyId(anyInt(), anyInt(), anyLong());
     }
 
     @Test
@@ -380,15 +371,12 @@ class CompanyCourseServiceTest {
     void shouldFindNothing_whenSearchingForAllLinksBetweenCoursesAndNotExistingCompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenThrow(ResourceNotFoundException.class);
-
+        when(companyCourseProvider.findByCompanyId(anyInt(), anyInt(), anyLong())).thenReturn(Page.emptyPage());
         //THEN
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L));
+        Page<LinkCompanyCourse> result = companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L);
 
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(companyCourseProvider, never()).findAllByCompanyIdByPage(anyInt(), anyInt(), anyLong());
+        assertThat(result.isEmpty()).isTrue();
     }
 
     @Test
@@ -396,15 +384,13 @@ class CompanyCourseServiceTest {
     void shouldReturnPartOfCourseList_whenSearchingForAllCoursesOfACompany_asAdminOrCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.companyExists(anyLong())).thenReturn(true);
 
         //WHEN
-        companyCourseService.findAllCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L);
+        companyCourseService.findCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L);
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
-        verify(checker).companyExists(anyLong());
-        verify(companyCourseProvider).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong(), any(Status.class));
+        verify(companyCourseProvider).findCoursesByCompanyId(0, 0, 1L, Status.PUBLISHED);
     }
 
     @Test
@@ -415,12 +401,12 @@ class CompanyCourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyCourseService.findAllCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L));
+                .isThrownBy(() -> companyCourseService.findCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L));
 
         //THEN
         verify(checker).isAdminOrCompanyUser(any(User.class), anyLong());
         verify(checker, never()).companyExists(anyLong());
-        verify(companyCourseProvider, never()).findAllCoursesByCompanyIdByPage(anyInt(), anyInt(), anyLong(), any(Status.class));
+        verify(companyCourseProvider, never()).findCoursesByCompanyId(anyInt(), anyInt(), anyLong(), any(Status.class));
     }
 
     @Test
