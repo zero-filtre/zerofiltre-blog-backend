@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Page<T> implements Serializable {
@@ -29,6 +30,25 @@ public class Page<T> implements Serializable {
         this.hasNext = hasNext;
         this.hasPrevious = hasPrevious;
     }
+
+    public boolean isEmpty() {
+        return numberOfElements == 0 || content == null || content.isEmpty();
+    }
+
+
+    public static <T> Page<T> emptyPage() {
+        return new Page<>(
+                0, // pageSize
+                0, // pageNumber
+                0, // numberOfElements
+                0, // totalNumberOfElements
+                0, // totalNumberOfPages
+                Collections.emptyList(), // content
+                false, // hasNext
+                false  // hasPrevious
+        );
+    }
+
 
     public int getPageSize() {
         return pageSize;

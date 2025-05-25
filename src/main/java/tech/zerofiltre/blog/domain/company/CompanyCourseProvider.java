@@ -15,9 +15,9 @@ public interface CompanyCourseProvider {
 
     Optional<LinkCompanyCourse> findByCompanyIdAndCourseId(long companyId, long courseId, boolean active);
 
-    Page<LinkCompanyCourse> findAllByCompanyIdByPage(int pageNumber, int pageSize, long companyId);
+    Page<LinkCompanyCourse> findByCompanyId(int pageNumber, int pageSize, long companyId);
 
-    Page<Course> findAllCoursesByCompanyIdByPage(int pageNumber, int pageSize, long companyId, Status status);
+    Page<Course> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status);
 
     List<LinkCompanyCourse> findAllByCompanyId(long companyId);
 
