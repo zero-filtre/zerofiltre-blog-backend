@@ -123,7 +123,7 @@ class DBCompanyCourseProviderIT {
 
     @Test
     @DisplayName("given pageNumber, pageSize and companyId when findAllByCompanyIdByPage then return page of LinkCompanyCourse for a company")
-    void findAllByCompanyIdByPage_returnAllCompanyCourseByCompanyIdByPage() {
+    void findAllByCompanyIdByPage_returnByCompanyId() {
         //GIVEN
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
@@ -136,7 +136,7 @@ class DBCompanyCourseProviderIT {
         LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company.getId());
+        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findByCompanyId(0, 10, company.getId());
 
         //THEN
         assertThat(response).isNotNull();
@@ -187,7 +187,7 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.DRAFT);
+        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.DRAFT);
 
         //THEN
         assertThat(response).isNotNull();
@@ -232,7 +232,7 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.PUBLISHED);
+        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.PUBLISHED);
 
         //THEN
         assertThat(response).isNotNull();
@@ -277,7 +277,7 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.IN_REVIEW);
+        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.IN_REVIEW);
 
         //THEN
         assertThat(response).isNotNull();
@@ -322,7 +322,7 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findAllCoursesByCompanyIdByPage(0, 10, company.getId(), Status.ARCHIVED);
+        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.ARCHIVED);
 
         //THEN
         assertThat(response).isNotNull();
@@ -423,14 +423,14 @@ class DBCompanyCourseProviderIT {
 
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, true, LocalDateTime.now(), null));
 
-        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company.getId());
+        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findByCompanyId(0, 10, company.getId());
         assertThat(response.getTotalNumberOfElements()).isEqualTo(2);
 
         //WHEN
         dbCompanyCourseProvider.deleteAllByCompanyId(company.getId());
 
         //THEN
-        response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company.getId());
+        response = dbCompanyCourseProvider.findByCompanyId(0, 10, company.getId());
 
         assertThat(response).isNotNull();
         List<LinkCompanyCourse> content = response.getContent();
@@ -455,13 +455,13 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.deleteAllByCourseId(course1.getId());
 
         //THEN
-        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company1.getId());
+        Page<LinkCompanyCourse> response = dbCompanyCourseProvider.findByCompanyId(0, 10, company1.getId());
 
         assertThat(response).isNotNull();
         List<LinkCompanyCourse> content = response.getContent();
         assertThat(content).hasSize(0);
 
-        Page<LinkCompanyCourse> response2 = dbCompanyCourseProvider.findAllByCompanyIdByPage(0, 10, company2.getId());
+        Page<LinkCompanyCourse> response2 = dbCompanyCourseProvider.findByCompanyId(0, 10, company2.getId());
 
         assertThat(response2).isNotNull();
         List<LinkCompanyCourse> content2 = response2.getContent();

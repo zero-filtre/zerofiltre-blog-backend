@@ -4,11 +4,18 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Reaction;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.article.model.Tag;
+import tech.zerofiltre.blog.domain.company.model.Company;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Chapter;
@@ -21,7 +28,13 @@ import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.article.DBReactionProvider;
+import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.article.ReactionCourseJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.article.TagJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.company.CompanyCourseJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.company.CompanyJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
@@ -30,8 +43,10 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_FULL_NAME;
@@ -39,6 +54,7 @@ import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_PROFILE_PICTURE
 
 @DataJpaTest
 class DBCourseProviderIT {
+
 
     DBCourseProvider courseProvider;
 
@@ -49,6 +65,12 @@ class DBCourseProviderIT {
     DBLessonProvider lessonProvider;
 
     DBReactionProvider reactionProvider;
+
+    DBCompanyProvider dbCompanyProvider;
+
+    DBCompanyCourseProvider companyCourseProvider;
+
+    DBTagProvider tagProvider;
 
     @Autowired
     CourseJPARepository courseJPARepository;
@@ -68,6 +90,15 @@ class DBCourseProviderIT {
     @Autowired
     private ReactionCourseJPARepository reactionRepository;
 
+    @Autowired
+    private CompanyCourseJPARepository companyCourseJPARepository;
+
+    @Autowired
+    private CompanyJPARepository companyJPARepository;
+
+    @Autowired
+    private TagJPARepository tagJPARepository;
+
 
     @BeforeEach
     void init() {
@@ -75,6 +106,9 @@ class DBCourseProviderIT {
         userProvider = new DBUserProvider(userJPARepository);
         lessonProvider = new DBLessonProvider(lessonJPARepository, enrollmentJPARepository);
         chapterProvider = new DBChapterProvider(chapterJPARepository);
+        companyCourseProvider = new DBCompanyCourseProvider(companyCourseJPARepository);
+        dbCompanyProvider = new DBCompanyProvider(companyJPARepository);
+        tagProvider = new DBTagProvider(tagJPARepository);
     }
 
     @Test
@@ -143,6 +177,77 @@ class DBCourseProviderIT {
 
         //then
         assertThat(lessonsCount).isEqualTo(2);
+    }
+
+    public static Stream<Arguments> testDataProvider() {
+        return Stream.of(
+                // -- tag is null and author is 0 --
+                arguments(FinderRequest.Filter.MOST_VIEWED, null, 0),
+                arguments(FinderRequest.Filter.POPULAR, null, 0),
+                //any other status
+                arguments(FinderRequest.Filter.COMPLETED, null, 0),
+
+                // -- tag is null and author is not 0 --
+                arguments(FinderRequest.Filter.MOST_VIEWED, null, 1),
+                arguments(FinderRequest.Filter.POPULAR, null, 1),
+                //any other status
+                arguments(FinderRequest.Filter.COMPLETED, null, 1),
+
+                // -- tag is not null and author is 0
+                arguments(null, "java", 0),
+
+                // -- tag is not null and author is not 0
+                arguments(null, "java", 1)
+
+
+        );
+    }
+
+
+    @MethodSource("testDataProvider")
+    @ParameterizedTest(name = "[{index}] Getting courses with filter: {0} with tag {1} for authorId {2}")
+    void courseOf_returns_only_nonExclusiveCompanyCourses(FinderRequest.Filter filter, String tag, long authorId) {
+
+        //given
+        User author = ZerofiltreUtilsTest.createMockUser(false);
+        author.setPseudoName("author");
+        author.setEmail("author@gmail.fr");
+        author = userProvider.save(author);
+
+        if (authorId != 0) authorId = author.getId();
+
+        Tag java = tagProvider.save(new Tag(0, "java"));
+
+        Course linked = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        linked.setTags(List.of(java));
+        linked = courseProvider.save(linked);
+
+        Course linkedExclusive = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        linkedExclusive = courseProvider.save(linkedExclusive);
+
+        Course shared = ZerofiltreUtilsTest.createMockCourse(false, PUBLISHED, author, Collections.emptyList(), Collections.emptyList());
+        shared.setTags(List.of(java));
+        shared = courseProvider.save(shared);
+
+
+        Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+
+        companyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), linked.getId(), false, true, LocalDateTime.now(), null));
+        companyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), linkedExclusive.getId(), true, true, LocalDateTime.now(), null));
+
+        //when
+        Page<Course> result = courseProvider.courseOf(0, 12, PUBLISHED, authorId, filter, tag);
+
+        //assert
+        assertThat(result).isNotNull();
+        assertThat(result.getTotalNumberOfElements()).isEqualTo(2);
+        long linkedId = linked.getId();
+        long sharedId = shared.getId();
+        long linkedExclusiveId = linkedExclusive.getId();
+        result.getContent().forEach(course -> {
+            boolean sharedOrLinked = (course.getId() == linkedId || course.getId() == sharedId) && course.getId() != linkedExclusiveId;
+            assertThat(sharedOrLinked).isTrue();
+        });
     }
 
     @Test
@@ -312,6 +417,4 @@ class DBCourseProviderIT {
         return course;
 
     }
-
-
 }

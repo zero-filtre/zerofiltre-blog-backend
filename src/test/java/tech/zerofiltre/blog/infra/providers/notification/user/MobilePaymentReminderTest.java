@@ -56,7 +56,7 @@ class MobilePaymentReminderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Payment expiredMonthlyPayment = new Payment();
-        expiredMonthlyPayment.setAt(now.minusMonths(2));
+        expiredMonthlyPayment.setAt(now.minusDays(60));
         expiredMonthlyPayment.setRecurringInterval(Payment.MONTH);
         expiredMonthlyPayment.setUser(user);
 
@@ -83,12 +83,12 @@ class MobilePaymentReminderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Payment expiredMonthlyPayment = new Payment();
-        expiredMonthlyPayment.setAt(now.minusMonths(2));
+        expiredMonthlyPayment.setAt(now.minusDays(60));
         expiredMonthlyPayment.setRecurringInterval(Payment.MONTH);
         expiredMonthlyPayment.setUser(user);
 
         Payment expiredYearlyPayment = new Payment();
-        expiredYearlyPayment.setAt(now.minusYears(2));
+        expiredYearlyPayment.setAt(now.minusDays(730));
         expiredYearlyPayment.setRecurringInterval(Payment.YEAR);
         expiredYearlyPayment.setUser(user);
 
@@ -113,12 +113,12 @@ class MobilePaymentReminderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Payment almostExpiredMonthlyPayment = new Payment();
-        almostExpiredMonthlyPayment.setAt(now.minusMonths(1).plusDays(4));
+        almostExpiredMonthlyPayment.setAt(now.minusDays(26));
         almostExpiredMonthlyPayment.setRecurringInterval(Payment.MONTH);
         almostExpiredMonthlyPayment.setUser(user);
 
         Payment almostExpiredYearlyPayment = new Payment();
-        almostExpiredYearlyPayment.setAt(now.minusYears(1).plusDays(2));
+        almostExpiredYearlyPayment.setAt(now.minusDays(363));
         almostExpiredYearlyPayment.setRecurringInterval(Payment.YEAR);
         almostExpiredYearlyPayment.setUser(user);
 
@@ -141,12 +141,12 @@ class MobilePaymentReminderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Payment almostExpiredMonthlyPayment = new Payment();
-        almostExpiredMonthlyPayment.setAt(now.minusMonths(1).plusDays(10));
+        almostExpiredMonthlyPayment.setAt(now.minusDays(20));
         almostExpiredMonthlyPayment.setRecurringInterval(Payment.MONTH);
         almostExpiredMonthlyPayment.setUser(user);
 
         Payment expiredYearlyPayment = new Payment();
-        expiredYearlyPayment.setAt(now.minusYears(2));
+        expiredYearlyPayment.setAt(now.minusDays(730));
         expiredYearlyPayment.setRecurringInterval(Payment.YEAR);
         expiredYearlyPayment.setUser(user);
 

@@ -133,7 +133,7 @@ class CourseServiceTest {
         LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
         Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
         Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
-        Assertions.assertThat(linkCompanyCourseCaptured.isOwner()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.isExclusive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         Assertions.assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isNull();
@@ -175,7 +175,7 @@ class CourseServiceTest {
         LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
         Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
         Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
-        Assertions.assertThat(linkCompanyCourseCaptured.isOwner()).isTrue();
+        Assertions.assertThat(linkCompanyCourseCaptured.isExclusive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         Assertions.assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isNull();
@@ -304,7 +304,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void should_ThrowException_WhenCourseNotFound2() {
+    void should_ThrowException_WhenLinkNotFound() {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
@@ -315,11 +315,11 @@ class CourseServiceTest {
                 .isThrownBy(() -> courseService.findByIdAndCompanyId(1, editor, 1));
 
         //THEN
-        assertThat(((NotFoundCourseProviderSpy) courseProvider).courseOfIdCalled).isTrue();
+        assertThat(((NotFoundCourseProviderSpy) courseProvider).courseOfIdCalled).isFalse();
     }
 
     @Test
-    void should_ThrowException_WhenCompanyCourseNotFound() throws ForbiddenActionException, ResourceNotFoundException {
+    void should_ThrowException_WhenCompanyCourseNotFound() throws ForbiddenActionException {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
 
@@ -329,7 +329,7 @@ class CourseServiceTest {
         when(companyCourseService.find(any(User.class), anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
+        assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> courseService.findByIdAndCompanyId(1, editor, 1));
     }
 
