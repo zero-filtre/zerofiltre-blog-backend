@@ -26,7 +26,7 @@ public class LinkCompanyCourseJPA extends BaseEntityJPA {
     @Column(name = "course_id")
     private long courseId;
 
-    private boolean owner;
+    private boolean exclusive;
     private boolean active;
 
     @Column(name = "linked_at")

@@ -175,7 +175,7 @@ class CourseServiceIT {
         assertThat(linkCompanyCourse).isPresent();
         assertThat(linkCompanyCourse.get().getCompanyId()).isEqualTo(companyId);
         assertThat(linkCompanyCourse.get().getCourseId()).isEqualTo(course.getId());
-        assertThat(linkCompanyCourse.get().isOwner()).isTrue();
+        assertThat(linkCompanyCourse.get().isExclusive()).isTrue();
         assertThat(linkCompanyCourse.get().isActive()).isTrue();
         assertThat(linkCompanyCourse.get().getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         assertThat(linkCompanyCourse.get().getSuspendedAt()).isNull();
@@ -218,7 +218,7 @@ class CourseServiceIT {
         assertThat(linkCompanyCourse).isPresent();
         assertThat(linkCompanyCourse.get().getCompanyId()).isEqualTo(companyId);
         assertThat(linkCompanyCourse.get().getCourseId()).isEqualTo(course.getId());
-        assertThat(linkCompanyCourse.get().isOwner()).isTrue();
+        assertThat(linkCompanyCourse.get().isExclusive()).isTrue();
         assertThat(linkCompanyCourse.get().isActive()).isTrue();
         assertThat(linkCompanyCourse.get().getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         assertThat(linkCompanyCourse.get().getSuspendedAt()).isNull();

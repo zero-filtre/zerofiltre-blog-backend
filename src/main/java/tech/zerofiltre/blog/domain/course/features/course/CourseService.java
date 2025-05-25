@@ -82,13 +82,11 @@ public class CourseService {
     }
 
     public Course findByIdAndCompanyId(long id, User viewer, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
-        Course foundCourse = courseProvider.courseOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
+        LinkCompanyCourse link = companyCourseService.find(viewer, companyId, id)
+                .orElseThrow(() -> new ResourceNotFoundException("No link between the course: " + id + " and the company: " + companyId, String.valueOf(id), String.valueOf(companyId)));
 
-        if (companyCourseService.find(viewer, companyId, id).isEmpty()) {
-            throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
-        }
-        return foundCourse;
+        return courseProvider.courseOfId(link.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
     }
 
     public Course save(Course updatedCourse, User currentEditor) throws ResourceNotFoundException, ForbiddenActionException {

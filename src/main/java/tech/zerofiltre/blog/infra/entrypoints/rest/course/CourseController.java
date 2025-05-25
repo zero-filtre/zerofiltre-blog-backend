@@ -60,12 +60,7 @@ public class CourseController {
 
     @GetMapping("/{id}/{companyId}")
     public Course courseByIdAndCompanyId(@PathVariable("id") long courseId, @PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
-        User user = null;
-        try {
-            user = securityContextManager.getAuthenticatedUser();
-        } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted course");
-        }
+        User user = securityContextManager.getAuthenticatedUser();
         return courseService.findByIdAndCompanyId(courseId, user, companyId);
     }
 

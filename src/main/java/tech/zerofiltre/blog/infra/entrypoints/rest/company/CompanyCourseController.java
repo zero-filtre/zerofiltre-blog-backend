@@ -75,7 +75,7 @@ public class CompanyCourseController {
             request.setFilter(FinderRequest.Filter.valueOf(filter));
         }
 
-        return companyCourseService.findAllCoursesByCompanyId(request, companyId);
+        return companyCourseService.findCoursesByCompanyId(request, companyId);
     }
 
     @DeleteMapping("/company/{companyId}/course/{courseId}")
