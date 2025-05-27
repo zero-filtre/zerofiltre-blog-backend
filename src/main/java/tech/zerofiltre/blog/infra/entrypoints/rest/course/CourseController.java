@@ -48,25 +48,15 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public Course courseById(@PathVariable("id") long courseId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Course courseById(@PathVariable("id") long courseId, @RequestParam(required = false) Long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         User user = null;
         try {
             user = securityContextManager.getAuthenticatedUser();
         } catch (ZerofiltreException e) {
+            if(null != companyId) throw e;
             log.debug("We did not find a connected user but we can still return the wanted course");
         }
-        return courseService.findById(courseId, user);
-    }
-
-    @GetMapping("/{id}/{companyId}")
-    public Course courseByIdAndCompanyId(@PathVariable("id") long courseId, @PathVariable long companyId) throws ResourceNotFoundException, ForbiddenActionException {
-        User user = null;
-        try {
-            user = securityContextManager.getAuthenticatedUser();
-        } catch (ZerofiltreException e) {
-            log.debug("We did not find a connected user but we can still return the wanted course");
-        }
-        return courseService.findByIdAndCompanyId(courseId, user, companyId);
+        return (null == companyId) ? courseService.findById(courseId, user) : courseService.findByIdAndCompanyId(courseId, user, companyId);
     }
 
     @PatchMapping
@@ -115,7 +105,7 @@ public class CourseController {
     @PostMapping
     public Course init(@RequestParam @NotNull @NotEmpty String title, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
-        return courseService.init(title, user, null == companyId ? 0 : companyId.intValue());
+        return courseService.init(title, user, null == companyId ? 0 : companyId);
     }
 
     @DeleteMapping("/{id}")
