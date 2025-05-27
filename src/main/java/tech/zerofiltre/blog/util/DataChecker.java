@@ -67,9 +67,7 @@ public class DataChecker {
     }
 
     public boolean companyUserExists(long companyId, long userId) throws ResourceNotFoundException {
-        Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
-
-        if(companyUser.isEmpty()) {
+        if (findCompanyUser(companyId, userId).isEmpty()) {
             throw new ResourceNotFoundException("We could not find the company user", String.valueOf(userId));
         }
         return true;
@@ -88,55 +86,45 @@ public class DataChecker {
     }
 
     public boolean isAdminOrCompanyAdmin(User connectedUser, long companyId) throws ForbiddenActionException {
-        if(!connectedUser.isAdmin()) {
-            Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, connectedUser.getId());
-
-            if(companyUser.isEmpty() || !companyUser.get().getRole().equals(LinkCompanyUser.Role.ADMIN)) {
+        if (!connectedUser.isAdmin()
+                && !isCompanyAdmin(connectedUser.getId(), companyId)) {
                 throw new ForbiddenActionException("You don't have authorization.");
-            }
         }
         return true;
     }
 
     public boolean isAdminOrCompanyUser(User connectedUser, long companyId) throws ForbiddenActionException {
-        if(!connectedUser.isAdmin()) {
-            Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, connectedUser.getId());
-
-            if(companyUser.isEmpty()) {
+        if (!connectedUser.isAdmin()
+            && !isCompanyUser(connectedUser.getId(), companyId)) {
                 throw new ForbiddenActionException("You don't have authorization.");
-            }
         }
         return true;
     }
 
-    public boolean isCompanyAdminOrCompanyEditor(User connectedUser, long companyId) throws ForbiddenActionException {
-        Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, connectedUser.getId());
+    public boolean isCompanyAdminOrEditor(long userId, long companyId) {
+        Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, userId);
 
-        if(companyUser.isEmpty() || companyUser.get().getRole().equals(LinkCompanyUser.Role.VIEWER)) {
-            throw new ForbiddenActionException("You don't have authorization.");
-        }
-        return true;
+        return companyUser.isPresent() && !companyUser.get().getRole().equals(LinkCompanyUser.Role.VIEWER);
     }
 
     public boolean isAdminOrCompanyAdminOrEditor(User connectedUser, long companyId) throws ForbiddenActionException {
-        if (!connectedUser.isAdmin()) {
-            Optional<LinkCompanyUser> companyUser = findCompanyUser(companyId, connectedUser.getId());
-
-            if (companyUser.isEmpty() || companyUser.get().getRole().equals(LinkCompanyUser.Role.VIEWER)) {
+        if (!connectedUser.isAdmin()
+            && !isCompanyAdminOrEditor(connectedUser.getId(), companyId)) {
                 throw new ForbiddenActionException("You don't have authorization.");
-            }
         }
         return true;
     }
 
-    boolean isCompanyAdmin(long userId, long companyId) {
-        Optional<LinkCompanyUser> companyUser = companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true);
+    public boolean isCompanyAdmin(long userId, long companyId) {
+        return findCompanyUser(companyId, userId).map(value -> value.getRole().equals(LinkCompanyUser.Role.ADMIN)).orElse(false);
+    }
 
-        return companyUser.map(value -> value.getRole().equals(LinkCompanyUser.Role.ADMIN)).orElse(false);
+    public boolean isCompanyUser(long userId, long companyId) {
+        return findCompanyUser(companyId, userId).isPresent();
     }
 
     Optional<LinkCompanyUser> findCompanyUser(long companyId, long userId) {
-        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
+        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true);
     }
 
 }
