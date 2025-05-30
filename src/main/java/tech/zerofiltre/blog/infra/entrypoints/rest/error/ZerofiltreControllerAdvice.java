@@ -45,7 +45,7 @@ public class ZerofiltreControllerAdvice {
                 currentApiVersion,
                 Integer.toString(HttpStatus.NOT_FOUND.value()),
                 errorCode,
-                messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceId()}, locale),
+                messageSource.getMessage("ZBLOG_003", new Object[]{exception.getResourceIds()}, locale),
                 exception.getLocalizedMessage()
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);

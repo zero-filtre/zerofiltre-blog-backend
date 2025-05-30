@@ -53,26 +53,19 @@ public class CompanyCourseService {
         }
     }
 
-    public Optional<LinkCompanyCourse> find(User user, long companyId, long courseId) throws ForbiddenActionException, ResourceNotFoundException {
+    public Optional<LinkCompanyCourse> find(User user, long companyId, long courseId) throws ForbiddenActionException {
         checker.isAdminOrCompanyUser(user, companyId);
-        checker.companyExists(companyId);
-        checker.courseExists(courseId);
-
         return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
     }
 
-    public Page<LinkCompanyCourse> findAllByCompanyId(User user, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+    public Page<LinkCompanyCourse> findAllByCompanyId(User user, int pageNumber, int pageSize, long companyId) throws ForbiddenActionException {
         checker.isAdminOrCompanyUser(user, companyId);
-        checker.companyExists(companyId);
-
-        return companyCourseProvider.findAllByCompanyIdByPage(pageNumber, pageSize, companyId);
+        return companyCourseProvider.findByCompanyId(pageNumber, pageSize, companyId);
     }
 
-    public Page<Course> findAllCoursesByCompanyId(FinderRequest request, long companyId) throws ForbiddenActionException, ResourceNotFoundException {
+    public Page<Course> findCoursesByCompanyId(FinderRequest request, long companyId) throws ForbiddenActionException {
         checker.isAdminOrCompanyUser(request.getUser(), companyId);
-        checker.companyExists(companyId);
-
-        return companyCourseProvider.findAllCoursesByCompanyIdByPage(request.getPageNumber(), request.getPageSize(), companyId, request.getStatus());
+        return companyCourseProvider.findCoursesByCompanyId(request.getPageNumber(), request.getPageSize(), companyId, request.getStatus());
     }
 
     public long getLinkCompanyCourseIdIfCourseIsActive(long companyId, long courseId) throws ResourceNotFoundException {
