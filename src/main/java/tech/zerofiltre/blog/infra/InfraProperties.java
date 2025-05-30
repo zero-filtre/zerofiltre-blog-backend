@@ -62,6 +62,9 @@ public class InfraProperties {
     @Value("${zerofiltre.infra.api.openai.api-key}")
     private String openaiApiKey;
 
+    @Value("${zerofiltre.infra.api.openai.refresh-interval-seconds:3600}")
+    private long refreshInterval;
+
     @Value("${zerofiltre.infra.api.openai.organization-id}")
     private String openaiOrganizationId;
 
