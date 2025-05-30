@@ -7,12 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.MessageSourceProvider;
 import tech.zerofiltre.blog.domain.tips.AiProvider;
-import tech.zerofiltre.blog.domain.tips.model.Tip;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,9 +37,24 @@ class AiTipsProviderTest {
     }
 
     @Test
-    void given_Tip_date_is_null_when_findTip_then_return_tip_by_ai() throws ZerofiltreException {
+    void given_TipAndDate_areNull_findTip_returns_aNewTip() throws ZerofiltreException {
         //ARRANGE
-        Tip.date = null;
+        when(aiProvider.answer(anyString())).thenReturn("tip");
+
+        //ACT
+        aiTipsProvider.findTip("request");
+
+        //ASSERT
+        assertThat(aiTipsProvider.getTip()).isEqualTo("tip");
+        assertThat(aiTipsProvider.getDate()).isBeforeOrEqualTo(LocalDateTime.now());
+        verify(aiProvider, times(1)).answer(anyString());
+    }
+
+    @Test
+    void given_tipIsFromYesterday_findTip_returns_aNewTip() throws ZerofiltreException {
+        //ARRANGE
+        ReflectionTestUtils.setField(aiTipsProvider, "date", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(aiTipsProvider, "tip", "a tip");
 
         when(aiProvider.answer(anyString())).thenReturn("tip");
 
@@ -46,15 +62,16 @@ class AiTipsProviderTest {
         aiTipsProvider.findTip("request");
 
         //ASSERT
-        assertThat(Tip.tip).isEqualTo("tip");
-        assertThat(Tip.date).isBeforeOrEqualTo(LocalDate.now());
+        assertThat(aiTipsProvider.getTip()).isEqualTo("tip");
+        assertThat(aiTipsProvider.getDate()).isBeforeOrEqualTo(LocalDateTime.now());
         verify(aiProvider, times(1)).answer(anyString());
     }
 
     @Test
-    void given_Tip_date_is_yesterday_when_findTip_then_return_tip_by_ai() throws ZerofiltreException {
+    void given_tipIsFreshButEmpty_findTip_returns_aNewTip() throws ZerofiltreException {
         //ARRANGE
-        Tip.date = LocalDate.now().minusDays(1);
+        ReflectionTestUtils.setField(aiTipsProvider, "date", LocalDateTime.now().minusMinutes(10));
+        ReflectionTestUtils.setField(aiTipsProvider, "tip", "");
 
         when(aiProvider.answer(anyString())).thenReturn("tip");
 
@@ -62,69 +79,37 @@ class AiTipsProviderTest {
         aiTipsProvider.findTip("request");
 
         //ASSERT
-        assertThat(Tip.tip).isEqualTo("tip");
-        assertThat(Tip.date).isBeforeOrEqualTo(LocalDate.now());
+        assertThat(aiTipsProvider.getTip()).isEqualTo("tip");
+        assertThat(aiTipsProvider.getDate()).isBeforeOrEqualTo(LocalDateTime.now());
         verify(aiProvider, times(1)).answer(anyString());
     }
 
     @Test
-    void given_Tip_tip_is_null_and_Tip_date_is_good_when_findTip_then_return_tip_by_ai() throws ZerofiltreException {
+    void given_TipIsFresh_findTip_returns_inMemoryTip() throws ZerofiltreException {
         //ARRANGE
-        Tip.tip = null;
-        Tip.date = LocalDate.now();
-
-        when(aiProvider.answer(anyString())).thenReturn("tip");
-
-        //ACT
-        aiTipsProvider.findTip("request");
-
-        //ASSERT
-        assertThat(Tip.tip).isEqualTo("tip");
-        assertThat(Tip.date).isBeforeOrEqualTo(LocalDate.now());
-        verify(aiProvider, times(1)).answer(anyString());
-    }
-
-    @Test
-    void given_Tip_tip_is_blank_and_Tip_date_is_good_when_findTip_then_return_tip_by_ai() throws ZerofiltreException {
-        //ARRANGE
-        Tip.tip = " ";
-        Tip.date = LocalDate.now();
-
-        when(aiProvider.answer(anyString())).thenReturn("tip");
-
-        //ACT
-        aiTipsProvider.findTip("request");
-
-        //ASSERT
-        assertThat(Tip.tip).isEqualTo("tip");
-        assertThat(Tip.date).isBeforeOrEqualTo(LocalDate.now());
-        verify(aiProvider, times(1)).answer(anyString());
-    }
-
-    @Test
-    void given_Tip_tip_is_good_and_Tip_date_is_today_when_findTip_then_return_tip_by_Tip() throws ZerofiltreException {
-        //ARRANGE
-        Tip.tip = "tip";
-        Tip.date = LocalDate.now();
+        ReflectionTestUtils.setField(aiTipsProvider, "date", LocalDateTime.now().minusMinutes(10));
+        ReflectionTestUtils.setField(aiTipsProvider, "tip", "in memory tip");
 
         //ACT
         String tip = aiTipsProvider.findTip("request");
 
         //ASSERT
-        assertThat(tip).isEqualTo(Tip.tip);
+        assertThat(tip).isEqualTo("in memory tip");
         verify(aiProvider, times(0)).answer(anyString());
     }
 
     @DisplayName("")
     @Test
-    void given_profession_is_empty_and_locale_and_Tip_date_is_null_when_getTip_then_question_posed_to_AI_concerns_devops_profession() throws ZerofiltreException {
+    void given_profession_is_empty_getTips_callsFindTips() throws ZerofiltreException {
         //ARRANGE
         String profession = "";
         Locale locale = Locale.FRENCH;
-        Tip.date = null;
 
-        when(messageSourceProvider.getMessage(anyString(), eq(null), any(Locale.class))).thenReturn("question ").thenReturn("Dev ou DevOps");
+        ReflectionTestUtils.setField(aiTipsProvider, "date", LocalDateTime.now().minusMinutes(120));
+        ReflectionTestUtils.setField(aiTipsProvider, "tip", "in memory tip");
         when(aiProvider.answer(anyString())).thenReturn("tip");
+
+        when(messageSourceProvider.getMessage(anyString(), eq(null), any(Locale.class))).thenReturn("question").thenReturn("Dev ou DevOps");
 
         //ACT
         String tip = aiTipsProvider.getTip(profession, locale);
@@ -140,12 +125,12 @@ class AiTipsProviderTest {
     }
 
     @Test
-    void given_profession_and_locale_when_getTip_then_question_posed_to_AI_concerns_user_s_profession() throws ZerofiltreException {
+    void given_profession_is_Notempty_getTips_getsANewTip() throws ZerofiltreException {
         //ARRANGE
         String profession = "engineer";
         Locale locale = Locale.FRENCH;
 
-        when(messageSourceProvider.getMessage(anyString(), eq(null), any(Locale.class))).thenReturn("question ");
+        when(messageSourceProvider.getMessage(anyString(), eq(null), any(Locale.class))).thenReturn("question");
         when(aiProvider.answer(anyString())).thenReturn("tip");
 
         //ACT
