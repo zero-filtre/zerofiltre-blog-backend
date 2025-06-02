@@ -9,6 +9,7 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
@@ -152,8 +153,7 @@ class DBCompanyUserProviderIT {
         List<LinkCompanyUser> response = dbCompanyUserProvider.findAllByCompanyId(company.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isEqualTo(2);
+        assertThat(response).isNotNull().hasSize(2);
         assertThat(response.get(0).getCompanyId()).isEqualTo(company.getId());
         assertThat(response.get(0).getUserId()).isEqualTo(user1.getId());
         assertThat(response.get(1).getCompanyId()).isEqualTo(company.getId());
@@ -178,18 +178,47 @@ class DBCompanyUserProviderIT {
 
         dbCompanyUserProvider.save(new LinkCompanyUser(0, company.getId(), user2.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
 
-        assertThat(dbCompanyUserProvider.findAllByCompanyId(company.getId()).size()).isEqualTo(3);
+        assertThat(dbCompanyUserProvider.findAllByCompanyId(company.getId())).hasSize(3);
 
         //WHEN
         List<LinkCompanyUser> response = dbCompanyUserProvider.findAllByCompanyIdExceptAdminRole(company.getId());
 
         //THEN
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isEqualTo(2);
+        assertThat(response).isNotNull().hasSize(2);
         assertThat(response.get(0).getCompanyId()).isEqualTo(company.getId());
         assertThat(response.get(0).getUserId()).isEqualTo(user1.getId());
         assertThat(response.get(1).getCompanyId()).isEqualTo(company.getId());
         assertThat(response.get(1).getUserId()).isEqualTo(user2.getId());
+    }
+
+    @Test
+    @DisplayName("When I search for a user's companies and roles, I receive a list.")
+    void shouldReturnList_whenSearchingUserCompaniesAndRoles() {
+        //GIVEN
+        Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
+        Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
+        Company company3 = dbCompanyProvider.save(new Company(0, "Company3", "000000003"));
+        dbCompanyProvider.save(new Company(0, "Company4", "000000004"));
+
+        assertThat(dbCompanyProvider.findAll(0, 10).getContent()).hasSize(4);
+
+        User user = dbUserProvider.save(new User());
+
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company3.getId(), user.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+
+        //WHEN
+        List<UserCompanyInfoVM> response = dbCompanyUserProvider.findCompaniesAndRolesByUserId(user.getId());
+
+        //THEN
+        assertThat(response).isNotNull().hasSize(3);
+        assertThat(response.get(0).getCompanyId()).isEqualTo(company1.getId());
+        assertThat(response.get(0).getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN.toString());
+        assertThat(response.get(1).getCompanyId()).isEqualTo(company2.getId());
+        assertThat(response.get(1).getRole()).isEqualTo(LinkCompanyUser.Role.EDITOR.toString());
+        assertThat(response.get(2).getCompanyId()).isEqualTo(company3.getId());
+        assertThat(response.get(2).getRole()).isEqualTo(LinkCompanyUser.Role.VIEWER.toString());
     }
 
     @Test
@@ -245,7 +274,7 @@ class DBCompanyUserProviderIT {
 
         assertThat(response).isNotNull();
         List<LinkCompanyUser> content = response.getContent();
-        assertThat(content).hasSize(0);
+        assertThat(content).isEmpty();
     }
 
     @Test
@@ -319,13 +348,13 @@ class DBCompanyUserProviderIT {
 
         assertThat(response).isNotNull();
         List<LinkCompanyUser> content = response.getContent();
-        assertThat(content).hasSize(0);
+        assertThat(content).isEmpty();
 
         Page<LinkCompanyUser> response2 = dbCompanyUserProvider.findAllByCompanyId(0, 10, company2.getId());
 
         assertThat(response2).isNotNull();
         List<LinkCompanyUser> content2 = response2.getContent();
-        assertThat(content2).hasSize(0);
+        assertThat(content2).isEmpty();
     }
 
 }

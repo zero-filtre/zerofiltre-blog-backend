@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.company;
 
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,8 @@ public interface CompanyUserProvider {
     List<LinkCompanyUser> findAllByCompanyId(long companyId);
 
     List<LinkCompanyUser> findAllByCompanyIdExceptAdminRole(long companyId);
+
+    List<UserCompanyInfoVM> findCompaniesAndRolesByUserId(long userId);
 
     void delete(LinkCompanyUser linkCompanyUser);
 
