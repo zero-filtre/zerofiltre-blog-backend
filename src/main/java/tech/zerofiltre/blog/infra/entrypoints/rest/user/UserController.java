@@ -17,6 +17,7 @@ import tech.zerofiltre.blog.domain.article.features.FindArticle;
 import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
@@ -69,9 +70,10 @@ public class UserController {
     private final GenerateToken generateToken;
     private final CourseService courseService;
     private final SubscribeToBroadcast subscribeToBroadcast;
+    private final CompanyUserProvider companyUserProvider;
 
 
-    public UserController(UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ArticleViewProvider articleViewProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider) {
+    public UserController(UserProvider userProvider, MetricsProvider metricsProvider, UserNotificationProvider userNotificationProvider, ArticleProvider articleProvider, VerificationTokenProvider verificationTokenProvider, MessageSource sources, PasswordEncoder passwordEncoder, SecurityContextManager securityContextManager, PasswordVerifierProvider passwordVerifierProvider, InfraProperties infraProperties, GithubLoginProvider githubLoginProvider, AvatarProvider profilePictureGenerator, VerificationTokenProvider tokenProvider, ReactionProvider reactionProvider, JwtTokenProvider jwtTokenProvider, LoggerProvider loggerProvider, TagProvider tagProvider, CourseProvider courseProvider, ArticleViewProvider articleViewProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider, CompanyUserProvider companyUserProvider) {
         this.userProvider = userProvider;
         this.registerUser = new RegisterUser(userProvider, profilePictureGenerator, metricsProvider);
         this.notifyRegistrationComplete = new NotifyRegistrationComplete(userNotificationProvider);
@@ -92,7 +94,7 @@ public class UserController {
         this.generateToken = new GenerateToken(verificationTokenProvider, jwtTokenProvider, userProvider);
         this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         this.subscribeToBroadcast = new SubscribeToBroadcast(userProvider);
-
+        this.companyUserProvider = companyUserProvider;
     }
 
     @PostMapping("/user")
@@ -118,8 +120,12 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public User getUser() throws UserNotFoundException {
-        return securityContextManager.getAuthenticatedUser();
+    public UserInfoVM getUser() throws UserNotFoundException {
+        User user = securityContextManager.getAuthenticatedUser();
+        UserInfoVM userInfoVM = new UserInfoVM(user, companyUserProvider.findCompaniesAndRolesByUserId(user.getId()));
+        userInfoVM.getUser().setPassword("");
+
+        return userInfoVM;
     }
 
     @GetMapping("/user/profile/{id}")

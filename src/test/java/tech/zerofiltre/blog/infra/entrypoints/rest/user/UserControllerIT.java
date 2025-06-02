@@ -22,6 +22,7 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
@@ -140,6 +141,9 @@ class UserControllerIT {
 
     @MockBean
     EnrollmentProvider enrollmentProvider;
+
+    @MockBean
+    CompanyUserProvider companyUserProvider;
 
     @MockBean
     DataChecker checker;
