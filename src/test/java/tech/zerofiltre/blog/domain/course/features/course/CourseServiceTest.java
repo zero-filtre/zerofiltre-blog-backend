@@ -107,6 +107,8 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(true);
         user.setId(1);
 
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         LocalDateTime beforeSave = LocalDateTime.now();
 
@@ -124,12 +126,14 @@ class CourseServiceTest {
         assertThat(course1.getAuthor().getId()).isEqualTo(user.getId());
         assertThat(course1.getAuthor().getEmail()).isEqualTo(user.getEmail());
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isTrue();
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         ArgumentCaptor<LinkCompanyCourse> captor = ArgumentCaptor.forClass(LinkCompanyCourse.class);
         verify(companyCourseProvider).save(captor.capture());
         LinkCompanyCourse linkCompanyCourseCaptured = captor.getValue();
         Assertions.assertThat(linkCompanyCourseCaptured.getCompanyId()).isEqualTo(companyId);
-        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course.getId());
+        Assertions.assertThat(linkCompanyCourseCaptured.getCourseId()).isEqualTo(course1.getId());
         Assertions.assertThat(linkCompanyCourseCaptured.isExclusive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
@@ -147,6 +151,8 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         LocalDateTime beforeSave = LocalDateTime.now();
 
@@ -174,11 +180,14 @@ class CourseServiceTest {
         Assertions.assertThat(linkCompanyCourseCaptured.isActive()).isTrue();
         Assertions.assertThat(linkCompanyCourseCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         Assertions.assertThat(linkCompanyCourseCaptured.getSuspendedAt()).isNull();
+
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
     }
 
     @Test
     @DisplayName("When a company viewer or a non-company user initializes a company course, a forbidden action exception is thrown.")
-    void shouldThrownException_whenCompanyViewerInitializesCompanyCourse() throws ForbiddenActionException {
+    void shouldThrownException_whenInitializesCompanyCourse_asCompanyViewerOrNonCompanyUser() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         courseProvider = new NotFoundCourseProviderSpy();
 
@@ -186,6 +195,7 @@ class CourseServiceTest {
         User user = ZerofiltreUtilsTest.createMockUser(false);
         user.setId(1);
 
+        doNothing().when(checker).checkCompanyExistence(anyLong());
         doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
 
         //WHEN
@@ -194,6 +204,8 @@ class CourseServiceTest {
 
         //THEN
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
+        verify(checker).checkCompanyExistence(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
 
@@ -215,6 +227,7 @@ class CourseServiceTest {
 
         //THEN
         assertThat(((NotFoundCourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider, never()).save(any(LinkCompanyCourse.class));
     }
 
@@ -306,6 +319,42 @@ class CourseServiceTest {
     }
 
     @Test
+    @DisplayName("When a platform or company admin or a company editor wants to modify a company course, the course is modified.")
+    void shouldModifiedCourse_whenWantModifyCompanyCourse_asPlatformOrCompanyAdminOrCompanyEditor() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
+
+        CourseService courseService = spy(new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider));
+
+        User mockUser = ZerofiltreUtilsTest.createMockUser(true);
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        //WHEN
+        courseService.save(course, mockUser, 1);
+
+        //THEN
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When a platform user or a company viewer wants to modify a company course, a forbidden action exception is thrown.")
+    void shouldThrowException_whenWantModifyCompanyCourse_asPlatformUserOrCompanyViewer() throws ForbiddenActionException {
+        //GIVEN
+        courseProvider = new Found_Draft_WithKnownAuthor_CourseProvider_Spy();
+
+        CourseService courseService = spy(new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider));
+
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.save(new Course(), new User(), 1));
+
+        //THEN
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+    }
+
+    @Test
     void publishOrSave_should_ThrowForbiddenActionException_when_UserIsNotAuthorNorAdmin() {
         //GIVEN
         courseProvider = new Found_Published_WithUnknownAuthor_CourseProviderSpy();
@@ -315,7 +364,7 @@ class CourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> courseService.save(new Course(), new User()));
+                .isThrownBy(() -> courseService.save(new Course(), new User(), 0));
 
         //THEN
         assertThat(((Found_Published_WithUnknownAuthor_CourseProviderSpy) courseProvider).registerCourseCalled).isFalse();
@@ -332,7 +381,7 @@ class CourseServiceTest {
         course.setStatus(PUBLISHED);
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(IN_REVIEW);
@@ -350,7 +399,7 @@ class CourseServiceTest {
 
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(PUBLISHED);
@@ -368,7 +417,7 @@ class CourseServiceTest {
         editor.getRoles().add("ROLE_ADMIN");
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
 
         //THEN
@@ -390,7 +439,7 @@ class CourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> courseService.save(course, editor));
+                .isThrownBy(() -> courseService.save(course, editor, 0));
 
         //THEN
         assertThat(((Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons) courseProvider).registerCourseCalled).isFalse();
@@ -410,7 +459,7 @@ class CourseServiceTest {
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -435,7 +484,7 @@ class CourseServiceTest {
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -459,7 +508,7 @@ class CourseServiceTest {
         LocalDateTime beforeSave = LocalDateTime.now();
 
         //WHEN
-        Course result = courseService.save(course, editor);
+        Course result = courseService.save(course, editor, 0);
 
         LocalDateTime afterSave = LocalDateTime.now();
 
@@ -481,8 +530,7 @@ class CourseServiceTest {
         course.setStatus(DRAFT);
 
         //WHEN
-        Course result = courseService.save(course, editor);
-
+        Course result = courseService.save(course, editor, 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(DRAFT);
@@ -499,8 +547,7 @@ class CourseServiceTest {
         course.setStatus(PUBLISHED);
 
         //WHEN
-        Course result = courseService.save(course, editor);
-
+        Course result = courseService.save(course, editor, 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(PUBLISHED);
@@ -513,17 +560,14 @@ class CourseServiceTest {
 
         tagProvider = new FoundTagProviderSpy();
 
-
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         course.setStatus(DRAFT);
 
         //WHEN
-        Course result = courseService.save(course, ZerofiltreUtilsTest.createMockUser(false));
-
+        Course result = courseService.save(course, ZerofiltreUtilsTest.createMockUser(false), 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(DRAFT);
-
     }
 
     @Test
@@ -536,12 +580,10 @@ class CourseServiceTest {
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         //WHEN
-        Course result = courseService.save(course, editor);
-
+        Course result = courseService.save(course, editor, 0);
 
         //THEN
         assertThat(result.getStatus()).isEqualTo(DRAFT);
-
     }
 
     @Test
@@ -556,9 +598,7 @@ class CourseServiceTest {
 
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> courseService.save(course, editor));
-
-
+                .isThrownBy(() -> courseService.save(course, editor, 0));
     }
 
     @Test
@@ -572,11 +612,9 @@ class CourseServiceTest {
 
         ZerofiltreUtilsTest.createMockUser(true);
 
-
         //WHEN
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> courseService.delete(15, new User()));
-
     }
 
     @Test
@@ -677,7 +715,6 @@ class CourseServiceTest {
         loggerProvider = new LoggerProviderSpy();
         editor.getRoles().add("ROLE_ADMIN");
 
-
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
         //WHEN
@@ -691,7 +728,6 @@ class CourseServiceTest {
         courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         loggerProvider = new LoggerProviderSpy();
         editor.getRoles().add("ROLE_ADMIN");
-
 
         CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 

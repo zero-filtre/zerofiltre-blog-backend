@@ -40,7 +40,6 @@ public class CourseController {
     private final CourseService courseService;
     private final MessageSource sources;
 
-
     public CourseController(SecurityContextManager securityContextManager, CourseProvider courseProvider, TagProvider tagProvider, LoggerProvider loggerProvider, DataChecker checker, CompanyCourseProvider companyCourseProvider, MessageSource sources, EnrollmentProvider enrollmentProvider) {
         this.securityContextManager = securityContextManager;
         this.courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
@@ -60,14 +59,13 @@ public class CourseController {
     }
 
     @PatchMapping
-    public Course save(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws ZerofiltreException {
-        return saveCourse(publishOrSaveCourseVM, Status.DRAFT);
+    public Course save(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
+        return saveCourse(publishOrSaveCourseVM, Status.DRAFT, null == companyId ? 0 : companyId);
     }
 
-
     @PatchMapping("/publish")
-    public Course publish(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM) throws ZerofiltreException {
-        return saveCourse(publishOrSaveCourseVM, Status.PUBLISHED);
+    public Course publish(@RequestBody @Valid PublishOrSaveCourseVM publishOrSaveCourseVM, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
+        return saveCourse(publishOrSaveCourseVM, Status.PUBLISHED, null == companyId ? 0 : companyId);
     }
 
     @GetMapping
@@ -101,7 +99,6 @@ public class CourseController {
         return courseService.of(request);
     }
 
-
     @PostMapping
     public Course init(@RequestParam @NotNull @NotEmpty String title, @RequestParam(required = false) Long companyId) throws ZerofiltreException {
         User user = securityContextManager.getAuthenticatedUser();
@@ -115,7 +112,7 @@ public class CourseController {
         return sources.getMessage("message.delete.course.success", null, request.getLocale());
     }
 
-    private Course saveCourse(PublishOrSaveCourseVM publishOrSaveCourseVM, Status published) throws ResourceNotFoundException, ForbiddenActionException {
+    private Course saveCourse(PublishOrSaveCourseVM publishOrSaveCourseVM, Status status, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
         Course course = new Course();
         course.setId(publishOrSaveCourseVM.getId());
         course.setTitle(publishOrSaveCourseVM.getTitle());
@@ -123,12 +120,11 @@ public class CourseController {
         course.setSummary(publishOrSaveCourseVM.getSummary());
         course.setVideo(publishOrSaveCourseVM.getVideo());
         course.setThumbnail(publishOrSaveCourseVM.getThumbnail());
-        course.setStatus(published);
+        course.setStatus(status);
         course.setSections(fromVMs(publishOrSaveCourseVM.getSections()));
         course.setTags(publishOrSaveCourseVM.getTags());
-        return courseService.save(course, securityContextManager.getAuthenticatedUser());
+        return courseService.save(course, securityContextManager.getAuthenticatedUser(), companyId);
     }
-
 
     private List<Section> fromVMs(List<SectionVM> sections) {
         List<Section> sectionList = new ArrayList<>();

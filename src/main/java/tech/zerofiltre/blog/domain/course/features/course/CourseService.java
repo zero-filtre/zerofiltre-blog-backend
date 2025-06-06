@@ -89,7 +89,7 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
     }
 
-    public Course save(Course updatedCourse, User currentEditor) throws ResourceNotFoundException, ForbiddenActionException {
+    public Course save(Course updatedCourse, User currentEditor, long companyId) throws ResourceNotFoundException, ForbiddenActionException {
 
         Status statusToSave = updatedCourse.getStatus();
         LocalDateTime now = LocalDateTime.now();
@@ -97,19 +97,10 @@ public class CourseService {
         long updatedCourseId = updatedCourse.getId();
         Course existingCourse = courseProvider.courseOfId(updatedCourseId)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + updatedCourseId + DOES_NOT_EXIST, String.valueOf(updatedCourseId)));
-        if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to edit this course");
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
-            existingCourse.setStatus(Status.IN_REVIEW);
+        if(companyId == 0) prepareExistingPlatformCourseForSaving(existingCourse, currentEditor, updatedCourse, statusToSave, now);
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
-            existingCourse.setStatus(updatedCourse.getStatus());
-
-        if (isAlreadyPublished(existingCourse.getStatus())) {
-            if (existingCourse.getPublishedAt() == null) existingCourse.setPublishedAt(now);
-            existingCourse.setLastPublishedAt(now);
-        }
+        if(companyId > 0) prepareExistingCompanyCourseForSaving(companyId, existingCourse, currentEditor, updatedCourse, statusToSave);
 
         existingCourse.setLastSavedAt(now);
         existingCourse.setTitle(updatedCourse.getTitle());
@@ -185,4 +176,31 @@ public class CourseService {
                 throw new ResourceNotFoundException("We can not publish this course. Could not find the related tag with id: " + tag.getId(), String.valueOf(tag.getId()));
         }
     }
+
+    private void prepareExistingPlatformCourseForSaving(Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave, LocalDateTime now) throws ForbiddenActionException {
+        if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
+            throw new ForbiddenActionException("You are not allowed to edit this course");
+
+        prepareExistingCourseForSaving(existingCourse, currentEditor, updatedCourse, statusToSave);
+
+        if (isAlreadyPublished(existingCourse.getStatus())) {
+            if (existingCourse.getPublishedAt() == null) existingCourse.setPublishedAt(now);
+            existingCourse.setLastPublishedAt(now);
+        }
+    }
+
+    private void prepareExistingCompanyCourseForSaving(long companyId, Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) throws ForbiddenActionException {
+        checker.checkIfAdminOrCompanyAdminOrEditor(currentEditor, companyId);
+        prepareExistingCourseForSaving(existingCourse, currentEditor, updatedCourse, statusToSave);
+    }
+
+    private void prepareExistingCourseForSaving(Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) {
+        //TODO: est-ce qu'un cours appartenant exclusivement à une entreprise doit être validé par l'administrateur de la plateforme ?
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
+            existingCourse.setStatus(Status.IN_REVIEW);
+
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
+            existingCourse.setStatus(updatedCourse.getStatus());
+    }
+
 }
