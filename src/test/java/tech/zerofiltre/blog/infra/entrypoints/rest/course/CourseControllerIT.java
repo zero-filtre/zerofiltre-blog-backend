@@ -170,9 +170,6 @@ class CourseControllerIT {
     @WithMockUser
     void onCompanyCourseInit_whenValidInput_thenReturn200() throws Exception {
         //ARRANGE
-        when(checker.companyExists(anyLong())).thenReturn(true);
-        when(checker.isAdminOrCompanyUser(any(User.class), anyLong())).thenReturn(true);
-        when(checker.isCompanyAdminOrCompanyEditor(any(User.class), anyLong())).thenReturn(true);
 
         //ACT
         RequestBuilder request = MockMvcRequestBuilders.post("/course")

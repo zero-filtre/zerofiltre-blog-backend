@@ -23,20 +23,20 @@ public class CompanyService {
     private final DataChecker checker;
 
     public Company save(User user, Company company) throws ForbiddenActionException {
-        checker.isAdminUser(user);
+        checker.checkIfAdminUser(user);
 
         return companyProvider.save(company);
     }
 
     public Company patch(User user, Company company) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminOrCompanyAdmin(user, company.getId());
-        checker.companyExists(company.getId());
+        checker.checkIfAdminOrCompanyAdmin(user, company.getId());
+        checker.checkCompanyExistence(company.getId());
 
         return companyProvider.save(company);
     }
 
     public Optional<Company> findById(User user, long id) throws ForbiddenActionException {
-        checker.isAdminOrCompanyAdmin(user, id);
+        checker.checkIfAdminOrCompanyAdmin(user, id);
 
         return companyProvider.findById(id);
     }
@@ -48,7 +48,7 @@ public class CompanyService {
             }
             return companyProvider.findAllByUserId(pageNumber, pageSize, executor.getId());
         }
-        checker.isAdminUser(executor);
+        checker.checkIfAdminUser(executor);
         return companyProvider.findAllByUserId(pageNumber, pageSize, userId);
     }
 
@@ -57,8 +57,8 @@ public class CompanyService {
     }
 
     public void delete(User user, Company company) throws ForbiddenActionException, ResourceNotFoundException {
-        checker.isAdminUser(user);
-        checker.companyExists(company.getId());
+        checker.checkIfAdminUser(user);
+        checker.checkCompanyExistence(company.getId());
 
         companyUserProvider.deleteAllByCompanyId(company.getId());
         companyCourseProvider.deleteAllByCompanyId(company.getId());

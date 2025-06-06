@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SaveLessonVM;
+import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -29,14 +30,16 @@ public class LessonController {
     private final UserProvider userProvider;
     private final CourseProvider courseProvider;
     private final EnrollmentProvider enrollmentProvider;
+    private final DataChecker checker;
     private final SecurityContextManager securityContextManager;
 
-    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, EnrollmentProvider enrollmentProvider, SecurityContextManager securityContextManager) {
+    public LessonController(LessonProvider lessonProvider, ChapterProvider chapterProvider, UserProvider userProvider, CourseProvider courseProvider, EnrollmentProvider enrollmentProvider, DataChecker checker, SecurityContextManager securityContextManager) {
         this.lessonProvider = lessonProvider;
         this.chapterProvider = chapterProvider;
         this.userProvider = userProvider;
         this.courseProvider = courseProvider;
         this.enrollmentProvider = enrollmentProvider;
+        this.checker = checker;
         this.securityContextManager = securityContextManager;
     }
 
@@ -47,6 +50,7 @@ public class LessonController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .build();
         return lesson.init(title, chapterId, securityContextManager.getAuthenticatedUser().getId());
     }
@@ -58,6 +62,7 @@ public class LessonController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .id(saveLessonVM.getId())
                 .title(saveLessonVM.getTitle())
                 .chapterId(saveLessonVM.getChapterId())
@@ -78,6 +83,7 @@ public class LessonController {
                 .userProvider(userProvider)
                 .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         User user = null;
@@ -96,6 +102,7 @@ public class LessonController {
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
+                .checker(checker)
                 .id(id)
                 .build();
         lesson.delete(securityContextManager.getAuthenticatedUser().getId());

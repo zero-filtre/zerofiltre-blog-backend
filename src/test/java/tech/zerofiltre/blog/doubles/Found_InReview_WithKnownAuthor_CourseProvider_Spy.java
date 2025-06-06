@@ -66,4 +66,9 @@ public class Found_InReview_WithKnownAuthor_CourseProvider_Spy implements Course
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }

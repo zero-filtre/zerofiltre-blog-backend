@@ -55,7 +55,6 @@ import static tech.zerofiltre.blog.util.ZerofiltreUtilsTest.TEST_PROFILE_PICTURE
 @DataJpaTest
 class DBCourseProviderIT {
 
-
     DBCourseProvider courseProvider;
 
     DBUserProvider userProvider;
@@ -106,6 +105,7 @@ class DBCourseProviderIT {
         userProvider = new DBUserProvider(userJPARepository);
         lessonProvider = new DBLessonProvider(lessonJPARepository, enrollmentJPARepository);
         chapterProvider = new DBChapterProvider(chapterJPARepository);
+        companyCourseProvider = new DBCompanyCourseProvider(companyCourseJPARepository);
         companyCourseProvider = new DBCompanyCourseProvider(companyCourseJPARepository);
         dbCompanyProvider = new DBCompanyProvider(companyJPARepository);
         tagProvider = new DBTagProvider(tagJPARepository);
@@ -333,6 +333,36 @@ class DBCourseProviderIT {
 
         assertThat(courseList.get(2).getId()).isEqualTo(courseB2.getId());
         assertThat(courseList.get(2).getLastPublishedAt()).isEqualTo(courseB2.getLastPublishedAt());
+    }
+
+    @Test
+    @DisplayName("When I search for the id of the company that owns a course, this id returned")
+    void shouldReturnIdCompany_whenCompanyOwnerCourse() {
+        //GIVEN
+        Course course = courseProvider.save(new Course());
+        long companyId = 6;
+        companyCourseProvider.save(new LinkCompanyCourse(0, companyId, course.getId(), true, true, LocalDateTime.now(), null));
+
+        //WHEN
+        Optional<Long> response = courseProvider.idOfCompanyOwningCourse(course.getId());
+
+        //THEN
+        assertThat(response).isPresent();
+        assertThat(response.get()).isEqualTo(companyId);
+    }
+
+    @Test
+    @DisplayName("when I search for the id of the company that doesn't own a course, an empty object is returned")
+    void shouldReturnEmpty_whenCompanyNotOwnerCourse() {
+        //GIVEN
+        Course course = courseProvider.save(new Course());
+        companyCourseProvider.save(new LinkCompanyCourse(0, 6, course.getId(), false, true, LocalDateTime.now(), null));
+
+        //WHEN
+        Optional<Long> response = courseProvider.idOfCompanyOwningCourse(course.getId());
+
+        //THEN
+        assertThat(response).isEmpty();
     }
 
     private List<Reaction> initCourseWithReactions() {

@@ -70,4 +70,9 @@ public class Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons imp
     public List<Course> newCoursesFromLastMonth() {
         return List.of();
     }
+
+    @Override
+    public Optional<Long> idOfCompanyOwningCourse(long courseId) {
+        return Optional.empty();
+    }
 }
