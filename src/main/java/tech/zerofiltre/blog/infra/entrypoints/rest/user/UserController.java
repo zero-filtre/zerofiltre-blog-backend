@@ -18,6 +18,7 @@ import tech.zerofiltre.blog.domain.article.model.Article;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
@@ -30,8 +31,11 @@ import tech.zerofiltre.blog.domain.user.features.*;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.UserCompanyInfoVMMapper;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.PublicUserProfileVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UpdateUserVMMapper;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UserInfoVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.logging.SpringMessageSourceProvider;
@@ -42,6 +46,7 @@ import tech.zerofiltre.blog.util.ZerofiltreUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -62,8 +67,10 @@ public class UserController {
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
+    private final UserInfoVMMapper userInfoVMMapper = Mappers.getMapper(UserInfoVMMapper.class);
     private final UpdateUserVMMapper updateUserVMMapper = Mappers.getMapper(UpdateUserVMMapper.class);
     private final PublicUserProfileVMMapper publicUserProfileVMMapper = Mappers.getMapper(PublicUserProfileVMMapper.class);
+    private final UserCompanyInfoVMMapper userCompanyInfoVMMapper = Mappers.getMapper(UserCompanyInfoVMMapper.class);
     private final UpdateUser updateUser;
     private final UserProvider userProvider;
     private final FindArticle findArticle;
@@ -122,8 +129,10 @@ public class UserController {
     @GetMapping("/user")
     public UserInfoVM getUser() throws UserNotFoundException {
         User user = securityContextManager.getAuthenticatedUser();
-        UserInfoVM userInfoVM = new UserInfoVM(user, companyUserProvider.findCompaniesAndRolesByUserId(user.getId()));
-        userInfoVM.getUser().setPassword("");
+        UserInfoVM userInfoVM = userInfoVMMapper.toVM(user);
+        List<LinkCompanyUser> companyUserList = companyUserProvider.findAllByUserIdAndActive(user.getId());
+        List<UserCompanyInfoVM> userCompanyInfoVMList = userCompanyInfoVMMapper.toVM(companyUserList);
+        userInfoVM.setCompanies(userCompanyInfoVMList);
 
         return userInfoVM;
     }

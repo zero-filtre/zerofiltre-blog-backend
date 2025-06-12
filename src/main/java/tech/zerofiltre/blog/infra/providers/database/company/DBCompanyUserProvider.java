@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.mapper.CompanyUserJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyUserJPA;
@@ -58,8 +57,8 @@ public class DBCompanyUserProvider implements CompanyUserProvider {
     }
 
     @Override
-    public List<UserCompanyInfoVM> findCompaniesAndRolesByUserId(long userId) {
-        return repository.findCompaniesAndRolesByUserId(userId);
+    public List<LinkCompanyUser> findAllByUserIdAndActive(long userId) {
+        return repository.findAllByUserIdAndActiveIsTrue(userId).stream().map(mapper::fromJPA).collect(Collectors.toList());
     }
 
     @Override
