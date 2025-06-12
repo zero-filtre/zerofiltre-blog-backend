@@ -32,6 +32,7 @@ import tech.zerofiltre.blog.infra.InfraProperties;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.PublicUserProfileVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UpdateUserVMMapper;
+import tech.zerofiltre.blog.infra.entrypoints.rest.user.mapper.UserInfoVMMapper;
 import tech.zerofiltre.blog.infra.entrypoints.rest.user.model.*;
 import tech.zerofiltre.blog.infra.providers.api.github.GithubLoginProvider;
 import tech.zerofiltre.blog.infra.providers.logging.SpringMessageSourceProvider;
@@ -62,6 +63,7 @@ public class UserController {
     private final InfraProperties infraProperties;
     private final RetrieveSocialToken retrieveSocialToken;
     private final DeleteUser deleteUser;
+    private final UserInfoVMMapper userInfoVMMapper = Mappers.getMapper(UserInfoVMMapper.class);
     private final UpdateUserVMMapper updateUserVMMapper = Mappers.getMapper(UpdateUserVMMapper.class);
     private final PublicUserProfileVMMapper publicUserProfileVMMapper = Mappers.getMapper(PublicUserProfileVMMapper.class);
     private final UpdateUser updateUser;
@@ -122,8 +124,8 @@ public class UserController {
     @GetMapping("/user")
     public UserInfoVM getUser() throws UserNotFoundException {
         User user = securityContextManager.getAuthenticatedUser();
-        UserInfoVM userInfoVM = new UserInfoVM(user, companyUserProvider.findCompaniesAndRolesByUserId(user.getId()));
-        userInfoVM.getUser().setPassword("");
+        UserInfoVM userInfoVM = userInfoVMMapper.toVM(user);
+        userInfoVM.setCompanies(companyUserProvider.findCompaniesAndRolesByUserId(user.getId()));
 
         return userInfoVM;
     }
