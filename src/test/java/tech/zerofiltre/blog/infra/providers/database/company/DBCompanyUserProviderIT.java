@@ -9,7 +9,6 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
@@ -215,33 +214,51 @@ class DBCompanyUserProviderIT {
     }
 
     @Test
-    @DisplayName("When I search for a user's companies and roles, I receive a list.")
-    void shouldReturnList_whenSearchingUserCompaniesAndRoles() {
+    @DisplayName("When I search for all the links between a user and companies, then I receive a list")
+    void shouldReturnList_whenSearchingAllLinksBetweenUserAndCompanies() {
         //GIVEN
         Company company1 = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         Company company2 = dbCompanyProvider.save(new Company(0, "Company2", "000000002"));
         Company company3 = dbCompanyProvider.save(new Company(0, "Company3", "000000003"));
-        dbCompanyProvider.save(new Company(0, "Company4", "000000004"));
+        Company company4 = dbCompanyProvider.save(new Company(0, "Company4", "000000004"));
 
         assertThat(dbCompanyProvider.findAll(0, 10).getContent()).hasSize(4);
 
         User user = dbUserProvider.save(new User());
 
-        dbCompanyUserProvider.save(new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
-        dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
-        dbCompanyUserProvider.save(new LinkCompanyUser(0, company3.getId(), user.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+        LinkCompanyUser linkCompanyUser1 = dbCompanyUserProvider.save(new LinkCompanyUser(0, company1.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+        LinkCompanyUser linkCompanyUser2 = dbCompanyUserProvider.save(new LinkCompanyUser(0, company2.getId(), user.getId(), LinkCompanyUser.Role.EDITOR, true, LocalDateTime.now(), null));
+        LinkCompanyUser linkCompanyUser3 = dbCompanyUserProvider.save(new LinkCompanyUser(0, company3.getId(), user.getId(), LinkCompanyUser.Role.VIEWER, true, LocalDateTime.now(), null));
+        dbCompanyUserProvider.save(new LinkCompanyUser(0, company4.getId(), user.getId(), LinkCompanyUser.Role.VIEWER, false, LocalDateTime.now(), null));
 
         //WHEN
-        List<UserCompanyInfoVM> response = dbCompanyUserProvider.findCompaniesAndRolesByUserId(user.getId());
+        List<LinkCompanyUser> response = dbCompanyUserProvider.findAllByUserIdAndActive(user.getId());
 
         //THEN
         assertThat(response).isNotNull().hasSize(3);
-        assertThat(response.get(0).getCompanyId()).isEqualTo(company1.getId());
-        assertThat(response.get(0).getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN.toString());
-        assertThat(response.get(1).getCompanyId()).isEqualTo(company2.getId());
-        assertThat(response.get(1).getRole()).isEqualTo(LinkCompanyUser.Role.EDITOR.toString());
-        assertThat(response.get(2).getCompanyId()).isEqualTo(company3.getId());
-        assertThat(response.get(2).getRole()).isEqualTo(LinkCompanyUser.Role.VIEWER.toString());
+        assertThat(response.get(0).getId()).isEqualTo(linkCompanyUser1.getId());
+        assertThat(response.get(0).getCompanyId()).isEqualTo(linkCompanyUser1.getCompanyId());
+        assertThat(response.get(0).getUserId()).isEqualTo(linkCompanyUser1.getUserId());
+        assertThat(response.get(0).getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN);
+        assertThat(response.get(0).isActive()).isTrue();
+        assertThat(response.get(0).getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(response.get(0).getSuspendedAt()).isNull();
+
+        assertThat(response.get(1).getId()).isEqualTo(linkCompanyUser2.getId());
+        assertThat(response.get(1).getCompanyId()).isEqualTo(linkCompanyUser2.getCompanyId());
+        assertThat(response.get(1).getUserId()).isEqualTo(linkCompanyUser2.getUserId());
+        assertThat(response.get(1).getRole()).isEqualTo(LinkCompanyUser.Role.EDITOR);
+        assertThat(response.get(1).isActive()).isTrue();
+        assertThat(response.get(1).getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(response.get(1).getSuspendedAt()).isNull();
+
+        assertThat(response.get(2).getId()).isEqualTo(linkCompanyUser3.getId());
+        assertThat(response.get(2).getCompanyId()).isEqualTo(linkCompanyUser3.getCompanyId());
+        assertThat(response.get(2).getUserId()).isEqualTo(linkCompanyUser3.getUserId());
+        assertThat(response.get(2).getRole()).isEqualTo(LinkCompanyUser.Role.VIEWER);
+        assertThat(response.get(2).isActive()).isTrue();
+        assertThat(response.get(2).getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+        assertThat(response.get(2).getSuspendedAt()).isNull();
     }
 
     @Test
