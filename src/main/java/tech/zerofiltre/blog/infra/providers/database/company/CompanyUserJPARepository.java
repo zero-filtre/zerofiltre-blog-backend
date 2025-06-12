@@ -4,8 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyUserJPA;
 
 import java.util.List;
@@ -23,9 +21,7 @@ public interface CompanyUserJPARepository extends JpaRepository<LinkCompanyUserJ
 
     List<LinkCompanyUserJPA> findAllByCompanyIdAndRoleNot(long companyId, String role);
 
-    @Query("select new tech.zerofiltre.blog.infra.entrypoints.rest.company.model.UserCompanyInfoVM(l.companyId, l.role) " +
-            "from LinkCompanyUserJPA l where l.userId=?1 and  l.active = true ORDER BY l.companyId")
-    List<UserCompanyInfoVM> findCompaniesAndRolesByUserId(long userId);
+    List<LinkCompanyUserJPA> findAllByUserIdAndActiveIsTrue(long userId);
 
     @Modifying
     void deleteAllByCompanyId(long companyId);
