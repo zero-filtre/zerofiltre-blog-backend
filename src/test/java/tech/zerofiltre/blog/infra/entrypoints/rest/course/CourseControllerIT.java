@@ -143,6 +143,7 @@ class CourseControllerIT {
         when(tagProvider.tagOfId(anyLong())).thenReturn(Optional.of(new Tag()));
         doNothing().when(loggerProvider).log(any());
 
+        publishOrSaveCourseVM.setId(2L);
         publishOrSaveCourseVM.setTitle(TITLE);
         publishOrSaveCourseVM.setSections(Collections.emptyList());
         publishOrSaveCourseVM.setSummary("This is my summary, just adding some letters to make sure it reaches  characters");

@@ -42,10 +42,7 @@ public class DataChecker {
     }
 
     public void checkIfAdminOrCompanyAdmin(User connectedUser, long companyId) throws ForbiddenActionException {
-        if (!connectedUser.isAdmin()
-                && !isCompanyAdmin(connectedUser.getId(), companyId)) {
-            throw new ForbiddenActionException("You don't have authorization.");
-        }
+        if (!isAdminOrCompanyAdmin(connectedUser, companyId)) throw new ForbiddenActionException("You don't have authorization.");
     }
 
     public void checkIfAdminOrCompanyUser(User connectedUser, long companyId) throws ForbiddenActionException {
@@ -74,6 +71,10 @@ public class DataChecker {
 
     public boolean isCompanyUser(long userId, long companyId) {
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).isPresent();
+    }
+
+    public boolean isAdminOrCompanyAdmin(User connectedUser, long companyId) {
+        return connectedUser.isAdmin() || isCompanyAdmin(connectedUser.getId(), companyId);
     }
 
 }

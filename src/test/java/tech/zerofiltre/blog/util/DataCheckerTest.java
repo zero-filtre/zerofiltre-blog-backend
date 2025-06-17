@@ -145,51 +145,61 @@ class DataCheckerTest {
     }
 
     @Test
-    @DisplayName("When I check whether a user with the role of user is an admin platform, a forbidden action exception is thrown.")
-    void shouldThrowException_whenCheckAdminUserExistence_ofNonIfAdminUser() {
-        //GIVEN
-        User user = new User();
-        user.getRoles().add("ROLE_USER");
+    @DisplayName("When I check whether an admin is an admin platform, no exception is thrown.")
+    void shouldNotThrowException_whenCheckIfAdminUser_asAdminUser() throws ForbiddenActionException {
+        //WHEN
+        checker.checkIfAdminUser(adminUser);
+    }
 
+    @Test
+    @DisplayName("When I check whether a user with the role of user is an admin platform, a forbidden action exception is thrown.")
+    void shouldThrowException_whenCheckIfAdminUser_asAdminUser() {
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.checkIfAdminUser(user));
+                .isThrownBy(() -> checker.checkIfAdminUser(userWithUserRole));
     }
 
     @Test
-    @DisplayName("When an user is an admin platform and I check that he is an admin or a company admin, no exception is thrown.")
-    void shouldNotThrowException_whenCheckAdminOrCompanyIfAdmin_asPlatformAdmin() throws ForbiddenActionException {
-        //WHEN
-        checker.checkIfAdminOrCompanyAdmin(adminUser, 1L);
-
-        //THEN
-        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
-    }
-
-    @Test
-    @DisplayName("When an company admin is a non-admin platform and I check that he is an admin or a company admin, no exception is thrown.")
-    void shouldNotThrowException_whenCheckAdminOrCompanyIfAdmin_asCompanyAdmin() throws ForbiddenActionException {
+    @DisplayName("When an user is an admin platform and I check that he is a platform or company admin, no exception is thrown.")
+    void shouldNotThrowException_whenCheckIfAdminOrCompanyAdmin_asPlatformAdmin() throws ForbiddenActionException {
         //GIVEN
         DataChecker spy = spy(checker);
-        doReturn(true).when(spy).isCompanyAdmin(anyLong(), anyLong());
+        doReturn(true).when(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        spy.checkIfAdminOrCompanyAdmin(adminUser, 1L);
+
+        //THEN
+        verify(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
+    }
+
+    @Test
+    @DisplayName("When an company admin is a non-admin platform and I check that he is a platform or company admin, no exception is thrown.")
+    void shouldNotThrowException_whenCheckIfAdminOrCompanyAdmin_asCompanyAdmin() throws ForbiddenActionException {
+        //GIVEN
+        DataChecker spy = spy(checker);
+        doReturn(true).when(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //WHEN
         spy.checkIfAdminOrCompanyAdmin(userWithUserRole, 1L);
 
         //THEN
-        verify(spy).isCompanyAdmin(anyLong(), anyLong());
+        verify(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
     }
 
-    @DisplayName("When a user is a company editor or viewer or non-exitent and I check that he is an admin or a company admin, then a forbidden action exception is thrown.")
-    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
-    @MethodSource("companyUserWithBadRoleList")
-    void shouldThrowException_whenCheckAdminOrCompanyIfAdmin_asCompanyEditorOrViewerOrNotExistingUser(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) {
+    @Test
+    @DisplayName("When a user is a non-platform or company admin I check that he is a platform or company admin, then a forbidden action exception is thrown.")
+    void shouldThrowException_whenCheckIfAdminOrCompanyAdmin_asNonPlatformOrCompanyAdmin() {
         //GIVEN
-        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(companyUser);
+        DataChecker spy = spy(checker);
+        doReturn(false).when(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> spy.checkIfAdminOrCompanyAdmin(userWithUserRole, 1L));
 
         //THEN
-        assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> checker.checkIfAdminOrCompanyAdmin(user, 1L));
+        verify(spy).isAdminOrCompanyAdmin(any(User.class), anyLong());
     }
 
     @Test
@@ -343,6 +353,47 @@ class DataCheckerTest {
 
         //THEN
         assertThat(response).isEqualTo(result);
+        verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("When an user is an admin platform and I verify that he is a platform or company admin, true is returned.")
+    void shouldReturnTrue_whenVerifyIfUserIsPlatformOrCompanyAdmin_asPlatformAdmin() {
+        //WHEN
+        boolean response = checker.isAdminOrCompanyAdmin(adminUser, 1L);
+
+        //THEN
+        assertThat(response).isTrue();
+        verify(companyUserProvider, never()).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("When an company admin is a non-admin platform and I check that he is a platform or company admin, true is returned.")
+    void shouldReturnTrue_whenVerifyIfUserIsPlatformOrCompanyAdmin_asCompanyAdmin() {
+        //GIVEN
+        DataChecker spy = spy(checker);
+        doReturn(true).when(spy).isCompanyAdmin(anyLong(), anyLong());
+
+        //WHEN
+        boolean response = spy.isAdminOrCompanyAdmin(userWithUserRole, 1L);
+
+        //THEN
+        assertThat(response).isTrue();
+        verify(spy).isCompanyAdmin(anyLong(), anyLong());
+    }
+
+    @DisplayName("When a user is a company editor or viewer or non-existent and I check that he is an admin or a company admin, false is returned.")
+    @ParameterizedTest(name = "[{index}] connected: {1} - company role: {3}")
+    @MethodSource("companyUserWithBadRoleList")
+    void shouldReturnFalse_whenVerifyUserIsPlatformOrCompanyAdmin_asCompanyEditorOrViewerOrNotExistingUser(User user, String userInfo, Optional<LinkCompanyUser> companyUser, LinkCompanyUser.Role role) {
+        //GIVEN
+        when(companyUserProvider.findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean())).thenReturn(companyUser);
+
+        //WHEN
+        boolean response = checker.isAdminOrCompanyAdmin(user, 1L);
+
+        //THEN
+        assertThat(response).isFalse();
         verify(companyUserProvider).findByCompanyIdAndUserId(anyLong(), anyLong(), anyBoolean());
     }
 
