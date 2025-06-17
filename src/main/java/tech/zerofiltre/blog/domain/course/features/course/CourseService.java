@@ -21,6 +21,7 @@ import tech.zerofiltre.blog.util.DataChecker;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static tech.zerofiltre.blog.domain.article.model.Status.PUBLISHED;
 
@@ -97,14 +98,14 @@ public class CourseService {
         long updatedCourseId = updatedCourse.getId();
         Course existingCourse = courseProvider.courseOfId(updatedCourseId)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + updatedCourseId + DOES_NOT_EXIST, String.valueOf(updatedCourseId)));
-        if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to edit this course");
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
-            existingCourse.setStatus(Status.IN_REVIEW);
+        Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(existingCourse.getId());
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
-            existingCourse.setStatus(updatedCourse.getStatus());
+        if(companyId.isEmpty()) {
+            prepareExistingPlatformCourseForSaving(existingCourse, currentEditor, updatedCourse, statusToSave);
+        } else {
+            prepareExistingCompanyCourseForSaving(companyId.get(), existingCourse, currentEditor, updatedCourse, statusToSave);
+        }
 
         if (isAlreadyPublished(existingCourse.getStatus())) {
             if (existingCourse.getPublishedAt() == null) existingCourse.setPublishedAt(now);
@@ -185,4 +186,31 @@ public class CourseService {
                 throw new ResourceNotFoundException("We can not publish this course. Could not find the related tag with id: " + tag.getId(), String.valueOf(tag.getId()));
         }
     }
+
+    private void prepareExistingPlatformCourseForSaving(Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) throws ForbiddenActionException {
+        if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
+            throw new ForbiddenActionException("You are not allowed to edit this course");
+
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
+            existingCourse.setStatus(Status.IN_REVIEW);
+
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
+            existingCourse.setStatus(updatedCourse.getStatus());
+    }
+
+    private void prepareExistingCompanyCourseForSaving(long companyId, Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) throws ForbiddenActionException {
+        checker.checkIfAdminOrCompanyAdminOrEditor(currentEditor, companyId);
+
+        boolean isAdminOrCompanyAdmin = checker.isAdminOrCompanyAdmin(currentEditor, companyId);
+
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !isAdminOrCompanyAdmin)
+            existingCourse.setStatus(Status.IN_REVIEW);
+
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || isAdminOrCompanyAdmin))
+            existingCourse.setStatus(updatedCourse.getStatus());
+
+        if (isAlreadyPublished(existingCourse.getStatus()) && !isAdminOrCompanyAdmin)
+            throw new ForbiddenActionException("You do not have permission to modify a published course.");
+    }
+
 }

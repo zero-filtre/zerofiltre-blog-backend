@@ -1,16 +1,24 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course.model;
 
-import lombok.*;
-import tech.zerofiltre.blog.domain.article.model.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import tech.zerofiltre.blog.domain.article.model.Tag;
 
-import javax.validation.constraints.*;
-import java.util.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class PublishOrSaveCourseVM {
+    @Min(1)
     private long id;
 
     @NotNull(message = "The subTitle must not be null")
@@ -31,7 +39,6 @@ public class PublishOrSaveCourseVM {
     private String title;
 
     private String video;
-
 
     private List<SectionVM> sections = new ArrayList<>();
 
