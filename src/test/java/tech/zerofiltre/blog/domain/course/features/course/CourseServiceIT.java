@@ -148,7 +148,6 @@ class CourseServiceIT {
         String title = "some title";
         long companyId = 1;
 
-
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
@@ -188,7 +187,6 @@ class CourseServiceIT {
         String title = "some title";
         long companyId = 1;
 
-
         ZerofiltreUtilsTest.createMockTags(false)
                 .forEach(tag -> tags.add(tagProvider.save(tag)));
 
@@ -223,8 +221,8 @@ class CourseServiceIT {
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
 
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
         Course course1 = courseService.init("some title", author, 0);
 
         assertThat(courseService.findById(course1.getId(), author)).isNotNull();
