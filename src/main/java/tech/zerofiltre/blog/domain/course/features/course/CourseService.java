@@ -92,7 +92,6 @@ public class CourseService {
 
     public Course save(Course updatedCourse, User currentEditor) throws ResourceNotFoundException, ForbiddenActionException {
 
-        Status statusToSave = updatedCourse.getStatus();
         LocalDateTime now = LocalDateTime.now();
 
         long updatedCourseId = updatedCourse.getId();
@@ -102,9 +101,9 @@ public class CourseService {
         Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(existingCourse.getId());
 
         if(companyId.isEmpty()) {
-            prepareExistingPlatformCourseForSaving(existingCourse, currentEditor, updatedCourse, statusToSave);
+            prepareExistingPlatformCourseForSaving(existingCourse, currentEditor, updatedCourse);
         } else {
-            prepareExistingCompanyCourseForSaving(companyId.get(), existingCourse, currentEditor, updatedCourse, statusToSave);
+            prepareExistingCompanyCourseForSaving(companyId.get(), existingCourse, currentEditor, updatedCourse);
         }
 
         if (isAlreadyPublished(existingCourse.getStatus())) {
@@ -187,26 +186,26 @@ public class CourseService {
         }
     }
 
-    private void prepareExistingPlatformCourseForSaving(Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) throws ForbiddenActionException {
+    private void prepareExistingPlatformCourseForSaving(Course existingCourse, User currentEditor, Course updatedCourse) throws ForbiddenActionException {
         if (isNotAuthor(currentEditor, existingCourse) && !currentEditor.isAdmin())
             throw new ForbiddenActionException("You are not allowed to edit this course");
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !currentEditor.isAdmin())
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(updatedCourse.getStatus()) && !currentEditor.isAdmin())
             existingCourse.setStatus(Status.IN_REVIEW);
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || currentEditor.isAdmin()))
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(updatedCourse.getStatus()) || currentEditor.isAdmin()))
             existingCourse.setStatus(updatedCourse.getStatus());
     }
 
-    private void prepareExistingCompanyCourseForSaving(long companyId, Course existingCourse, User currentEditor, Course updatedCourse, Status statusToSave) throws ForbiddenActionException {
+    private void prepareExistingCompanyCourseForSaving(long companyId, Course existingCourse, User currentEditor, Course updatedCourse) throws ForbiddenActionException {
         checker.checkIfAdminOrCompanyAdminOrEditor(currentEditor, companyId);
 
         boolean isAdminOrCompanyAdmin = checker.isAdminOrCompanyAdmin(currentEditor, companyId);
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(statusToSave) && !isAdminOrCompanyAdmin)
+        if (!isAlreadyPublished(existingCourse.getStatus()) && isTryingToPublish(updatedCourse.getStatus()) && !isAdminOrCompanyAdmin)
             existingCourse.setStatus(Status.IN_REVIEW);
 
-        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(statusToSave) || isAdminOrCompanyAdmin))
+        if (!isAlreadyPublished(existingCourse.getStatus()) && (!isTryingToPublish(updatedCourse.getStatus()) || isAdminOrCompanyAdmin))
             existingCourse.setStatus(updatedCourse.getStatus());
 
         if (isAlreadyPublished(existingCourse.getStatus()) && !isAdminOrCompanyAdmin)
