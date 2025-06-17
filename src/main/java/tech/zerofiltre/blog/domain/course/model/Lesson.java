@@ -272,7 +272,7 @@ public class Lesson {
                 && !currentUser.isAdmin()) {
             Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(course.getId());
 
-            if(companyId.isEmpty() || !checker.isCompanyAdmin(currentUserId, companyId.get()))
+            if (companyId.isEmpty() || !checker.isCompanyAdmin(currentUserId, companyId.get()))
                 throw new ForbiddenActionException("You can not delete a lesson that is already published");
         }
     }
