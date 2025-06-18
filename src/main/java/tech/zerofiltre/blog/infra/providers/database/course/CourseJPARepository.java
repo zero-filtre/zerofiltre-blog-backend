@@ -5,7 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -110,6 +112,9 @@ public interface CourseJPARepository extends JpaRepository<CourseJPA, Long> {
 
     @Query("select a.title from CourseJPA a WHERE a.id=?1")
     String getTitle(long courseId);
+
+    @Query("select a.author from CourseJPA a WHERE a.id=?1")
+    Optional<UserJPA> getCourseOwner(long courseId);
 
     @Query("SELECT a FROM CourseJPA a WHERE a.lastPublishedAt >= ?1 AND a.lastPublishedAt < ?2")
     List<CourseJPA> findNewCoursesBetween(LocalDateTime startDate, LocalDateTime endDate);

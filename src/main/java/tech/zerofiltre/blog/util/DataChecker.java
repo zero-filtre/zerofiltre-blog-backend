@@ -73,8 +73,20 @@ public class DataChecker {
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).isPresent();
     }
 
+    public boolean isVideoOwner(String courseId, User user) throws ResourceNotFoundException {
+        User dbUser = courseProvider.getCourseOwner(courseId);
+        if(dbUser == null){
+            throw new ResourceNotFoundException("No user in database owning video of id "+courseId, "");
+        }else if (!user.equals(dbUser)) return false;
+        return true;
+    }
+
     public boolean isAdminOrCompanyAdmin(User connectedUser, long companyId) {
         return connectedUser.isAdmin() || isCompanyAdmin(connectedUser.getId(), companyId);
+    }
+
+    Optional<LinkCompanyUser> findCompanyUser(long companyId, long userId) {
+        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
     }
 
 }
