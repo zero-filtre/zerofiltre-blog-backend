@@ -5,7 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import java.time.LocalDateTime;
 import java.util.List;

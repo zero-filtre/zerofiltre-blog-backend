@@ -19,6 +19,7 @@ import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.sandbox.model.Sandbox;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 
@@ -421,4 +422,20 @@ class DataCheckerTest {
         );
     }
 
+    @Test
+    void shouldReturnFalse_whenVerifyIfUserisVideoOwner_asUserOrAdmin() throws ResourceNotFoundException {
+
+        //Given
+        Course course = new Course();
+        course.setId(2L);
+        course.setTitle("TEST_COURSE_TITLE");
+        course.setAuthor(userWithUserRole);
+        when( courseProvider.courseOfId(course.getId())).thenReturn(Optional.of(course));
+
+        //WHEN
+        boolean response = checker.isVideoOwner(course.getId(), userWithUserRole);
+
+        //THEN
+        assertThat(response).isTrue();
+    }
 }

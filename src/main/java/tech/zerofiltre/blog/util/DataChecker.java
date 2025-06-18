@@ -6,6 +6,7 @@ import tech.zerofiltre.blog.domain.company.CompanyProvider;
 import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
@@ -73,8 +74,23 @@ public class DataChecker {
         return companyUserProvider.findByCompanyIdAndUserId(companyId, userId, true).isPresent();
     }
 
+    public boolean isVideoOwner(long courseId, User user) throws ResourceNotFoundException {
+        Optional<Course> optionalCourse = courseProvider.courseOfId(courseId);
+        if(optionalCourse.isEmpty()){
+            throw new ResourceNotFoundException("we could not find the course of id " + courseId);
+        }
+        if (user.getId() == optionalCourse.get().getAuthor().getId()) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isAdminOrCompanyAdmin(User connectedUser, long companyId) {
         return connectedUser.isAdmin() || isCompanyAdmin(connectedUser.getId(), companyId);
+    }
+
+    Optional<LinkCompanyUser> findCompanyUser(long companyId, long userId) {
+        return companyUserProvider.findByCompanyIdAndUserId(companyId, userId);
     }
 
 }
