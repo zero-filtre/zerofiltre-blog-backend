@@ -934,4 +934,119 @@ class CourseServiceTest {
                 .isThrownBy(() -> courseService.delete(15, editor))
                 .withMessage("You are not allowed to delete this course as it is published");
     }
+
+    @Test
+    @DisplayName("When a platform or company admin or a company editor wants to delete a non-published company course, the course is deleted.")
+    void shouldDeleteCourse_whenWantDeleteNonPublishedCompanyCourse_asPlatformOrCompanyAdminOrCompanyEditor() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(DRAFT);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        //WHEN
+        courseService.delete(course.getId(), new User());
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(mockCourseProvider).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a non-platform or company admin or a company editor wants to delete a company course, a forbidden action exception is thrown.")
+    void shouldThrowException_whenWantCheckConditionsForDeletingCompanyCourse_asNonPlatformOrCompanyAdminOrCompanyEditor() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(DRAFT);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(course.getId(), new User()));
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(mockCourseProvider, never()).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a platform or company admin wants to delete a published company course, the course is deleted.")
+    void shouldDeleteCourse_whenWantDeletePublishedCompanyCourse_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(PUBLISHED);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        doReturn(true).when(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        courseService.delete(course.getId(), new User());
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(mockCourseProvider).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a company editor wants to delete a published company course, a forbidden action exception is thrown.")
+    void shouldThrowException_whenWantDeleteCompanyPublishedCourse_asCompanyEditor() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(PUBLISHED);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        doReturn(false).when(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(course.getId(), new User()));
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(checker).isAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(mockCourseProvider, never()).delete(any(Course.class));
+    }
+
 }

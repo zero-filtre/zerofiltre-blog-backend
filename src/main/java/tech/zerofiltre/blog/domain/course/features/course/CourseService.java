@@ -124,18 +124,17 @@ public class CourseService {
     }
 
     public void delete(long id, User deleter) throws ResourceNotFoundException, ForbiddenActionException {
-
         Course existingCourse = courseProvider.courseOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
-        if (existingCourse.getStatus().equals(Status.PUBLISHED))
-            throw new ForbiddenActionException("You are not allowed to delete this course as it is published");
+        Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(existingCourse.getId());
 
-        if (existingCourse.getEnrolledCount() > 0)
-            throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users");
+        if(companyId.isEmpty()) {
+            checkConditionsForDeletingPlatformCourse(existingCourse, deleter);
+        } else {
+            checkConditionsForDeletingCompanyCourse(companyId.get(), existingCourse, deleter);
+        }
 
-        if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to delete this course");
         courseProvider.delete(existingCourse);
 
         LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting course " + id + " for done", null, Course.class);
@@ -211,6 +210,24 @@ public class CourseService {
 
         if (isAlreadyPublished(existingCourse.getStatus()) && !isAdminOrCompanyAdmin)
             throw new ForbiddenActionException("You do not have permission to modify a published course.");
+    }
+
+    private void checkConditionsForDeletingPlatformCourse(Course existingCourse, User deleter) throws ForbiddenActionException {
+        if (existingCourse.getStatus().equals(Status.PUBLISHED))
+            throw new ForbiddenActionException("You are not allowed to delete this course as it is published");
+
+        if (existingCourse.getEnrolledCount() > 0)
+            throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users");
+
+        if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
+            throw new ForbiddenActionException("You are not allowed to delete this course");
+    }
+
+    private void checkConditionsForDeletingCompanyCourse(long companyId, Course existingCourse, User deleter) throws ForbiddenActionException {
+        checker.checkIfAdminOrCompanyAdminOrEditor(deleter, companyId);
+
+        if (existingCourse.getStatus().equals(Status.PUBLISHED) && !checker.isAdminOrCompanyAdmin(deleter, companyId))
+            throw new ForbiddenActionException("You are not allowed to delete this company course as it is published");
     }
 
 }
