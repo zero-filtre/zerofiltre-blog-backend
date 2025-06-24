@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
+import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
@@ -67,6 +68,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company, then the link is created")
     void shouldCreatesLink_whenLinkCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+        doNothing().when(checker).checkCourseExistence(anyLong());
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //WHEN
@@ -90,8 +94,11 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company and the link already exists, then there is nothing")
     void shouldDoNothing_whenLinkCourseToCompany_IfLinkExists_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+        doNothing().when(checker).checkCourseExistence(anyLong());
 
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
 
         //WHEN
@@ -109,8 +116,11 @@ class CompanyCourseServiceTest {
     @DisplayName("When a link between a course and a company is suspended and a platform admin links them again, then the link is activated")
     void shouldActivatesLink_whenSuspendLinkBetweenCourseAndCompany_LinkAgain_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
-        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+        doNothing().when(checker).checkCourseExistence(anyLong());
 
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
 
         //WHEN
@@ -151,6 +161,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course to a company that does not exist, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkCourseToNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
         doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
@@ -167,6 +178,8 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin links a course that does not exist to a company, then the course and the company are not linked")
     void shouldCourseAndCompanyNotLinked_whenLinkNotExistingCourseToCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
         doThrow(ResourceNotFoundException.class).when(checker).checkCourseExistence(anyLong());
 
         //THEN
@@ -184,6 +197,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin activates all links between courses and a company, then all the links are activated")
     void shouldActivatesAllLinks_whenActivateAllLinksBetweenCoursesAndCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusWeeks(1));
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, false, LocalDateTime.now().minusMonths(2), LocalDateTime.now().minusWeeks(2));
         List<LinkCompanyCourse> list = new ArrayList<>();
@@ -233,6 +249,7 @@ class CompanyCourseServiceTest {
     @Test
     @DisplayName("When a platform admin activates all links between courses and a company that does not exist, then the links are not activated")
     void shouldNotActivatedLinks_whenActivateAllLinksBetweenCoursesAndNotExistingCompany_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
         doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
@@ -249,6 +266,8 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin activates all links between courses and a company and the links do not exist, then there is nothing")
     void shouldDoNothing_whenActivateAllLinksBetweenCoursesAndCompany_IfLinksDoNotExist_asPlatformAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCompanyExistence(anyLong());
         when(companyCourseProvider.findAllByCompanyId(anyLong())).thenReturn(new ArrayList<>());
 
         //WHEN
@@ -265,6 +284,8 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin or a company user searches for a link between a course and a company, then he finds the link")
     void shouldFindsLink_whenSearchForLinkBetweenCourseAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
+
         LinkCompanyCourse expectedLink = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now(), null);
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(expectedLink));
 
@@ -295,6 +316,7 @@ class CompanyCourseServiceTest {
     void shouldFindNothing_whenSearchForLinkBetweenNotExistingCourseAndCompany_asAdminOrCompanyUser() throws
             ForbiddenActionException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         //THEN
@@ -308,6 +330,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin or a company user searches for all the links between courses and a company, then he finds a part of the list of links")
     void shouldFindPartOfLinkList_whenSearchingForAllLinksBetweenCoursesAndCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
 
         //WHEN
         companyCourseService.findAllByCompanyId(adminUser, 0, 0, 1L);
@@ -335,10 +358,13 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin or a company user search for all the links between courses and a non-existent company, then he finds nothing")
     void shouldFindNothing_whenSearchingForAllLinksBetweenCoursesAndNotExistingCompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         when(companyCourseProvider.findByCompanyId(anyInt(), anyInt(), anyLong())).thenReturn(Page.emptyPage());
-        //THEN
+
+        //WHEN
         Page<LinkCompanyCourse> result = companyCourseService.findAllByCompanyId(userWithRoleUser, 0, 0, 2L);
 
+        //THEN
         verify(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
         assertThat(result.isEmpty()).isTrue();
     }
@@ -347,6 +373,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform admin or a company user searches for all the courses of a company, he finds a part of the list of courses")
     void shouldReturnPartOfCourseList_whenSearchingForAllCoursesOfACompany_asAdminOrCompanyUser() throws ForbiddenActionException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyUser(any(User.class), anyLong());
 
         //WHEN
         companyCourseService.findCoursesByCompanyId(new FinderRequest(0, 0, Status.PUBLISHED, adminUser), 1L);
@@ -398,9 +425,11 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When a platform or company admin deletes the link between a course and a company, the link is deleted and the enrollments related to this link are suspended")
+    @DisplayName("When a platform or company admin deletes the link between a platform course and a company, the link is deleted and the enrollments related to this link are suspended")
     void shouldDeleteLinkAndSuspendEnrollments_whenLinkBetweenCourseAndCompanyIsDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
@@ -454,7 +483,6 @@ class CompanyCourseServiceTest {
         companyCourseService.unlink(adminUser, 1L, 1L, true);
 
         //THEN
-        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
         verify(enrollmentProvider, never()).save(any(Enrollment.class));
@@ -464,6 +492,8 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspend the link between a course and a company, the link is suspended and the enrollments related to this link are suspended")
     void shouldSuspendLinkAndEnrollments_whenLinkBetweenCourseAndCompanyIsSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+
         LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         Enrollment enrollment1 = new Enrollment();
@@ -519,23 +549,48 @@ class CompanyCourseServiceTest {
     }
 
     @Test
-    @DisplayName("When a non-admin user of the platform or company suspends a link between a course and a company, then it is forbidden")
+    @DisplayName("When a user non-admin of the platform or the company suspends a link between a course and a company, then it is forbidden")
     void shouldForbidden_whenSuspendLink_asPlatformOrCompanyNonAdmin() throws ForbiddenActionException {
         //GIVEN
         doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
 
         //THEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 2L, false));
+                .isThrownBy(() -> companyCourseService.unlink(userWithRoleUser, 2L, 7L, false));
 
         verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         verify(companyCourseProvider, never()).delete(any(LinkCompanyCourse.class));
     }
 
     @Test
+    @DisplayName("When a platform or company admin deletes the link between an exclusive company course and a company, then the link is deleted")
+    void shouldDeleteLink_whenLinkBetweenCompanyCourseAndCompanyIsDeleted_asPlatformOrCompanyAdminOrEditor() throws ZerofiltreException {
+        //GIVEN
+        Course course = new Course();
+        course.setId(1L);
+
+        LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(1L, 1L, course.getId(), true, true, LocalDateTime.now().minusMonths(1), null);
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        when(companyCourseProvider.findByCompanyIdAndCourseId(anyLong(), anyLong())).thenReturn(Optional.of(linkCompanyCourse));
+        doNothing().when(companyCourseProvider).delete(any(LinkCompanyCourse.class));
+
+        //WHEN
+        companyCourseService.unlink(adminUser, 1L, course.getId(), true);
+
+        //THEN
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(companyCourseProvider).findByCompanyIdAndCourseId(anyLong(), anyLong());
+        verify(companyCourseProvider).delete(any(LinkCompanyCourse.class));
+    }
+
+    @Test
     @DisplayName("When a platform or company admin deletes all links between courses and a company, then the links are deleted and the enrollments related to these links are suspended")
     void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreDeleted_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 1L, 2L, false, true, LocalDateTime.now().minusMonths(1), null);
@@ -607,6 +662,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspends all links between courses and a company, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCoursesAndCompanyAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        doNothing().when(checker).checkCompanyExistence(anyLong());
+
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 1L, false, true, LocalDateTime.now().minusMonths(1), null);
@@ -693,6 +751,7 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin deletes all links between courses and a company that does not exist, then all links are not deleted")
     void shouldLinksNotDeleted_whenDeleteAllLinksOfNotExistingCompany_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
         doThrow(ResourceNotFoundException.class).when(checker).checkCompanyExistence(anyLong());
 
         //THEN
@@ -700,13 +759,17 @@ class CompanyCourseServiceTest {
                 .isThrownBy(() -> companyCourseService.unlinkAllByCompanyId(adminUser, 2L, true));
 
         verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(checker).checkCompanyExistence(anyLong());
         verify(companyCourseProvider, never()).deleteAllByCompanyId(anyLong());
     }
 
     @Test
-    @DisplayName("When I delete all links between a course and companies as a platform admin, then the links are deleted and the enrollments related to these links are suspended")
-    void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenCourseAndCompaniesAreDeleted_asPlatformAdmin() throws ZerofiltreException {
+    @DisplayName("When I delete all links between a platform course and companies as a platform admin, then the links are deleted and the enrollments related to these links are suspended")
+    void shouldDeleteAllLinksAndSuspendEnrollments_whenAllLinksBetweenPlatformCourseAndCompaniesAreDeleted_asPlatformAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCourseExistence(anyLong());
+
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
@@ -778,6 +841,9 @@ class CompanyCourseServiceTest {
     @DisplayName("When a platform or company admin suspends all links between a course and companies, then the links are suspended and the enrollments related to these links are suspended")
     void shouldSuspendAllLinksAndSuspendEnrollments_whenAllLinksBetweenCourseAndCompaniesAreSuspended_asPlatformOrCompanyAdmin() throws ZerofiltreException {
         //GIVEN
+        doNothing().when(checker).checkIfAdminUser(any(User.class));
+        doNothing().when(checker).checkCourseExistence(anyLong());
+
         LinkCompanyCourse linkCompanyCourse1 = new LinkCompanyCourse(1L, 1L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);
 
         LinkCompanyCourse linkCompanyCourse2 = new LinkCompanyCourse(2L, 2L, 3L, false, true, LocalDateTime.now().minusMonths(1), null);

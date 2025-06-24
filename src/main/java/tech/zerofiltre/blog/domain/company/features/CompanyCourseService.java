@@ -30,10 +30,10 @@ public class CompanyCourseService {
         checker.checkCourseExistence(courseId);
 
         Optional<LinkCompanyCourse> existingCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
-        if(existingCompanyCourse.isEmpty()) {
+        if (existingCompanyCourse.isEmpty()) {
             LinkCompanyCourse linkCompanyCourse = new LinkCompanyCourse(0, companyId, courseId, false, true, LocalDateTime.now(), null);
             return companyCourseProvider.save(linkCompanyCourse);
-        } else if(null != existingCompanyCourse.get().getSuspendedAt()) {
+        } else if (null != existingCompanyCourse.get().getSuspendedAt()) {
             existingCompanyCourse.get().setActive(true);
             existingCompanyCourse.get().setSuspendedAt(null);
             return companyCourseProvider.save(existingCompanyCourse.get());
@@ -46,7 +46,7 @@ public class CompanyCourseService {
         checker.checkIfAdminUser(user);
         checker.checkCompanyExistence(companyId);
 
-        for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
+        for (LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
             c.setActive(true);
             c.setSuspendedAt(null);
             companyCourseProvider.save(c);
@@ -72,18 +72,19 @@ public class CompanyCourseService {
         return companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true).map(LinkCompanyCourse::getId).orElseThrow(() -> new ResourceNotFoundException("We could not find the link between the company and the course.", ""));
     }
 
-    public void unlink(User user, long companyId, long courseId, boolean hard) throws ZerofiltreException {
-        checker.checkIfAdminOrCompanyAdmin(user, companyId);
+    public void unlink(User personUnlinking, long companyId, long courseId, boolean hard) throws ZerofiltreException {
+        checker.checkIfAdminOrCompanyAdmin(personUnlinking, companyId);
 
-        if(hard) {
+        if (hard) {
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId);
-            if(companyCourse.isPresent()) {
-                companyCourseProvider.delete(companyCourse.get());
+
+            if (companyCourse.isPresent()) {
                 suspendEnrollments(companyCourse.get().getId());
+                companyCourseProvider.delete(companyCourse.get());
             }
         } else { // suspend
             Optional<LinkCompanyCourse> companyCourse = companyCourseProvider.findByCompanyIdAndCourseId(companyId, courseId, true);
-            if(companyCourse.isPresent()) {
+            if (companyCourse.isPresent()) {
                 suspendLink(companyCourse.get());
             }
         }
@@ -93,13 +94,13 @@ public class CompanyCourseService {
         checker.checkIfAdminOrCompanyAdmin(user, companyId);
         checker.checkCompanyExistence(companyId);
 
-        if(hard) {
-            for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
+        if (hard) {
+            for (LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
                 companyCourseProvider.delete(c);
                 suspendEnrollments(c.getId());
             }
         } else {
-            for(LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
+            for (LinkCompanyCourse c : companyCourseProvider.findAllByCompanyId(companyId)) {
                 suspendLink(c);
             }
         }
@@ -109,20 +110,20 @@ public class CompanyCourseService {
         checker.checkIfAdminUser(user);
         checker.checkCourseExistence(courseId);
 
-        if(hard) {
-            for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
+        if (hard) {
+            for (LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
                 companyCourseProvider.delete(c);
                 suspendEnrollments(c.getId());
             }
         } else {
-            for(LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
+            for (LinkCompanyCourse c : companyCourseProvider.findAllByCourseId(courseId)) {
                 suspendLink(c);
             }
         }
     }
 
     void suspendLink(LinkCompanyCourse linkCompanyCourse) throws ZerofiltreException {
-        if(null == linkCompanyCourse.getSuspendedAt()) {
+        if (null == linkCompanyCourse.getSuspendedAt()) {
             linkCompanyCourse.setActive(false);
             linkCompanyCourse.setSuspendedAt(LocalDateTime.now());
             companyCourseProvider.save(linkCompanyCourse);
@@ -130,11 +131,12 @@ public class CompanyCourseService {
         suspendEnrollments(linkCompanyCourse.getId());
     }
 
-    public void suspendEnrollments(long companyCourseId) throws ZerofiltreException {
-        for(Enrollment e : enrollmentProvider.findAll(companyCourseId, true)) {
+    void suspendEnrollments(long companyCourseId) throws ZerofiltreException {
+        for (Enrollment e : enrollmentProvider.findAll(companyCourseId, true)) {
             e.setActive(false);
             e.setSuspendedAt(LocalDateTime.now());
             enrollmentProvider.save(e);
         }
     }
+
 }

@@ -19,6 +19,7 @@ import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.doubles.*;
@@ -830,7 +831,7 @@ class CourseServiceTest {
     }
 
     @Test
-    void delete_should_callTheProvider() throws ForbiddenActionException, ResourceNotFoundException {
+    void delete_should_callTheProvider() throws ZerofiltreException {
         //GIVEN
         courseProvider = mock(CourseProvider.class);
         User author = new User();
@@ -923,15 +924,150 @@ class CourseServiceTest {
     @Test
     void deleteThrowsForbiddenActionException_ifCourseIsPublished_evenForAnAdmin() {
         //GIVEN
-        courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
         loggerProvider = new LoggerProviderSpy();
-        editor.getRoles().add("ROLE_ADMIN");
 
-        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+
+        course.setId(15);
+        course.setStatus(PUBLISHED);
+        course.setEnrolledCount(0);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> courseService.delete(15, editor))
+                .isThrownBy(() -> courseService.delete(course.getId(), editor))
                 .withMessage("You are not allowed to delete this course as it is published");
     }
+
+    @Test
+    void deleteThrowsForbiddenActionException_ifCourseIsLinked_evenForAnAdmin() {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+
+        course.setId(15);
+        course.setStatus(DRAFT);
+        course.setEnrolledCount(0);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(companyCourseProvider.findAllByCourseId(anyLong())).thenReturn(List.of(new LinkCompanyCourse()));
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(course.getId(), editor));
+    }
+
+    @Test
+    @DisplayName("When a platform or company admin wants to delete a non-published company course, the course is deleted.")
+    void shouldDeleteCourse_whenWantDeleteNonPublishedCompanyCourse_asPlatformOrCompanyAdminOrCompanyEditor() throws ZerofiltreException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        ReflectionTestUtils.setField(courseService, "companyCourseService", companyCourseService);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(DRAFT);
+        course.setEnrolledCount(0);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        doNothing().when(companyCourseService).unlink(any(User.class), anyLong(), anyLong(), anyBoolean());
+
+        //WHEN
+        courseService.delete(course.getId(), new User());
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(companyCourseService).unlink(any(User.class), anyLong(), anyLong(), anyBoolean());
+        verify(mockCourseProvider).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a user not platform admin nor company admin wants to delete a company exclusive course, a forbidden action exception is thrown.")
+    void shouldThrowException_whenWantCheckConditionsForDeletingCompanyCourse_asNonPlatformOrCompanyAdminOrCompanyEditor() throws ForbiddenActionException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(DRAFT);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doThrow(ForbiddenActionException.class).when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(course.getId(), new User()));
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(mockCourseProvider, never()).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a platform or company admin wants to delete a published company exclusive course and no user is enrolled in the course, the course is deleted.")
+    void shouldDeleteCourse_whenWantDeletePublishedCompanyCourse_asPlatformOrCompanyAdmin() throws ZerofiltreException {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+        long companyId = 12L;
+
+        course.setId(1);
+        course.setStatus(PUBLISHED);
+        course.setEnrolledCount(0);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+        when(mockCourseProvider.idOfCompanyOwningCourse(anyLong())).thenReturn(Optional.of(companyId));
+
+        doNothing().when(checker).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+
+        //WHEN
+        courseService.delete(course.getId(), new User());
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider).idOfCompanyOwningCourse(anyLong());
+        verify(checker, times(2)).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        verify(mockCourseProvider).delete(any(Course.class));
+    }
+
+    @Test
+    @DisplayName("When a user wants to delete a published company exclusive course, a forbidden action exception is thrown.")
+    void shouldThrowException_whenWantDeleteCompanyPublishedCourse_asCompanyEditor() {
+        //GIVEN
+        CourseProvider mockCourseProvider = mock(CourseProvider.class);
+        loggerProvider = new LoggerProviderSpy();
+
+        CourseService courseService = new CourseService(mockCourseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+
+        course.setId(1);
+        course.setStatus(PUBLISHED);
+        course.setEnrolledCount(1);
+        when(mockCourseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
+
+        //WHEN
+        assertThatExceptionOfType(ForbiddenActionException.class)
+                .isThrownBy(() -> courseService.delete(course.getId(), new User()))
+                .withMessage("You are not allowed to delete this course as it has enrolled users");
+
+        //THEN
+        verify(mockCourseProvider).courseOfId(anyLong());
+        verify(mockCourseProvider, never()).delete(any(Course.class));
+    }
+
 }
