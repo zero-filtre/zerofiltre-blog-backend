@@ -14,6 +14,7 @@ import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.UnAuthenticatedActionException;
+import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
 import tech.zerofiltre.blog.domain.logging.model.LogEntry;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -76,7 +77,7 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
         if ((viewer == null && Status.PUBLISHED != foundCourse.getStatus())
-                || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && foundCourse.getStatus() != Status.PUBLISHED)) {
+                || (viewer != null && !viewer.isAdmin() && isNotAuthor(viewer, foundCourse) && Status.PUBLISHED != foundCourse.getStatus())) {
             throw new ForbiddenActionException("You are not allowed to access this course (that you do not own) as it is not yet published");
         }
         return foundCourse;
@@ -122,22 +123,24 @@ public class CourseService {
         return courseProvider.save(existingCourse);
     }
 
-    public void delete(long id, User deleter) throws ResourceNotFoundException, ForbiddenActionException {
-
-        Course existingCourse = courseProvider.courseOfId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
-
-        if (existingCourse.getStatus().equals(Status.PUBLISHED))
-            throw new ForbiddenActionException("You are not allowed to delete this course as it is published");
+    public void delete(long courseId, User deleter) throws ZerofiltreException {
+        Course existingCourse = courseProvider.courseOfId(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + courseId + DOES_NOT_EXIST, String.valueOf(courseId)));
 
         if (existingCourse.getEnrolledCount() > 0)
             throw new ForbiddenActionException("You are not allowed to delete this course as it has enrolled users");
 
-        if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
-            throw new ForbiddenActionException("You are not allowed to delete this course");
+        Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(courseId);
+
+        if(companyId.isEmpty()) {
+            checkConditionsForDeletingPlatformCourse(existingCourse, deleter);
+        } else {
+            checkConditionsForDeletingCompanyCourse(companyId.get(), existingCourse, deleter);
+        }
+
         courseProvider.delete(existingCourse);
 
-        LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting course " + id + " for done", null, Course.class);
+        LogEntry logEntry = new LogEntry(LogEntry.Level.INFO, "Deleting course " + courseId + " for done", null, Course.class);
         loggerProvider.log(logEntry);
     }
 
@@ -149,7 +152,7 @@ public class CourseService {
                 && !request.isYours();
 
         if (unAuthenticatedUserGettingNonPublishedCourses) {
-            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ");
+            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it.");
         }
 
         boolean nonAdminGettingNonPublishedCourses = !PUBLISHED.equals(request.getStatus())
@@ -171,12 +174,12 @@ public class CourseService {
     }
 
     private boolean isAlreadyPublished(Status status) {
-        return status.equals(Status.PUBLISHED);
+        return Status.PUBLISHED.equals(status);
     }
 
 
     private boolean isTryingToPublish(Status status) {
-        return status == Status.PUBLISHED || status == Status.IN_REVIEW;
+        return Status.PUBLISHED == status || Status.IN_REVIEW == status;
     }
 
     private void checkTags(List<Tag> tags) throws ResourceNotFoundException {
@@ -210,6 +213,23 @@ public class CourseService {
 
         if (isAlreadyPublished(existingCourse.getStatus()) && !isAdminOrCompanyAdmin)
             throw new ForbiddenActionException("You do not have permission to modify a published course.");
+    }
+
+    private void checkConditionsForDeletingPlatformCourse(Course existingCourse, User deleter) throws ForbiddenActionException {
+        if(!companyCourseProvider.findAllByCourseId(existingCourse.getId()).isEmpty())
+            throw new ForbiddenActionException("You are not allowed to delete this course as it is already linked to a company");
+
+        if (Status.PUBLISHED.equals(existingCourse.getStatus()))
+            throw new ForbiddenActionException("You are not allowed to delete this course as it is published");
+
+        if (isNotAuthor(deleter, existingCourse) && !deleter.isAdmin())
+            throw new ForbiddenActionException("You are not allowed to delete this course");
+    }
+
+    private void checkConditionsForDeletingCompanyCourse(long companyId, Course existingCourse, User deleter) throws ZerofiltreException {
+        checker.checkIfAdminOrCompanyAdmin(deleter, companyId);
+
+        companyCourseService.unlink(deleter, companyId, existingCourse.getId(), true);
     }
 
 }

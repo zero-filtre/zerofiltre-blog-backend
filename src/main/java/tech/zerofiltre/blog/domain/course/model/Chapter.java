@@ -142,7 +142,7 @@ public class Chapter {
         Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
 
-        if (existingCourse.getStatus() == Status.PUBLISHED) {
+        if (Status.PUBLISHED == existingCourse.getStatus()) {
             Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(existingCourse.getId());
 
             if (!existingUser.isAdmin()
@@ -153,7 +153,7 @@ public class Chapter {
                 throw new ForbiddenActionException("You are not allowed to delete a chapter for a published course, please get in touch with an admin");
         }
 
-        if (existingCourse.getStatus() != Status.PUBLISHED) {
+        if (Status.PUBLISHED != existingCourse.getStatus()) {
             checkUserAuthorized(existingUser, existingCourse, "You are not allowed to delete a chapter for this course");
         }
 
