@@ -218,7 +218,7 @@ public class Lesson {
             throw new ForbiddenActionException("You are not allowed to do this action on this course");
         }
 
-        if (!existingCourse.getStatus().equals(Status.PUBLISHED)) {
+        if (!Status.PUBLISHED.equals(existingCourse.getStatus())) {
             throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
         }
 
@@ -255,7 +255,7 @@ public class Lesson {
         course = courseProvider.courseOfId(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("The course with id: " + courseId + DOES_NOT_EXIST, String.valueOf(courseId)));
 
-        if(!course.getStatus().equals(Status.PUBLISHED))
+        if(!Status.PUBLISHED.equals(course.getStatus()))
             checkUserAuthorized(currentUser, course, YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
 
         if(isDeletion) checkConditionsForDeletingLesson(currentUserId);
@@ -268,7 +268,7 @@ public class Lesson {
     }
 
     private void checkConditionsForDeletingLesson(long currentUserId) throws ForbiddenActionException {
-        if (course.getStatus().equals(Status.PUBLISHED)
+        if (Status.PUBLISHED.equals(course.getStatus())
                 && !currentUser.isAdmin()) {
             Optional<Long> companyId = courseProvider.idOfCompanyOwningCourse(course.getId());
 

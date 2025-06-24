@@ -66,7 +66,7 @@ public class FindArticle {
         if (!PUBLISHED.equals(request.getStatus())
                 && user == null
                 && !request.isYours()) {
-            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it. ");
+            throw new UnAuthenticatedActionException("The user token might be expired, try to refresh it.");
         }
 
         //NON ADMIN USER TRYING TO GET NON PUBLISHED ARTICLES

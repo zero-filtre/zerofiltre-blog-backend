@@ -1,21 +1,24 @@
 package tech.zerofiltre.blog.infra.providers.api.so;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import lombok.extern.slf4j.*;
-import org.apache.commons.lang3.*;
-import org.springframework.cache.annotation.*;
-import org.springframework.http.*;
-import org.springframework.retry.support.*;
-import org.springframework.stereotype.*;
-import org.springframework.web.client.*;
-import org.springframework.web.util.*;
-import tech.zerofiltre.blog.domain.user.*;
-import tech.zerofiltre.blog.domain.user.model.*;
-import tech.zerofiltre.blog.infra.*;
-import tech.zerofiltre.blog.infra.providers.api.so.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import tech.zerofiltre.blog.domain.user.SocialLoginProvider;
+import tech.zerofiltre.blog.domain.user.model.SocialLink;
+import tech.zerofiltre.blog.domain.user.model.User;
+import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.providers.api.so.model.StackOverflowUser;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @Component
@@ -59,7 +62,7 @@ public class StackOverflowLoginProvider implements SocialLoginProvider {
                         }
                         JsonNode expiresOnDate = node.get("expires_on_date");
                         if (expiresOnDate != null && LocalDateTime.ofEpochSecond(expiresOnDate.longValue(), 0, ZoneOffset.UTC).isBefore(LocalDateTime.now())) {
-                            log.error("We couldn't validate the token because it is expired ");
+                            log.error("We couldn't validate the token because it is expired.");
                             return false;
                         }
                     } catch (JsonProcessingException e) {
