@@ -12,7 +12,11 @@ import tech.zerofiltre.blog.domain.article.TagProvider;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.article.model.Tag;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.CompanyProvider;
+import tech.zerofiltre.blog.domain.company.CompanyUserProvider;
+import tech.zerofiltre.blog.domain.company.model.Company;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
+import tech.zerofiltre.blog.domain.company.model.LinkCompanyUser;
 import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.SectionProvider;
@@ -27,6 +31,8 @@ import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.providers.database.article.DBTagProvider;
 import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyCourseProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyProvider;
+import tech.zerofiltre.blog.infra.providers.database.company.DBCompanyUserProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
 import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
@@ -45,10 +51,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class, DBCompanyCourseProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBSectionProvider.class, DBTagProvider.class, DBChapterProvider.class, Slf4jLoggerProvider.class, DBEnrollmentProvider.class, DBCompanyCourseProvider.class, DBCompanyProvider.class, DBCompanyUserProvider.class})
 class CourseServiceIT {
 
     public static final String UPDATED_TITLE = "This is the updated title";
@@ -80,6 +87,12 @@ class CourseServiceIT {
 
     @Autowired
     private CompanyCourseProvider companyCourseProvider;
+
+    @Autowired
+    private CompanyProvider companyProvider;
+
+    @Autowired
+    private CompanyUserProvider companyUserProvider;
 
     private Course course;
 
@@ -230,7 +243,7 @@ class CourseServiceIT {
 
     @Test
     @Disabled("to fix")
-    void deleteCourse_isOK() throws ResourceNotFoundException, ForbiddenActionException {
+    void deleteCourse_isOK() throws ZerofiltreException {
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
@@ -302,4 +315,50 @@ class CourseServiceIT {
 
         assertThat(enrolledCount).isEqualTo(3);
     }
+
+    @Test
+    @DisplayName("When a platform or company admin deletes an exclusive draft company course, the course and the link between a company course and a company are deleted")
+    void shouldDeleteCourseAndLink_whenDeleteCompanyCourse_asPlatformOrCompanyAdminOrEditor() throws ZerofiltreException {
+        //GIVEN
+        User user = ZerofiltreUtilsTest.createMockUser(true);
+        user = userProvider.save(user);
+
+        author = ZerofiltreUtilsTest.createMockUser(false);
+        author.setEmail(author.getEmail() + "2");
+        author.setPseudoName(author.getPseudoName() + "2");
+        author = userProvider.save(author);
+
+        ZerofiltreUtilsTest.createMockTags(false)
+                .forEach(tag -> tags.add(tagProvider.save(tag)));
+
+        CourseService courseService = new CourseService(courseProvider, tagProvider, loggerProvider, checker, companyCourseProvider, enrollmentProvider);
+
+        Company company = companyProvider.save(new Company(0, "company", "123456789"));
+        assertThat(company).isNotNull();
+        assertThat(company.getId()).isEqualTo(1);
+
+        course = courseService.init("some title", author, company.getId());
+        course.setStatus(Status.DRAFT);
+        course.setEnrolledCount(0);
+        course = courseProvider.save(course);
+        assertThat(course).isNotNull();
+
+        Optional<LinkCompanyCourse> linkCompanyCourse = companyCourseProvider.findByCompanyIdAndCourseId(company.getId(), course.getId());
+        assertThat(linkCompanyCourse).isPresent();
+
+        LinkCompanyUser linkCompanyUser = companyUserProvider.save(new LinkCompanyUser(0, company.getId(), user.getId(), LinkCompanyUser.Role.ADMIN, true, LocalDateTime.now(), null));
+        assertThat(linkCompanyUser).isNotNull();
+
+        //WHEN
+        courseService.delete(course.getId(), user);
+
+        //THEN
+        Optional<Course> courseDeleted = courseProvider.courseOfId(course.getId());
+        assertThat(courseDeleted).isEmpty();
+        verify(checker).checkIfAdminOrCompanyAdminOrEditor(any(User.class), anyLong());
+        verify(checker, times(2)).checkIfAdminOrCompanyAdmin(any(User.class), anyLong());
+        Optional<Enrollment> enrollmentDeleted = enrollmentProvider.enrollmentOf(user.getId(), course.getId());
+        assertThat(enrollmentDeleted).isEmpty();
+    }
+
 }

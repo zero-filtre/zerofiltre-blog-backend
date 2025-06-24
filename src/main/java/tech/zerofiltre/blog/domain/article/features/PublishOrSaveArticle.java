@@ -71,11 +71,11 @@ public class PublishOrSaveArticle {
 
 
     private boolean isAlreadyPublished(Article existingArticle) {
-        return existingArticle.getStatus().equals(Status.PUBLISHED);
+        return Status.PUBLISHED.equals(existingArticle.getStatus());
     }
 
     private boolean isTryingToPublish(Status status) {
-        return status.equals(Status.PUBLISHED) || status.equals(Status.IN_REVIEW);
+        return Status.PUBLISHED.equals(status) || Status.IN_REVIEW.equals(status);
     }
 
     private boolean isAuthor(User currentEditor, User author) {
