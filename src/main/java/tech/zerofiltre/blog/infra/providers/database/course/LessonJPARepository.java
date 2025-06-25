@@ -24,4 +24,11 @@ public interface LessonJPARepository extends JpaRepository<LessonJPA, Long> {
             "LEFT JOIN enrollment_completed_lessons ecl ON ecl.enrollment_id = ?1 AND ecl.lesson_id = l.id " +
             "WHERE ecl.lesson_id IS NULL", nativeQuery = true)
     List<Long> findAllLessonIdNotCompletedByCourseIdAndEnrollmentId(long enrollmentId);
+
+    @Query(value="SELECT ch.title as chapter_title,  co.title as course_title, l.title as lesson_title " +
+            "FROM lesson " +
+            "JOIN chapter ch on l.chapter_id = ch.id " +
+            "JOIN course co on cH.course_id = co.id " +
+            "where l.id = :lessonId ", nativeQuery = true)
+    List<String> findLessonCourseChapterTitle(String lessonId);
 }

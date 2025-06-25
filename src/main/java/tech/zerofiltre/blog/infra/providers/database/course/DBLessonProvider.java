@@ -54,4 +54,9 @@ public class DBLessonProvider implements LessonProvider {
 
     }
 
+    @Override
+    public List<String> getCourseChapterLessonTitle(String lessonId){
+        return lessonJPARepository.findLessonCourseChapterTitle(lessonId);
+    }
+
 }
