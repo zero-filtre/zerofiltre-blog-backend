@@ -167,4 +167,9 @@ public class DummyLessonJPARepository implements LessonJPARepository {
 
     @Override
     public List<Long> findAllLessonIdNotCompletedByCourseIdAndEnrollmentId(long enrollmentId) { return List.of(); }
+
+    @Override
+    public List<String> findLessonCourseChapterTitle(String lessonId) {
+        return List.of();
+    }
 }

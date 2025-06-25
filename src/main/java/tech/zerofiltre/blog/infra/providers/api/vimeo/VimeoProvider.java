@@ -9,9 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.error.VideoUploadFailedException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.infra.InfraProperties;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -20,28 +23,23 @@ public class VimeoProvider {
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final RetryTemplate retryTemplate;
+    private final LessonProvider lessonProvider;
 
-    public VimeoProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate) {
+    public VimeoProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate, LessonProvider lessonProvider) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         this.retryTemplate = retryTemplate;
+        this.lessonProvider = lessonProvider;
     }
 
-    public String init(long size, String name) throws VideoUploadFailedException {
+    public String init(long size, String name, String lessonId) throws VideoUploadFailedException {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
 
-        //String structuredName = courseName + "/" + chapterName + "/" + lessonName + "/" + name;
-        String initBody = "{\n" +
-                "  \"upload\": {\n" +
-                "    \"approach\": \"tus\",\n" +
-                "    \"size\": " + size + "\n" +
-                "  },\n" +
-                "  \"name\": \"" + name + "\"\n" +
-                "}";
+        String initBody = getVideoStructure(size, lessonId, name);
 
         try {
             log.info("Initializing vimeo video of size {} and name {} with request body: \n {}", size, name, initBody);
@@ -86,4 +84,31 @@ public class VimeoProvider {
             return result;
         });
     }
+
+    private String getVideoStructure(long size, String lessonId, String fileName) {
+        List<String> courseChapterLessonTitle = lessonProvider.getCourseChapterLessonTitle(lessonId);
+        String courseName = sanitize(courseChapterLessonTitle.get(0));
+        String chapterName = sanitize(courseChapterLessonTitle.get(1));
+        String lessonName = sanitize(courseChapterLessonTitle.get(2));
+        String structuredData = "id_" + courseName + "/id_" +  chapterName + "/id_" +  lessonName + "/" + fileName;
+
+        String initBody = "{\n" +
+                "  \"upload\": {\n" +
+                "    \"approach\": \"tus\",\n" +
+                "    \"size\": " + size + "\n" +
+                "  },\n" +
+                "  \"name\": \"" + structuredData + "\"\n" +
+                "}";
+        return initBody;
+    }
+
+    public String sanitize(String input){
+        if(input == null) return "";
+        return input
+                .trim()
+                .toLowerCase()
+                .replaceAll("\\s+", "_")
+                .replaceAll("[^a-zA-Z0-9_-]", "");
+    }
+
 }

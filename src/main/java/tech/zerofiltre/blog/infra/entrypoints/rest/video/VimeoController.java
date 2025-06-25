@@ -15,8 +15,8 @@ public class VimeoController {
     private final VimeoProvider vimeoService;
 
     @PostMapping("/init")
-    public String init(@RequestParam long size, @RequestParam String name) throws VideoUploadFailedException {
-        return vimeoService.init(size, name);
+    public String init(@RequestParam long size, @RequestParam String name, @RequestParam String lessonId) throws VideoUploadFailedException {
+        return vimeoService.init(size, name, lessonId);
     }
     @PostMapping("/delete")
     public String deleteVideo(@RequestParam String video_id) throws ZerofiltreException {
