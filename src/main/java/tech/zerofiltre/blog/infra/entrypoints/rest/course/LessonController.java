@@ -92,7 +92,7 @@ public class LessonController {
         } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return wanted lesson if it's free");
         }
-        return lesson.get(user == null ? 0 : user.getId());
+        return lesson.getAsUser(user == null ? 0 : user.getId());
     }
 
     @DeleteMapping("/{id}")
