@@ -1,38 +1,26 @@
 package tech.zerofiltre.blog.domain.course.model;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import tech.zerofiltre.blog.domain.article.model.Status;
-import tech.zerofiltre.blog.domain.course.ChapterProvider;
-import tech.zerofiltre.blog.domain.course.CourseProvider;
-import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.LessonProvider;
-import tech.zerofiltre.blog.domain.course.features.lesson.LessonService;
-import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
-import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
-import tech.zerofiltre.blog.domain.error.ZerofiltreException;
-import tech.zerofiltre.blog.domain.user.UserProvider;
-import tech.zerofiltre.blog.domain.user.model.User;
-import tech.zerofiltre.blog.infra.providers.database.course.DBChapterProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBCourseProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBEnrollmentProvider;
-import tech.zerofiltre.blog.infra.providers.database.course.DBLessonProvider;
-import tech.zerofiltre.blog.infra.providers.database.user.DBUserProvider;
-import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.autoconfigure.orm.jpa.*;
+import org.springframework.context.annotation.*;
+import org.springframework.transaction.annotation.*;
+import tech.zerofiltre.blog.domain.article.model.*;
+import tech.zerofiltre.blog.domain.course.*;
+import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.*;
+import tech.zerofiltre.blog.domain.user.model.*;
+import tech.zerofiltre.blog.infra.providers.database.course.*;
+import tech.zerofiltre.blog.infra.providers.database.user.*;
+import tech.zerofiltre.blog.util.*;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 @DataJpaTest
-@Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class, DBEnrollmentProvider.class})
+@Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class})
 class ChapterIT {
 
     public static final String TITLE = "Chapter 1";
@@ -52,16 +40,6 @@ class ChapterIT {
 
     @Autowired
     private LessonProvider lessonProvider;
-
-    @Autowired
-    private EnrollmentProvider enrollmentProvider;
-
-    private LessonService lessonService;
-
-    @BeforeEach
-    void setup() {
-        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider);
-    }
 
     @Test
     void init_chapter_is_OK() throws ForbiddenActionException, ResourceNotFoundException {
@@ -115,7 +93,7 @@ class ChapterIT {
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .number(54)
-                .lessons(Collections.singletonList(new Lesson()))
+                .lessons(Collections.singletonList(Lesson.builder().build()))
                 .build()
                 .save(author.getId());
 
@@ -205,9 +183,29 @@ class ChapterIT {
                 .init(TITLE, course.getId(), author.getId());
 
 
-        Lesson lesson1 = lessonService.init(TITLE, chapter.getId(), author.getId());
-        Lesson lesson2 = lessonService.init("title1", chapter.getId(), author.getId());
-        Lesson lesson3 = lessonService.init("title2", chapter.getId(), author.getId());
+        Lesson lesson1 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init(TITLE, chapter.getId(), author.getId());
+
+        Lesson lesson2 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title1", chapter.getId(), author.getId());
+
+        Lesson lesson3 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title2", chapter.getId(), author.getId());
 
         chapter = chapter.get();
 
@@ -256,9 +254,29 @@ class ChapterIT {
                 .init(TITLE, course.getId(), author.getId());
 
 
-        Lesson lesson1 = lessonService.init(TITLE, chapter.getId(), author.getId());
-        Lesson lesson2 = lessonService.init("title1", chapter.getId(), author.getId());
-        Lesson lesson3 = lessonService.init("title2", chapter.getId(), author.getId());
+        Lesson lesson1 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init(TITLE, chapter.getId(), author.getId());
+
+        Lesson lesson2 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title1", chapter.getId(), author.getId());
+
+        Lesson lesson3 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title2", chapter.getId(), author.getId());
 
         chapter = chapter.get();
 
@@ -309,9 +327,29 @@ class ChapterIT {
                 .init(TITLE, course.getId(), author.getId());
 
 
-        Lesson lesson1 = lessonService.init(TITLE, chapter.getId(), author.getId());
-        Lesson lesson2 = lessonService.init("title1", chapter.getId(), author.getId());
-        Lesson lesson3 = lessonService.init("title2", chapter.getId(), author.getId());
+        Lesson lesson1 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init(TITLE, chapter.getId(), author.getId());
+
+        Lesson lesson2 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title1", chapter.getId(), author.getId());
+
+        Lesson lesson3 = Lesson.builder()
+                .courseProvider(courseProvider)
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .build()
+                .init("title2", chapter.getId(), author.getId());
 
         chapter = chapter.get();
 

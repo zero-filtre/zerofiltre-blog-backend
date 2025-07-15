@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static tech.zerofiltre.blog.domain.article.features.FindArticle.DOTS;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.USER_DOES_NOT_EXIST;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.VIDEO_NOT_AVAILABLE_FOR_FREE;
@@ -192,7 +193,7 @@ public class Lesson {
         lessonProvider.delete(lesson.get());
     }
 
-    public Lesson get(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
+    public Lesson getAsUser(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
         Optional<Lesson> lesson = lessonProvider.lessonOfId(this.id);
 
         if (lesson.isEmpty())
@@ -203,6 +204,7 @@ public class Lesson {
         if (currentUserId != 0) {
             this.free = lesson.get().isFree();
             checkLessonAccessConditions(currentUserId, lesson.get().getChapterId(), false, true);
+            if (notEnrolledAccess) lesson.get().content = return25PercentOfText(lesson.get().getContent());
             return setProviders(lesson.get());
         }
 
@@ -223,7 +225,10 @@ public class Lesson {
             throw new ForbiddenActionException(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
         }
 
-        if (!lesson.get().isFree()) notEnrolledAccess = true;
+        if (!lesson.get().isFree()) {
+            notEnrolledAccess = true;
+            lesson.get().content = return25PercentOfText(lesson.get().getContent());
+        }
 
         return setProviders(lesson.get());
     }
@@ -306,6 +311,11 @@ public class Lesson {
                 && existingCourse.getAuthor().getId() != existingUser.getId()) {
             throw new ForbiddenActionException(message);
         }
+    }
+
+    private String return25PercentOfText(String text) {
+        int halfLength = text.length() / 4;
+        return text.substring(0, halfLength) + DOTS;
     }
 
 

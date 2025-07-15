@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static tech.zerofiltre.blog.domain.article.features.FindArticle.DOTS;
 import static tech.zerofiltre.blog.domain.error.ErrorMessages.*;
 
 class LessonTest {
@@ -318,14 +319,10 @@ class LessonTest {
         LessonProvider lessonProvider = mock(LessonProvider.class);
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
 
-        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
-        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
-
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
@@ -336,7 +333,7 @@ class LessonTest {
     }
 
     @Test
-    void get_throws_ForbiddenActionException_if_not_admin_nor_author_and_course_not_published() {
+    void get_AsUser_throws_ForbiddenActionException_if_not_admin_nor_author_and_course_not_published() {
         //given
         UserProvider userProvider = mock(UserProvider.class);
         User user = new User();
@@ -364,12 +361,12 @@ class LessonTest {
         //when
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> lesson.get(999))
+                .isThrownBy(() -> lesson.getAsUser(999))
                 .withMessage(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
     }
 
     @Test
-    void get_Throws_ResourceNotFound_if_chapter_not_found_for_not_connected_user() {
+    void get_AsUser_Throws_ResourceNotFound_if_chapter_not_found_for_not_connected_user() {
         //given
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
         when(chapterProvider.chapterOfId(10)).thenReturn(Optional.empty());
@@ -391,13 +388,13 @@ class LessonTest {
         //when
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> lessonOptional.get().get(0))
+                .isThrownBy(() -> lessonOptional.get().getAsUser(0))
                 .withMessageContaining("The chapter with id: " + 10 + DOES_NOT_EXIST);
     }
 
 
     @Test
-    void get_throws_ForbiddenActionException_if_not_connected_and_course_not_published() {
+    void get_AsUser_throws_ForbiddenActionException_if_not_connected_and_course_not_published() {
         //given
         CourseProvider courseProvider = mock(CourseProvider.class);
         Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
@@ -419,12 +416,12 @@ class LessonTest {
         //when
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> lesson.get(0))
+                .isThrownBy(() -> lesson.getAsUser(0))
                 .withMessage(YOU_ARE_NOT_ALLOWED_TO_READ_THIS_LESSON_AS_THE_COURSE_IS_NOT_YET_PUBLISHED);
     }
 
     @Test
-    void get_throws_ResourceNotFound_if_lesson_not_found() {
+    void get_AsUser_throws_ResourceNotFound_if_lesson_not_found() {
         //given
         Lesson lesson = Lesson.builder()
                 .id(1)
@@ -437,11 +434,11 @@ class LessonTest {
         //when
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> lesson.get(12));
+                .isThrownBy(() -> lesson.getAsUser(12));
     }
 
     @Test
-    void get_returns_lesson_with_all_data() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_returns_lesson_with_all_data() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         Lesson lesson = Lesson.builder()
                 .id(1)
@@ -453,7 +450,7 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(12);
+        Lesson result = lesson.getAsUser(12);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(1);
@@ -463,9 +460,8 @@ class LessonTest {
     }
 
     @Test
-    void get_NonFreeLesson_returns_content_exceptVideo_ifNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_NonFreeLesson_returns_partOfContent_exceptVideo_ifNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
-
         UserProvider userProvider = mock(UserProvider.class);
         User user = new User();
         user.setId(999);
@@ -475,7 +471,7 @@ class LessonTest {
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
 
         LessonProvider lessonProvider = mock(LessonProvider.class);
-        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT + CONTENT + CONTENT + CONTENT).video(VIDEO).free(false).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
         User author = ZerofiltreUtilsTest.createMockUser(false);
@@ -497,18 +493,18 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(0);
+        Lesson result = lesson.getAsUser(999);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
         org.assertj.core.api.Assertions.assertThat(result.getType()).isEqualTo("video");
-        org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
+        org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT + DOTS);
         org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO_NOT_AVAILABLE_FOR_FREE);
-
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
-    void get_NonFreeLesson_returns_content_exceptVideo_ifNotConnected() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_NonFreeLesson_returns_partOfContent_exceptVideo_ifNotConnected() throws ResourceNotFoundException, ForbiddenActionException {
         //given
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -518,7 +514,7 @@ class LessonTest {
         when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(10).courseId(18).build()));
 
         LessonProvider lessonProvider = mock(LessonProvider.class);
-        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT).video(VIDEO).build()));
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(Lesson.builder().id(20).chapterId(10).title("Lesson 1").content(CONTENT + CONTENT + CONTENT + CONTENT).video(VIDEO).free(false).build()));
 
         CourseProvider courseProvider = mock(CourseProvider.class);
         User author = ZerofiltreUtilsTest.createMockUser(false);
@@ -527,31 +523,25 @@ class LessonTest {
 
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
 
-
-        EnrollmentProvider enrollmentProvider = mock(EnrollmentProvider.class);
-        when(enrollmentProvider.enrollmentOf(anyLong(), anyLong(), anyBoolean())).thenReturn(Optional.empty());
-
         Lesson lesson = Lesson.builder()
                 .userProvider(userProvider)
                 .chapterProvider(chapterProvider)
                 .lessonProvider(lessonProvider)
-                .enrollmentProvider(enrollmentProvider)
                 .courseProvider(courseProvider)
                 .build();
 
         //when
-        Lesson result = lesson.get(0);
+        Lesson result = lesson.getAsUser(0);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
         org.assertj.core.api.Assertions.assertThat(result.getType()).isEqualTo("video");
-        org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
+        org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT + DOTS);
         org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO_NOT_AVAILABLE_FOR_FREE);
-
     }
 
     @Test
-    void get_freeLesson_returns_fullContent_evenNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_freeLesson_returns_fullContent_evenNotPartOfEnrollment() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         UserProvider userProvider = mock(UserProvider.class);
         User user = ZerofiltreUtilsTest.createMockUser(false);
@@ -583,17 +573,17 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(5);
+        Lesson result = lesson.getAsUser(5);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
         org.assertj.core.api.Assertions.assertThat(result.getType()).isEqualTo("video");
         org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
         org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO);
-
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
     }
     @Test
-    void get_freeLesson_returns_fullContent_evenNotConnected() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_freeLesson_returns_fullContent_evenNotConnected() throws ResourceNotFoundException, ForbiddenActionException {
         //given
 
         ChapterProvider chapterProvider = mock(ChapterProvider.class);
@@ -616,7 +606,7 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(0);
+        Lesson result = lesson.getAsUser(0);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
@@ -627,7 +617,7 @@ class LessonTest {
     }
 
     @Test
-    void get_Lesson_returns_fullContent_evenNotPartOfEnrollment_andAdmin() throws ResourceNotFoundException, ForbiddenActionException {
+    void get_AsUser_Lesson_returns_fullContent_evenNotPartOfEnrollment_andAdmin() throws ResourceNotFoundException, ForbiddenActionException {
         //given
         User currentUser = new User();
         currentUser.setId(85);
@@ -660,14 +650,14 @@ class LessonTest {
                 .build();
 
         //when
-        Lesson result = lesson.get(85);
+        Lesson result = lesson.getAsUser(85);
 
         //then
         org.assertj.core.api.Assertions.assertThat(result.getId()).isEqualTo(20);
         org.assertj.core.api.Assertions.assertThat(result.getType()).isEqualTo("video");
         org.assertj.core.api.Assertions.assertThat(result.getContent()).isEqualTo(CONTENT);
         org.assertj.core.api.Assertions.assertThat(result.getVideo()).isEqualTo(VIDEO);
-
+        verify(enrollmentProvider).enrollmentOf(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -804,7 +794,6 @@ class LessonTest {
                 .courseProvider(new Found_Published_WithUnknownAuthor_CourseProviderSpy())
                 .enrollmentProvider(new EnrollmentProviderSpy())
                 .title("Lesson 1")
-                .free(true)
                 .build();
 
         //WHEN
@@ -815,8 +804,8 @@ class LessonTest {
     }
 
     @Test
-    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is an non-admin user and the author and the verification of the enrollments is false, there's nothing there.")
-    void shouldNothing_whenCheckAccessConditions_forLessonAndNonAdminUserAndIsAuthorAndCheckEnrollmentsIsFalse() throws ForbiddenActionException, ResourceNotFoundException {
+    @DisplayName("When I check the access conditions for a lesson that is part of a published course, it is the author, there's nothing there.")
+    void shouldDoNothing_whenCheckAccessConditions_forLesson_asAuthor() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         UserProvider userProvider = mock(UserProvider.class);
         User user = ZerofiltreUtilsTest.createMockUser(false);
@@ -1029,7 +1018,7 @@ class LessonTest {
 
         //WHEN
         assertThatExceptionOfType(ForbiddenActionException.class)
-                .isThrownBy(() -> lesson.get(0))
+                .isThrownBy(() -> lesson.getAsUser(0))
                 .withMessage("You are not allowed to do this action on this course");
 
         //THEN

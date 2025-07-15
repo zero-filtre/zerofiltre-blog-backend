@@ -13,7 +13,7 @@ import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.UserProvider;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
-import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.SaveLessonVM;
+import tech.zerofiltre.blog.infra.entrypoints.rest.course.model.UpdateLessonVM;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.validation.Valid;
@@ -56,21 +56,21 @@ public class LessonController {
     }
 
     @PatchMapping
-    public Lesson save(@RequestBody @Valid SaveLessonVM saveLessonVM) throws ZerofiltreException {
+    public Lesson save(@RequestBody @Valid UpdateLessonVM updateLessonVM) throws ZerofiltreException {
         Lesson lesson = Lesson.builder()
                 .lessonProvider(lessonProvider)
                 .chapterProvider(chapterProvider)
                 .userProvider(userProvider)
                 .courseProvider(courseProvider)
                 .checker(checker)
-                .id(saveLessonVM.getId())
-                .title(saveLessonVM.getTitle())
-                .chapterId(saveLessonVM.getChapterId())
-                .video(saveLessonVM.getVideo())
-                .free(saveLessonVM.isFree())
-                .summary(saveLessonVM.getSummary())
-                .thumbnail(saveLessonVM.getThumbnail())
-                .content(saveLessonVM.getContent())
+                .id(updateLessonVM.getId())
+                .title(updateLessonVM.getTitle())
+                .chapterId(updateLessonVM.getChapterId())
+                .video(updateLessonVM.getVideo())
+                .free(updateLessonVM.isFree())
+                .summary(updateLessonVM.getSummary())
+                .thumbnail(updateLessonVM.getThumbnail())
+                .content(updateLessonVM.getContent())
                 .build();
         return lesson.save(securityContextManager.getAuthenticatedUser().getId());
     }
@@ -92,7 +92,7 @@ public class LessonController {
         } catch (ZerofiltreException e) {
             log.debug("We did not find a connected user but we can still return wanted lesson if it's free");
         }
-        return lesson.get(user == null ? 0 : user.getId());
+        return lesson.getAsUser(user == null ? 0 : user.getId());
     }
 
     @DeleteMapping("/{id}")
