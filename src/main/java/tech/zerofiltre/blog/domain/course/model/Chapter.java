@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static tech.zerofiltre.blog.domain.course.features.lesson.LessonService.THE_LESSON_OF_ID;
+import static tech.zerofiltre.blog.domain.course.model.Lesson.THE_LESSON_OF_ID;
+
 
 @JsonIgnoreProperties(value = {"courseProvider", "userProvider", "chapterProvider", "checker"})
 public class Chapter {
