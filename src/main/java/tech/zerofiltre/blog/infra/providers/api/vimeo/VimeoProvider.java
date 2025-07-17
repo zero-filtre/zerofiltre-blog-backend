@@ -66,43 +66,27 @@ public class VimeoProvider {
         }
     }
 
-    public String delete(String video_id) throws VideoDeletionFailedException {
+    public Object delete(String video_id) throws VideoDeletionFailedException {
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
 
-        return retryTemplate.execute(retryContext -> {
-            String url = infraProperties.getVimeoRootURL() + "/me/videos/" + video_id;
-
-            HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-            try {
+        try {
+            return retryTemplate.execute(retryContext -> {
+                String url = "https://api.vimeo.com" + "/videos/" + video_id; //infraProperties.getVimeoRootURL()
+                HttpEntity<String> requestEntity = new HttpEntity<>(headers);
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
                 HttpStatus status = response.getStatusCode();
                 if (status == HttpStatus.NO_CONTENT) {
                     log.info("Vimeo video {} deleted successfully.", video_id);
-                    return "Deleted";
-                } else {
-                    log.warn("Unexpected response when deleting Vimeo video {}: {} - {}", video_id, status, response.getBody());
-                    throw new VideoDeletionFailedException("Unexpected response from Vimeo API: " + status, ErrorCode.EXTERNAL_SERVICE_ERROR);
                 }
-            } catch (HttpClientErrorException.NotFound e) {
-                log.error("Vimeo video {} not found: {}", video_id, e.getMessage());
-                throw new VideoDeletionFailedException("Vimeo video not found", ErrorCode.NOT_FOUND);
-            } catch (HttpClientErrorException.Unauthorized e) {
-                log.error("Unauthorized to delete Vimeo video {}: {}", video_id, e.getMessage());
-                throw new VideoDeletionFailedException("Unauthorized access to Vimeo API", ErrorCode.UNAUTHORIZED);
-            } catch (HttpClientErrorException.Forbidden e) {
-                log.error("Forbidden to delete Vimeo video {}: {}", video_id, e.getMessage());
-                throw new VideoDeletionFailedException("Forbidden: insufficient permissions to delete video", ErrorCode.FORBIDDEN);
-            } catch (HttpStatusCodeException e) {
-                log.error("HTTP error when deleting Vimeo video {}: {} - {}", video_id, e.getStatusCode(), e.getResponseBodyAsString());
-                throw new VideoDeletionFailedException("Vimeo API error: " + e.getStatusCode(), ErrorCode.EXTERNAL_SERVICE_ERROR);
-            } catch (Exception e) {
-                log.error("Unexpected error when deleting Vimeo video {}: {}", video_id, e.getMessage(), e);
-                throw new VideoDeletionFailedException("Unexpected error while calling Vimeo API", ErrorCode.UNKNOWN_ERROR);
-            }
-        });
+                return null;
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error when deleting Vimeo video {}: {}", video_id, e.getMessage(), e);
+            throw new VideoDeletionFailedException("Unexpected error while deleting vimeo video : " + e.getMessage(), e);
+        }
     }
 }
