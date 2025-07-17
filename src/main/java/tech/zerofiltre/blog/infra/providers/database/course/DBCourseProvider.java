@@ -17,6 +17,8 @@ import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.mapper.CourseJPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.user.UserJPARepository;
+import tech.zerofiltre.blog.infra.providers.database.user.mapper.UserJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.user.model.UserJPA;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +31,15 @@ public class DBCourseProvider implements CourseProvider {
 
     private final CourseJPARepository repository;
     private final UserJPARepository userRepository;
-    private final CourseJPAMapper mapper = Mappers.getMapper(CourseJPAMapper.class);
+    private final CourseJPAMapper courseJPAMapper = Mappers.getMapper(CourseJPAMapper.class);
+    private final UserJPAMapper userJPAMapper = Mappers.getMapper(UserJPAMapper.class);
     private final SpringPageMapper<Course> pageMapper = new SpringPageMapper<>();
 
 
     @Override
     public Optional<Course> courseOfId(long id) {
         return repository.findById(id)
-                .map(mapper::fromJPA)
+                .map(courseJPAMapper::fromJPA)
                 .map(course -> {
                     course.setEnrolledCount(getEnrolledCount(course.getId()));
                     course.setLessonsCount(getLessonsCount(course.getId()));
@@ -46,7 +49,7 @@ public class DBCourseProvider implements CourseProvider {
 
     @Override
     public Course save(Course course) {
-        course = mapper.fromJPA(repository.save(mapper.toJPA(course)));
+        course = courseJPAMapper.fromJPA(repository.save(courseJPAMapper.toJPA(course)));
         course.setEnrolledCount(getEnrolledCount(course.getId()));
         course.setLessonsCount(getLessonsCount(course.getId()));
         return course;
@@ -54,7 +57,7 @@ public class DBCourseProvider implements CourseProvider {
 
     @Override
     public void delete(Course existingCourse) {
-        repository.delete(mapper.toJPA(existingCourse));
+        repository.delete(courseJPAMapper.toJPA(existingCourse));
     }
 
     @Override
@@ -84,7 +87,7 @@ public class DBCourseProvider implements CourseProvider {
         }
         return pageMapper.fromSpringPage(page.map(courseJPA -> {
             User author = new User();
-            Course course = mapper.fromJPALight(courseJPA);
+            Course course = courseJPAMapper.fromJPALight(courseJPA);
             String info = userRepository.findAuthorInfoByCourseId(courseJPA.getId());
             String[] splitInfo = info.split(",");
             author.setId(Long.parseLong(splitInfo[0]));
@@ -101,7 +104,7 @@ public class DBCourseProvider implements CourseProvider {
     @Override
     public List<Course> courseOf(User user) {
         return repository.findByAuthorId(user.getId())
-                .stream().map(mapper::fromJPA).collect(Collectors.toList());
+                .stream().map(courseJPAMapper::fromJPA).collect(Collectors.toList());
     }
 
     @Override
@@ -124,4 +127,14 @@ public class DBCourseProvider implements CourseProvider {
     public String getTitle(long courseId) {
         return repository.getTitle(courseId);
     }
+
+    @Override
+    public User getCourseOwner(String courseId) {
+        long course_id = Long.parseLong(courseId);
+        Optional<UserJPA> userJPA = repository.getCourseOwner(course_id);
+        if (userJPA.isPresent()) return userJPAMapper.fromJPA(userJPA.get());
+        return null;
+    }
+
+
 }

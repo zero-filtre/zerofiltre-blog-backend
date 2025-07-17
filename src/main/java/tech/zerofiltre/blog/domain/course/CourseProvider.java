@@ -27,4 +27,6 @@ public interface CourseProvider {
     long courseIdOfChapterId(long chapterId);
 
     String getTitle(long courseId);
+
+    User getCourseOwner(String courseId);
 }

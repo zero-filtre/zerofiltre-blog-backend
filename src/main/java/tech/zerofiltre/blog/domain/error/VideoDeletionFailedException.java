@@ -2,14 +2,9 @@ package tech.zerofiltre.blog.domain.error;
 
 public class VideoDeletionFailedException extends ZerofiltreException {
 
-    private final ErrorCode errorCode;
 
-    public VideoDeletionFailedException(String message, ErrorCode errorCode) {
-        super(message);
-        this.errorCode = errorCode;
+    public VideoDeletionFailedException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
 }

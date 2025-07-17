@@ -21,7 +21,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class PDFCertificateEngine {
+public class  PDFCertificateEngine {
 
     private final ITemplateEngine templateEngine;
 
