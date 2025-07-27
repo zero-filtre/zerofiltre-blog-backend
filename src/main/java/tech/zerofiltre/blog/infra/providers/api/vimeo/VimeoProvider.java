@@ -3,15 +3,19 @@ package tech.zerofiltre.blog.infra.providers.api.vimeo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import tech.zerofiltre.blog.domain.error.VideoUploadFailedException;
-import tech.zerofiltre.blog.domain.error.ZerofiltreException;
+import tech.zerofiltre.blog.domain.error.*;
+import tech.zerofiltre.blog.domain.user.features.UserNotFoundException;
+import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.InfraProperties;
+import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.util.DataChecker;
 
 @Slf4j
 @Component
@@ -20,11 +24,15 @@ public class VimeoProvider {
     private final RestTemplate restTemplate;
     private final InfraProperties infraProperties;
     private final RetryTemplate retryTemplate;
+    private final DataChecker dataChecker;
+    private final SecurityContextManager securityContextManager;
 
-    public VimeoProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate) {
+    public VimeoProvider(RestTemplate restTemplate, InfraProperties infraProperties, RetryTemplate retryTemplate, DataChecker dataChecker, SecurityContextManager securityContextManager) {
         this.restTemplate = restTemplate;
         this.infraProperties = infraProperties;
         this.retryTemplate = retryTemplate;
+        this.dataChecker = dataChecker;
+        this.securityContextManager = securityContextManager;
     }
 
     public String init(long size, String name) throws VideoUploadFailedException {
@@ -34,6 +42,7 @@ public class VimeoProvider {
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
 
+        //String structuredName = courseName + "/" + chapterName + "/" + lessonName + "/" + name;
         String initBody = "{\n" +
                 "  \"upload\": {\n" +
                 "    \"approach\": \"tus\",\n" +
@@ -58,5 +67,36 @@ public class VimeoProvider {
             log.error("We couldn't init the video at vimeo", e);
             throw new VideoUploadFailedException("We couldn't init the video at vimeo: " + e.getMessage(), e);
         }
+    }
+
+    public String delete(String courseId, String video_id) throws VideoDeletionFailedException, ForbiddenActionException, ResourceNotFoundException {
+
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Authorization", "bearer " + infraProperties.getVimeoAccessToken());
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "application/vnd.vimeo.*+json;version=3.4");
+
+        User currentUser = securityContextManager.getAuthenticatedUser();
+        if(dataChecker.isAdminUser(currentUser) || dataChecker.isVideoOwner(courseId, currentUser)){
+            try { /////infraProperties.getVimeoRootURL() to put back
+                 return retryTemplate.execute(retryContext -> {
+                    String url = "https://api.vimeo.com" + "/videos/" + video_id;
+                    HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+                    ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+                    HttpStatus status = response.getStatusCode();
+                    if (status == HttpStatus.NO_CONTENT) {
+                        log.info("Vimeo video {} deleted successfully.", video_id);
+                    }
+                    return response.getStatusCode().toString();
+                });
+            } catch (Exception e) {
+                log.error("Unexpected error when deleting Vimeo video {}: {}", video_id, e.getMessage(), e);
+                throw new VideoDeletionFailedException("Unexpected error while deleting vimeo video : " + e.getMessage(), e);
+            }
+        }else{
+            throw new ForbiddenActionException("You don't have the right to delete this video !");
+        }
+
+
     }
 }
