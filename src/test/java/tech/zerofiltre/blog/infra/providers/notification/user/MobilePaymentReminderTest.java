@@ -133,7 +133,7 @@ class MobilePaymentReminderTest {
 
     @Test
     @DisplayName("User does not get notified if has a valid payment")
-    void userNotNotified_IfHasAValidPayment() throws ZerofiltreException {
+    void userNotified_IfHasAValidPayment() throws ZerofiltreException {
         //Given
         LocalDateTime now = LocalDateTime.now();
 
