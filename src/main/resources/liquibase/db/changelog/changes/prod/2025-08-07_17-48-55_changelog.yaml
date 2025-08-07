@@ -1,0 +1,26 @@
+databaseChangeLog:
+- changeSet:
+    id: 1754589018523-1
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: owner
+            type: BIT(1)
+        tableName: company_course
+- changeSet:
+    id: 1754589018523-2
+    author: philippe SIMO (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: subscribed_to_broadcast
+            type: BIT(1)
+        tableName: user
+
