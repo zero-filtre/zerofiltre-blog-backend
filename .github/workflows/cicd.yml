@@ -1,10 +1,8 @@
-
-
 name: Java CI/CD with Maven and k8s
 
 on:
   push:
-    branches: 
+    branches:
       - '*'
 
 jobs:
@@ -13,140 +11,176 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      KUBE_CONFIG : ${{ secrets.KUBE_CONFIG }}
-      env_name: ${{startsWith(github.ref, 'refs/heads/release-') && 'prod' || 'dev'}}
-      api_host : ${{startsWith(github.ref, 'refs/heads/release-') && 'blog-api.zerofiltre.tech' || 'blog-api-dev.zerofiltre.tech'}}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+      branch_name: ${{ github.ref_name }}
+
+      env_name: >-
+        ${{ 
+          github.ref_name == 'main' && 'uat' || 
+          startsWith(github.ref, 'refs/heads/release-') && 'prod' || 
+          'dev' 
+        }}
+
+      api_host: >-
+        ${{ 
+          github.ref_name == 'main' && 'blog-api-uat.zerofiltre.tech' || 
+          startsWith(github.ref, 'refs/heads/release-') && 'blog-api.zerofiltre.tech' || 
+          'blog-api-dev.zerofiltre.tech' 
+        }}
+
+      tag_number: ${{ github.run_number }}
+
+      # Always 1
+      replicas: 1
+
+      # CPU request
+      requests_cpu: >-
+        ${{ 
+          github.ref_name ==  'main' && '10m' || 
+          startsWith(github.ref, 'refs/heads/release-') && '10m' || 
+          '10m' 
+        }}
+
+      requests_memory: >-
+        ${{ 
+          github.ref_name ==  'main' && '500m' || 
+          startsWith(github.ref, 'refs/heads/release-') && '1Gi' || 
+          '500m' 
+        }}
+
+      limits_memory: >-
+        ${{ 
+          github.ref_name == 'main' && '4Gi' || 
+          startsWith(github.ref, 'refs/heads/release-') && '4Gi' || 
+          '4Gi' 
+        }}
       docker_tag_suffix: ''
-      replicas : ${{startsWith(github.ref, 'refs/heads/release-') && 1 || 1 }}
-      requests_cpu: ${{startsWith(github.ref, 'refs/heads/release-') && '10m' || '10m' }}
-      requests_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '1Gi' || '1Gi' }}
-      limits_memory: ${{startsWith(github.ref, 'refs/heads/release-') && '4Gi' || '4Gi' }}
-      tag_number : ${{ github.run_number }}
-      
+
 
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Check PR Origin
-      id: check_origin
-      run: |
-        PR_REPO_URL=$(jq -r '.pull_request.head.repo.clone_url' "$GITHUB_EVENT_PATH")
-        BASE_REPO_URL=$(jq -r '.repository.clone_url' "$GITHUB_EVENT_PATH")
-        if [ "$PR_REPO_URL" != "null" -a "$PR_REPO_URL" != "$BASE_REPO_URL" ]; then
-          echo "PR is from a fork."
-          echo "same_origin=false" >> $GITHUB_OUTPUT
-        else
-          echo "Either it is not a PR or PR is from the same origin."
-          echo "same_origin=true" >> $GITHUB_OUTPUT
-        fi
+      - name: Check PR Origin
+        id: check_origin
+        run: |
+          PR_REPO_URL=$(jq -r '.pull_request.head.repo.clone_url' "$GITHUB_EVENT_PATH")
+          BASE_REPO_URL=$(jq -r '.repository.clone_url' "$GITHUB_EVENT_PATH")
+          if [ "$PR_REPO_URL" != "null" -a "$PR_REPO_URL" != "$BASE_REPO_URL" ]; then
+            echo "PR is from a fork."
+            echo "same_origin=false" >> $GITHUB_OUTPUT
+          else
+            echo "Either it is not a PR or PR is from the same origin."
+            echo "same_origin=true" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: maven
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Build and run unit tests with Maven
-      run: mvn -B package --file pom.xml
-      
-    - name: Run Integration tests
-      run: mvn failsafe:integration-test
- 
-#     - name: SonarCloud Scan
-#       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      - name: Build and run unit tests with Maven
+        run: mvn -B package --file pom.xml
 
-    - name: Cache OpenTelemetry Java agent
-      if: steps.check_origin.outputs.same_origin == 'true'
-      id: cache-otel-agent
-      uses: actions/cache@v4
-      with:
-        path: opentelemetry-javaagent.jar
-        key: ${{ runner.os }}-otel-agent-v2.5.0
-        restore-keys: |
-          ${{ runner.os }}-otel-agent-
-          
+      - name: Run Integration tests
+        run: mvn failsafe:integration-test
 
-    - name: Download OpenTelemetry Java agent
-      if: steps.check_origin.outputs.same_origin == 'true' && steps.cache-otel-agent.outputs.cache-hit != 'true'
-      run: wget -O opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.5.0/opentelemetry-javaagent.jar
+      #     - name: SonarCloud Scan
+      #       run: mvn sonar:sonar -s .m2/settings.xml -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-    - name: Set up Docker Buildx
-      if: steps.check_origin.outputs.same_origin == 'true'
-      uses: docker/setup-buildx-action@v1
+      - name: Cache OpenTelemetry Java agent
+        if: steps.check_origin.outputs.same_origin == 'true'
+        id: cache-otel-agent
+        uses: actions/cache@v4
+        with:
+          path: opentelemetry-javaagent.jar
+          key: ${{ runner.os }}-otel-agent-v2.5.0
+          restore-keys: |
+            ${{ runner.os }}-otel-agent-
 
-    - name: Cache Docker layers
-      if: steps.check_origin.outputs.same_origin == 'true'
-      uses: actions/cache@v4
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
 
-    - name: Docker Login
-      if: steps.check_origin.outputs.same_origin == 'true'
-      uses: docker/login-action@v2.1.0
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Download OpenTelemetry Java agent
+        if: steps.check_origin.outputs.same_origin == 'true' && steps.cache-otel-agent.outputs.cache-hit != 'true'
+        run: wget -O opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.5.0/opentelemetry-javaagent.jar
 
-    - name: Find release version OR branch name
-      run: |
-        if [[ ${{ github.ref }} == refs/heads/release-* ]]; then
-          VERSION_OR_BRANCH=${{ github.ref }}
-          docker_tag_suffix=${VERSION_OR_BRANCH#refs/heads/release-}
-        else
-          docker_tag_suffix=${{ github.ref_name }}
-        fi
-        echo "docker_tag_suffix=$docker_tag_suffix" >> $GITHUB_ENV
-        echo "$docker_tag_suffix"
+      - name: Set up Docker Buildx
+        if: steps.check_origin.outputs.same_origin == 'true'
+        uses: docker/setup-buildx-action@v1
 
-    - name: Build and push
-      if: steps.check_origin.outputs.same_origin == 'true'
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: imzerofiltre/zerofiltretech-blog:${{ github.run_number }}_${{ env.docker_tag_suffix }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new
-        build-args: PROFILE=${{ env.env_name }}
+      - name: Cache Docker layers
+        if: steps.check_origin.outputs.same_origin == 'true'
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-    - name: Set up kubectl
-      if: steps.check_origin.outputs.same_origin == 'true'
-      uses: tale/kubectl-action@v1
-      with:
-        base64-kube-config: ${{ secrets.KUBE_CONFIG }}
-        
-    - name: Set up k8s manifest
-      if: steps.check_origin.outputs.same_origin == 'true'
-      run: |
-        envsubst < k8s/microservices.yml > k8s.yml
-        cat k8s.yml
-        
-    - name: Deploy to k8s
-      if: steps.check_origin.outputs.same_origin == 'true'
-      run: |
-        kubectl apply -f k8s.yml
-        kubectl annotate deployment zerofiltretech-blog-${{ env.env_name }} kubernetes.io/change-cause="version change to: ${{ github.run_number }}_${{ env.docker_tag_suffix }} " -n zerofiltretech-${{ env.env_name }} --overwrite=true
-        if ! kubectl rollout status -w deployment/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}; then
-              kubectl rollout undo deployment.v1.apps/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}
-              kubectl rollout status deployment/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}
-              exit 1
-        fi
-        
-    - name: Get commit author email
-      if: ${{ failure()  && steps.check_origin.outputs.same_origin == 'true' }}
-      run: |
-        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
-        echo "COMMIT_AUTHOR_EMAIL=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_ENV
-      
-    - name: Send email on failure
-      uses: dawidd6/action-send-mail@v2.5.0
-      with:
+      - name: Docker Login
+        if: steps.check_origin.outputs.same_origin == 'true'
+        uses: docker/login-action@v2.1.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Find release version OR branch name
+        run: |
+          if [[ ${{ github.ref }} == refs/heads/release-* ]]; then
+            VERSION_OR_BRANCH=${{ github.ref }}
+            docker_tag_suffix=${VERSION_OR_BRANCH#refs/heads/release-}
+          else
+            docker_tag_suffix=${{ github.ref_name }}
+          fi
+          echo "docker_tag_suffix=$docker_tag_suffix" >> $GITHUB_ENV
+          echo "$docker_tag_suffix"
+
+      - name: Build and push
+        if: steps.check_origin.outputs.same_origin == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: imzerofiltre/zerofiltretech-blog:${{ github.run_number }}_${{ env.docker_tag_suffix }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          build-args: PROFILE=${{ env.env_name }}
+
+      - name: Set up kubectl
+        if: steps.check_origin.outputs.same_origin == 'true'
+        uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Set up k8s manifest
+        if: steps.check_origin.outputs.same_origin == 'true'
+        run: |
+          envsubst < k8s/microservices.yml > k8s.yml
+          cat k8s.yml
+
+      - name: Deploy to k8s
+        if: steps.check_origin.outputs.same_origin == 'true'
+        run: |
+          kubectl apply -f k8s.yml
+          kubectl annotate deployment zerofiltretech-blog-${{ env.env_name }} kubernetes.io/change-cause="version change to: ${{ github.run_number }}_${{ env.docker_tag_suffix }} " -n zerofiltretech-${{ env.env_name }} --overwrite=true
+          if ! kubectl rollout status -w deployment/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}; then
+                kubectl rollout undo deployment.v1.apps/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}
+                kubectl rollout status deployment/zerofiltretech-blog-${{ env.env_name }} -n zerofiltretech-${{ env.env_name }}
+                exit 1
+          fi
+
+      - name: Get commit author email
+        if: ${{ failure()  && steps.check_origin.outputs.same_origin == 'true' }}
+        run: |
+          COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "COMMIT_AUTHOR_EMAIL=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_ENV
+
+      - name: Send email on failure
+        uses: dawidd6/action-send-mail@v2.5.0
+        with:
           server_address: smtp.gmail.com
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
@@ -156,10 +190,10 @@ jobs:
             Workflow failed on ${{ github.repository }}/${{ github.head_ref }} (commit ${{ github.sha }}). \nSee the workflow run log for more details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           from: "GitHub Actions <${{ vars.EMAIL_FROM }}>"
           to: ${{ env.COMMIT_AUTHOR_EMAIL }}
-      if: ${{ failure() && steps.check_origin.outputs.same_origin == 'true' }}
+        if: ${{ failure() && steps.check_origin.outputs.same_origin == 'true' }}
 
-    - name: Move cache
-      if: steps.check_origin.outputs.same_origin == 'true'
-      run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Move cache
+        if: steps.check_origin.outputs.same_origin == 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
