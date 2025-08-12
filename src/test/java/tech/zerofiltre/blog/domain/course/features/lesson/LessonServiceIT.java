@@ -1,6 +1,6 @@
-package tech.zerofiltre.blog.domain.course.model;
+package tech.zerofiltre.blog.domain.course.features.lesson;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,6 +15,9 @@ import tech.zerofiltre.blog.domain.course.CourseProvider;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
 import tech.zerofiltre.blog.domain.course.LessonProvider;
 import tech.zerofiltre.blog.domain.course.features.course.CourseService;
+import tech.zerofiltre.blog.domain.course.model.Chapter;
+import tech.zerofiltre.blog.domain.course.model.Course;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.logging.LoggerProvider;
@@ -31,12 +34,12 @@ import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static tech.zerofiltre.blog.domain.article.model.Status.DRAFT;
 
 @DataJpaTest
 @Import({DBCourseProvider.class, DBUserProvider.class, DBChapterProvider.class, DBLessonProvider.class, Slf4jLoggerProvider.class, DBTagProvider.class})
-class LessonIT {
+public class LessonServiceIT {
 
     public static final String TITLE = "Lesson 1";
     public static final String UPDATED_TITLE = "updated title";
@@ -66,15 +69,21 @@ class LessonIT {
     @MockBean
     private EnrollmentProvider enrollmentProvider;
 
+    private LessonService lessonService;
+
     private Chapter chapter;
     private User author;
     private Course course;
     private Lesson lesson;
 
+    @BeforeEach
+    void setup() {
+        lessonService = new LessonService(lessonProvider, chapterProvider, userProvider, courseProvider, enrollmentProvider);
+    }
 
     @Test
     void init_lesson_is_OK() throws ForbiddenActionException, ResourceNotFoundException {
-
+        //GIVEN
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
@@ -84,25 +93,21 @@ class LessonIT {
         chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        lesson = Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .build()
-                .init(TITLE, chapter.getId(), author.getId());
+        //WHEN
+        lesson = lessonService.init(TITLE, chapter.getId(), author.getId());
 
-        org.assertj.core.api.Assertions.assertThat(lesson).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(lesson.getId()).isNotZero();
-        org.assertj.core.api.Assertions.assertThat(lesson.getTitle()).isEqualTo(TITLE);
-        org.assertj.core.api.Assertions.assertThat(lesson.getChapterId()).isEqualTo(chapter.getId());
-        org.assertj.core.api.Assertions.assertThat(lesson.getNumber()).isEqualTo(1);
+        //TEHN
+        assertThat(lesson).isNotNull();
+        assertThat(lesson.getId()).isNotZero();
+        assertThat(lesson.getTitle()).isEqualTo(TITLE);
+        assertThat(lesson.getChapterId()).isEqualTo(chapter.getId());
+        assertThat(lesson.getNumber()).isEqualTo(1);
 
     }
 
     @Test
-    void save_lesson_is_OK() throws ForbiddenActionException, ResourceNotFoundException {
-
+    void update_lesson_is_OK() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
         author = ZerofiltreUtilsTest.createMockUser(false);
         author = userProvider.save(author);
 
@@ -112,46 +117,38 @@ class LessonIT {
         chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        lesson = Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .build()
-                .init(TITLE, chapter.getId(), author.getId());
+        lesson = lessonService.init(TITLE, chapter.getId(), author.getId());
 
-        org.assertj.core.api.Assertions.assertThat(lesson.getNumber()).isEqualTo(1);
+        assertThat(lesson.getNumber()).isEqualTo(1);
 
-        Lesson updatedLesson = Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .id(lesson.getId())
-                .title(UPDATED_TITLE)
-                .video(VIDEO)
-                .content(UPDATED_CONTENT)
-                .summary(UPDATED_SUMMARY)
-                .thumbnail(THUMBNAIL)
-                .number(40)
-                .resources(Collections.singletonList(Resource.builder().name("name").build()))
-                .free(true)
-                .chapterId(chapter.getId())
-                .build()
-                .save(author.getId());
+        Lesson modifiedLesson = new Lesson();
+        modifiedLesson.setId(lesson.getId());
+        modifiedLesson.setTitle(UPDATED_TITLE);
+        modifiedLesson.setContent(UPDATED_CONTENT);
+        modifiedLesson.setSummary(UPDATED_SUMMARY);
+        modifiedLesson.setThumbnail(THUMBNAIL);
+        modifiedLesson.setVideo(VIDEO);
+        modifiedLesson.setFree(true);
+        modifiedLesson.setType("video");
+        modifiedLesson.setChapterId(chapter.getId());
 
-        org.assertj.core.api.Assertions.assertThat(updatedLesson).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getId()).isNotZero();
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getTitle()).isEqualTo(UPDATED_TITLE);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getContent()).isEqualTo(UPDATED_CONTENT);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getSummary()).isEqualTo(UPDATED_SUMMARY);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getThumbnail()).isEqualTo(THUMBNAIL);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getNumber()).isEqualTo(1);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getType()).isEqualTo("video");
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getVideo()).isEqualTo(VIDEO);
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.isFree()).isTrue();
-        org.assertj.core.api.Assertions.assertThat(updatedLesson.getChapterId()).isEqualTo(chapter.getId());
-        Assertions.assertThat(lesson.getResources()).isEmpty();
+        //WHEN
+        Lesson updatedLesson = lessonService.update(modifiedLesson, author.getId());
+
+        //THEN
+        assertThat(updatedLesson.getId()).isEqualTo(modifiedLesson.getId());
+        assertThat(updatedLesson.getTitle()).isEqualTo(modifiedLesson.getTitle());
+        assertThat(updatedLesson.getContent()).isEqualTo(modifiedLesson.getContent());
+        assertThat(updatedLesson.getSummary()).isEqualTo(modifiedLesson.getSummary());
+        assertThat(updatedLesson.getThumbnail()).isEqualTo(modifiedLesson.getThumbnail());
+        assertThat(updatedLesson.getNumber()).isEqualTo(lesson.getNumber());
+        assertThat(updatedLesson.getType()).isEqualTo("video");
+        assertThat(updatedLesson.getVideo()).isEqualTo(modifiedLesson.getVideo());
+        assertThat(updatedLesson.isFree()).isTrue();
+        assertThat(updatedLesson.getType()).isEqualTo(modifiedLesson.getType());
+        assertThat(updatedLesson.getChapterId()).isEqualTo(modifiedLesson.getChapterId());
+        assertThat(updatedLesson.getResources()).isEmpty();
+        assertThat(updatedLesson.isNotEnrolledAccess()).isFalse();
 
     }
 
@@ -166,18 +163,12 @@ class LessonIT {
         chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        lesson = Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .build()
-                .init(TITLE, chapter.getId(), author.getId());
+        lesson = lessonService.init(TITLE, chapter.getId(), author.getId());
 
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isNotEmpty();
 
 
-        lesson.delete(author.getId());
+        lessonService.delete(lesson.getId(), author.getId());
 
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isEmpty();
 
@@ -186,6 +177,7 @@ class LessonIT {
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void save_Lesson_increases_course_lessonsCount() throws ForbiddenActionException, ResourceNotFoundException {
+        //GIVEN
         author = ZerofiltreUtilsTest.createMockUser(false);
         author.setEmail("test@mail.uk");
         author.setPseudoName("pseudo");
@@ -200,23 +192,14 @@ class LessonIT {
         chapter = chapterProvider.save(chapter);
         chapter2 = chapterProvider.save(chapter2);
 
-        Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .build()
-                .init(TITLE, chapter.getId(), author.getId());
+        lessonService.init(TITLE, chapter.getId(), author.getId());
+        lessonService.init(TITLE_2, chapter2.getId(), author.getId());
 
-        Lesson.builder()
-                .courseProvider(courseProvider)
-                .userProvider(userProvider)
-                .chapterProvider(chapterProvider)
-                .lessonProvider(lessonProvider)
-                .build()
-                .init(TITLE_2, chapter2.getId(), author.getId());
+        //WHEN
         course = courseProvider.courseOfId(course.getId()).get();
 
+        //THEN
         assertThat(course.getLessonsCount()).isEqualTo(2);
     }
+
 }

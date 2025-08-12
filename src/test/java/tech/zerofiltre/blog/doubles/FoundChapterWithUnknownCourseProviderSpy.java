@@ -1,9 +1,12 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.model.Chapter;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class FoundChapterWithUnknownCourseProviderSpy implements ChapterProvider {
 
@@ -14,12 +17,17 @@ public class FoundChapterWithUnknownCourseProviderSpy implements ChapterProvider
     @Override
     public Optional<Chapter> chapterOfId(long id) {
         chapterOfIdCalled = true;
+
+        Lesson lesson = new Lesson();
+        lesson.setId(1);
+        lesson.setChapterId(1);
+
         Chapter chapter = Chapter.builder()
                 .id(1)
                 .courseId(999)
                 .title("Chapter 1")
                 .build();
-        chapter.getLessons().add(Lesson.builder().id(1).chapterId(1).build());
+        chapter.getLessons().add(lesson);
         return Optional.of(chapter);
     }
 

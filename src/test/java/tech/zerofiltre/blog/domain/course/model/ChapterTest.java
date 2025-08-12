@@ -25,8 +25,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static tech.zerofiltre.blog.domain.course.features.lesson.LessonService.THE_LESSON_OF_ID;
 import static tech.zerofiltre.blog.domain.course.model.Chapter.*;
-import static tech.zerofiltre.blog.domain.course.model.Lesson.THE_LESSON_OF_ID;
 
 class ChapterTest {
 
@@ -292,7 +292,7 @@ class ChapterTest {
                 .title("Chapter 1")
                 .courseId(1)
                 .build();
-        chapter.getLessons().add(Lesson.builder().build());
+        chapter.getLessons().add(new Lesson());
 
         //when
         //then
@@ -479,9 +479,15 @@ class ChapterTest {
         User user = ZerofiltreUtilsTest.createMockUser(true);
         when(userProvider.userOfId(5)).thenReturn(Optional.of(user));
 
-        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
-        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
-        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+        Lesson firstLesson = new Lesson();
+        firstLesson.setId(1);
+        firstLesson.setNumber(1);
+        Lesson secondLesson = new Lesson();
+        secondLesson.setId(2);
+        secondLesson.setNumber(2);
+        Lesson thirdLesson = new Lesson();
+        thirdLesson.setId(3);
+        thirdLesson.setNumber(3);
 
         CourseProvider courseProvider = Mockito.mock(CourseProvider.class);
         Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
@@ -521,9 +527,15 @@ class ChapterTest {
         Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
-        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
-        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
-        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+        Lesson firstLesson = new Lesson();
+        firstLesson.setId(1);
+        firstLesson.setNumber(1);
+        Lesson secondLesson = new Lesson();
+        secondLesson.setId(2);
+        secondLesson.setNumber(2);
+        Lesson thirdLesson = new Lesson();
+        thirdLesson.setId(3);
+        thirdLesson.setNumber(3);
 
         Chapter chapter = Chapter.builder()
                 .lessons(List.of(firstLesson, secondLesson, thirdLesson))
@@ -562,9 +574,15 @@ class ChapterTest {
         Course course = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(course));
 
-        Lesson firstLesson = Lesson.builder().id(1).number(1).build();
-        Lesson secondLesson = Lesson.builder().id(2).number(2).build();
-        Lesson thirdLesson = Lesson.builder().id(3).number(3).build();
+        Lesson firstLesson = new Lesson();
+        firstLesson.setId(1);
+        firstLesson.setNumber(1);
+        Lesson secondLesson = new Lesson();
+        secondLesson.setId(2);
+        secondLesson.setNumber(2);
+        Lesson thirdLesson = new Lesson();
+        thirdLesson.setId(3);
+        thirdLesson.setNumber(3);
 
         Chapter chapter = Chapter.builder()
                 .lessons(List.of(firstLesson, secondLesson, thirdLesson))
