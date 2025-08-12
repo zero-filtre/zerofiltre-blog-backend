@@ -1,11 +1,11 @@
 package tech.zerofiltre.blog.infra.providers.database.course.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import tech.zerofiltre.blog.infra.providers.database.*;
+import tech.zerofiltre.blog.infra.providers.database.BaseEntityJPA;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Set;
 
 @Entity
 @Getter

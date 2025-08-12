@@ -1,12 +1,15 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.course.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Data
 @ToString
-public class SaveLessonVM {
+public class UpdateLessonVM {
 
     private long id;
     @NotNull(message = "The title must not be null")
