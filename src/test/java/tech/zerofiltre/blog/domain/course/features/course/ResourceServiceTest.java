@@ -66,10 +66,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -90,10 +89,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -114,10 +112,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -138,10 +135,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -174,10 +170,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -199,10 +194,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
@@ -224,10 +218,9 @@ class ResourceServiceTest {
         user.setId(999);
         Course course = ZerofiltreUtilsTest.createMockCourse(true, Status.DRAFT, new User(), Collections.emptyList(), Collections.emptyList());
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(true, chapterProvider, Collections.emptyList(), course.getId());
-        Lesson lesson = Lesson.builder()
-                .id(1L)
-                .chapterId(chapter.getId())
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(1L);
+        lesson.setChapterId(chapter.getId());
 
         Resource resource = Resource.builder()
                 .lessonId(1L)
