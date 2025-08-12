@@ -1,10 +1,10 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
-import tech.zerofiltre.blog.infra.providers.database.course.model.LessonJPA;
+import tech.zerofiltre.blog.domain.course.LessonProvider;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public class FoundLessonProviderSpy implements LessonProvider {
 
@@ -14,10 +14,12 @@ public class FoundLessonProviderSpy implements LessonProvider {
     @Override
     public Optional<Lesson> lessonOfId(long lessonId) {
         calledLessonId = lessonId;
-        return Optional.ofNullable(Lesson.builder()
-                .id(1)
-                .title("Lesson 1")
-                .chapterId(1).build());
+        Lesson lesson = new Lesson();
+        lesson.setId(1);
+        lesson.setTitle("Lesson 1");
+        lesson.setChapterId(1);
+
+        return Optional.of(lesson);
     }
 
     @Override
