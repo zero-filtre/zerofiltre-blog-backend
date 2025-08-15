@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 1755258759778-1
+    author: philippe SIMO (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: reaction
+        constraintName: FK59wroowslb3nidkpd1gqa2smu
+- changeSet:
+    id: 1755258759778-2
+    author: philippe SIMO (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: reaction
+        constraintName: FK9oyd6r2tf90uhlvrsd61d2ksc
+- changeSet:
+    id: 1755258759778-3
+    author: philippe SIMO (generated)
+    changes:
+    - dropTable:
+        tableName: reaction
+- changeSet:
+    id: 1755258759778-4
+    author: philippe SIMO (generated)
+    changes:
+    - dropColumn:
+        columnName: plan
+        tableName: enrollment
+
