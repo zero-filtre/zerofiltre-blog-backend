@@ -176,9 +176,8 @@ class CompleteLessonTest {
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
-        Lesson lesson = new Lesson.LessonBuilder()
-                .id(3L)
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(3L);
 
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
         when(lessonProvider.listNotCompletedLessons(anyLong())).thenReturn(Collections.singletonList(lesson.getId()));
@@ -199,9 +198,8 @@ class CompleteLessonTest {
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
-        Lesson lesson = new Lesson.LessonBuilder()
-                .id(3L)
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(3L);
 
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
         when(lessonProvider.listNotCompletedLessons(anyLong())).thenReturn(Collections.singletonList(1L));
@@ -223,9 +221,8 @@ class CompleteLessonTest {
         CourseProvider courseProvider = new Found_Published_WithKnownAuthor_CourseProvider_Spy_And_2Lessons();
         completeLesson = new CompleteLesson(enrollmentProviderSpy, lessonProvider, chapterProvider, courseProvider);
 
-        Lesson lesson = new Lesson.LessonBuilder()
-                .id(3L)
-                .build();
+        Lesson lesson = new Lesson();
+        lesson.setId(3L);
 
         when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.of(lesson));
 

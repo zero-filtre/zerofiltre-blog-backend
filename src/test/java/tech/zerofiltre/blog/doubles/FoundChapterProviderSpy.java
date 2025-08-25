@@ -1,9 +1,13 @@
 package tech.zerofiltre.blog.doubles;
 
-import tech.zerofiltre.blog.domain.course.*;
-import tech.zerofiltre.blog.domain.course.model.*;
+import tech.zerofiltre.blog.domain.course.ChapterProvider;
+import tech.zerofiltre.blog.domain.course.model.Chapter;
+import tech.zerofiltre.blog.domain.course.model.Lesson;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class FoundChapterProviderSpy implements ChapterProvider {
 
@@ -36,8 +40,8 @@ public class FoundChapterProviderSpy implements ChapterProvider {
     public List<Chapter> ofCourseId(long courseId) {
         ofCourseIdCalled = true;
         List<Chapter> chapters = new ArrayList<>();
-        chapters.add(Chapter.builder().id(1).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
-        chapters.add(Chapter.builder().id(2).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
+        chapters.add(Chapter.builder().id(1).courseId(courseId).lessons(Collections.singletonList(new Lesson())).build());
+        chapters.add(Chapter.builder().id(2).courseId(courseId).lessons(Collections.singletonList(new Lesson())).build());
         return chapters;
     }
 }
