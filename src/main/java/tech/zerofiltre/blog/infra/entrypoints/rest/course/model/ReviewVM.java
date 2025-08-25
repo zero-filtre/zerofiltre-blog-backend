@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @ToString
 public class ReviewVM {
-    @Size(max = 250)
+    @Size(max = 500)
     private String chapterExplanations;
 
     @Min(1)
@@ -31,17 +31,17 @@ public class ReviewVM {
     @Positive(message = "The chapter id must be greater than 0")
     private long chapterId;
 
-    @Size(max = 250)
+    @Size(max = 500)
     private String chapterImpressions;
 
-    @Size(max = 250)
+    @Size(max = 500)
     private String whyRecommendingThisCourse;
 
     private List<String> favoriteLearningToolOfTheChapter = new ArrayList<>();
 
-    @Size(max = 250)
+    @Size(max = 500)
     private String reasonFavoriteLearningToolOfTheChapter;
 
-    @Size(max = 250)
+    @Size(max = 500)
     private String improvementSuggestion;
 }
