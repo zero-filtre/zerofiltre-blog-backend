@@ -108,9 +108,10 @@ class DBEnrollmentProviderIT {
         Chapter chapter = Chapter.builder().build();
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson = new Lesson();
-        lesson.setTitle("lesson");
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = new Lesson.LessonBuilder()
+                .title("lesson")
+                .chapterId(chapter.getId())
+                .build();
 
         lesson = lessonProvider.save(lesson);
 
@@ -191,11 +192,13 @@ class DBEnrollmentProviderIT {
 
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
         lesson1 = lessonProvider.save(lesson1);
         lesson2 = lessonProvider.save(lesson2);
@@ -238,11 +241,13 @@ class DBEnrollmentProviderIT {
 
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
         lesson1 = lessonProvider.save(lesson1);
         lesson2 = lessonProvider.save(lesson2);
@@ -287,11 +292,13 @@ class DBEnrollmentProviderIT {
 
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = new Lesson.LessonBuilder()
+                .chapterId(chapter.getId())
+                .build();
 
         lesson1 = lessonProvider.save(lesson1);
         lesson2 = lessonProvider.save(lesson2);

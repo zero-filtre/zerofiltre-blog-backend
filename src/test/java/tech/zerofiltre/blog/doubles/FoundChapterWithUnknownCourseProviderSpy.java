@@ -18,16 +18,12 @@ public class FoundChapterWithUnknownCourseProviderSpy implements ChapterProvider
     public Optional<Chapter> chapterOfId(long id) {
         chapterOfIdCalled = true;
 
-        Lesson lesson = new Lesson();
-        lesson.setId(1);
-        lesson.setChapterId(1);
-
         Chapter chapter = Chapter.builder()
                 .id(1)
                 .courseId(999)
                 .title("Chapter 1")
                 .build();
-        chapter.getLessons().add(lesson);
+        chapter.getLessons().add(Lesson.builder().id(1).chapterId(1).build());
         return Optional.of(chapter);
     }
 

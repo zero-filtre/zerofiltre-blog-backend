@@ -27,8 +27,7 @@ public class AlreadyCompletedLessonEnrollmentProvider implements EnrollmentProvi
         Enrollment enrollment1 = new Enrollment();
         enrollment1.setId(224);
         enrollment1.setCourse(new Course());
-        Lesson lesson = new Lesson();
-        lesson.setId(3);
+        Lesson lesson = Lesson.builder().id(3).build();
         CompletedLesson completedLesson = new CompletedLesson();
         completedLesson.setLessonId(lesson.getId());
         enrollment1.getCompletedLessons().add(completedLesson);

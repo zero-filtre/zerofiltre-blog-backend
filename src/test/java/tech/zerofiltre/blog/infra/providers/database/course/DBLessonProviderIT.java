@@ -61,9 +61,10 @@ class DBLessonProviderIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
-        Lesson lesson = new Lesson();
-        lesson.setTitle("title");
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = Lesson.builder()
+                .title("title")
+                .chapterId(chapter.getId())
+                .build();
         lesson = lessonProvider.save(lesson);
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isPresent();
 
@@ -87,10 +88,11 @@ class DBLessonProviderIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
-        Lesson lesson = new Lesson();
-        lesson.setTitle("title");
-        lesson.setContent("content");
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = Lesson.builder()
+                .title("title")
+                .content("content")
+                .chapterId(chapter.getId())
+                .build();
 
         lesson = lessonProvider.save(lesson);
         assertThat(lessonProvider.lessonOfId(lesson.getId())).isPresent();
@@ -123,11 +125,13 @@ class DBLessonProviderIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = Lesson.builder()
+                .chapterId(chapter.getId())
+                .build();
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = Lesson.builder()
+                .chapterId(chapter.getId())
+                .build();
 
         lesson1 = lessonProvider.save(lesson1);
         lesson2 = lessonProvider.save(lesson2);
@@ -157,8 +161,9 @@ class DBLessonProviderIT {
                 .build();
         chapter2 = dbChapterProvider.save(chapter2);
 
-        Lesson lesson3 = new Lesson();
-        lesson3.setChapterId(chapter2.getId());
+        Lesson lesson3 = Lesson.builder()
+                .chapterId(chapter2.getId())
+                .build();
 
         lesson3 = lessonProvider.save(lesson3);
 
@@ -184,11 +189,13 @@ class DBLessonProviderIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, dbChapterProvider, Collections.emptyList(), course.getId());
         chapter = dbChapterProvider.save(chapter);
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = Lesson.builder()
+                .chapterId(chapter.getId())
+                .build();
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = Lesson.builder()
+                .chapterId(chapter.getId())
+                .build();
 
         lesson1 = lessonProvider.save(lesson1);
         lesson2 = lessonProvider.save(lesson2);
@@ -228,8 +235,9 @@ class DBLessonProviderIT {
                 .build();
         chapter2 = dbChapterProvider.save(chapter2);
 
-        Lesson lesson3 = new Lesson();
-        lesson3.setChapterId(chapter2.getId());
+        Lesson lesson3 = Lesson.builder()
+                .chapterId(chapter2.getId())
+                .build();
 
         lesson3 = lessonProvider.save(lesson3);
 

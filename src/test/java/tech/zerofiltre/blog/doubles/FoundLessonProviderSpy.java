@@ -14,12 +14,10 @@ public class FoundLessonProviderSpy implements LessonProvider {
     @Override
     public Optional<Lesson> lessonOfId(long lessonId) {
         calledLessonId = lessonId;
-        Lesson lesson = new Lesson();
-        lesson.setId(1);
-        lesson.setTitle("Lesson 1");
-        lesson.setChapterId(1);
-
-        return Optional.of(lesson);
+        return Optional.ofNullable(Lesson.builder()
+                .id(1)
+                .title("Lesson 1")
+                .chapterId(1).build());
     }
 
     @Override
