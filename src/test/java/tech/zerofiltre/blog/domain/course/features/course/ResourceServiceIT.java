@@ -66,9 +66,7 @@ public class ResourceServiceIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson = new Lesson();
-        lesson.setChapterId(chapter.getId());
-        lesson.setTitle("title");
+        Lesson lesson = Lesson.builder().chapterId(chapter.getId()).title("title").build();
         lesson = lessonProvider.save(lesson);
 
         Resource resource = Resource.builder()
@@ -97,9 +95,7 @@ public class ResourceServiceIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, Collections.emptyList(), course.getId());
         chapter = chapterProvider.save(chapter);
 
-        Lesson lesson = new Lesson();
-        lesson.setChapterId(chapter.getId());
-        lesson.setTitle("title");
+        Lesson lesson = Lesson.builder().chapterId(chapter.getId()).title("title").build();
         lesson = lessonProvider.save(lesson);
 
         Resource resource = Resource.builder()

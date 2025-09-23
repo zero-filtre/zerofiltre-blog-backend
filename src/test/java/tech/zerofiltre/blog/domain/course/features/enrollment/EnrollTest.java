@@ -111,9 +111,10 @@ class EnrollTest {
                 .courseId(parentCourse.getId())
                 .build();
 
-        Lesson lesson = new Lesson();
-        lesson.setId(40);
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(40)
+                .chapterId(chapter.getId())
+                .build();
         chapter.setLessons(Collections.singletonList(lesson));
 
         Resource resource = new Resource.ResourceBuilder()
@@ -725,9 +726,10 @@ class EnrollTest {
                 .courseId(course.getId())
                 .build();
 
-        Lesson lesson = new Lesson();
-        lesson.setId(40);
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(40)
+                .chapterId(chapter.getId())
+                .build();
         chapter.setLessons(Collections.singletonList(lesson));
 
         Resource resource = new Resource.ResourceBuilder()
@@ -863,9 +865,10 @@ class EnrollTest {
                 .courseId(course.getId())
                 .build();
 
-        Lesson lesson = new Lesson();
-        lesson.setId(40);
-        lesson.setChapterId(chapter.getId());
+        Lesson lesson = new Lesson.LessonBuilder()
+                .id(40)
+                .chapterId(chapter.getId())
+                .build();
         chapter.setLessons(Collections.singletonList(lesson));
 
         Resource resource = new Resource.ResourceBuilder()

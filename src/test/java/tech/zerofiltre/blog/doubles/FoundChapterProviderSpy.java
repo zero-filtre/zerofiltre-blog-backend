@@ -40,8 +40,8 @@ public class FoundChapterProviderSpy implements ChapterProvider {
     public List<Chapter> ofCourseId(long courseId) {
         ofCourseIdCalled = true;
         List<Chapter> chapters = new ArrayList<>();
-        chapters.add(Chapter.builder().id(1).courseId(courseId).lessons(Collections.singletonList(new Lesson())).build());
-        chapters.add(Chapter.builder().id(2).courseId(courseId).lessons(Collections.singletonList(new Lesson())).build());
+        chapters.add(Chapter.builder().id(1).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
+        chapters.add(Chapter.builder().id(2).courseId(courseId).lessons(Collections.singletonList(Lesson.builder().build())).build());
         return chapters;
     }
 }

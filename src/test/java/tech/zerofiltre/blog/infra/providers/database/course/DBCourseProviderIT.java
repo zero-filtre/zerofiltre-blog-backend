@@ -434,14 +434,10 @@ class DBCourseProviderIT {
         Chapter chapter = ZerofiltreUtilsTest.createMockChapter(false, chapterProvider, userProvider, lessonProvider, courseProvider, Collections.emptyList(), course.getId());
         chapter = chapter.init("new chapter", course.getId(), author.getId());
 
-        Lesson lesson1 = new Lesson();
-        lesson1.setTitle("new lesson");
-        lesson1.setChapterId(chapter.getId());
+        Lesson lesson1 = Lesson.builder().title("new lesson").chapterId(chapter.getId()).build();
         lessonProvider.save(lesson1);
 
-        Lesson lesson2 = new Lesson();
-        lesson2.setTitle("new lesson2");
-        lesson2.setChapterId(chapter.getId());
+        Lesson lesson2 = Lesson.builder().title("new lesson2").chapterId(chapter.getId()).build();
         lessonProvider.save(lesson2);
 
         return course;
