@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.model.Company;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.user.model.User;
@@ -163,10 +164,10 @@ class DBCompanyCourseProviderIT {
         Company company = dbCompanyProvider.save(new Company(0, "Company1", "000000001"));
         User user = dbUserProvider.save(ZerofiltreUtilsTest.createMockUser(false));
         Course course1 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse1 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course1.getId(), true, false, LocalDateTime.now(), null));
 
         Course course2 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse2 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
         Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
@@ -187,18 +188,20 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.DRAFT);
+        Page<CompanyCourse> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.DRAFT);
 
         //THEN
         assertThat(response).isNotNull();
-        List<Course> content = response.getContent();
+        List<CompanyCourse> content = response.getContent();
         assertThat(content).hasSize(2);
 
         assertThat(content.get(0).getId()).isEqualTo(course1.getId());
         assertThat(content.get(0).getStatus()).isEqualTo(course1.getStatus());
+        assertThat(content.get(0).isExclusive()).isEqualTo(linkCompanyCourse1.isExclusive());
 
         assertThat(content.get(1).getId()).isEqualTo(course2.getId());
         assertThat(content.get(1).getStatus()).isEqualTo(course2.getStatus());
+        assertThat(content.get(1).isExclusive()).isEqualTo(linkCompanyCourse2.isExclusive());
     }
 
     @Test
@@ -214,10 +217,10 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course2.getId(), false, false, LocalDateTime.now(), null));
 
         Course course3 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse3 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course3.getId(), true, false, LocalDateTime.now(), null));
 
         Course course4 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.PUBLISHED, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse4 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
 
         Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
@@ -232,18 +235,20 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.PUBLISHED);
+        Page<CompanyCourse> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.PUBLISHED);
 
         //THEN
         assertThat(response).isNotNull();
-        List<Course> content = response.getContent();
+        List<CompanyCourse> content = response.getContent();
         assertThat(content).hasSize(2);
 
         assertThat(content.get(0).getId()).isEqualTo(course3.getId());
         assertThat(content.get(0).getStatus()).isEqualTo(course3.getStatus());
+        assertThat(content.get(0).isExclusive()).isEqualTo(linkCompanyCourse3.isExclusive());
 
         assertThat(content.get(1).getId()).isEqualTo(course4.getId());
         assertThat(content.get(1).getStatus()).isEqualTo(course4.getStatus());
+        assertThat(content.get(1).isExclusive()).isEqualTo(linkCompanyCourse4.isExclusive());
     }
 
     @Test
@@ -265,10 +270,10 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course4.getId(), false, false, LocalDateTime.now(), null));
 
         Course course5 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse5 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course5.getId(), true, false, LocalDateTime.now(), null));
 
         Course course6 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.IN_REVIEW, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse6 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
 
         Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
@@ -277,18 +282,20 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.IN_REVIEW);
+        Page<CompanyCourse> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.IN_REVIEW);
 
         //THEN
         assertThat(response).isNotNull();
-        List<Course> content = response.getContent();
+        List<CompanyCourse> content = response.getContent();
         assertThat(content).hasSize(2);
 
         assertThat(content.get(0).getId()).isEqualTo(course5.getId());
         assertThat(content.get(0).getStatus()).isEqualTo(course5.getStatus());
+        assertThat(content.get(0).isExclusive()).isEqualTo(linkCompanyCourse5.isExclusive());
 
         assertThat(content.get(1).getId()).isEqualTo(course6.getId());
         assertThat(content.get(1).getStatus()).isEqualTo(course6.getStatus());
+        assertThat(content.get(1).isExclusive()).isEqualTo(linkCompanyCourse6.isExclusive());
     }
 
     @Test
@@ -316,24 +323,26 @@ class DBCompanyCourseProviderIT {
         dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course6.getId(), false, false, LocalDateTime.now(), null));
 
         Course course7 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse7 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course7.getId(), true, false, LocalDateTime.now(), null));
 
         Course course8 = dbCourseProvider.save(ZerofiltreUtilsTest.createMockCourse(false, Status.ARCHIVED, user, Collections.emptyList(), Collections.emptyList()));
-        dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
+        LinkCompanyCourse linkCompanyCourse8 = dbCompanyCourseProvider.save(new LinkCompanyCourse(0, company.getId(), course8.getId(), false, false, LocalDateTime.now(), null));
 
         //WHEN
-        Page<Course> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.ARCHIVED);
+        Page<CompanyCourse> response = dbCompanyCourseProvider.findCoursesByCompanyId(0, 10, company.getId(), Status.ARCHIVED);
 
         //THEN
         assertThat(response).isNotNull();
-        List<Course> content = response.getContent();
+        List<CompanyCourse> content = response.getContent();
         assertThat(content).hasSize(2);
 
         assertThat(content.get(0).getId()).isEqualTo(course7.getId());
         assertThat(content.get(0).getStatus()).isEqualTo(course7.getStatus());
+        assertThat(content.get(0).isExclusive()).isEqualTo(linkCompanyCourse7.isExclusive());
 
         assertThat(content.get(1).getId()).isEqualTo(course8.getId());
         assertThat(content.get(1).getStatus()).isEqualTo(course8.getStatus());
+        assertThat(content.get(1).isExclusive()).isEqualTo(linkCompanyCourse8.isExclusive());
     }
 
     @Test

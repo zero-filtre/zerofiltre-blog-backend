@@ -9,9 +9,9 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
@@ -56,7 +56,7 @@ public class CompanyCourseController {
     }
 
     @GetMapping("/company/{companyId}/course")
-    public Page<Course> findAllCoursesByCompanyId(
+    public Page<CompanyCourse> findAllCoursesByCompanyId(
             @PathVariable long companyId,
             @RequestParam @Pattern(regexp = "DRAFT|PUBLISHED|ARCHIVED|IN_REVIEW") String status,
             @RequestParam int pageNumber,
