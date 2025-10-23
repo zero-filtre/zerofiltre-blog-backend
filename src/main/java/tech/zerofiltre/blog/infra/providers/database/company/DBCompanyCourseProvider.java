@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
@@ -31,7 +32,7 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     private final CompanyCourseJPAMapper mapper = Mappers.getMapper(CompanyCourseJPAMapper.class);
     private final SpringPageMapper<LinkCompanyCourse> pageMapper = new SpringPageMapper<>();
     private final CourseJPAMapper courseMapper = Mappers.getMapper(CourseJPAMapper.class);
-    private final SpringPageMapper<Course> pageCourseMapper = new SpringPageMapper<>();
+    private final SpringPageMapper<CompanyCourse> pageCompanyCourseMapper = new SpringPageMapper<>();
 
     @Override
     public LinkCompanyCourse save(LinkCompanyCourse linkCompanyCourse) {
@@ -55,9 +56,9 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     }
 
     @Override
-    public Page<Course> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status) {
-        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
-        return pageCourseMapper.fromSpringPage(pageJpa.map(courseMapper::fromJPA));
+    public Page<CompanyCourse> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status) {
+        org.springframework.data.domain.Page<Object[]> pageJpa = repository.findCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
+        return pageCompanyCourseMapper.fromSpringPage(pageJpa.map(this::toCompanyCourse));
     }
 
     @Override
@@ -83,6 +84,13 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     @Override
     public void deleteAllByCourseId(long courseId) {
         repository.deleteAllByCourseId(courseId);
+    }
+
+    private CompanyCourse toCompanyCourse(Object[] result) {
+        CourseJPA courseJPA = (CourseJPA) result[0];
+        boolean exclusive = (boolean) result[1];
+        Course course = courseMapper.fromJPA(courseJPA);
+        return new CompanyCourse(course, exclusive);
     }
 
 }
