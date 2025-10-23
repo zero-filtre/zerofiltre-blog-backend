@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import tech.zerofiltre.blog.domain.FinderRequest;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.course.model.Enrollment;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
@@ -63,7 +63,7 @@ public class CompanyCourseService {
         return companyCourseProvider.findByCompanyId(pageNumber, pageSize, companyId);
     }
 
-    public Page<Course> findCoursesByCompanyId(FinderRequest request, long companyId) throws ForbiddenActionException {
+    public Page<CompanyCourse> findCoursesByCompanyId(FinderRequest request, long companyId) throws ForbiddenActionException {
         checker.checkIfAdminOrCompanyUser(request.getUser(), companyId);
         return companyCourseProvider.findCoursesByCompanyId(request.getPageNumber(), request.getPageSize(), companyId, request.getStatus());
     }

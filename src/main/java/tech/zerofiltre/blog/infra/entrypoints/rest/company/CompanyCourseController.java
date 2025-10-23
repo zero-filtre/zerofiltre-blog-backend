@@ -1,6 +1,7 @@
 package tech.zerofiltre.blog.infra.entrypoints.rest.company;
 
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,17 +10,20 @@ import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
 import tech.zerofiltre.blog.domain.company.features.CompanyCourseService;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
 import tech.zerofiltre.blog.domain.course.EnrollmentProvider;
-import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.domain.error.ForbiddenActionException;
 import tech.zerofiltre.blog.domain.error.ResourceNotFoundException;
 import tech.zerofiltre.blog.domain.error.ZerofiltreException;
 import tech.zerofiltre.blog.domain.user.model.User;
 import tech.zerofiltre.blog.infra.entrypoints.rest.SecurityContextManager;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.mapper.CompanyCourseVMMapper;
+import tech.zerofiltre.blog.infra.entrypoints.rest.company.model.CompanyCourseVM;
 import tech.zerofiltre.blog.util.DataChecker;
 
 import javax.validation.constraints.Pattern;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -28,10 +32,12 @@ public class CompanyCourseController {
 
     private final SecurityContextManager securityContextManager;
     private final CompanyCourseService companyCourseService;
+    private final CompanyCourseVMMapper companyCourseVMMapper;
 
     public CompanyCourseController(SecurityContextManager securityContextManager, CompanyCourseProvider companyCourseProvider, EnrollmentProvider enrollmentProvider, DataChecker checker) {
         this.securityContextManager = securityContextManager;
         this.companyCourseService = new CompanyCourseService(companyCourseProvider, enrollmentProvider, checker);
+        this.companyCourseVMMapper = Mappers.getMapper(CompanyCourseVMMapper.class);
     }
 
     @PostMapping("/company/{companyId}/course/{courseId}")
@@ -56,7 +62,7 @@ public class CompanyCourseController {
     }
 
     @GetMapping("/company/{companyId}/course")
-    public Page<Course> findAllCoursesByCompanyId(
+    public Page<CompanyCourseVM> findAllCoursesByCompanyId(
             @PathVariable long companyId,
             @RequestParam @Pattern(regexp = "DRAFT|PUBLISHED|ARCHIVED|IN_REVIEW") String status,
             @RequestParam int pageNumber,
@@ -75,7 +81,10 @@ public class CompanyCourseController {
             request.setFilter(FinderRequest.Filter.valueOf(filter));
         }
 
-        return companyCourseService.findCoursesByCompanyId(request, companyId);
+        Page<CompanyCourse> page = companyCourseService.findCoursesByCompanyId(request, companyId);
+        List<CompanyCourseVM> vmList = companyCourseVMMapper.toVMList(page.getContent());
+
+        return new Page<>(page.getPageSize(), page.getPageNumber(), page.getNumberOfElements(), (int) page.getTotalNumberOfElements(), page.getTotalNumberOfPages(), vmList, page.getHasNext(), page.getHasPrevious());
     }
 
     @DeleteMapping("/company/{companyId}/course/{courseId}")
