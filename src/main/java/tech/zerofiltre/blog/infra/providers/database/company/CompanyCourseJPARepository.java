@@ -24,7 +24,7 @@ public interface CompanyCourseJPARepository extends JpaRepository<LinkCompanyCou
             "FROM LinkCompanyCourseJPA l " +
             "JOIN tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA c " +
             "ON l.companyId = ?1 AND l.courseId = c.id " +
-            "WHERE c.status = ?2")
+            "WHERE c.status = ?2 AND l.active IS TRUE")
     Page<CompanyCourseJPA> findCoursesByCompanyId(Pageable pageable, long companyId, Status status);
 
     List<LinkCompanyCourseJPA> findAllByCompanyId(long companyId);
