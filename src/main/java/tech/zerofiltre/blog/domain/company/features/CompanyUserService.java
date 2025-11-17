@@ -34,6 +34,7 @@ public class CompanyUserService {
             return companyUserProvider.save(linkCompanyUser);
         } else if(null != existingCompanyUser.get().getSuspendedAt()) {
             existingCompanyUser.get().setActive(true);
+            existingCompanyUser.get().setRole(role);
             existingCompanyUser.get().setSuspendedAt(null);
 
             return companyUserProvider.save(existingCompanyUser.get());
