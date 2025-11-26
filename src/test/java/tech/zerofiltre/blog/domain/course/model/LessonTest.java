@@ -2,6 +2,7 @@ package tech.zerofiltre.blog.domain.course.model;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
@@ -17,9 +18,7 @@ import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -330,6 +329,68 @@ class LessonTest {
         //then
         org.assertj.core.api.Assertions.assertThatExceptionOfType(ForbiddenActionException.class)
                 .isThrownBy(() -> lesson.delete(999));
+    }
+
+    @DisplayName("When the lesson is deleted, change the index of the other lessons.")
+    @Test
+    void shouldChangeIndexOfOtherLessons_ifLessonIsDeleted() throws ForbiddenActionException, ResourceNotFoundException {
+        //given
+        UserProvider userProvider = mock(UserProvider.class);
+        User author = new User();
+        author.setId(999);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(18);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+        long chapterId = 10;
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(Chapter.builder().id(chapterId).courseId(18).build()));
+
+        LessonProvider lessonProvider = mock(LessonProvider.class);
+
+        Lesson lesson1 = Lesson.builder().id(11).chapterId(chapterId).number(1).build();
+        Lesson lesson2 = Lesson.builder().id(12).chapterId(chapterId).number(2).title("Lesson 1").content(CONTENT).video(VIDEO).build();
+        Lesson lesson3 = Lesson.builder().id(13).chapterId(chapterId).number(3).build();
+        Lesson lesson4 = Lesson.builder().id(14).chapterId(chapterId).number(4).build();
+
+        when(lessonProvider.lessonOfId(anyLong())).thenReturn(Optional.ofNullable(lesson2));
+
+        List<Lesson> lessonList = new ArrayList<>(Arrays.asList(lesson1,lesson3, lesson4));
+        when(lessonProvider.ofChapterId(chapterId)).thenReturn(lessonList);
+
+        Lesson lesson2ToDelete = Lesson.builder()
+                .userProvider(userProvider)
+                .chapterProvider(chapterProvider)
+                .lessonProvider(lessonProvider)
+                .courseProvider(courseProvider)
+                .chapterId(chapterId)
+                .build();
+
+        //when
+        lesson2ToDelete.delete(author.getId());
+
+        //then
+        verify(lessonProvider).delete(any(Lesson.class));
+        verify(lessonProvider).ofChapterId(chapterId);
+
+        lessonList.remove(lesson1);
+        assertThat(lessonList.size()).isEqualTo(2);
+        assertThat(lessonList.get(0).getId()).isEqualTo(lesson3.getId());
+        assertThat(lessonList.get(0).getNumber()).isEqualTo(lesson3.getNumber());
+        assertThat(lessonList.get(1).getId()).isEqualTo(lesson4.getId());
+        assertThat(lessonList.get(1).getNumber()).isEqualTo(lesson4.getNumber());
+
+        ArgumentCaptor<ArrayList> captor = ArgumentCaptor.forClass(ArrayList.class);
+        verify(lessonProvider).saveAll(captor.capture());
+        List<Lesson> lessons = captor.getValue();
+        assertThat(lessons.size()).isEqualTo(lessonList.size());
+        assertThat(lessons.get(0).getId()).isEqualTo(lesson3.getId());
+        assertThat(lessons.get(0).getNumber()).isEqualTo(2);
+        assertThat(lessons.get(1).getId()).isEqualTo(lesson4.getId());
+        assertThat(lessons.get(1).getNumber()).isEqualTo(3);
     }
 
     @Test

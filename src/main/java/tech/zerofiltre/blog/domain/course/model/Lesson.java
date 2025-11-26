@@ -191,6 +191,23 @@ public class Lesson {
         }
         checkLessonAccessConditions(currentUserId, lesson.get().getChapterId(), true, false);
         lessonProvider.delete(lesson.get());
+
+        List<Lesson> lessonList = new ArrayList<>(lessonProvider.ofChapterId(lesson.get().getChapterId()));
+        if(lessonList.isEmpty()) return;
+
+        int currentPosition = lesson.get().getNumber();
+
+        // Update the positions of the other lessons
+        for (int index = lessonList.size() - 1; index > -1; index--) {
+            int lPosition = lessonList.get(index).getNumber();
+            // Shift lessons down
+            if (lPosition > currentPosition) {
+                lessonList.get(index).setNumber(lPosition - 1);
+            } else {
+                lessonList.remove(index);
+            }
+        }
+        lessonProvider.saveAll(lessonList);
     }
 
     public Lesson getAsUser(long currentUserId) throws ResourceNotFoundException, ForbiddenActionException {
