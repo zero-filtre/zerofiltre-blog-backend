@@ -3,6 +3,7 @@ package tech.zerofiltre.blog.domain.course.model;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.course.ChapterProvider;
@@ -18,10 +19,7 @@ import tech.zerofiltre.blog.doubles.*;
 import tech.zerofiltre.blog.util.DataChecker;
 import tech.zerofiltre.blog.util.ZerofiltreUtilsTest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -399,6 +397,66 @@ class ChapterTest {
 
         //then
         assertThat(chapterProvider.deleteCalled).isTrue();
+    }
+
+    @Test
+    @DisplayName("When the chapter is deleted, change the index of the other chapters.")
+    void shouldChangeIndexOfOtherChapters_ifChapterIsDeleted() throws ResourceNotFoundException, ForbiddenActionException {
+        //given
+        UserProvider userProvider = mock(UserProvider.class);
+        User author = new User();
+        author.setId(999);
+        when(userProvider.userOfId(anyLong())).thenReturn(Optional.of(author));
+
+        CourseProvider courseProvider = mock(CourseProvider.class);
+        int courseId = 18;
+        Course mockCourse = ZerofiltreUtilsTest.createMockCourse(false, Status.DRAFT, author, Collections.emptyList(), Collections.emptyList());
+        mockCourse.setId(courseId);
+        when(courseProvider.courseOfId(anyLong())).thenReturn(Optional.of(mockCourse));
+
+        ChapterProvider chapterProvider = mock(ChapterProvider.class);
+
+        Chapter chapter1 = Chapter.builder().id(11).courseId(courseId).number(1).build();
+        Chapter chapter2 = Chapter.builder().id(12).courseId(courseId).number(2).title("Chapter 1").build();
+        Chapter chapter3 = Chapter.builder().id(13).courseId(courseId).number(3).build();
+        Chapter chapter4 = Chapter.builder().id(14).courseId(courseId).number(4).build();
+
+        when(chapterProvider.chapterOfId(anyLong())).thenReturn(Optional.ofNullable(chapter2));
+
+        List<Chapter> chapterList = new ArrayList<>(Arrays.asList(chapter1,chapter3, chapter4));
+        when(chapterProvider.ofCourseId(courseId)).thenReturn(chapterList);
+
+        Chapter chapter2ToDelete = Chapter.builder()
+                .id(chapter2.getId())
+                .chapterProvider(chapterProvider)
+                .userProvider(userProvider)
+                .courseProvider(courseProvider)
+                .title(chapter2.getTitle())
+                .courseId(courseId)
+                .build();
+
+        //when
+        chapter2ToDelete.delete(author.getId());
+
+        //then
+        verify(chapterProvider).delete(any(Chapter.class));
+        verify(chapterProvider).ofCourseId(courseId);
+
+        chapterList.remove(chapter1);
+        assertThat(chapterList.size()).isEqualTo(2);
+        assertThat(chapterList.get(0).getId()).isEqualTo(chapter3.getId());
+        assertThat(chapterList.get(0).getNumber()).isEqualTo(chapter3.getNumber());
+        assertThat(chapterList.get(1).getId()).isEqualTo(chapter4.getId());
+        assertThat(chapterList.get(1).getNumber()).isEqualTo(chapter4.getNumber());
+
+        ArgumentCaptor<ArrayList> captor = ArgumentCaptor.forClass(ArrayList.class);
+        verify(chapterProvider).saveAll(captor.capture());
+        List<Chapter> chapters = captor.getValue();
+        assertThat(chapters.size()).isEqualTo(chapterList.size());
+        assertThat(chapters.get(0).getId()).isEqualTo(chapter3.getId());
+        assertThat(chapters.get(0).getNumber()).isEqualTo(2);
+        assertThat(chapters.get(1).getId()).isEqualTo(chapter4.getId());
+        assertThat(chapters.get(1).getNumber()).isEqualTo(3);
     }
 
     @Test
