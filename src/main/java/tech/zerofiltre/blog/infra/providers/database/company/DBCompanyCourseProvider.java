@@ -9,13 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.zerofiltre.blog.domain.Page;
 import tech.zerofiltre.blog.domain.article.model.Status;
 import tech.zerofiltre.blog.domain.company.CompanyCourseProvider;
+import tech.zerofiltre.blog.domain.company.model.CompanyCourse;
 import tech.zerofiltre.blog.domain.company.model.LinkCompanyCourse;
-import tech.zerofiltre.blog.domain.course.model.Course;
 import tech.zerofiltre.blog.infra.providers.database.SpringPageMapper;
+import tech.zerofiltre.blog.infra.providers.database.company.mapper.CompanyCourse2JPAMapper;
 import tech.zerofiltre.blog.infra.providers.database.company.mapper.CompanyCourseJPAMapper;
+import tech.zerofiltre.blog.infra.providers.database.company.model.CompanyCourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyCourseJPA;
-import tech.zerofiltre.blog.infra.providers.database.course.mapper.CourseJPAMapper;
-import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +30,8 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     private final CompanyCourseJPARepository repository;
     private final CompanyCourseJPAMapper mapper = Mappers.getMapper(CompanyCourseJPAMapper.class);
     private final SpringPageMapper<LinkCompanyCourse> pageMapper = new SpringPageMapper<>();
-    private final CourseJPAMapper courseMapper = Mappers.getMapper(CourseJPAMapper.class);
-    private final SpringPageMapper<Course> pageCourseMapper = new SpringPageMapper<>();
+    private final CompanyCourse2JPAMapper mapper2 = Mappers.getMapper(CompanyCourse2JPAMapper.class);
+    private final SpringPageMapper<CompanyCourse> pageCompanyCourseMapper = new SpringPageMapper<>();
 
     @Override
     public LinkCompanyCourse save(LinkCompanyCourse linkCompanyCourse) {
@@ -55,9 +55,9 @@ public class DBCompanyCourseProvider implements CompanyCourseProvider {
     }
 
     @Override
-    public Page<Course> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status) {
-        org.springframework.data.domain.Page<CourseJPA> pageJpa = repository.findCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
-        return pageCourseMapper.fromSpringPage(pageJpa.map(courseMapper::fromJPA));
+    public Page<CompanyCourse> findCoursesByCompanyId(int pageNumber, int pageSize, long companyId, Status status) {
+        org.springframework.data.domain.Page<CompanyCourseJPA> pageJpa = repository.findCoursesByCompanyId(PageRequest.of(pageNumber, pageSize), companyId, status);
+        return pageCompanyCourseMapper.fromSpringPage(pageJpa.map(mapper2::fromJPA));
     }
 
     @Override
