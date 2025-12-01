@@ -51,6 +51,11 @@ public class DBLessonProvider implements LessonProvider {
     }
 
     @Override
+    public List<Lesson> ofChapterId(long chapterId) {
+        return lessonJPAMapper.fromJPAs(lessonJPARepository.findAllByChapterIdOrderByNumberAsc(chapterId));
+    }
+
+    @Override
     @CacheEvict(value = {"search-results"}, allEntries = true)
     public List<Lesson> saveAll(List<Lesson> lessons) {
         List<LessonJPA> lessonsJPA = lessonJPAMapper.toJPAs(lessons);

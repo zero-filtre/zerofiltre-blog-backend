@@ -32,4 +32,9 @@ public class FoundLessonProviderSpy implements LessonProvider {
 
     @Override
     public List<Long> listNotCompletedLessons(long enrollmentId) { return List.of(); }
+
+    @Override
+    public List<Lesson> ofChapterId(long chapterId) {
+        return List.of();
+    }
 }

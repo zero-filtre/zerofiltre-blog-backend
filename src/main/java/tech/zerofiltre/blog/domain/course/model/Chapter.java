@@ -138,7 +138,7 @@ public class Chapter {
         Chapter existingChapter = chapterProvider.chapterOfId(id)
                 .orElseThrow(() -> new ResourceNotFoundException(THE_CHAPTER_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
         if (!existingChapter.getLessons().isEmpty())
-            throw new ForbiddenActionException("You are not allowed to delete a chapter with lessons");
+            throw new ForbiddenActionException("message.cannot.delete.chapter.containing.lessons");
 
         Course existingCourse = courseProvider.courseOfId(existingChapter.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException(THE_COURSE_WITH_ID + id + DOES_NOT_EXIST, String.valueOf(id)));
@@ -159,6 +159,23 @@ public class Chapter {
         }
 
         chapterProvider.delete(existingChapter);
+
+        List<Chapter> chapterList = new ArrayList<>(chapterProvider.ofCourseId(existingCourse.getId()));
+        if(chapterList.isEmpty()) return;
+
+        int currentPosition = existingChapter.getNumber();
+
+        // Update the positions of the other chapters
+        for (int index = chapterList.size() - 1; index > -1; index--) {
+            int lPosition = chapterList.get(index).getNumber();
+            // Shift chapters down
+            if (lPosition > currentPosition) {
+                chapterList.get(index).setNumber(lPosition - 1);
+            } else {
+                chapterList.remove(index);
+            }
+        }
+        chapterProvider.saveAll(chapterList);
     }
 
     public Chapter get() throws ResourceNotFoundException {
