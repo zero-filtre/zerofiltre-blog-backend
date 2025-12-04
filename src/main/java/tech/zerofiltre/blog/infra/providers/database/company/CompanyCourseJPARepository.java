@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import tech.zerofiltre.blog.domain.article.model.Status;
+import tech.zerofiltre.blog.infra.providers.database.company.model.CompanyCourseJPA;
 import tech.zerofiltre.blog.infra.providers.database.company.model.LinkCompanyCourseJPA;
-import tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +20,12 @@ public interface CompanyCourseJPARepository extends JpaRepository<LinkCompanyCou
 
     Page<LinkCompanyCourseJPA> findAllByCompanyId(Pageable pageable, long companyId);
 
-    @Query("SELECT c FROM tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA c JOIN LinkCompanyCourseJPA l ON l.companyId = ?1 AND c.id = l.courseId WHERE c.status = ?2")
-    Page<CourseJPA> findCoursesByCompanyId(Pageable pageable, long companyId, Status status);
+    @Query("SELECT new tech.zerofiltre.blog.infra.providers.database.company.model.CompanyCourseJPA(c, l.exclusive) " +
+            "FROM LinkCompanyCourseJPA l " +
+            "JOIN tech.zerofiltre.blog.infra.providers.database.course.model.CourseJPA c " +
+            "ON l.companyId = ?1 AND l.courseId = c.id " +
+            "WHERE c.status = ?2")
+    Page<CompanyCourseJPA> findCoursesByCompanyId(Pageable pageable, long companyId, Status status);
 
     List<LinkCompanyCourseJPA> findAllByCompanyId(long companyId);
 

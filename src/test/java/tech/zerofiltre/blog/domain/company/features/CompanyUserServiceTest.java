@@ -132,7 +132,7 @@ class CompanyUserServiceTest {
     }
 
     @Test
-    @DisplayName("When a link between a user and a company is suspended and a platform or company admin links them again, then the link is activated")
+    @DisplayName("When a link between a user and a company is suspended and a platform or company admin links them again, then the link is activated and the new role is added")
     void shouldActivatesLink_whenSuspendLinkBetweenUserAndCompany_LinkAgain_asPlatformOrCompanyAdmin() throws ForbiddenActionException, ResourceNotFoundException {
         //GIVEN
         LinkCompanyUser linkCompanyUser = new LinkCompanyUser(1L, 1L, 1L, LinkCompanyUser.Role.EDITOR, false, LocalDateTime.now().minusMonths(1), LocalDateTime.now().minusDays(10));
@@ -152,6 +152,7 @@ class CompanyUserServiceTest {
         verify(companyUserProvider).save(captor.capture());
         LinkCompanyUser linkCompanyUserCaptured = captor.getValue();
         assertThat(linkCompanyUserCaptured.isActive()).isTrue();
+        assertThat(linkCompanyUserCaptured.getRole()).isEqualTo(LinkCompanyUser.Role.ADMIN);
         assertThat(linkCompanyUserCaptured.getLinkedAt()).isBeforeOrEqualTo(LocalDateTime.now());
         assertThat(linkCompanyUserCaptured.getSuspendedAt()).isNull();
     }
