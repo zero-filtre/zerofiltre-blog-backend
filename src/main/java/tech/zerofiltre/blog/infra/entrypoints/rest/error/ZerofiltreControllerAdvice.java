@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -187,7 +188,7 @@ public class ZerofiltreControllerAdvice {
                 Integer.toString(HttpStatus.FORBIDDEN.value()),
                 errorCode,
                 messageSource.getMessage("ZBLOG_008", null, locale),
-                exception.getLocalizedMessage()
+                findMessageForInternationalization(exception.getLocalizedMessage(), locale)
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", exception);
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -233,5 +234,17 @@ public class ZerofiltreControllerAdvice {
         );
         log.error(FULL_EXCEPTION + "-" + errorCode + ":", throwable);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private String findMessageForInternationalization(String message, Locale locale) {
+        String messageReturned;
+
+        try {
+            messageReturned = messageSource.getMessage(message, new Object[]{}, locale);
+        } catch (NoSuchMessageException e) {
+            messageReturned = message;
+        }
+
+        return messageReturned;
     }
 }
