@@ -52,4 +52,25 @@ public class CourseJPA extends BaseEntityJPA {
 
     private boolean mentored;
 
+    public CourseJPA(CourseJPA courseJPA) {
+        this.setId(courseJPA.getId());
+        this.subTitle = courseJPA.subTitle;
+        this.summary = courseJPA.summary;
+        this.thumbnail = courseJPA.thumbnail;
+        this.sandboxType = courseJPA.sandboxType;
+        this.tags = courseJPA.tags;
+        this.enrolledCount = courseJPA.enrolledCount;
+        this.title = courseJPA.title;
+        this.status = courseJPA.status;
+        this.createdAt = courseJPA.createdAt;
+        this.publishedAt = courseJPA.publishedAt;
+        this.lastPublishedAt = courseJPA.lastPublishedAt;
+        this.lastSavedAt = courseJPA.lastSavedAt;
+        this.author = courseJPA.author;
+        this.price = courseJPA.price;
+        this.video = courseJPA.video;
+        this.sections = courseJPA.sections;
+        this.reactions = courseJPA.reactions;
+        this.mentored = courseJPA.mentored;
+    }
 }
